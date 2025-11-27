@@ -23,6 +23,8 @@ const Defaultlayout = () => {
         setRole(userRole || "");
         setSubrole(userSubrole || "");
     }, [userLoggedIN]);
+
+    
     const menuItems = {
         STUDENT: {
             title: "Student Dashboard",
@@ -174,50 +176,7 @@ const Defaultlayout = () => {
               </div>}>
             {renderMenuItems()}
 
-            <Sidebar className="posRel sidebarBg" visible={visible} onHide={() => setVisible(false)} header={<div>
-                  <span className="text_avatar_48 text-nowrap">
-                    {userLoggedIN && user && user.first_name.charAt(0)}
-                  </span>
-                  <div className="sidebarHeaderContainer">
-                    <span className="sidebarRole">WELCOME</span>
-                    <span className="sidebarName"></span>
-                    <span className="sidebarName capitalize">
-                      {userLoggedIN &&
-                    user &&
-                    `${user.first_name} ${user.last_name}`}
-                    </span>
-                  </div>
-                </div>}>
-              {renderMenuItems()}
-
-              {role === "ADMIN" && (<Link to={routes.register3} className="dropdownBtn" onClick={() => setVisible(false)}>
-                  <i className="pi pi-plus me-2"></i>
-                  Create Enabler
-                </Link>)}
-
-              <div className="authFuncCont">
-                {userLoggedIN && (<>
-                    {/* Existing Logout Section */}
-                    <div className="me-2">
-                      <i className="pi pi-sign-out" style={{ fontSize: "2rem", color: "#dc3545" }}></i>
-                    </div>
-
-                    <div className="d-flex flex-column">
-                      {/* <span className="text-muted">Ready to leave?</span> */}
-                      <span className="btnLogout  text-red-500" data-bs-toggle="modal" data-bs-target="#logoutModal" onClick={() => setVisible(false)}>
-                        Logout
-                      </span>
-                      <span className="btnChangePassword" onClick={() => {
-                    setVisible(false);
-                    navigate(`${routes.changePassword}`);
-                }}>
-                        Change Password
-                      </span>
-                    </div>
-                  </>)}
-              </div>
-            </Sidebar>
-
+          
             <div className="authFuncCont">
               {userLoggedIN && (<>
                   <div className="me-2">

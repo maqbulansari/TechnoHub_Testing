@@ -155,6 +155,7 @@ const AuthProvider = ({ children }) => {
       const response = await axios.get(`${API_BASE_URL}/trainers/`);
       if (response.status === 200) {
         setAllTrainer(response.data);
+        console.log(response.data);
       }
     } catch (error) {
       console.error("Error fetching Trainers:", error);
