@@ -31,7 +31,8 @@ const AuthProvider = ({ children }) => {
 
 
   // const API_BASE_URL = "https://9gqxjbjg-8000.inc1.devtunnels.ms/auth";//tahur
-  const API_BASE_URL = "https://beyondshahbaz.pythonanywhere.com/auth";//main
+  // const API_BASE_URL = "https://beyondshahbaz.pythonanywhere.com/auth";//main
+  const API_BASE_URL = "https://958cp4w5-8000.inc1.devtunnels.ms/auth";//saba
 
 
   // const API_BASE_URL = "https://gl8tx74f-8000.inc1.devtunnels.ms/auth";//mam
@@ -153,6 +154,7 @@ const AuthProvider = ({ children }) => {
       const response = await axios.get(`${API_BASE_URL}/trainers/`);
       if (response.status === 200) {
         setAllTrainer(response.data);
+        console.log(response.data);
       }
     } catch (error) {
       console.error("Error fetching Trainers:", error);
