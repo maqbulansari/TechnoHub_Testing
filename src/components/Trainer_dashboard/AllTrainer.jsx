@@ -67,7 +67,7 @@ const AllTrainer = () => {
                 <td>
                   {trainer.technologies &&
                     trainer.technologies.map((tech, index) => (
-                      <span key={index} className="batch-tagS capitalize">
+                      <span key={index} className="batch-tagS uppercase">
                         {tech}
                       </span>
                     ))}

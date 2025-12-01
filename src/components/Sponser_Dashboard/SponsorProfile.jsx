@@ -213,7 +213,7 @@ const Sponsor_Profile = () => {
             </div>
             {sponsorProfileDetails.map((items, idx) => (
               <div className="profileView" key={idx}>
-                <span className="profileName d-block">
+                <span className="profileName d-block capitalize">
                   {items.first_name} {items.last_name}
                 </span>
                 <span className="profileEmail d-block">{items.email}</span>
