@@ -72,11 +72,11 @@ export const SponsorTable = () => {
                   </td>
                   <td className="text-nowrap capitalize">{profile.company_name}</td>
                   <td className="text-nowrap">{profile.email}</td>
-                  <td className="text-nowrap">{profile.gender}</td>
+                  <td className="text-nowrap capitalize">{profile.gender || "N/A"}</td>
                   {/* <td className="text-nowrap">{profile.qualification}</td> */}
                   <td className="text-nowrap">{profile.mobile_no}</td>
                   {/* <td className="text-nowrap">{profile.identity}</td> */}
-                  <td className="text-nowrap">{profile.contribution_value}</td>
+                  <td className="text-nowrap">₹ {profile.contribution_value}</td>
                   <td className="text-nowrap">{profile.contribution_type}</td>
                 </tr>
               ))

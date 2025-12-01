@@ -124,8 +124,8 @@ export const Student_Card = ({ filterStudent, selectAll, setSelectAll }) => {
           },
         },
         prefill: {
-          name: "Abdurrahman Khan",
-          email: "abdur@example.com",
+          name: "Techno Hub",
+          email: "technohub@example.com",
           contact: "9999999999",
         },
         theme: { color: "#2563eb" },
@@ -181,13 +181,13 @@ export const Student_Card = ({ filterStudent, selectAll, setSelectAll }) => {
                       checked={sponsorStudentId.includes(student.student_id)}
                       onChange={(e) => handleCheckboxClick(e, student.student_id, student.batch_id)}
                     />
-                    <label className="form-check-label text-nowrap" htmlFor={student.student_id}>
+                    <label className="form-check-label text-nowrap capitalize" htmlFor={student.student_id}>
                       {student.student_name}
                     </label>
                   </div>
                 </td>
-                <td className="text-nowrap">
-                  {`${student.batch_name || ""} ${student.batch_id || ""}`}
+                <td className="text-nowrap capitalize">
+                  {`${student.batch_name || ""} (${student.batch_id || ""})`}
                 </td>
                 <td className="text-end">₹{student.fee || 0}</td>
               </tr>
@@ -265,7 +265,7 @@ export const Student_Card = ({ filterStudent, selectAll, setSelectAll }) => {
                     onClick={() => setSubmitError(null)}
                     data-bs-dismiss="modal"
                   >
-                    ok
+                    Ok
                   </button>
                 </div>
               </div>

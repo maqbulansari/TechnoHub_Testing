@@ -10,7 +10,7 @@ const Header = ({ setVisible }) => {
     return (<nav className="navbar flex justify-between items-center px-4 py-2 shadow-md bg-white">
       <div className="flex items-center gap-3">
 
-        {userLoggedIN && accessToken && refreshToken && userID && (<Button icon="pi pi-bars" className="bg-transparent border-none text-blue-600" onClick={() => setVisible(true)} aria-label="Open sidebar"/>)}
+        {userLoggedIN && accessToken && refreshToken && userID && (<Button icon="pi pi-bars" className="bg-transparent border-transparent text-blue-600" onClick={() => setVisible(true)} aria-label="Open sidebar"/>)}
 
         {/* Logo */}
         <div className="navbar-logo">
