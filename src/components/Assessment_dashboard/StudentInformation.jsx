@@ -54,19 +54,19 @@ const StudentInformation = () => {
       </h1><br/><br/><br/><br/>
       <div className="table-wrapperS">
         <table className="student-tableS">
-          <thead>
+          <thead className='thead'>
             <tr>
-              <th>Student Name</th>
-              <th>Batch</th>
-              <th>Center</th>
-              <th>Selected By Trainer</th>
+              <th className='text-white'>Student Name</th>
+              <th className='text-white'>Batch</th>
+              <th className='text-white'>Center</th>
+              <th className='text-white'>Selected By Trainer</th>
             </tr>
           </thead>
           <tbody>
             {studentData.map((student) => (
-              <tr key={student.id}>
+              <tr key={student.id} className='tr'>
                 <td className="student-nameS text-nowrap capitalize">{student.student_name}</td>
-                <td><span className="batch-tagS text-nowrap capitalize">{student.batch_name}</span></td>
+                <td><span className="batch-tagS text-nowrap uppercase">{student.batch_name}</span></td>
                 <td><span className='text-nowrap capitalize'>{student.center}</span></td>
                 <td><span className='text-nowrap capitalize'>{student.selected_by_trainer}</span></td>
               </tr>
