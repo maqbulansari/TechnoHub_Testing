@@ -68,9 +68,12 @@ const AssignBatchForTrainer = () => {
 
   return (
     <div className="assignABT-batch-container mt-6">
-      <h1 className="assignABT-batch-title text-center text-nowrap">
+      {/* <h1 className="assignABT-batch-title text-center text-nowrap">
         Assign Batch to Trainer
-      </h1>
+      </h1> */}
+       <h2 className="sponsornowHeading pt-2 text-4xl  mb-4 uppercase text-center max-w-[95vw] sm:max-w-[800px] mx-auto">
+        Assign Batch to Trainer
+      </h2>
 
       <div className="assignABT-form-container">
         <form onSubmit={handleSubmit(onSubmit)}>

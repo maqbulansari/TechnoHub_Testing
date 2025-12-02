@@ -54,23 +54,23 @@ const AllStudent = () => {
       </h2>
       <div className="table-wrapperS">
         <table className="student-tableS">
-          <thead>
+          <thead className='thead'>
             <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Mobile No</th>
-              <th>Gender</th>
-              <th>Batch</th>
+              <th className='text-white'>Name</th>
+              <th className='text-white'>Email</th>
+              <th className='text-white'>Mobile No</th>
+              <th className='text-white'>Gender</th>
+              <th className='text-white'>Batch</th>
             </tr>
           </thead>
           <tbody>
             {studentData.map((student) => (
-              <tr key={student.id || student.email}>
+              <tr key={student.id || student.email} className='tr'>
                 <td className="student-nameS capitalize text-nowrap">{student.name}</td>
                 <td>{student.email}</td>
                 <td>{student.mobile_no}</td>
                 <td>{student.gender}</td>
-                <td><span className="batch-tagS capitalize">{student.batch}</span></td>
+                <td><span className="batch-tagS uppercase">{student.batch}</span></td>
               </tr>
             ))}
           </tbody>
