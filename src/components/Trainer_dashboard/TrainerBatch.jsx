@@ -80,7 +80,7 @@ const TrainerBatch = () => {
                 alt={batch.batch_name}
               />
               <div className="card-bodyH2">
-                <h5 className="card-titleH2">{batch.batch_name}</h5>
+                <h5 className="card-titleH2 uppercase">{batch.batch_name}</h5>
                 <p className="card-textH2">
                   Current Students: {batch.student_count} <br/>
                   Center: {batch.center}
