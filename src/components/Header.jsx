@@ -24,11 +24,11 @@ const Header = ({ setVisible }) => {
 
       <div className="flex items-center gap-3">
         {!userLoggedIN && !accessToken && !refreshToken && (<>
-            <Link to={routes.login3} className="btn btn-light">
+            <Link to={routes.login3} className="btn btn-light text-center">
               Login
             </Link>
 
-            {storedRole !== "ADMIN" && (<Link to={routes.register} className="btn btn-primary">
+            {storedRole !== "ADMIN" && userLoggedIN && accessToken && refreshToken && userID && (<Link to={routes.register} className="btn btn-primary text-center">
                 Register
               </Link>)}
           </>)}

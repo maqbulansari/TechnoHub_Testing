@@ -117,8 +117,8 @@ const Login3 = () => {
           <form>
             <div className="card">
               <div className="card-body">
-                <h1 className="mt-5">Welcome</h1>
-                <p className="txt-gray mb-5">
+                <h1 className="mt-5 text-5xl">Welcome</h1>
+                <p className="txt-gray mb-5 text-sm">
                   Please enter your details to sign in
                 </p>
                 <div className="row mt-3">
@@ -126,7 +126,7 @@ const Login3 = () => {
                     <label htmlFor="emailAddress" className="form-label">
                       Email Address <span className="text-danger">*</span>
                     </label>
-                    <input
+                    <input cl
                       placeholder="Enter Your Email"
                       id="emailAddress"
                       type="email"
@@ -138,7 +138,7 @@ const Login3 = () => {
                         setLoginError("");
                       }
                       }
-                      className="mb-0"
+                      className="mb-0 text-sm"
                     />
                     {emailError && (
                       <span className="text-danger">{emailError}</span>
@@ -150,7 +150,7 @@ const Login3 = () => {
                       Password <span className="text-danger">*</span>
                     </label>
                     <input
-                      className="mb-0"
+                      className="mb-0 text-sm"
                       id="password"
                       required
                       placeholder="Enter Your Password"
@@ -170,7 +170,7 @@ const Login3 = () => {
 
                   <div className="col-xxl-12 col-xl-12 col-md-12 mb-3">
                     <div className="text-end ">
-                      <Link to={routes.forgotPassword} className="link-danger">
+                      <Link to={routes.forgotPassword} className="link-danger text-sm">
                         Forgot Password?
                       </Link>
                     </div>
@@ -208,9 +208,9 @@ const Login3 = () => {
 
                   <div className="col-xxl-12 col-xl-12 col-md-12 mb-3">
                     <div className="text-center">
-                      <h6 className="fw-normal text-dark mb-0">
+                      <h6 className="fw-normal text-dark mb-0 text-sm">
                         Don’t have an account?{" "}
-                        <Link to={routes.register3} className="hover-a">
+                        <Link to={routes.register3} className="hover-a text-sm">
                           {" "}
                           Create Account
                         </Link>
