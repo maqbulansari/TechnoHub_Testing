@@ -46,29 +46,29 @@ export const RecruiterTable = () => {
       <h1 className="sponsornowHeading">
         Recruiters
       </h1>
-      <div className="table-responsive">
-        <table>
-          <thead>
+      <div className="table-wrapperS">
+        <table className="student-tableS">
+          <thead className="thead">
             <tr>
               {/* <th className="text-nowrap">User Profile</th> */}
-              <th className="text-nowrap">Name</th>
-              <th className="text-nowrap">Company</th>
-              <th className="text-nowrap">Email</th>
-              <th className="text-nowrap">Gender</th>
+              <th className="text-nowrap text-white">Name</th>
+              <th className="text-nowrap text-white">Company</th>
+              <th className="text-nowrap text-white">Email</th>
+              <th className="text-nowrap text-white">Gender</th>
               {/* <th className="text-nowrap">Qualification</th> */}
-              <th className="text-nowrap">Mobile</th>
+              <th className="text-nowrap text-white">Mobile</th>
               {/* <th className="text-nowrap">Identity</th> */}
             </tr>
           </thead>
           <tbody>
             {sortedRecruiters.length > 0 ? (
               sortedRecruiters.map((profile) => (
-                <tr key={profile.id}>
+                <tr key={profile.id} className="tr">
                   {/* <td>{profile.image}</td> */}
-                  <td className="text-nowrap capitalize">{profile.first_name} {profile.last_name}</td>
+                  <td className="student-nameS text-nowrap capitalize">{profile.first_name} {profile.last_name}</td>
                   <td className="text-nowrap capitalize">{profile.company_name}</td>
                   <td className="text-nowrap">{profile.email}</td>
-                  <td className="text-nowrap">{profile.gender}</td>
+                  <td className="text-nowrap">{profile.gender || "N/A"}</td>
                   {/* <td className="text-nowrap">{profile.qualification}</td> */}
                   <td className="text-nowrap">{profile.mobile_no}</td>
                   {/* <td className="text-nowrap">{profile.identity}</td> */}

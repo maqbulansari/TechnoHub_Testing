@@ -46,26 +46,26 @@ export const SponsorTable = () => {
   return (
     <div className="px-2"><br></br>
       <h1 className="sponsornowHeading">Sponsors</h1>
-      <div className="table-responsive">
-        <table>
-          <thead>
+      <div className="table-wrapperS">
+        <table className="student-tableS">
+          <thead className="thead">
             <tr>
               {/* <th className="text-nowrap">User Profile</th> */}
-              <th className="text-nowrap">Name</th>
-              <th className="text-nowrap">Company</th>
-              <th className="text-nowrap">Email</th>
-              <th className="text-nowrap">Gender</th>
+              <th className="text-nowrap text-white">Name</th>
+              <th className="text-nowrap text-white">Company</th>
+              <th className="text-nowrap text-white">Email</th>
+              <th className="text-nowrap text-white">Gender</th>
               {/* <th className="text-nowrap">Qualification</th> */}
-              <th className="text-nowrap">Mobile</th>
-              {/* <th className="text-nowrap">Identity</th> */}
-              <th className="text-nowrap">Contribution Value</th>
-              <th className="text-nowrap">Contribution Type</th>
+              <th className="text-nowrap text-white">Mobile</th>
+              {/* <th className="text-noewrap">Identity</th> */}
+              <th className="text-nowrap text-white">Contribution Value</th>
+              <th className="text-nowrap text-white">Contribution Type</th>
             </tr>
           </thead>
           <tbody>
             {sortedSponsors.length > 0 ? (
               sortedSponsors.map((profile) => (
-                <tr key={profile.id}>
+                <tr key={profile.id} className="tr">
                   {/* <td>{profile.image}</td> */}
                   <td className="text-nowrap capitalize">
                     {profile.first_name} {profile.last_name}

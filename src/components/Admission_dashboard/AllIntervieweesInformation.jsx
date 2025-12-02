@@ -61,6 +61,9 @@ const AllIntervieweesInformation = () => {
 
   return (
     <div className="interviewees-container-with-bg">
+      <h2 className="sponsornowHeading pt-2 text-4xl  mb-4 uppercase text-center max-w-[95vw] sm:max-w-[800px] mx-auto">
+        Interviewees Information
+      </h2>
       <div className="interviewees-containerYY">
         <div className="filter-buttonsYY">
           <button 
@@ -95,36 +98,36 @@ const AllIntervieweesInformation = () => {
           </div>
         ) : (
           <>
-            <div className="table-containerYY">
+            <div className="table-wrapperS">
               <table className="interviewees-tableYY">
-                <thead>
+                <thead className='thead'>
                   <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Mobile</th>
-                    <th>Subrole</th>
-                    <th>Batch</th>
-                    <th className='text-nowrap'>Eng Comm</th>
-                    <th>Background</th>
-                    <th>Laptop</th>
-                    <th>Profession</th>
-                    <th>Status</th>
-                    <th>Level</th>
-                    <th>Source</th>
-                    <th>Remarks</th>
-                    <th className='text-nowrap'>Interview By</th>
+                    <th className='text-white'>ID</th>
+                    <th className='text-white'>Name</th>
+                    <th className='text-white'>Email</th>
+                    <th className='text-white'>Mobile</th>
+                    <th className='text-white'>Subrole</th>
+                    <th className='text-white'>Batch</th>
+                    <th className='text-nowrap text-white'>Eng Comm</th>
+                    <th className='text-white'>Background</th>
+                    <th className='text-white'>Laptop</th>
+                    <th className='text-white'>Profession</th>
+                    <th className='text-white'>Status</th>
+                    <th className='text-white'>Level</th>
+                    <th className='text-white'>Source</th>
+                    <th className='text-white'>Remarks</th>
+                    <th className='text-nowrap text-white'>Interview By</th>
                   </tr>
                 </thead>
                 <tbody>
                   {interviewees.map((interviewee) => (
-                    <tr key={interviewee.id}>
+                    <tr key={interviewee.id} className='tr'>
                       <td>{interviewee.id}</td>
                       <td className='text-nowrap capitalize'>{interviewee.name}</td>
                       <td>{interviewee.email}</td>
                       <td>{interviewee.mobile_no}</td>
                       <td>{interviewee.subrole}</td>
-                      <td>{interviewee.batch || 'N/A'}</td>
+                      <td className='uppercase'>{interviewee.batch || 'N/A'}</td>
                       <td>{interviewee.eng_comm_skills || 'N/A'}</td>
                       <td>{interviewee.humble_background || 'N/A'}</td>
                       <td>{interviewee.laptop || 'N/A'}</td>

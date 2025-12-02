@@ -44,21 +44,21 @@ const AllTrainer = () => {
 
       <div className="table-wrapperS">
         <table className="student-tableS">
-          <thead>
+          <thead className="thead">
             <tr>
-              <th>Name</th>
-              <th className="text-nowrap">Job Title</th>
-              <th>Experience</th>
-              <th>Technologies</th>
-              <th className="text-nowrap">Batches - Centers</th>
-              <th>Email</th>
-              <th>Mobile</th>
-              <th>Gender</th>
+              <th className='text-white'>Name</th>
+              <th className="text-nowrap text-white">Job Title</th>
+              <th className='text-white'>Experience</th>
+              <th className='text-white'>Technologies</th>
+              <th className="text-nowrap text-white">Batches - Centers</th>
+              <th className='text-white'>Email</th>
+              <th className='text-white'>Mobile</th>
+              <th className='text-white'>Gender</th>
             </tr>
           </thead>
           <tbody>
             {trainerData.map((trainer) => (
-              <tr key={trainer.id}>
+              <tr key={trainer.id} className="tr">
                 <td className="student-nameS text-nowrap capitalize">
                   {trainer.first_name} {trainer.last_name}
                 </td>
