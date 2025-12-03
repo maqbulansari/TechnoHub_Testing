@@ -12,6 +12,10 @@ export const Students_SponserDashboard = () => {
   const [selectedBatch, setSelectedBatch] = useState("Filter Batch");
   const [selectAll, setSelectAll] = useState(false);
 
+  console.log(role);
+  console.log(responseSubrole);
+  
+  
   // Fetch sponsor data when component mounts (only if not already fetched)
   useEffect(() => {
     if ((responseSubrole === "SPONSOR" || role === "ADMIN") && !dataFetched['sponsor']) {
