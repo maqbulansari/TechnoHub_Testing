@@ -88,21 +88,21 @@ const InterviewCandidate = () => {
         <form onSubmit={handleSubmit(onSubmit)} className="row g-3">
           {/* Name */}
           <div className="col-xxl-6 col-xl-6 col-md-6">
-            <label className="form-label fw-bold">Name</label>
+            <label className="form-label ">Name</label>
             <input type="text" className={`form-control ${errors.name ? "is-invalid" : ""}`} {...register("name", { required: "Name is required." })} readOnly/>
             {errors.name && (<div className="invalid-feedback">{errors.name.message}</div>)}
           </div>
 
           {/* Email */}
           <div className="col-xxl-6 col-xl-6 col-md-6">
-            <label className="form-label fw-bold">Email</label>
+            <label className="form-label ">Email</label>
             <input type="email" className={`form-control ${errors.email ? "is-invalid" : ""}`} {...register("email", { required: "Email is required." })} readOnly/>
             {errors.email && (<div className="invalid-feedback">{errors.email.message}</div>)}
           </div>
 
           {/* Mobile No */}
           <div className="col-xxl-6 col-xl-6 col-md-6">
-            <label className="form-label fw-bold">
+            <label className="form-label ">
               Mobile No{" "}
               <span className="text-danger" style={{ fontSize: "1.2em" }}>
                 *
@@ -114,20 +114,20 @@ const InterviewCandidate = () => {
 
           {/* Role */}
           <div className="col-xxl-6 col-xl-6 col-md-6">
-            <label className="form-label fw-bold">Role</label>
-            <input type="text" className={`form-control ${errors.role ? "is-invalid" : ""}`} {...register("role", { required: "Role is required." })} readOnly/>
+            <label className="form-label ">Role</label>
+            <input type="text" className={`form-control ${errors.role ? "is-invalid" : ""} text-sm`} {...register("role", { required: "Role is required." })} readOnly/>
             {errors.role && (<div className="invalid-feedback">{errors.role.message}</div>)}
           </div>
 
           {/* Subrole */}
           <div className="col-xxl-6 col-xl-6 col-md-6">
-            <label className="form-label fw-bold">Subrole</label>
-            <input type="text" className="form-control" {...register("subrole")} readOnly/>
+            <label className="form-label ">Subrole</label>
+            <input type="text" className="form-control text-sm" {...register("subrole")} readOnly/>
           </div>
 
           {/* Gender */}
           <div className="col-xxl-6 col-xl-6 col-md-6">
-            <label className="form-label fw-bold">
+            <label className="form-label ">
               Gender <span className="text-danger">*</span>
             </label>
             <select className={`form-select ${errors.gender ? "is-invalid" : ""}`} {...register("gender", { required: "Gender is required." })}>
@@ -141,7 +141,7 @@ const InterviewCandidate = () => {
 
           {/* Batch - Updated with dynamic data */}
           <div className="col-xxl-6 col-xl-6 col-md-6">
-            <label className="form-label fw-bold">Batch </label>
+            <label className="form-label ">Batch </label>
             {loadingBatches ? (<select className="form-select" disabled>
                 <option>Loading batches...</option>
               </select>) : error1 ? (<select className="form-select" disabled>
@@ -157,7 +157,7 @@ const InterviewCandidate = () => {
 
           {/* English Communication Skills */}
           <div className="col-xxl-6 col-xl-6 col-md-6">
-            <label className="form-label fw-bold">
+            <label className="form-label ">
               English Communication Skills <span className="text-danger">*</span>
             </label>
             <select className={`form-select ${errors.eng_comm_skills ? "is-invalid" : ""}`} {...register("eng_comm_skills", {
@@ -175,7 +175,7 @@ const InterviewCandidate = () => {
 
           {/* Humble Background */}
           <div className="col-xxl-6 col-xl-6 col-md-6">
-            <label className="form-label fw-bold">
+            <label className="form-label ">
               Humble Background <span className="text-danger">*</span>
             </label>
             <select className={`form-select ${errors.humble_background ? "is-invalid" : ""}`} {...register("humble_background", {
@@ -192,7 +192,7 @@ const InterviewCandidate = () => {
 
           {/* Laptop */}
           <div className="col-xxl-6 col-xl-6 col-md-6">
-            <label className="form-label fw-bold">
+            <label className="form-label ">
               Laptop <span className="text-danger">*</span>
             </label>
             <select className={`form-select ${errors.laptop ? "is-invalid" : ""}`} {...register("laptop", { required: "Please select laptop option." })}>
@@ -205,7 +205,7 @@ const InterviewCandidate = () => {
 
           {/* Profession */}
           <div className="col-xxl-6 col-xl-6 col-md-6">
-            <label className="form-label fw-bold">
+            <label className="form-label">
               Profession <span className="text-danger">*</span>
             </label>
             <input type="text" className={`form-control ${errors.profession ? "is-invalid" : ""}`} {...register("profession", { required: "Profession is required." })}/>
@@ -214,7 +214,7 @@ const InterviewCandidate = () => {
 
           {/* Selected Status */}
           <div className="col-xxl-6 col-xl-6 col-md-6">
-            <label className="form-label fw-bold">
+            <label className="form-label">
               Selected Status <span className="text-danger">*</span>
             </label>
             <select className={`form-select ${errors.selected_status ? "is-invalid" : ""}`} {...register("selected_status", {
@@ -230,7 +230,7 @@ const InterviewCandidate = () => {
 
           {/* Level */}
           <div className="col-xxl-6 col-xl-6 col-md-6">
-            <label className="form-label fw-bold">
+            <label className="form-label">
               Level <span className="text-danger">*</span>
             </label>
             <select className={`form-select ${errors.level ? "is-invalid" : ""}`} {...register("level", { required: "Please select level." })}>
@@ -246,7 +246,7 @@ const InterviewCandidate = () => {
 
           {/* Source */}
           <div className="col-xxl-6 col-xl-6 col-md-6">
-            <label className="form-label fw-bold">
+            <label className="form-label">
               Source <span className="text-danger">*</span>
             </label>
             <input type="text" className={`form-control ${errors.source ? "is-invalid" : ""}`} {...register("source", { required: "Source is required." })}/>
@@ -255,7 +255,7 @@ const InterviewCandidate = () => {
 
           {/* Remarks */}
           <div className="col-12">
-            <label className="form-label fw-bold">
+            <label className="form-label">
               Remarks <span className="text-danger">*</span>
             </label>
             <textarea className={`form-control ${errors.remarks ? "is-invalid" : ""}`} {...register("remarks", { required: "Remarks are required." })}/>

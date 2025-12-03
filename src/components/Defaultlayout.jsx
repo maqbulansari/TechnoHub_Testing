@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useState, useEffect, useCallback } from "react";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import Header from "./Header";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -24,6 +24,17 @@ const Defaultlayout = () => {
   const [visible, setVisible] = useState(false);
   const [role, setRole] = useState("");
   const [subrole, setSubrole] = useState("");
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  // Handle window resize
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     const userRole = localStorage.getItem("role");
@@ -31,6 +42,13 @@ const Defaultlayout = () => {
     setRole(userRole || "");
     setSubrole(userSubrole || "");
   }, [userLoggedIN]);
+
+  // Close sidebar on route change for mobile
+  useEffect(() => {
+    if (isMobile) {
+      setVisible(false);
+    }
+  }, [navigate, isMobile]);
 
   const menuItems = {
     STUDENT: {
@@ -126,17 +144,23 @@ const Defaultlayout = () => {
     },
   };
 
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
+  const toggleSidebar = useCallback(() => {
+    setIsSidebarOpen((prev) => !prev);
+  }, []);
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     setVisible(false);
     setRole("");
     setSubrole("");
     LogoutUser();
     navigate("/login-3");
-  };
+  }, [LogoutUser, navigate]);
+
+  const handleMenuItemClick = useCallback(() => {
+    if (isMobile) {
+      setVisible(false);
+    }
+  }, [isMobile]);
 
   // MenuSection Component (replaces Dropdown)
   const MenuSection = ({ title, items, icon }) => {
@@ -154,7 +178,7 @@ const Defaultlayout = () => {
               key={index}
               to={item.path}
               className="menu-item"
-              onClick={() => setVisible(false)}
+              onClick={handleMenuItemClick}
             >
               <FontAwesomeIcon icon={faChevronRight} className="menu-item-arrow" />
               <span>{item.label}</span>
@@ -250,6 +274,11 @@ const Defaultlayout = () => {
     }
   };
 
+  // Get sidebar position based on screen size
+  const getSidebarPosition = () => {
+    return isMobile ? "left" : "left";
+  };
+
   return (
     <>
       {isOnline ? (
@@ -258,15 +287,19 @@ const Defaultlayout = () => {
             className="posRel sidebarBg"
             visible={visible}
             onHide={() => setVisible(false)}
+            position={getSidebarPosition()}
+            blockScroll={isMobile}
+            showCloseIcon={true}
+            dismissable={true}
+            closeOnEscape={true}
             header={
-              <div>
+              <div className="d-flex align-items-center">
                 <span className="text_avatar_48 text-nowrap">
                   {userLoggedIN && user && user.first_name.charAt(0)}
                 </span>
                 <div className="sidebarHeaderContainer">
                   <span className="sidebarRole">WELCOME</span>
-                  <span className="sidebarName"></span>
-                  <span className="sidebarName uppercase">
+                  <span className="sidebarName capitalize">
                     {userLoggedIN &&
                       user &&
                       `${user.first_name} ${user.last_name}`}
@@ -275,14 +308,24 @@ const Defaultlayout = () => {
               </div>
             }
           >
-            {renderMenuItems()}
+            <div className="sidebar-content-wrapper" style={{ 
+              paddingBottom: '80px',
+              overflowY: 'auto',
+              height: '100%'
+            }}>
+              {renderMenuItems()}
 
-            {role === "ADMIN" && (
-              <Link to={routes.register3} className="dropdownBtn ml-3">
-                <i className="pi pi-plus me-2"></i>
-                <span className="menu-title text-blue-300">Create Enabler</span>
-              </Link>
-            )}
+              {role === "ADMIN" && (
+                <Link 
+                  to={routes.register3} 
+                  className="dropdownBtn ml-3"
+                  onClick={handleMenuItemClick}
+                >
+                  <i className="pi pi-plus me-2"></i>
+                  <span className="menu-title text-blue-300">Create Enabler</span>
+                </Link>
+              )}
+            </div>
 
             <div className="authFuncCont">
               {userLoggedIN && (
@@ -296,6 +339,7 @@ const Defaultlayout = () => {
                   <div className="d-flex flex-column">
                     <span
                       className="menu-title text-red-500"
+                      style={{ cursor: 'pointer' }}
                       data-bs-toggle="modal"
                       data-bs-target="#logoutModal"
                       onClick={() => setVisible(false)}
@@ -303,7 +347,8 @@ const Defaultlayout = () => {
                       Logout
                     </span>
                     <span
-                      className="menu-title text-blue-300"
+                      className="text-sm text-blue-300"
+                      style={{ cursor: 'pointer' }}
                       onClick={() => {
                         setVisible(false);
                         navigate(`${routes.changePassword}`);
@@ -318,15 +363,15 @@ const Defaultlayout = () => {
           </Sidebar>
 
           <div className="row mx-0">
-            <div className="col-xxl-12 col-xl-12 col-md-12 sticky-header-top px-0">
+            <div className="col-12 sticky-header-top pt-0 px-0">
               <Header setVisible={setVisible} toggleSidebar={toggleSidebar} />
             </div>
-            <div className="col-xxl-12 col-xl-12 col-md-12 px-0">
+            <div className="col-12 px-0">
               <Outlet />
             </div>
           </div>
 
-          {/* Logout Modal */}
+    {/* Logout Modal */}
           <div
             className="modal fade"
             id="logoutModal"
