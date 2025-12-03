@@ -667,7 +667,7 @@ const Register3 = () => {
                   data-bs-toggle="dropdown"
                   aria-expanded="false"
                 >
-                  {selectedIdTypeName || "Adhaarcard"}
+                  {selectedIdTypeName || "select Your IdType"}
                 </button>
                 <ul className="dropdown-menu w-100">
                   {idTypes.length > 0 ? (
@@ -738,7 +738,7 @@ const Register3 = () => {
                 </button> */}
                 <button
                   type="submit"
-                  className="btn btn-primary w-100 loginBtn"
+                  className="btn btn-primary w-40 loginBtn"
                 >
                   {loading ? (
                     <>
