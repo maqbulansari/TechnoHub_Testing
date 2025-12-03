@@ -91,11 +91,12 @@ const AssessmentCandidateWithForm = () => {
         navigate("/AssessmentTable");
     };
     return (
-    <div className=" m-4"><br />
+    <div className="card m-4">
+    <div className="card-header p-4">
       <h1 className="sponsornowHeading header-titleH text-center flex flex-column absolute top-5 w-full">
         ASSESSMENT DETAILS
       </h1><br /><br /><br />
-      <div className="card-header">
+      
         {/* <h1 className="card-title text-center mb-2 text-primary fs-3">
           ASSESSMENT DETAILS
         </h1> */}
