@@ -106,14 +106,14 @@ const AssessmentCandidateWithForm = () => {
         <form onSubmit={handleSubmit(onSubmit)} className="row g-3">
           {/* Batch ID */}
           <div className="col-xxl-6 col-xl-6 col-md-6">
-            <label className="form-label fw-bold">Batch ID</label>
+            <label className="form-label ">Batch ID</label>
             <input type="number" className={`form-control ${errors.batch_id ? "is-invalid" : ""}`} {...register("batch_id", { required: "Batch ID is required." })} readOnly/>
             {errors.batch_id && (<div className="invalid-feedback">{errors.batch_id.message}</div>)}
           </div>
 
           {/* Trainer Score */}
           <div className="col-xxl-6 col-xl-6 col-md-6">
-            <label className="form-label fw-bold">Trainer Score <span className="text-danger" style={{ fontSize: "1.2em" }}>*</span></label>
+            <label className="form-label ">Trainer Score <span className="text-danger" style={{ fontSize: "1.2em" }}>*</span></label>
             <input type="number" className={`form-control ${errors.trainer_score ? "is-invalid" : ""}`} {...register("trainer_score", {
         required: "Trainer Score is required.",
     })}/>
@@ -124,7 +124,7 @@ const AssessmentCandidateWithForm = () => {
 
           {/* Trainer Feedback */}
           <div className="col-xxl-6 col-xl-6 col-md-6">
-            <label className="form-label fw-bold">Trainer Feedback <span className="text-danger" style={{ fontSize: "1.2em" }}>*</span></label>
+            <label className="form-label ">Trainer Feedback <span className="text-danger" style={{ fontSize: "1.2em" }}>*</span></label>
             <input type="text" className={`form-control ${errors.trainer_feedback ? "is-invalid" : ""}`} {...register("trainer_feedback", {
         required: "Trainer Feedback is required.",
     })}/>
@@ -135,7 +135,7 @@ const AssessmentCandidateWithForm = () => {
 
           {/* Assessment Test Status */}
           <div className="col-xxl-6 col-xl-6 col-md-6">
-            <label className="form-label fw-bold">
+            <label className="form-label ">
               Assessment Test Status{" "}
               <span className="text-danger" style={{ fontSize: "1.2em" }}>*</span>
             </label>
@@ -156,7 +156,7 @@ const AssessmentCandidateWithForm = () => {
           {role === "ADMIN" && (<>
               {/* Admin Name */}
               <div className="col-xxl-6 col-xl-6 col-md-6">
-                <label className="form-label fw-bold">Admin Name</label>
+                <label className="form-label ">Admin Name</label>
                 <input type="text" className={`form-control ${errors.admin_name ? "is-invalid" : ""}`} {...register("admin_name", {
             required: "Admin Name is required.",
         })}/>
@@ -167,7 +167,7 @@ const AssessmentCandidateWithForm = () => {
 
               {/* Admin Score */}
               <div className="col-xxl-6 col-xl-6 col-md-6">
-                <label className="form-label fw-bold">Admin Score <span className="text-danger" style={{ fontSize: "1.2em" }}>*</span></label>
+                <label className="form-label">Admin Score <span className="text-danger" style={{ fontSize: "1.2em" }}>*</span></label>
                 <input type="number" className={`form-control ${errors.admin_score ? "is-invalid" : ""}`} {...register("admin_score", {
             required: "Admin Score is required.",
         })}/>
@@ -178,7 +178,7 @@ const AssessmentCandidateWithForm = () => {
 
               {/* Admin Feedback */}
               <div className="col-xxl-6 col-xl-6 col-md-6">
-                <label className="form-label fw-bold">Admin Feedback <span className="text-danger" style={{ fontSize: "1.2em" }}>*</span></label>
+                <label className="form-label">Admin Feedback <span className="text-danger" style={{ fontSize: "1.2em" }}>*</span></label>
                 <input type="text" className={`form-control ${errors.admin_feedback ? "is-invalid" : ""}`} {...register("admin_feedback", {
             required: "Admin Feedback is required.",
         })}/>
@@ -189,7 +189,7 @@ const AssessmentCandidateWithForm = () => {
 
               {/* Admin Selected */}
               <div className="col-xxl-6 col-xl-6 col-md-6">
-                <label className="form-label fw-bold">
+                <label className="form-label">
                   Admin Selected{" "}
                   <span className="text-danger" style={{ fontSize: "1.2em" }}>*</span>
                 </label>
@@ -209,7 +209,7 @@ const AssessmentCandidateWithForm = () => {
 
           {/* Student Name */}
           <div className="col-xxl-6 col-xl-6 col-md-6">
-            <label className="form-label fw-bold">Student Name</label>
+            <label className="form-label">Student Name</label>
             <input type="text" className={`form-control ${errors.student_name ? "is-invalid" : ""}`} {...register("student_name", {
         required: "Student Name is required.",
     })} readOnly/>
@@ -220,7 +220,7 @@ const AssessmentCandidateWithForm = () => {
 
           {/* Batch Name */}
           <div className="col-xxl-6 col-xl-6 col-md-6">
-            <label className="form-label fw-bold">Batch Name</label>
+            <label className="form-label">Batch Name</label>
             <input type="text" className={`form-control ${errors.batch_name ? "is-invalid" : ""}`} {...register("batch_name", {
         required: "Batch Name is required.",
     })} readOnly/>
@@ -231,7 +231,7 @@ const AssessmentCandidateWithForm = () => {
 
           {/* Trainer Name */}
           <div className="col-xxl-6 col-xl-6 col-md-6">
-            <label className="form-label fw-bold">Trainer Name</label>
+            <label className="form-label">Trainer Name</label>
             <input type="text" className={`form-control ${errors.selected_by_trainer ? "is-invalid" : ""}`} {...register("selected_by_trainer", {
         required: "Trainer Name is required.",
     })} readOnly/>
@@ -242,7 +242,7 @@ const AssessmentCandidateWithForm = () => {
 
           {/* Trainer Is Selected */}
           <div className="col-xxl-6 col-xl-6 col-md-6">
-            <label className="form-label fw-bold">Trainer Is Selected</label>
+            <label className="form-label">Trainer Is Selected</label>
             <input type="text" className={`form-control ${errors.trainer_is_selected ? "is-invalid" : ""}`} value={assessmentDetail.trainer_is_selected ? "Yes" : "No"} readOnly/>
           </div>
 
