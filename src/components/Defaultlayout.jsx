@@ -266,7 +266,7 @@ const Defaultlayout = () => {
                 <div className="sidebarHeaderContainer">
                   <span className="sidebarRole">WELCOME</span>
                   <span className="sidebarName"></span>
-                  <span className="sidebarName capitalize">
+                  <span className="sidebarName uppercase">
                     {userLoggedIN &&
                       user &&
                       `${user.first_name} ${user.last_name}`}
@@ -278,9 +278,9 @@ const Defaultlayout = () => {
             {renderMenuItems()}
 
             {role === "ADMIN" && (
-              <Link to={routes.register3} className="dropdownBtn">
+              <Link to={routes.register3} className="dropdownBtn ml-3">
                 <i className="pi pi-plus me-2"></i>
-                Create Enabler
+                <span className="menu-title text-blue-300">Create Enabler</span>
               </Link>
             )}
 
@@ -289,13 +289,13 @@ const Defaultlayout = () => {
                 <>
                   <div className="me-2">
                     <i
-                      className="pi pi-sign-out"
-                      style={{ fontSize: "2rem", color: "#dc3545" }}
+                      className="pi pi-sign-out ml-3"
+                      style={{ fontSize: "1.5rem", color: "#dc3545" }}
                     ></i>
                   </div>
                   <div className="d-flex flex-column">
                     <span
-                      className="btnLogout text-red-500"
+                      className="menu-title text-red-500"
                       data-bs-toggle="modal"
                       data-bs-target="#logoutModal"
                       onClick={() => setVisible(false)}
@@ -303,7 +303,7 @@ const Defaultlayout = () => {
                       Logout
                     </span>
                     <span
-                      className="btnChangePassword"
+                      className="menu-title text-blue-300"
                       onClick={() => {
                         setVisible(false);
                         navigate(`${routes.changePassword}`);
@@ -359,7 +359,7 @@ const Defaultlayout = () => {
                         onClick={handleLogout}
                         data-bs-dismiss="modal"
                       >
-                        Logout
+                        Logout <i className="fa-solid fa-right-from-bracket ml-2"></i>
                       </button>
                     </div>
                   </div>
