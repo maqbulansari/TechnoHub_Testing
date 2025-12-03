@@ -4184,6 +4184,9 @@ input[type="password"]::-ms-clear {
     max-width: 100%;
   }
 }
+.w{
+  width: 90%;
+}
 
 /* Landscape orientation adjustments */
 @media screen and (max-height: 500px) and (orientation: landscape) {
