@@ -159,19 +159,19 @@ export const Student_Card = ({ filterStudent, selectAll, setSelectAll }) => {
   }, [selectAll, filterStudent]);
 
   return (
-    <div className="table-responsive maxhTable">
-      <table>
-        <thead>
+    <div className="table-wrapperS maxhTable">
+      <table className="student-tableS">
+        <thead className="thead">
           <tr>
-            <th width="25%">Name</th>
-            <th width="35%">Batch</th>
-            <th className="text-end" width="15%">Fee</th>
+            <th width="25%" className="text-white">Name</th>
+            <th width="35%" className="text-white">Batch</th>
+            <th className="text-end text-white" width="15%">Fee</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody className="overflow-y-auto">
           {filterStudent && filterStudent.length > 0 ? (
             filterStudent.map((student, index) => (
-              <tr key={index}>
+              <tr key={index} className="tr">
                 <td>
                   <div className="form-check">
                     <input
