@@ -376,12 +376,16 @@ const Register3 = () => {
 
 
   return (
-    <div className="card mt-5 mx-2">
-      <div className="card-header">
-        <h2>Register</h2>
-        <p>Please enter your details to register</p>
-      </div>
-      <div className="card-body">
+    <div className="register mt-5 mx-2">
+      {/* <div className="card-header"> */}
+        {/* <h2 className="text-5xl">Register</h2> */}
+        <h2 className="sponsornowHeading pt-2 text-4xl  mb-4 uppercase text-center max-w-[95vw] sm:max-w-[800px] mx-auto">
+        Register
+        <p className="text-sm pl-3">Please enter your details to register</p>
+      </h2>
+        
+      {/* </div> */}
+      <div className="pl-3 md:pl-8">
         <form onSubmit={onRegisterUser}>
           <div className="row">
             <div className="col-xxl-6 col-xl-6 col-md-6 mb-3">
@@ -397,10 +401,10 @@ const Register3 = () => {
                   setFirstName(e.target.value);
                   setErrorFirstName("");
                 }}
-                className="mb-0"
+                className="mb-0 text-sm"
               />
               {errorFirstName && (
-                <span className="text-danger">{errorFirstName}</span>
+                <span className="text-danger text-sm">{errorFirstName}</span>
               )}
             </div>
 
@@ -409,7 +413,7 @@ const Register3 = () => {
                 Last Name <span className="text-danger">*</span>
               </label>
               <input
-                className="mb-0"
+                className="mb-0 text-sm"
                 id="lastName"
                 placeholder="Enter Your Last Name"
                 type="text"
@@ -420,7 +424,7 @@ const Register3 = () => {
                 }}
               />
               {errorLastName && (
-                <span className="text-danger">{errorLastName}</span>
+                <span className="text-danger text-sm">{errorLastName}</span>
               )}
             </div>
 
@@ -438,11 +442,11 @@ const Register3 = () => {
                   setErrorEmail("");
                   setEmailExistsError("");
                 }}
-                className="mb-0"
+                className="mb-0 text-sm"
               />
-              {errorEmail && <span className="text-danger">{errorEmail}</span>}
+              {errorEmail && <span className="text-danger text-sm">{errorEmail}</span>}
               {emailExistsError && (
-                <span className="text-danger">{emailExistsError}</span>
+                <span className="text-danger text-sm">{emailExistsError}</span>
               )}
             </div>
 
@@ -465,7 +469,7 @@ const Register3 = () => {
                 placeholder="Enter Your Password"
                 type={passwordVisibility.password ? "text" : "password"}
                 value={password}
-                className="mb-0"
+                className="mb-0 text-sm"
                 onChange={(e) => {
                   setPassword(e.target.value);
                   setErrorPassword("");
@@ -477,7 +481,7 @@ const Register3 = () => {
                 onClick={togglePasswordVisibility}
               ></span>
               {errorPassword && (
-                <span className="text-danger">{errorPassword}</span>
+                <span className="text-danger text-sm">{errorPassword}</span>
               )}
             </div>
 
@@ -487,7 +491,7 @@ const Register3 = () => {
                 Mobile Number <span className="text-danger">*</span>
               </label>
               <input
-                className="mb-0"
+                className="mb-0 text-sm"
                 placeholder="Enter Your Number"
                 id="mobileNumber"
                 type="text"
@@ -498,7 +502,7 @@ const Register3 = () => {
                 }}
               />
               {mobilenumberError && (
-                <span className="text-danger">{mobilenumberError}</span>
+                <span className="text-danger text-sm">{mobilenumberError}</span>
               )}
             </div>
 
@@ -508,7 +512,7 @@ const Register3 = () => {
               </label>
               <div className="dropdown">
                 <button
-                  className="btnDropdown dropdown-toggle form-control"
+                  className="btnDropdown dropdown-toggle form-control text-sm"
                   type="button"
                   data-bs-toggle="dropdown"
                   aria-expanded="false"
@@ -517,13 +521,13 @@ const Register3 = () => {
                 </button>
                 <ul className="dropdown-menu w-100">
                   <li
-                    className="dropdown-item c-pointer"
+                    className="dropdown-item c-pointer text-sm"
                     onClick={() => handleSelectRole("LEARNER")}
                   >
                     LEARNER
                   </li>
                   <li
-                    className="dropdown-item c-pointer"
+                    className="dropdown-item c-pointer text-sm"
                     onClick={() => handleSelectRole("ENABLER")}
                   >
                     ENABLER
@@ -531,7 +535,7 @@ const Register3 = () => {
                 </ul>
               </div>
               {errorSelectedRole && (
-                <span className="text-danger">{errorSelectedRole}</span>
+                <span className="text-danger text-sm">{errorSelectedRole}</span>
               )}
             </div>
             <div
@@ -543,7 +547,7 @@ const Register3 = () => {
               </label>
               <div className="dropdown">
                 <button
-                  className="btnDropdown dropdown-toggle form-control"
+                  className="btnDropdown dropdown-toggle form-control text-sm"
                   type="button"
                   data-bs-toggle="dropdown"
                   aria-expanded="false"
@@ -583,7 +587,7 @@ const Register3 = () => {
                   {filteredSubroles.length > 0 ? (
                     filteredSubroles.map((subrole) => (
                       <li
-                        className="dropdown-item c-pointer"
+                        className="dropdown-item c-pointer text-sm"
                         key={subrole.id}
                         onClick={() => {
                           setSelectedSubrole(subrole.name);
@@ -609,7 +613,7 @@ const Register3 = () => {
 
               </div>
               {errorSelectedSubRole && (
-                <span className="text-danger">{errorSelectedSubRole}</span>
+                <span className="text-danger text-sm">{errorSelectedSubRole}</span>
               )}
             </div>
           </div>
@@ -631,7 +635,7 @@ const Register3 = () => {
                 onChange={handleImageUpload}
               />
               {userProfileError && (
-                <span className="text-danger">{userProfileError}</span>
+                <span className="text-danger text-sm">{userProfileError}</span>
               )}
               {imagePreview && (
                 <div className="mt-2">
@@ -694,7 +698,7 @@ const Register3 = () => {
                 </ul>
               </div>
               {idTypeError && (
-                <span className="text-danger">{idTypeError}</span>
+                <span className="text-danger text-sm">{idTypeError}</span>
               )}
             </div>
 
@@ -717,12 +721,11 @@ const Register3 = () => {
                 value={identity}
               />
               {idNumberError && (
-                <span className="text-danger">{idNumberError}</span>
+                <span className="text-danger text-sm">{idNumberError}</span>
               )}
             </div>
           </div>
-
-          <hr />
+              <br></br>
           <div className="row justify-content-center">
             <div className="col-xxl-5 col-xl-5 col-md-5">
               <div className="mb-3">
@@ -743,17 +746,17 @@ const Register3 = () => {
                     </>
                   ) : (
                     <>
-                      Create Account
+                      Create Account <i className="fa-solid fa-right-to-bracket ml-2"></i>
                     </>
                   )}
                 </button>
 
 
               </div>
-              <div className="text-center">
-                <h6 className="fw-normal text-dark mb-0">
+              <div className="text-center mb-4">
+                <h6 className="fw-normal text-dark mb-0 text-sm">
                   Already have an account?
-                  <Link to={routes.login3} className="hover-a ms-2">
+                  <Link to={routes.login3} className="hover-a ms-2 text-sm">
                     Login
                   </Link>
                 </h6>
