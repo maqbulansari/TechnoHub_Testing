@@ -1000,12 +1000,19 @@
   color: #95a1b1;
 }
 
+
 .btn-primary {
   background-color: #05a6f0 !important;
   border-color: #05a6f0 !important;
   text-align: center;
   height: 37px;
 }
+
+.btn-primary:hover {
+  background-color: #027bbd !important;
+  border-color: #027bbd !important;
+}
+
 
 .btn-primary:focus {
   box-shadow: 0 0 0 0.2rem white;
@@ -2893,6 +2900,8 @@ td {
   padding-left: 60px;
 }
 
+
+
 .filter-btnYY {
   padding: 8px 16px;
   border-radius: 20px;
@@ -2994,9 +3003,10 @@ td {
   align-items: center;
   justify-content: center;
   gap: 10px;
-  height: 100px;
+  height: 100vh;
   color: #3b82f6;
   font-weight: 500;
+  font-size:larger;
 }
 
 .dot-flashing {
