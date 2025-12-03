@@ -90,10 +90,11 @@ const AssessmentCandidateWithForm = () => {
         setSubmitSuccess(false);
         navigate("/AssessmentTable");
     };
-    return (<div className="card m-4"><br />
+    return (
+    <div className=" m-4"><br />
       <h1 className="sponsornowHeading header-titleH text-center flex flex-column absolute top-5 w-full">
         ASSESSMENT DETAILS
-      </h1><br /><br />
+      </h1><br /><br /><br />
       <div className="card-header">
         {/* <h1 className="card-title text-center mb-2 text-primary fs-3">
           ASSESSMENT DETAILS

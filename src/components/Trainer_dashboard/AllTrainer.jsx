@@ -36,6 +36,7 @@ const AllTrainer = () => {
   }
 
   return (
+    <div className='bg-gray-50'>
     <div className="student-info-containerS">
 
       <h2 className="sponsornowHeading pt-2 text-4xl  mb-4 uppercase text-center max-w-[95vw] sm:max-w-[800px] mx-auto">
@@ -101,6 +102,7 @@ const AllTrainer = () => {
           </tbody>
         </table>
       </div>
+    </div>
     </div>
   );
 };
