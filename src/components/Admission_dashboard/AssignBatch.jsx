@@ -11,7 +11,8 @@ const AssignBatch = () => {
   const [learners, setLearners] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const {  batches } = useContext(AuthContext);
+  // const {  batches } = useContext(AuthContext);
+    const [batches, setBatches] = useState([]);
   const [accessToken, setAccessToken] = useState(null);
     const {API_BASE_URL} =useContext(AuthContext)
 
@@ -25,6 +26,21 @@ const AssignBatch = () => {
     }
   }, []);
 
+
+    const fetchBatches = async () => {
+
+    
+
+      try {
+        const response = await axios.get(`${API_BASE_URL}/batches/`);
+        setBatches(response.data);
+        console.log(response);
+        
+      } catch (err) {
+        console.error("Error fetching batches:", err);
+    
+      } 
+    };
   const fetchLearners = async () => {
     if (!accessToken) return;
     
@@ -49,6 +65,7 @@ const AssignBatch = () => {
   useEffect(() => {
     if (accessToken) {
       fetchLearners();
+      fetchBatches();
     }
   }, [accessToken]);
 
