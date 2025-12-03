@@ -138,7 +138,7 @@ const AssignBatchForTrainer = () => {
               </>
             ) : (
               <>
-                Assign Batch
+               <i className="fa-solid fa-paper-plane mr-2"></i> Assign Batch
               </>
             )}
           </button>
