@@ -154,10 +154,11 @@ const AssignBatch = () => {
           </div>
         ) : (
           <>
-            <div className="table-responsiveA">
+            <div className="table-wrapperS">
+
               {/* Desktop Table */}
-              <table className="tableA d-none d-md-table">
-                <thead>
+              <table className="student-tableS">
+                <thead className="thead">
                   <tr>
                     <th>
                       <input
@@ -166,17 +167,17 @@ const AssignBatch = () => {
                         onChange={handleSelectAll}
                       />
                     </th>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Mobile</th>
-                    <th>Level</th>
-                    <th>Laptop</th>
-                    <th>Interview By</th>
+                    <th className="text-white">Name</th>
+                    <th className="text-white">Email</th>
+                    <th className="text-white">Mobile</th>
+                    <th className="text-white">Level</th>
+                    <th className="text-white">Laptop</th>
+                    <th className="text-white">Interview By</th>
                   </tr>
                 </thead>
                 <tbody>
                   {learners.map((learner) => (
-                    <tr key={learner.id}>
+                    <tr key={learner.id} className="tr">
                       <td>
                         <input
                           type="checkbox"
@@ -238,13 +239,14 @@ const AssignBatch = () => {
             </div>
 
             <div className="action-buttonsA">
+              <center>
               <button
                 className="btn btn-primary"
                 onClick={handleAssignBatchClick}
                 disabled={selectedLearners.length === 0}
               >
                 Assign Batch to Selected ({selectedLearners.length})
-              </button>
+              </button></center>
             </div>
           </>
         )}

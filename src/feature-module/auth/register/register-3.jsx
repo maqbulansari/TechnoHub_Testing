@@ -376,16 +376,17 @@ const Register3 = () => {
 
 
   return (
-    <div className="register mt-5 mx-2">
-      {/* <div className="card-header"> */}
+    <div className="card m-4">
+    {/* <div className="register mt-5 mx-2"> */}
+      <div className="card-header">
         {/* <h2 className="text-5xl">Register</h2> */}
         <h2 className="sponsornowHeading pt-2 text-4xl  mb-4 uppercase text-center max-w-[95vw] sm:max-w-[800px] mx-auto">
         Register
         <p className="text-sm pl-3">Please enter your details to register</p>
       </h2>
         
-      {/* </div> */}
-      <div className="pl-3 md:pl-8">
+      </div><br/>
+      <div className="p-3">
         <form onSubmit={onRegisterUser}>
           <div className="row">
             <div className="col-xxl-6 col-xl-6 col-md-6 mb-3">
@@ -800,6 +801,7 @@ const Register3 = () => {
             </div>
           </div>
         )}
+    {/* </div> */}
     </div>
   );
 };

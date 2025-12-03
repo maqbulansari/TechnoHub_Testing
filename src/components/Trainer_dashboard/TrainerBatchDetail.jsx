@@ -103,7 +103,9 @@ const TrainerBatchDetail = () => {
       </div>
 
       <div className="student-name-section">
-        <h3>Student Names</h3>
+        <h2 className="sponsornowHeading pt-2 text-4xl  mb-4 uppercase text-center max-w-[95vw] sm:max-w-[800px] mx-auto">
+        Student Names
+      </h2>
         <DataTable value={[...batchDetail.students].sort((a, b) => a.student_name.localeCompare(b.student_name))} className="p-datatable-striped p-datatable-gridlines custom-datatableTBD">
 
           <Column field="student_name" header="Student Name" sortable body={(rowData) => (<span className="student-name-gradient capitalize">
