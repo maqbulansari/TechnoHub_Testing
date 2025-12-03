@@ -117,16 +117,20 @@ const Login3 = () => {
           <form>
             <div className="card">
               <div className="card-body">
-                <h1 className="mt-5 text-5xl">Welcome</h1>
+                {/* <h1 className="mt-5 text-5xl">Welcome</h1>
                 <p className="txt-gray mb-5 text-sm">
                   Please enter your details to sign in
-                </p>
+                </p> */}
+                <h2 className="sponsornowHeading pt-2 text-4xl  mb-4 uppercase text-center max-w-[95vw] sm:max-w-[800px] mx-auto">
+                  Welcome
+                  <p className="text-sm pl-3"> Please enter your details to sign in</p>
+                </h2>
                 <div className="row mt-3">
                   <div className="col-xxl-12 col-xl-12 col-md-12 mb-3">
                     <label htmlFor="emailAddress" className="form-label">
                       Email Address <span className="text-danger">*</span>
                     </label>
-                    <input cl
+                    <input 
                       placeholder="Enter Your Email"
                       id="emailAddress"
                       type="email"
@@ -169,12 +173,7 @@ const Login3 = () => {
                   </div>
 
                   <div className="col-xxl-12 col-xl-12 col-md-12 mb-3">
-                    <div className="text-end ">
-                      <Link to={routes.forgotPassword} className="link-danger text-sm">
-                        Forgot Password?
-                      </Link>
-                    </div>
-                  </div>
+                   
 
                   <div className="col-xxl-12 col-xl-12 col-md-12 mb-3">
                     <div className="mb-3">
@@ -187,9 +186,11 @@ const Login3 = () => {
                 
 
                     </Link> */}
+                    <center className="my-1">
+                     {loginError && <span className="text-danger text-center">{loginError}</span>}</center>
                       <button
                         type="submit"
-                        className="btn btn-primary loginBtn "
+                        className="btn btn-primary loginBtn pt-2"
                         onClick={loginUser}>
                         {loading ? (
                           <>
@@ -198,11 +199,17 @@ const Login3 = () => {
                         ) : (
                           <>
                             {/* Sign In */}
-                            Login
+                            Login <i className="fa-solid fa-right-to-bracket ml-2"></i>
+                            
                           </>
                         )}
                       </button>
-                      {loginError && <span className="text-danger">{loginError}</span>}
+                      <div className="text-end ">
+                      <Link to={routes.forgotPassword} className="link-danger text-sm">
+                        Forgot Password?
+                      </Link>
+                    </div>
+                  </div>
                     </div>
                   </div>
 

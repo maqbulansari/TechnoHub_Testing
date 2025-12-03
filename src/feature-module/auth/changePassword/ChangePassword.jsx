@@ -171,15 +171,19 @@ export const ChangePassword = () => {
         <form onSubmit={handleChangePassword}>
           <div className="card">
             <div className="card-body">
-              <h1 className="mt-5">Change Password?</h1>
+              {/* <h1 className="mt-5">Change Password?</h1>
               <p className="txt-gray mb-5">
                 Please enter your new password below
-              </p>
+              </p> */}
+                <h2 className="sponsornowHeading pt-2 text-4xl  mb-4 uppercase text-center max-w-[95vw] sm:max-w-[800px] mx-auto">
+                  Change Password
+                  <p className="text-sm pl-3">enter your new password below</p>
+                </h2>
               
 
               <div className="row mt-3">
                 {/* Old Password */}
-                <div className="col-xxl-12 col-xl-12 col-md-12 mb-3">
+                <div className="col-xxl-12 col-xl-12 col-md-12 mb-1">
                   <label htmlFor="oldPassword" className="form-label">
                     Old Password <span className="text-danger">*</span>
                   </label>
@@ -190,7 +194,7 @@ export const ChangePassword = () => {
                       type={
                         passwordVisibility.oldPassword ? "text" : "password"
                       }
-                      className={`pass-input ${errors.oldPassword ? "is-invalid" : ""}`}
+                      className={`pass-input ${errors.oldPassword ? "is-invalid" : ""} text-sm`}
                       required
                       value={oldPassword}
                       onChange={(e) => 
@@ -205,14 +209,14 @@ export const ChangePassword = () => {
                     />
                   </div>
                   {errors.oldPassword && (
-                    <div className="text-danger mt-1">
+                    <div className="text-danger mt-1 text-sm">
                       {errors.oldPassword}
                     </div>
                   )}
                 </div>
 
                 {/* New Password with Tooltip */}
-                <div className="col-xxl-12 col-xl-12 col-md-12 mb-3">
+                <div className="col-xxl-12 col-xl-12 col-md-12 mb-1">
                   <label htmlFor="newPassword" className="form-label">
                     New Password <span className="text-danger">*</span>
                     <Tooltip target=".password-tooltip" />
@@ -232,7 +236,7 @@ export const ChangePassword = () => {
                       type={
                         passwordVisibility.newPassword ? "text" : "password"
                       }
-                      className={`pass-input ${errors.newPassword ? "is-invalid" : ""}`}
+                      className={`pass-input ${errors.newPassword ? "is-invalid" : ""} text-sm`}
                       required
                       value={newPassword}
                       onChange={(e) => 
@@ -247,14 +251,14 @@ export const ChangePassword = () => {
                     />
                   </div>
                   {errors.newPassword && (
-                    <div className="text-danger mt-1">
+                    <div className="text-danger mt-1 text-sm">
                       {errors.newPassword}
                     </div>
                   )}
                 </div>
 
                 {/* Confirm Password */}
-                <div className="col-xxl-12 col-xl-12 col-md-12 mb-3">
+                <div className="col-xxl-12 col-xl-12 col-md-12 mb-1">
                   <label htmlFor="confirmPassword" className="form-label">
                     Confirm Password <span className="text-danger">*</span>
                   </label>
@@ -265,7 +269,7 @@ export const ChangePassword = () => {
                       type={
                         passwordVisibility.confirmPassword ? "text" : "password"
                       }
-                      className={`pass-input ${errors.confirmPassword ? "is-invalid" : ""}`}
+                      className={`pass-input ${errors.confirmPassword ? "is-invalid" : ""} text-sm`}
                       required
                       value={confirmPassword}
                       onChange={(e) => 
@@ -284,7 +288,7 @@ export const ChangePassword = () => {
                     />
                   </div>
                   {errors.confirmPassword && (
-                    <div className="text-danger mt-1">
+                    <div className="text-danger mt-1 text-sm">
                       {errors.confirmPassword}
                     </div>
                   )}
@@ -306,7 +310,7 @@ export const ChangePassword = () => {
                          </>
                         ) : (
                          <>
-                           Change Password
+                           Change Password <i className="fa-solid fa-key ml-2"></i>
                          </>
                         )}
                       </button>
@@ -315,9 +319,9 @@ export const ChangePassword = () => {
                 {/* Back to Login */}
                 <div className="col-xxl-12 col-xl-12 col-md-12 mb-3">
                   <div className="text-center">
-                    <h6 className="fw-normal text-dark mb-0">
+                    <h6 className="fw-normal text-dark mb-0 text-sm">
                       Remember your password?{" "}
-                      <Link to={routes.login} className="hover-a">
+                      <Link to={routes.login} className="hover-a text-sm">
                         Back to Login
                       </Link>
                     </h6>
