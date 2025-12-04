@@ -167,12 +167,12 @@ const Defaultlayout = () => {
     return (
       <div className="menu-section">
         <div className="menu-heading">
-          <div className="menu-heading-icon">
+          <div className="px-2">
             <FontAwesomeIcon icon={icon} />
           </div>
           <span className="menu-title">{title}</span>
         </div>
-        <div className="menu-items">
+        <div className="pl-3">
           {items.map((item, index) => (
             <Link
               key={index}
@@ -298,8 +298,8 @@ const Defaultlayout = () => {
                   {userLoggedIN && user && user.first_name.charAt(0)}
                 </span>
                 <div className="sidebarHeaderContainer">
-                  <span className="sidebarRole">WELCOME</span>
-                  <span className="sidebarName capitalize">
+                  <span className="sidebarRole text-black">WELCOME</span>
+                  <span className="sidebarName capitalize text-black">
                     {userLoggedIN &&
                       user &&
                       `${user.first_name} ${user.last_name}`}
@@ -308,31 +308,32 @@ const Defaultlayout = () => {
               </div>
             }
           >
-            <div className="sidebar-content-wrapper" style={{ 
+            <div className="sidebar-content-wrapper bg-white" style={{ 
               paddingBottom: '80px',
-              overflowY: 'auto',
-              height: '100%'
+              // overflowX: 'auto',
+              // height: '100%',
             }}>
               {renderMenuItems()}
 
               {role === "ADMIN" && (
                 <Link 
                   to={routes.register3} 
-                  className="dropdownBtn ml-3"
+                  className="dropdownBtn ml-2 "
                   onClick={handleMenuItemClick}
                 >
-                  <i className="pi pi-plus me-2"></i>
-                  <span className="menu-title text-blue-300">Create Enabler</span>
+                  <i className="pi pi-plus me-2 text-black font-bold"></i>
+                  <span className="menu-title text-blue-400">Create Enabler</span>
                 </Link>
               )}
             </div>
 
+              <div className="bg-white">
             <div className="authFuncCont">
               {userLoggedIN && (
                 <>
                   <div className="me-2">
                     <i
-                      className="pi pi-sign-out ml-3"
+                      className="pi pi-sign-out ml-3 "
                       style={{ fontSize: "1.5rem", color: "#dc3545" }}
                     ></i>
                   </div>
@@ -347,7 +348,7 @@ const Defaultlayout = () => {
                       Logout
                     </span>
                     <span
-                      className="text-sm text-blue-300"
+                      className="menu-title text-blue-300"
                       style={{ cursor: 'pointer' }}
                       onClick={() => {
                         setVisible(false);
@@ -359,6 +360,7 @@ const Defaultlayout = () => {
                   </div>
                 </>
               )}
+            </div>
             </div>
           </Sidebar>
 
