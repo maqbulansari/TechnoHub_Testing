@@ -1260,7 +1260,8 @@ input[type="file"]::file-selector-button {
 
 /* Sidebar background */
 .sidebarBg {
-  background-color: #00334c !important;
+  /* background-color: #00334c !important; */
+  background-color: white;
   display: flex;
   flex-direction: column;
 }
@@ -1293,18 +1294,19 @@ input[type="file"]::file-selector-button {
 
 .authFuncCont {
   position: absolute;
-  background-color: #00334c !important;
+  /* background-color: #00334c !important; */
+  background-color: white;
   width: 100%;
   left: 0px;
   padding: 12px 15px;
   bottom: 0px;
-  border-top: 1px solid rgb(179, 179, 179);
+  border-top: 1px solid rgb(17, 13, 13);
   display: flex;
   align-items: center;
 }
 
 .authFuncCont i {
-  color: white !important;
+  color: rgb(0, 0, 0) !important;
 }
 
 /* Custom edit button */
@@ -3839,7 +3841,7 @@ input[type="password"]::-ms-clear {
 .menu-title {
   font-size: 11px;
   font-weight: 600;
-  color: #ffffff;
+  color: #000000;
   text-transform: uppercase;
   letter-spacing: 0.4px;
   white-space: nowrap;
@@ -3857,7 +3859,7 @@ input[type="password"]::-ms-clear {
   display: flex;
   align-items: center;
   padding: 10px 10px;
-  color: #ffffff;
+  color: #000000;
   text-decoration: none;
   font-size: 12px;
   transition: all 0.2s ease;
@@ -3873,7 +3875,7 @@ input[type="password"]::-ms-clear {
 .menu-item:hover,
 .menu-item:active {
   background: rgba(0, 0, 0, 0.08);
-  color: #ffffff;
+  color: #000000;
 }
 
 .menu-item-arrow {
@@ -3924,7 +3926,8 @@ input[type="password"]::-ms-clear {
   height: 40px;
   min-width: 40px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  /* background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); */
+  background-color: #0072c6;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3938,7 +3941,7 @@ input[type="password"]::-ms-clear {
   align-items: center;
   padding: 12px 10px;
   margin-top: auto;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid black;
   position: absolute;
   bottom: 0;
   left: 0;
@@ -4183,6 +4186,9 @@ input[type="password"]::-ms-clear {
     flex: 0 0 100%;
     max-width: 100%;
   }
+}
+.w{
+  width: 90%;
 }
 
 /* Landscape orientation adjustments */

@@ -160,22 +160,22 @@ export const RecruitmentDashboard = () => {
               </ul>
             </div>
           </div>
-        </div>
+        </div><br/>
         <h1 className="sponsornowHeading" id="studentsSection">
           Students
         </h1>
-        <div className="table-responsive maxhTable">
-          <table>
-            <thead>
+        <div className="table-wrapperS">
+          <table className="student-tableS">
+            <thead className="thead">
               <tr>
-                <th className="text-nowrap">Technology</th>
-                <th className="text-nowrap">Student Count</th>
+                <th className="text-nowrap text-white">Technology</th>
+                <th className="text-nowrap text-white">Student Count</th>
               </tr>
             </thead>
             <tbody>
               {readyForRecruitment.length > 0 ? (
                 readyForRecruitment.map((tech, index) => (
-                  <tr key={index}>
+                  <tr key={index} className="tr">
                     <td className="text-nowrap">{tech.technology}</td>
                     <td className="text-nowrap">{tech.student_count}</td>
                   </tr>
