@@ -4,48 +4,63 @@ import user from "../../assets/images/trainers/user.png";
 import { AuthContext } from "../../contexts/authContext";
 
 export const Trainers = () => {
-  const { allTrainer, fetchAllTrainer, API_BASE_URL } = useContext(AuthContext);
+  const { API_BASE_URL } = useContext(AuthContext);
   const [trainerDetails, setTrainerDetails] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    // If allTrainer is available from context, use it
-    if (allTrainer && allTrainer.length > 0) {
-      setTrainerDetails(allTrainer);
-      setLoading(false);
-    } else if (fetchAllTrainer) {
-      // Otherwise, fetch it
-      fetchAllTrainer().then(() => {
-        // After fetch, allTrainer will be updated in context
-        if (allTrainer && allTrainer.length > 0) {
-          setTrainerDetails(allTrainer);
-          setLoading(false);
-        }
-      });
-    } else if (API_BASE_URL) {
-      // Fallback: fetch directly if context methods not available (public page)
-      const fetchTrainers = async () => {
+  // useEffect(() => {
+  //   // If allTrainer is available from context, use it
+  //   if (allTrainer && allTrainer.length > 0) {
+  //     setTrainerDetails(allTrainer);
+  //     setLoading(false);
+  //   } else if (fetchAllTrainer) {
+  //     // Otherwise, fetch it
+  //     fetchAllTrainer().then(() => {
+  //       // After fetch, allTrainer will be updated in context
+  //       if (allTrainer && allTrainer.length > 0) {
+  //         setTrainerDetails(allTrainer);
+  //         setLoading(false);
+  //       }
+  //     });
+  //   } else if (API_BASE_URL) {
+  //     // Fallback: fetch directly if context methods not available (public page)
+  //     const fetchTrainers = async () => {
+  //       try {
+  //         const response = await axios.get(`${API_BASE_URL}/trainers/`);
+  //         if (response.status === 200) {
+  //           const data = Array.isArray(response.data) ? response.data : [response.data];
+  //           setTrainerDetails(data);
+  //         }
+  //       } catch (error) {
+  //         console.error("Error fetching trainers:", error);
+  //       } finally {
+  //         setLoading(false);
+  //       }
+  //     };
+  //     fetchTrainers();
+  //   }
+  // }, [allTrainer, fetchAllTrainer, API_BASE_URL]);
+
+
+     const fetchAllTrainer = async () => {
+        if (trainerDetails.length > 0) return; // Already fetched
         try {
           const response = await axios.get(`${API_BASE_URL}/trainers/`);
           if (response.status === 200) {
-            const data = Array.isArray(response.data) ? response.data : [response.data];
-            setTrainerDetails(data);
+            setTrainerDetails(response.data);
+            console.log(response.data);
           }
         } catch (error) {
-          console.error("Error fetching trainers:", error);
+          console.error("Error fetching Trainers:", error);
         } finally {
           setLoading(false);
         }
       };
-      fetchTrainers();
-    }
-  }, [allTrainer, fetchAllTrainer, API_BASE_URL]);
-
   useEffect(() => {
-    if (allTrainer && allTrainer.length > 0) {
-      setTrainerDetails(allTrainer);
-    }
-  }, [allTrainer]);
+    
+      fetchAllTrainer();
+    
+  }, []);
   
   if (loading) {
     return <div>Loading trainers...</div>;

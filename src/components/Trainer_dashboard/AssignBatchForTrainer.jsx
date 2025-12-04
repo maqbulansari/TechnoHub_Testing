@@ -4,11 +4,30 @@ import { AuthContext } from "../../contexts/authContext";
 import axios from "axios";
 
 const AssignBatchForTrainer = () => {
-  const { batches, allTrainer, fetchBatches, fetchAllTrainer, API_BASE_URL } = useContext(AuthContext);
+  const { batches, fetchBatches, API_BASE_URL } = useContext(AuthContext);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [accessToken, setAccessToken] = useState("");
+  const [allTrainer, setAllTrainer] = useState([]);
+
+
+
+
+   const fetchAllTrainer = async () => {
+      if (allTrainer.length > 0) return; // Already fetched
+      try {
+        const response = await axios.get(`${API_BASE_URL}/trainers/`);
+        if (response.status === 200) {
+          setAllTrainer(response.data);
+          console.log(response.data);
+        }
+      } catch (error) {
+        console.error("Error fetching Trainers:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
   // Fetch batches and trainers when component mounts
   useEffect(() => {
