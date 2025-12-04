@@ -1,9 +1,33 @@
 import React, { useContext, useState, useEffect } from "react";
 import { AuthContext } from "../../contexts/authContext";
+import axios from "axios";
+
 
 const AllTrainer = () => {
-  const { allTrainer, error, fetchAllTrainer } = useContext(AuthContext);
+  const {  error, API_BASE_URL} = useContext(AuthContext);
   const [loading, setLoading] = useState(true);
+  const [allTrainer, setAllTrainer] = useState([]);
+
+
+
+
+
+
+
+    const fetchAllTrainer = async () => {
+      if (allTrainer.length > 0) return; // Already fetched
+      try {
+        const response = await axios.get(`${API_BASE_URL}/trainers/`);
+        if (response.status === 200) {
+          setAllTrainer(response.data);
+          console.log(response.data);
+        }
+      } catch (error) {
+        console.error("Error fetching Trainers:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
   // Fetch trainers when component mounts
   useEffect(() => {
