@@ -171,13 +171,13 @@ const StudentsProfile = () => {
                 ) : (
                   // EDIT MODE - Show Form
                   <div className="text-start mt-3">
-                    <div className=" mb-3 pb-2"><br></br>
+                    {/* <div className=" mb-3 pb-2"><br></br>
                       <center>
                       <h5 className="mb-0 font-bold text-black">
                         <i className="fa-solid fa-pen-to-square me-2"></i>
                         Edit Profile
                       </h5></center>
-                    </div>
+                    </div> */}
                     <form onSubmit={handleSubmit(onSubmit)}>
                       <div className="row">
                         <div className="col-6 mb-3">
@@ -195,8 +195,8 @@ const StudentsProfile = () => {
                           />
                         </div>
                       </div>
-
-                      <div className="mb-3">
+                       <div className="row">
+                      <div className="col-6 mb-3">
                         <label className="form-label fw-bold text-sm">Email</label>
                         <input
                           className="form-control form-control-sm"
@@ -204,14 +204,15 @@ const StudentsProfile = () => {
                           type="email"
                         />
                       </div>
-
-                      <div className="mb-3">
+                      <div className="col-6 mb-3">
                         <label className="form-label fw-bold text-sm">Mobile No</label>
                         <input
                           className="form-control form-control-sm"
                           {...register("mobile_no")}
                         />
                       </div>
+                      </div>
+                    
 
                       <div className="row">
                         <div className="col-6 mb-3">
@@ -242,21 +243,28 @@ const StudentsProfile = () => {
                         </div>
                       </div>
 
-                      <div className="mb-3">
+
+                        <div className="row">
+                      
+                       <div className="col-6 mb-3">
                         <label className="form-label fw-bold text-sm">Qualification</label>
                         <input
                           className="form-control form-control-sm"
                           {...register("qualification")}
                         />
                       </div>
-
-                      <div className="mb-3">
+                       <div className="col-6 mb-3">
                         <label className="form-label fw-bold text-sm">Address</label>
-                        <input
+                        <textarea
                           className="form-control form-control-sm"
                           {...register("address")}
                         />
                       </div>
+                      </div>
+
+                     
+
+                     
 
                       <div className="mb-3">
                         <label className="form-label fw-bold text-sm">Profile Image</label>
