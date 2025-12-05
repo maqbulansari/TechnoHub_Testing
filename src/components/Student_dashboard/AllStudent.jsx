@@ -71,7 +71,7 @@ const AllStudent = () => {
                 <td>{student.email}</td>
                 <td>{student.mobile_no}</td>
                 <td>{student.gender}</td>
-                <td><span className="batch-tagS uppercase">{student.batch}</span></td>
+                <td><span className="batch-tagS uppercase">{student.batch || "N/A"}</span></td>
               </tr>
             ))}
           </tbody>
