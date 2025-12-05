@@ -1264,6 +1264,7 @@ input[type="file"]::file-selector-button {
   background-color: white;
   display: flex;
   flex-direction: column;
+  width: 70px;
 }
 
 .sidebarBg .p-sidebar-header {
@@ -3708,7 +3709,7 @@ input[type="password"]::-ms-clear {
   padding: 0 !important;
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  /* height: 100vh; */
 }
 
 .custom-sidebar .p-sidebar-header {
@@ -3897,7 +3898,7 @@ input[type="password"]::-ms-clear {
 }
 
 .sidebarBg .p-sidebar-content {
-  padding: 10px 8px !important;
+  /* padding: 10px 8px !important; */
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 }
