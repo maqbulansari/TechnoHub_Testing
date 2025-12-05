@@ -109,11 +109,11 @@ const Login3 = () => {
   return (
     <>
       <div className="row bgLoginScreen m-0">
-        <div className="col-xxl-8 col-xl-8 col-md-8">
-          <img src={login} alt="..." className="loginImg" />
+        <div className="hidden md:block col-xxl-8 col-xl-8 col-md-8 mobile-image-container">
+          <img src={login} alt="..." className="loginImg mobile-login-img" />
         </div>
 
-        <div className="col-xxl-4 col-xl-4 col-md-4 d-flex align-items-center">
+        <div className="col-xxl-4 col-xl-4 col-md-4 d-flex align-items-center md:my-0 my-1">
           <form>
             <div className="card">
               <div className="card-body">
