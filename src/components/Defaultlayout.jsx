@@ -309,7 +309,7 @@ const Defaultlayout = () => {
             }
           >
             <div className="sidebar-content-wrapper bg-white" style={{ 
-              paddingBottom: '80px',
+              paddingBottom: '60px',
               // overflowX: 'auto',
               // height: '100%',
             }}>
