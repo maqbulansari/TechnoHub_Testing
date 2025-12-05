@@ -81,7 +81,7 @@ const StudentsProfile = () => {
 
   return (
     <>
-      <div className="container mt-5">
+      <div className="container">
         <div className="row justify-content-center">
           {/* Profile Card */}
           <div className="col-md-6 col-lg-5">
@@ -118,7 +118,7 @@ const StudentsProfile = () => {
                   {student.first_name} {student.last_name}
                 </h4>
                 <p className="text-muted mb-3 text-black">{student.email}</p>
-                <p className="bg-gray-300 p-2 rounded-3 mb-3 text-black">
+                <p className="bg-gray-300 p-1 rounded-3 mb-3 text-black">
                   <strong className="uppercase">Batch</strong> <br />
                   <span className="uppercase text-blue-400 font-bold">{student.batch}</span>
                 </p>
@@ -170,7 +170,7 @@ const StudentsProfile = () => {
                   </>
                 ) : (
                   // EDIT MODE - Show Form
-                  <div className="text-start mt-3">
+                  <div className="text-start mt-1">
                     {/* <div className=" mb-3 pb-2"><br></br>
                       <center>
                       <h5 className="mb-0 font-bold text-black">
@@ -180,14 +180,14 @@ const StudentsProfile = () => {
                     </div> */}
                     <form onSubmit={handleSubmit(onSubmit)}>
                       <div className="row">
-                        <div className="col-6 mb-3">
+                        <div className="col-6 mb-1">
                           <label className="form-label fw-bold text-sm">First Name</label>
                           <input
                             className="form-control form-control-sm"
                             {...register("first_name")}
                           />
                         </div>
-                        <div className="col-6 mb-3">
+                        <div className="col-6 mb-1">
                           <label className="form-label fw-bold text-sm">Last Name</label>
                           <input
                             className="form-control form-control-sm"
@@ -196,7 +196,7 @@ const StudentsProfile = () => {
                         </div>
                       </div>
                        <div className="row">
-                      <div className="col-6 mb-3">
+                      <div className="col-6 mb-1">
                         <label className="form-label fw-bold text-sm">Email</label>
                         <input
                           className="form-control form-control-sm"
@@ -204,7 +204,7 @@ const StudentsProfile = () => {
                           type="email"
                         />
                       </div>
-                      <div className="col-6 mb-3">
+                      <div className="col-6 mb-1">
                         <label className="form-label fw-bold text-sm">Mobile No</label>
                         <input
                           className="form-control form-control-sm"
@@ -212,10 +212,8 @@ const StudentsProfile = () => {
                         />
                       </div>
                       </div>
-                    
-
                       <div className="row">
-                        <div className="col-6 mb-3">
+                        <div className="col-6 mb-1">
                           <label className="form-label fw-bold text-sm">Gender</label>
                           <select
                             className="form-control form-control-sm"
@@ -230,7 +228,7 @@ const StudentsProfile = () => {
                             <p className="text-danger mt-1 text-sm">{errors.gender.message}</p>
                           )}
                         </div>
-                        <div className="col-6 mb-3">
+                        <div className="col-6 mb-1">
                           <label className="form-label fw-bold text-sm">Date of Birth</label>
                           <input
                             className="form-control form-control-sm"
@@ -246,27 +244,22 @@ const StudentsProfile = () => {
 
                         <div className="row">
                       
-                       <div className="col-6 mb-3">
+                       <div className="col-6 mb-1">
                         <label className="form-label fw-bold text-sm">Qualification</label>
                         <input
                           className="form-control form-control-sm"
                           {...register("qualification")}
                         />
                       </div>
-                       <div className="col-6 mb-3">
+                       <div className="col-6 mb-1">
                         <label className="form-label fw-bold text-sm">Address</label>
                         <textarea
                           className="form-control form-control-sm"
                           {...register("address")}
-                        />
+                      ></textarea>
                       </div>
                       </div>
-
-                     
-
-                     
-
-                      <div className="mb-3">
+                      <div className="mb-1">
                         <label className="form-label fw-bold text-sm">Profile Image</label>
                         <input
                           className="form-control form-control-sm"
