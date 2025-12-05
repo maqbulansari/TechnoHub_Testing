@@ -3,19 +3,78 @@ import bgSponser from "../../assets/images/sponserDashboard/bgSponser.png";
 import { Student_Card } from "./Student_Card";
 import { SponsorContext } from "../../contexts/dashboard/sponsorDashboardContext";
 import { AuthContext } from "../../contexts/authContext";
+import axios from "axios";
 
 export const Students_SponserDashboard = () => {
-  const { loginSuccess, setLoginSuccess, role, responseSubrole } = useContext(AuthContext)
+  const { loginSuccess, setLoginSuccess, role, responseSubrole, API_BASE_URL, accessToken } = useContext(AuthContext)
   const [showModal, setShowModal] = useState(false);
-  const { usersDataToSponsor, batchName, GET_ALL_STUDENTS_TO_SPONSER, GET_BATCH, FetchSponsor, dataFetched, setDataFetched } = useContext(SponsorContext);
+  // const { usersDataToSponsor, } = useContext(SponsorContext);
   const [searchStudent, setSearchStudent] = useState("");
   const [selectedBatch, setSelectedBatch] = useState("Filter Batch");
   const [selectAll, setSelectAll] = useState(false);
+  const [batchName, setBatchName] = useState([]);
+  const [dataFetched, setDataFetched] = useState({});
+  const [usersDataToSponsor, setUserDataToSponsor] = useState([]);
+  const [sponsorProfileDetails, setSponsorProfileDetails] = useState([]);
+  const [batchId, setBatchId] = useState(null);
+  
+
+
 
   console.log(role);
   console.log(responseSubrole);
-  
-  
+
+
+
+  const GET_ALL_STUDENTS_TO_SPONSER = async () => {
+    try {
+      const response = await axios.get(
+        `${API_BASE_URL}/sponsors/available_students/`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+
+        }
+      );
+      if (response.status == 200) {
+        setUserDataToSponsor(response.data.students_to_sponsor);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const GET_BATCH = async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/batches/`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      if (response.status == 200) {
+        setBatchName(response.data);
+        setBatchId(response.data.batch_id);
+      }
+    } catch (error) {
+      console.log("batch error", error);
+    }
+  };
+  const FetchSponsor = async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/sponsors/`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      if (response.status === 200) {
+        setSponsorProfileDetails(response.data);
+      }
+    } catch (error) {
+      console.log("sponsor error", error);
+    }
+  };
   // Fetch sponsor data when component mounts (only if not already fetched)
   useEffect(() => {
     if ((responseSubrole === "SPONSOR" || role === "ADMIN") && !dataFetched['sponsor']) {
@@ -96,80 +155,80 @@ export const Students_SponserDashboard = () => {
         </div>
         <div className="col-xxl-12 col-xl-12 col-md-12">
           <center>
-          <div className="w">
-            <div className="row g-2 sponsorHeader">
-              <div className="col-xxl-2 col-xl-2 col-xl-2">
-                <div className="dropdown w-100 mb-0">
-                  <button
-                    className="btnDropdown dropdown-toggle form-control bg-primary"
+            <div className="w">
+              <div className="row g-2 sponsorHeader">
+                <div className="col-xxl-2 col-xl-2 col-xl-2">
+                  <div className="dropdown w-100 mb-0">
+                    <button
+                      className="btnDropdown dropdown-toggle form-control bg-primary"
 
-                    type="button"
-                    data-bs-toggle="dropdown"
-                    aria-expanded="false"
-                  >
-                    Select Students
-                  </button>
-                  <ul className="dropdown-menu w-100">
-                    <li
-                      className="dropdown-item c-pointer"
-                      onClick={handleSelectAll}
+                      type="button"
+                      data-bs-toggle="dropdown"
+                      aria-expanded="false"
                     >
-
-                      {selectAll ? "Deselect All" : "Select All"}
-                    </li>
-                  </ul>
-                </div>
-              </div>
-
-              <div className="col-xxl-3 col-xl-3 col-xl-3">
-                <div className="search-container">
-                  <input
-                    type="text"
-                    placeholder="Search Student"
-                    className="search-input mb-0"
-                    value={searchStudent}
-                    onChange={(e) => setSearchStudent(e.target.value)}
-                  />
-                  <i className="fas fa-search search-icon"></i>
-                </div>
-              </div>
-              <div className="col-xxl-3 col-xl-3 col-xl-3  ms-auto">
-                <div className="dropdown w-100 mb-0">
-                  <button
-                    className="btnDropdown dropdown-toggle form-control"
-
-                    type="button"
-                    data-bs-toggle="dropdown"
-                    aria-expanded="false"
-                  >
-                    {selectedBatch}
-                  </button>
-                  <ul className="dropdown-menu w-100">
-                    <li
-                      className="dropdown-item c-pointer"
-                      onClick={() => setSelectedBatch("Filter Batch")}
-                    >
-                      Filter Batch
-                    </li>
-
-                    {batchName.map((batches, index) => (
+                      Select Students
+                    </button>
+                    <ul className="dropdown-menu w-100">
                       <li
                         className="dropdown-item c-pointer"
-                        key={index}
-                        onClick={() =>
-                          setSelectedBatch(
-                            `${batches.batch_name} ${batches.batch_id.toString()}`
-                          )
-                        }
+                        onClick={handleSelectAll}
                       >
-                        {batches.batch_name} {batches.batch_id.toString()}
 
+                        {selectAll ? "Deselect All" : "Select All"}
                       </li>
-                    ))}
-                  </ul>
+                    </ul>
+                  </div>
+                </div>
+
+                <div className="col-xxl-3 col-xl-3 col-xl-3">
+                  <div className="search-container">
+                    <input
+                      type="text"
+                      placeholder="Search Student"
+                      className="search-input mb-0"
+                      value={searchStudent}
+                      onChange={(e) => setSearchStudent(e.target.value)}
+                    />
+                    <i className="fas fa-search search-icon"></i>
+                  </div>
+                </div>
+                <div className="col-xxl-3 col-xl-3 col-xl-3  ms-auto">
+                  <div className="dropdown w-100 mb-0">
+                    <button
+                      className="btnDropdown dropdown-toggle form-control"
+
+                      type="button"
+                      data-bs-toggle="dropdown"
+                      aria-expanded="false"
+                    >
+                      {selectedBatch}
+                    </button>
+                    <ul className="dropdown-menu w-100">
+                      <li
+                        className="dropdown-item c-pointer"
+                        onClick={() => setSelectedBatch("Filter Batch")}
+                      >
+                        Filter Batch
+                      </li>
+
+                      {batchName.map((batches, index) => (
+                        <li
+                          className="dropdown-item c-pointer"
+                          key={index}
+                          onClick={() =>
+                            setSelectedBatch(
+                              `${batches.batch_name} ${batches.batch_id.toString()}`
+                            )
+                          }
+                        >
+                          {batches.batch_name} {batches.batch_id.toString()}
+
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
               </div>
-            </div>
             </div>
           </center>
 
@@ -182,7 +241,7 @@ export const Students_SponserDashboard = () => {
         />
       </div>
 
-      { showModal && (
+      {showModal && (
         <div
           className="modal fade show"
           style={{ display: "block", background: "rgba(0,0,0,0.5)" }}
@@ -216,7 +275,7 @@ export const Students_SponserDashboard = () => {
           </div>
         </div>
       )
-}
+      }
     </>
   );
 };
