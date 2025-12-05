@@ -3,7 +3,7 @@ import { Navigate, Outlet } from 'react-router-dom';
 import { AuthContext } from '../../contexts/authContext';
 
 export const ProtectedRoute = ({ children = null }) => {
-  const { userLoggedIN } = useContext(AuthContext);
+
   const accessToken = localStorage.getItem('accessToken') || '';
   const userRole = localStorage.getItem('role') || '';
 
@@ -13,7 +13,7 @@ export const ProtectedRoute = ({ children = null }) => {
     return children ? children : <Outlet />; // Always allow ADMIN
   }
 
-  if (!userLoggedIN || !accessToken) {
+  if (!accessToken) {
     return <Navigate to="/login-3" replace />;
   }
 

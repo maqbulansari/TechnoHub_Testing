@@ -2866,7 +2866,7 @@ td {
   padding: 1rem;
 }
 
-.header-titleHT {
+.header-titleHT      {
   margin: 0;
 }
 
@@ -4356,3 +4356,5 @@ input[type="password"]::-ms-clear {
   margin: 0 auto 25px;
   box-shadow: 0 10px 30px rgba(238, 90, 90, 0.3);
 }
+
+
