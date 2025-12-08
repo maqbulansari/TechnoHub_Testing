@@ -46,9 +46,9 @@ export const SponsorTable = () => {
   return (
     <div className="px-2"><br></br>
       <h1 className="sponsornowHeading">Sponsors</h1>
-      <div className="table-wrapperS">
+      <div className="table-wrapperS overflow-y-auto">
         <table className="student-tableS">
-          <thead className="thead">
+          <thead className="thead z-2 sticky top-0">
             <tr>
               {/* <th className="text-nowrap">User Profile</th> */}
               <th className="text-nowrap text-white">Name</th>

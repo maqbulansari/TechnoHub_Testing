@@ -10,12 +10,7 @@ const AllTrainer = () => {
 
 
 
-
-
-
-
     const fetchAllTrainer = async () => {
-      if (allTrainer.length > 0) return; // Already fetched
       try {
         const response = await axios.get(`${API_BASE_URL}/trainers/`);
         if (response.status === 200) {
@@ -30,17 +25,15 @@ const AllTrainer = () => {
     };
 
   // Fetch trainers when component mounts
-  useEffect(() => {
-    if (fetchAllTrainer) {
-      fetchAllTrainer();
-    }
-  }, [fetchAllTrainer]);
+  // useEffect(() => {
+  //   if (fetchAllTrainer) {
+  //     fetchAllTrainer();
+  //   }
+  // }, [fetchAllTrainer]);
 
   useEffect(() => {
-    if (allTrainer && allTrainer.length > 0) {
-      setLoading(false);
-    }
-  }, [allTrainer]);
+fetchAllTrainer()
+  }, []);
 
 
   const trainerData = allTrainer;
