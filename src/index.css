@@ -2807,10 +2807,13 @@ td {
 
 .table-wrapperS {
   border-radius: 8px;
-  overflow-x: auto;
+  overflow: auto;   
   margin: 0 auto;
   max-width: 90%;
+   max-height: 80vh;   
 }
+
+
 
 .student-tableS {
   width: 100%;
@@ -2819,7 +2822,7 @@ td {
   background: white;
   min-width: 600px;
   border-radius: 8px;
-  overflow: hidden;
+   display: table !important;
 }
 
 .student-tableS th {
@@ -2854,6 +2857,16 @@ td {
   background-color: #e3f2fd;
   color: #1976d2;
   white-space: nowrap;
+}
+
+
+.no-scrollbar {
+  -ms-overflow-style: none;  
+  scrollbar-width: none;     
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;            
 }
 
 .header-containerHT {
