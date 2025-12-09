@@ -99,7 +99,7 @@ const Defaultlayout = () => {
       title: "Sponsor",
       items:
         role === "ADMIN"
-          ? [{ path: "/Sponsor_Table", label: "SPONSORS" }]
+          ? [{ path: "/Sponsor_Table", label: "SPONSORS" },{ path: "/Sponsored_Students", label: "SPONSORED STUDENTS" }]
           : [
               { path: "/Sponsor_Profile", label: "PROFILE" },
               { path: "/Students_SponserDashboard", label: "DASHBOARD" },

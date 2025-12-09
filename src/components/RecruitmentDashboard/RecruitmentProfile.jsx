@@ -150,48 +150,44 @@ const RecruitmentProfile = () => {
 
   return (
     <div className="container mt-5">
-      <div className="card p-3">
-        <div className="row">
-          <div className="col-xxl-12 d-flex mb-3">
-            <div className="d-flex flex-column me-4">
-              {imagePreview || existingProfileImage ? (
-                <img
-                  src={imagePreview || `${API_BASE_URL}${existingProfileImage}`}
-                  className="profileImg mb-2"
-                  alt="Profile"
-                  style={{ width: "150px", height: "150px", objectFit: "cover", borderRadius: "50%" }}
-                />
-              ) : (
-                <div
-                  className="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center mb-2"
-                  style={{ width: "150px", height: "150px", fontSize: "60px", fontWeight: "bold" }}
-                >
-                  {firstName?.charAt(0) || "R"}
-                </div>
-              )}
+      <div className="card shadow-sm border-0 p-3">
+        <div className="row ">
+          <div className="col-xxl-12  mb-3">
+            <div className=" me-4 bg-blue-300 rounded-4 p-2">
+              <center>
+                {imagePreview || existingProfileImage ? (
+                  <img
+                    src={imagePreview || `${API_BASE_URL}${existingProfileImage}`}
+                    className="profileImg mb-2"
+                    alt="Profile"
+                    style={{ width: "150px", height: "150px", objectFit: "cover", borderRadius: "50%" }}
+                  />
+                ) : (
+                  <div
+                    className="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center mb-2 uppercase"
+                    style={{ width: "150px", height: "150px", fontSize: "60px", fontWeight: "bold" }}
+                  >
+                    {firstName?.charAt(0) || "R"}
+                  </div>
+                )}</center>
 
-              <button
-                className="btn btn-light w-100"
-                onClick={() => {
-                  if (isEditing) handleRecruiterUpdate();
-                  setIsEditing(!isEditing);
-                  toggleDisabled();
-                }}
-              >
-                {isEditing ? "Save" : "Edit"}
-              </button>
+
             </div>
-            {recruiterProfileDetails.map((items, idx) => (
-              <div className="profileView" key={idx}>
-                <span className="profileName d-block capitalize">
-                  {items.first_name} {items.last_name}
-                </span>
-                <span className="profileEmail d-block">{items.email}</span>
-              </div>
-            ))}
+            <center>
+              {recruiterProfileDetails.map((items, idx) => (
+                <div className="profileView pt-2" key={idx}>
+                  <h4 className="mb-1 text-dark text-capitalize">
+                    {items.first_name} {items.last_name}
+                  </h4>
+                  <div className="text-muted small mb-2">{items.email}</div>
+
+                </div>
+              ))}</center>
           </div>
-          <hr />
+
         </div>
+
+        <hr />
 
         <div className="row">
           <div className="col-xxl-6 mb-3">
@@ -318,13 +314,25 @@ const RecruitmentProfile = () => {
           </div>
         </div>
 
-        <div className="row">
+        {/* <div className="row">
           <div className="col-12 text-center">
             <button className="btn btn-primary w-40" onClick={handleRecruiterUpdate} disabled={loading}>
               {loading ? <span className="fas fa-spinner fa-spin me-2"></span> : "Submit Change"}
             </button>
           </div>
-        </div>
+        </div> */}
+
+        <div className="w-full text-end">
+          <button
+            className="btn btn-primary text-end"
+            onClick={() => {
+              if (isEditing) handleRecruiterUpdate();
+              setIsEditing(!isEditing);
+              toggleDisabled();
+            }}
+          >
+            {isEditing ? "Save" : "Edit Profile"}
+          </button></div>
       </div>
 
       {/* Success Modal */}
