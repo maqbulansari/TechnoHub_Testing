@@ -35,9 +35,11 @@ import AllStudent from "../../components/Student_dashboard/AllStudent";
 import AssignBatchForTrainer from "../../components/Trainer_dashboard/AssignBatchForTrainer";
 import { RecruiterTable } from "../../components/RecruitmentDashboard/RecruiterTable";
 import { SponsorTable } from "../../components/Sponser_Dashboard/SponsorTable";
+import { SponsoredStudents } from "../../components/Sponser_Dashboard/SponsoredStudents";
 import ForgotPassword from "../auth/forgotPassword/forgotPassword";
 import ResetPassword from "../auth/resetPassword/resetPassword";
 import { ChangePassword } from "../auth/changePassword/ChangePassword";
+import AssessmentSelectedStudents from "../../components/Assessment_dashboard/AssessmentSelectedStudents";
 const ALLRoutes = () => {
     const routes = all_routes;
     return (<Routes>
