@@ -126,16 +126,16 @@ const StudentsProfile = () => {
                           </div>
                         )}
                       </div>
-                   
 
-                        
+
+
                     </div>
                   </div>
                   <div className="col-12 col-md-4 ">
                     <div className="p-2 text-center">
 
 
-                     <h4 className="mb-1 text-dark text-capitalize">
+                      <h4 className="mb-1 text-dark text-capitalize">
                         {student.first_name} {student.last_name}
                       </h4>
                       <div className="text-muted small mb-2">{student.email}</div>
@@ -143,9 +143,9 @@ const StudentsProfile = () => {
                       <div className="d-inline-block px-3 py-1 rounded-pill bg-white border small text-uppercase text-primary fw-semibold">
                         Batch: <span className="ms-1">{student.batch}</span>
                       </div>
-                      </div>
-                      </div>
-                      <hr></hr>
+                    </div>
+                  </div>
+                  <hr></hr>
 
                   {/* RIGHT COLUMN: DETAILS / FORM */}
                   <div className="col-12 col-md-8">
@@ -205,7 +205,7 @@ const StudentsProfile = () => {
                               onClick={() => setEditMode(true)}
                             >
                               <i className="fa-solid fa-user-pen mr-2"></i>
-                              Edit Profile 
+                              Edit Profile
                             </button>
                           </div>
                         </>
@@ -231,57 +231,76 @@ const StudentsProfile = () => {
                           <form onSubmit={handleSubmit(onSubmit)}>
                             <div className="row">
                               <div className="col-md-6 mb-3">
-                                <label className="form-label fw-semibold small">
-                                  First Name
-                                </label>
+                                <label className="form-label fw-semibold small">First Name</label>
                                 <input
                                   className="form-control form-control-sm"
-                                  {...register("first_name")}
+                                  {...register("first_name", {
+                                    required: "First name is required",
+                                    minLength: { value: 2, message: "Minimum 2 characters required" },
+                                  })}
                                 />
+                                {errors.first_name && (
+                                  <p className="text-danger mt-1 small mb-0">{errors.first_name.message}</p>
+                                )}
                               </div>
                               <div className="col-md-6 mb-3">
-                                <label className="form-label fw-semibold small">
-                                  Last Name
-                                </label>
+                                <label className="form-label fw-semibold small">Last Name</label>
                                 <input
                                   className="form-control form-control-sm"
-                                  {...register("last_name")}
+                                  {...register("last_name", {
+                                    required: "Last name is required",
+                                    minLength: { value: 2, message: "Minimum 2 characters required" },
+                                  })}
                                 />
+                                {errors.last_name && (
+                                  <p className="text-danger mt-1 small mb-0">{errors.last_name.message}</p>
+                                )}
                               </div>
                             </div>
 
                             <div className="row">
                               <div className="col-md-6 mb-3">
-                                <label className="form-label fw-semibold small">
-                                  Email
-                                </label>
+                                <label className="form-label fw-semibold small">Email</label>
                                 <input
                                   className="form-control form-control-sm"
                                   type="email"
-                                  {...register("email")}
+                                  {...register("email", {
+                                    required: "Email is required",
+                                    pattern: {
+                                      value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                                      message: "Invalid email address",
+                                    },
+                                  })}
                                 />
+                                {errors.email && (
+                                  <p className="text-danger mt-1 small mb-0">{errors.email.message}</p>
+                                )}
                               </div>
                               <div className="col-md-6 mb-3">
-                                <label className="form-label fw-semibold small">
-                                  Mobile Number
-                                </label>
+                                <label className="form-label fw-semibold small">Mobile Number</label>
                                 <input
+                                  type="number"
                                   className="form-control form-control-sm"
-                                  {...register("mobile_no")}
+                                  {...register("mobile_no", {
+                                    required: "Mobile number is required",
+                                    pattern: {
+                                      value: /^[0-9]{10}$/,
+                                      message: "Enter a valid 10-digit mobile number",
+                                    },
+                                  })}
                                 />
+                                {errors.mobile_no && (
+                                  <p className="text-danger mt-1 small mb-0">{errors.mobile_no.message}</p>
+                                )}
                               </div>
                             </div>
 
                             <div className="row">
                               <div className="col-md-6 mb-3">
-                                <label className="form-label fw-semibold small">
-                                  Gender
-                                </label>
+                                <label className="form-label fw-semibold small">Gender</label>
                                 <select
                                   className="form-control form-control-sm"
-                                  {...register("gender", {
-                                    required: "Gender is required",
-                                  })}
+                                  {...register("gender", { required: "Gender is required" })}
                                 >
                                   <option value="">Select Gender</option>
                                   <option value="Female">Female</option>
@@ -289,63 +308,55 @@ const StudentsProfile = () => {
                                   <option value="other">Other</option>
                                 </select>
                                 {errors.gender && (
-                                  <p className="text-danger mt-1 small mb-0">
-                                    {errors.gender.message}
-                                  </p>
+                                  <p className="text-danger mt-1 small mb-0">{errors.gender.message}</p>
                                 )}
                               </div>
                               <div className="col-md-6 mb-3">
-                                <label className="form-label fw-semibold small">
-                                  Date of Birth
-                                </label>
+                                <label className="form-label fw-semibold small">Date of Birth</label>
                                 <input
                                   type="date"
                                   className="form-control form-control-sm"
-                                  {...register("date_of_birth", {
-                                    required: "DOB is required",
-                                  })}
+                                  max={new Date().toISOString().split("T")[0]}
+                                  {...register("date_of_birth", { required: "Date of birth is required" })}
                                 />
                                 {errors.date_of_birth && (
-                                  <p className="text-danger mt-1 small mb-0">
-                                    {errors.date_of_birth.message}
-                                  </p>
+                                  <p className="text-danger mt-1 small mb-0">{errors.date_of_birth.message}</p>
                                 )}
                               </div>
+
                             </div>
 
                             <div className="row">
                               <div className="col-md-6 mb-3">
-                                <label className="form-label fw-semibold small">
-                                  Qualification
-                                </label>
+                                <label className="form-label fw-semibold small">Qualification</label>
                                 <input
                                   className="form-control form-control-sm"
-                                  {...register("qualification")}
+                                  {...register("qualification", { required: "Qualification is required" })}
                                 />
+                                {errors.qualification && (
+                                  <p className="text-danger mt-1 small mb-0">{errors.qualification.message}</p>
+                                )}
                               </div>
                               <div className="col-md-6 mb-3">
-                                <label className="form-label fw-semibold small">
-                                  Address
-                                </label>
+                                <label className="form-label fw-semibold small">Address</label>
                                 <textarea
                                   className="form-control form-control-sm"
                                   rows={2}
-                                  {...register("address")}
+                                  {...register("address", { required: "Address is required" })}
                                 ></textarea>
+                                {errors.address && (
+                                  <p className="text-danger mt-1 small mb-0">{errors.address.message}</p>
+                                )}
                               </div>
                             </div>
 
                             <div className="mb-3">
-                              <label className="form-label fw-semibold small">
-                                Profile Image
-                              </label>
+                              <label className="form-label fw-semibold small">Profile Image</label>
                               <input
                                 className="form-control form-control-sm"
                                 type="file"
                                 accept="image/*"
-                                onChange={(e) =>
-                                  setImage(e.target.files?.[0] || null)
-                                }
+                                onChange={(e) => setImage(e.target.files?.[0] || null)}
                               />
                             </div>
 
@@ -361,24 +372,20 @@ const StudentsProfile = () => {
                               >
                                 Cancel
                               </button>
-                              <button
-                                className="btn btn-primary btn-sm"
-                                disabled={loading}
-                              >
+                              <button className="btn btn-primary btn-sm" disabled={loading}>
                                 {loading ? (
                                   <>
                                     <span className="fas fa-spinner fa-spin me-2"></span>
-                                    Saving...
                                   </>
                                 ) : (
                                   <>
-                                    <i className="fa-solid fa-check me-1"></i>
-                                    Save Changes
+                                    <i className="fa-solid fa-check me-1"></i> Save Changes
                                   </>
                                 )}
                               </button>
                             </div>
                           </form>
+
                         </>
                       )}
                     </div>
@@ -387,7 +394,7 @@ const StudentsProfile = () => {
               </div>
             </div>
 
-          
+
           </div>
         </div>
       </div>

@@ -167,233 +167,227 @@ const Sponsor_Profile = () => {
 
   return (
     <div className="container mt-5">
-      <div className="card p-3">
+      <div className="card shadow-sm border-0 p-3">
         <div className="row">
-          <div className="col-xxl-12 col-xl-12 col-md-12 d-flex mb-3">
-            <div className="d-flex flex-column me-4">
-              {imagePreview || existingProfileImage ? (
-                <img
-                  src={
-                    imagePreview
-                      ? imagePreview
-                      : `${API_BASE_URL}${existingProfileImage}`
-                  }
-                  className="profileImg mb-2"
-                  alt="Profile"
-                  style={{
-                    width: "150px",
-                    height: "150px",
-                    objectFit: "cover",
-                    borderRadius: "50%",
-                  }}
-                />
-              ) : (
-                <div
-                  className="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center mb-2"
-                  style={{
-                    width: "150px",
-                    height: "150px",
-                    fontSize: "60px",
-                    fontWeight: "bold",
-                    textTransform: "uppercase",
-                  }}
-                >
-                  {firstName?.charAt(0) || "S"}
-                </div>
-              )}
-              <button
-                className="btn btn-light w-100"
-                onClick={() => {
-                  setIsEditing(!isEditing);
-                  toggleDisabled();
-                }}
-              >
-                {isEditing ? "Save" : "Edit"}
-              </button>
+          <div className="col-xxl-12 col-xl-12 col-md-12 mb-3 text-center">
+            <div className=" me-4 bg-blue-300 rounded-4 p-2">
+              <center>
+                {imagePreview || existingProfileImage ? (
+                  <img
+                    src={
+                      imagePreview
+                        ? imagePreview
+                        : `${API_BASE_URL}${existingProfileImage}`
+                    }
+                    className="profileImg mb-2"
+                    alt="Profile"
+                    style={{
+                      width: "150px",
+                      height: "150px",
+                      objectFit: "cover",
+                      borderRadius: "50%",
+                    }}
+                  />
+                ) : (
+                  <div
+                    className="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center mb-2"
+                    style={{
+                      width: "150px",
+                      height: "150px",
+                      fontSize: "60px",
+                      fontWeight: "bold",
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    {firstName?.charAt(0) || "S"}
+                  </div>
+                )}
+              </center>
+
             </div>
             {sponsorProfileDetails.map((items, idx) => (
-              <div className="profileView" key={idx}>
-                <span className="profileName d-block capitalize">
+              <div className="profileView pt-2" key={idx}>
+                <h4 className="mb-1 text-dark text-capitalize">
                   {items.first_name} {items.last_name}
-                </span>
-                <span className="profileEmail d-block">{items.email}</span>
+                </h4>
+                <div className="text-muted small mb-2">{items.email}</div>
               </div>
             ))}
           </div>
           <hr />
-        </div>
 
-        {/* Form Fields */}
-        <div className="row">
-          {/* First Name */}
-          <div className="col-xxl-6 col-xl-6 col-md-6 mb-3">
-            <label htmlFor="firstName" className="form-label">
-              First Name
-            </label>
-            <input
-              type="text"
-              disabled={!isEditing}
-              id="firstName"
-              className={`form-control ${errors.firstName ? "is-invalid" : ""}`}
-              onChange={(e) => setFirstName(e.target.value)}
-              value={firstName}
-            />
-            {errors.firstName && (
-              <div className="invalid-feedback">{errors.firstName}</div>
-            )}
-          </div>
 
-          {/* Last Name */}
-          <div className="col-xxl-6 col-xl-6 col-md-6 mb-3">
-            <label htmlFor="lastName" className="form-label">
-              Last Name
-            </label>
-            <input
-              type="text"
-              disabled={!isEditing}
-              id="lastName"
-              className={`form-control ${errors.lastName ? "is-invalid" : ""}`}
-              onChange={(e) => setLastName(e.target.value)}
-              value={lastName}
-            />
-            {errors.lastName && (
-              <div className="invalid-feedback">{errors.lastName}</div>
-            )}
-          </div>
 
-          {/* Profile Image */}
-          <div className="col-xxl-6 col-xl-6 col-md-6 mb-3">
-            <label className="form-label" htmlFor="user_profile">
-              User Profile Image
-            </label>
-            <input
-              disabled={!isEditing}
-              id="user_profile"
-              type="file"
-              name="user_profile"
-              className="form-control mb-0"
-              accept="image/jpeg, image/png, image/jpg"
-              onChange={handleImageUpload}
-            />
-            {userProfileError && (
-              <span className="text-danger">{userProfileError}</span>
-            )}
-            {imagePreview && (
-              <div className="mt-2">
-                <img
-                  src={imagePreview}
-                  alt="Preview"
-                  style={{ maxWidth: "100px", maxHeight: "100px", display: "block" }}
-                  className="mb-2"
-                />
-                <button
-                  type="button"
-                  className="btn btn-sm btn-danger"
-                  onClick={removeImage}
-                >
-                  Remove Image
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* Email */}
-          <div className="col-xxl-6 col-xl-6 col-md-6 mb-3">
-            <label htmlFor="email" className="form-label">
-              Email
-            </label>
-            <input
-              type="text"
-              disabled={!isEditing}
-              id="email"
-              className={`form-control ${errors.email ? "is-invalid" : ""}`}
-              onChange={(e) => setEmail(e.target.value)}
-              value={email}
-            />
-            {errors.email && <div className="invalid-feedback">{errors.email}</div>}
-          </div>
-
-          {/* Phone Number */}
-          <div className="col-xxl-6 col-xl-6 col-md-6 mb-3">
-            <label htmlFor="phoneNumber" className="form-label">
-              Phone Number
-            </label>
-            <input
-              type="text"
-              disabled={!isEditing}
-              id="phoneNumber"
-              className={`form-control ${errors.phoneNumber ? "is-invalid" : ""}`}
-              onChange={(e) => setPhoneNumber(e.target.value)}
-              value={phoneNumber}
-            />
-            {errors.phoneNumber && (
-              <div className="invalid-feedback">{errors.phoneNumber}</div>
-            )}
-          </div>
-
-          {/* Company Name */}
-          <div className="col-xxl-6 col-xl-6 col-md-6 mb-3">
-            <label htmlFor="companyName" className="form-label">
-              Company Name
-            </label>
-            <input
-              type="text"
-              disabled={!isEditing}
-              id="companyName"
-              className={`form-control ${errors.companyName ? "is-invalid" : ""}`}
-              onChange={(e) => setCompanyName(e.target.value)}
-              value={companyName}
-            />
-            {errors.companyName && (
-              <div className="invalid-feedback">{errors.companyName}</div>
-            )}
-          </div>
-
-          {/* Gender */}
-          <div className="col-xxl-6 col-xl-6 col-md-6 mb-3">
-            <label className="form-label" htmlFor="Gender">
-              Select Gender
-            </label>
-            <div className="dropdown">
-              <button
-                className={`btnDropdown dropdown-toggle form-control ${errors.gender ? "is-invalid" : ""}`}
-                type="button"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
+          {/* Form Fields */}
+          <div className="row">
+            {/* First Name */}
+            <div className="col-xxl-6 col-xl-6 col-md-6 mb-3">
+              <label htmlFor="firstName" className="form-label">
+                First Name
+              </label>
+              <input
+                type="text"
                 disabled={!isEditing}
-              >
-                {gender || "Select Gender"}
-              </button>
-              <ul className="dropdown-menu w-100">
-                <li className="dropdown-item c-pointer" onClick={() => setGender("Male")}>
-                  Male
-                </li>
-                <li className="dropdown-item c-pointer" onClick={() => setGender("Female")}>
-                  Female
-                </li>
-                <li className="dropdown-item c-pointer" onClick={() => setGender("Other")}>
-                  Other
-                </li>
-              </ul>
-              {errors.gender && (
-                <div className="invalid-feedback d-block">{errors.gender}</div>
+                id="firstName"
+                className={`form-control ${errors.firstName ? "is-invalid" : ""}`}
+                onChange={(e) => setFirstName(e.target.value)}
+                value={firstName}
+              />
+              {errors.firstName && (
+                <div className="invalid-feedback">{errors.firstName}</div>
               )}
             </div>
-          </div>
-        </div>
 
-        {/* Submit Button */}
-        <div className="row">
-          <div className="col-xxl-12 col-xl-12 col-md-12 text-end">
-            <center>
-              <button
-                className="btn btn-primary w-40"
-                onClick={handleSponsorUpdate}
-                disabled={loading}
-              >
-                {loading ? <span className="fas fa-spinner fa-spin me-2"></span> : "Submit Change"}
-              </button>
-            </center>
+            {/* Last Name */}
+            <div className="col-xxl-6 col-xl-6 col-md-6 mb-3">
+              <label htmlFor="lastName" className="form-label">
+                Last Name
+              </label>
+              <input
+                type="text"
+                disabled={!isEditing}
+                id="lastName"
+                className={`form-control ${errors.lastName ? "is-invalid" : ""}`}
+                onChange={(e) => setLastName(e.target.value)}
+                value={lastName}
+              />
+              {errors.lastName && (
+                <div className="invalid-feedback">{errors.lastName}</div>
+              )}
+            </div>
+
+            {/* Profile Image */}
+            <div className="col-xxl-6 col-xl-6 col-md-6 mb-3">
+              <label className="form-label" htmlFor="user_profile">
+                User Profile Image
+              </label>
+              <input
+                disabled={!isEditing}
+                id="user_profile"
+                type="file"
+                name="user_profile"
+                className="form-control mb-0"
+                accept="image/jpeg, image/png, image/jpg"
+                onChange={handleImageUpload}
+              />
+              {userProfileError && (
+                <span className="text-danger">{userProfileError}</span>
+              )}
+              {imagePreview && (
+                <div className="mt-2">
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
+                    style={{ maxWidth: "100px", maxHeight: "100px", display: "block" }}
+                    className="mb-2"
+                  />
+                  <button
+                    type="button"
+                    className="btn btn-sm btn-danger"
+                    onClick={removeImage}
+                  >
+                    Remove Image
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Email */}
+            <div className="col-xxl-6 col-xl-6 col-md-6 mb-3">
+              <label htmlFor="email" className="form-label">
+                Email
+              </label>
+              <input
+                type="text"
+                disabled={!isEditing}
+                id="email"
+                className={`form-control ${errors.email ? "is-invalid" : ""}`}
+                onChange={(e) => setEmail(e.target.value)}
+                value={email}
+              />
+              {errors.email && <div className="invalid-feedback">{errors.email}</div>}
+            </div>
+
+            {/* Phone Number */}
+            <div className="col-xxl-6 col-xl-6 col-md-6 mb-3">
+              <label htmlFor="phoneNumber" className="form-label">
+                Phone Number
+              </label>
+              <input
+                type="text"
+                disabled={!isEditing}
+                id="phoneNumber"
+                className={`form-control ${errors.phoneNumber ? "is-invalid" : ""}`}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                value={phoneNumber}
+              />
+              {errors.phoneNumber && (
+                <div className="invalid-feedback">{errors.phoneNumber}</div>
+              )}
+            </div>
+
+            {/* Company Name */}
+            <div className="col-xxl-6 col-xl-6 col-md-6 mb-3">
+              <label htmlFor="companyName" className="form-label">
+                Company Name
+              </label>
+              <input
+                type="text"
+                disabled={!isEditing}
+                id="companyName"
+                className={`form-control ${errors.companyName ? "is-invalid" : ""}`}
+                onChange={(e) => setCompanyName(e.target.value)}
+                value={companyName}
+              />
+              {errors.companyName && (
+                <div className="invalid-feedback">{errors.companyName}</div>
+              )}
+            </div>
+
+            {/* Gender */}
+            <div className="col-xxl-6 col-xl-6 col-md-6 mb-3">
+              <label className="form-label" htmlFor="Gender">
+                Select Gender
+              </label>
+              <div className="dropdown">
+                <button
+                  className={`btnDropdown dropdown-toggle form-control ${errors.gender ? "is-invalid" : ""}`}
+                  type="button"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                  disabled={!isEditing}
+                >
+                  {gender || "Select Gender"}
+                </button>
+                <ul className="dropdown-menu w-100">
+                  <li className="dropdown-item c-pointer" onClick={() => setGender("Male")}>
+                    Male
+                  </li>
+                  <li className="dropdown-item c-pointer" onClick={() => setGender("Female")}>
+                    Female
+                  </li>
+                  <li className="dropdown-item c-pointer" onClick={() => setGender("Other")}>
+                    Other
+                  </li>
+                </ul>
+                {errors.gender && (
+                  <div className="invalid-feedback d-block">{errors.gender}</div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Submit Button */}
+          <div className="w-full text-end">
+            <button
+              className="btn btn-primary"
+              onClick={() => {
+                setIsEditing(!isEditing);
+                toggleDisabled();
+              }}
+            >
+              {isEditing ? "Save" : "Edit Profile"}
+            </button>
           </div>
         </div>
       </div>

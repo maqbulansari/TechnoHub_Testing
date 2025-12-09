@@ -38,6 +38,7 @@ import { SponsorTable } from "../../components/Sponser_Dashboard/SponsorTable";
 import ForgotPassword from "../auth/forgotPassword/forgotPassword";
 import ResetPassword from "../auth/resetPassword/resetPassword";
 import { ChangePassword } from "../auth/changePassword/ChangePassword";
+import { SponsoredStudents } from "../../components/Sponser_Dashboard/SponsoredStudents";
 const ALLRoutes = () => {
     const routes = all_routes;
     return (<Routes>
@@ -78,6 +79,7 @@ const ALLRoutes = () => {
           <Route path="/StudentInformation" element={<StudentInformation />}/>
           <Route path="/RecuriterTable" element={<RecruiterTable />}/>
           <Route path="/Sponsor_Table" element={<SponsorTable />}/>
+          <Route path="/Sponsored_Students" element={<SponsoredStudents />}/>
         </Route>
       </Route>
 
