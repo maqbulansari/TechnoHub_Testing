@@ -166,7 +166,7 @@ const AssignBatch = () => {
         
 
         {learners.length === 0 ? (
-          <div className="alert alert-info pt-3">
+          <div className="alert alert-info pt-3 text-center">
             All Students have been assigned to batches.
           </div>
         ) : (
@@ -285,8 +285,7 @@ const AssignBatch = () => {
                 <option value="">Select batch</option>
                 {batches.map((batch) => (
                   <option key={batch.id} value={batch.batch_id}>
-                    {batch.batch_name} - {batch.trainer.join(", ")} -{" "}
-                    {batch.center}
+                    {batch.batch_name} 
                   </option>
                 ))}
               </select>

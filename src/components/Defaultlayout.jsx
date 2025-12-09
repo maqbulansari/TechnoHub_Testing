@@ -131,7 +131,9 @@ const Defaultlayout = () => {
       },
       {
         title: "Assessment Process",
-        items: [{ path: "/AssessmentTable", label: "ASSESSMENT CANDIDATE" }],
+        items:
+          role === "ADMIN"
+          ?  [{ path: "/AssessmentSelectedStudent", label: "ASSESSMENT CANDIDATE" }] :[{ path: "/AssessmentTable", label: "ASSESSMENT CANDIDATE" }] ,
         icon: faCubes,
         key: "assessment-process",
       },

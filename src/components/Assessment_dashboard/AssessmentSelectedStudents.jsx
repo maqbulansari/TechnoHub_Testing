@@ -6,7 +6,7 @@ import { Column } from "primereact/column";
 import { Button } from "primereact/button";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../contexts/authContext";
-const AssessmentTable = () => {
+const AssessmentSelectedStudents = () => {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -27,7 +27,7 @@ const AssessmentTable = () => {
         const token = localStorage.getItem("accessToken");
         const fetchData = async () => {
             try {
-                const response = await axios.get(`${API_BASE_URL}/assessment/`, {
+                const response = await axios.get(`${API_BASE_URL}/student/selected_student_assessment/`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -164,4 +164,4 @@ const AssessmentTable = () => {
           </div>)}
     </div>);
 };
-export default AssessmentTable;
+export default AssessmentSelectedStudents;

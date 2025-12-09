@@ -40,12 +40,12 @@ const AdmissionTable = () => {
         };
         fetchData();
     }, []);
-    const nameTemplate = (rowData) => (<span style={{ color: "black", fontWeight: "bold" }}>{rowData.name}</span>);
+    const nameTemplate = (rowData) => (<span style={{ color: "black"}}>{rowData.name}</span>);
     const emailTemplate = (rowData) => (<span style={{ color: "black" }}>{rowData.email}</span>);
-    const mobileTemplate = (rowData) => (<span style={{ color: "black", fontWeight: "bold" }}>
+    const mobileTemplate = (rowData) => (<span style={{ color: "black"}}>
       {rowData.mobile_no}
     </span>);
-    const interviewByTemplate = (rowData) => (<span style={{ color: "black", fontWeight: "bold" }}>
+    const interviewByTemplate = (rowData) => (<span style={{ color: "black"}}>
       {rowData.interview_by || "N/A"}
     </span>);
     const handleEditInterviewer = (rowData) => {

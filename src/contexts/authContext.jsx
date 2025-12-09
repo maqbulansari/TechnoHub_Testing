@@ -61,7 +61,6 @@ const AuthProvider = ({ children }) => {
 
   // Set up Axios interceptors
   useEffect(() => {
-    // Request interceptor to add auth token to headers
     const requestInterceptor = axios.interceptors.request.use(
       config => {
         if (accessToken) {
@@ -72,37 +71,40 @@ const AuthProvider = ({ children }) => {
       error => Promise.reject(error)
     );
 
-    // Response interceptor to handle token refresh
     const responseInterceptor = axios.interceptors.response.use(
       response => response,
       async error => {
         const originalRequest = error.config;
-        
-        // If error is 401 and we haven't already retried
-        if (error.response?.status === 401 && !originalRequest._retry) {
+        const isTokenExpired =
+          error.response?.status === 401 &&
+          error.response?.data?.code === "token_not_valid";
+
+        if (isTokenExpired && !originalRequest._retry) {
           originalRequest._retry = true;
-          
+
           try {
-            const newAccessToken = await GenerateNewAccessToken();
-            originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-            return axios(originalRequest); // Retry the original request
-          } catch (refreshError) {
-            // If refresh fails, logout the user
+            const newToken = await GenerateNewAccessToken();
+
+            axios.defaults.headers.common.Authorization = `Bearer ${newToken}`;
+            originalRequest.headers.Authorization = `Bearer ${newToken}`;
+
+            return axios(originalRequest);
+          } catch (err) {
             LogoutUser();
-            return Promise.reject(refreshError);
+            return Promise.reject(err);
           }
         }
-        
+
         return Promise.reject(error);
       }
     );
 
     return () => {
-      // Clean up interceptors when component unmounts
       axios.interceptors.request.eject(requestInterceptor);
       axios.interceptors.response.eject(responseInterceptor);
     };
   }, [accessToken, refreshToken]);
+
 
   // Lazy fetch functions - only called when explicitly needed
   // fetchTrainers() - Only fetches current user's trainer profile (single trainer name)
@@ -113,7 +115,7 @@ const AuthProvider = ({ children }) => {
     if (role !== "TRAINER" && responseSubrole !== "TRAINER") return;
     setLoading(true);
     try {
-      const response = await axios.get(`${API_BASE_URL}/trainers/` , {
+      const response = await axios.get(`${API_BASE_URL}/trainers/`, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
@@ -138,8 +140,8 @@ const AuthProvider = ({ children }) => {
       if (response.status === 200) {
         setAdmin(
           response.data[0].user.first_name +
-            " " +
-            response.data[0].user.last_name
+          " " +
+          response.data[0].user.last_name
         );
       }
     } catch (error) {
@@ -179,49 +181,49 @@ const AuthProvider = ({ children }) => {
     }
   };
 
-const RegisterUser = async (userData) => {
-  setLoading(true);
-  setUserCreatedSuccessfully(false);
-  setEmailAlreadyCreated(false); 
-  try {
-    const config = {
-      headers: {
-        'Content-Type': userData instanceof FormData ? 'multipart/form-data' : 'application/json'
+  const RegisterUser = async (userData) => {
+    setLoading(true);
+    setUserCreatedSuccessfully(false);
+    setEmailAlreadyCreated(false);
+    try {
+      const config = {
+        headers: {
+          'Content-Type': userData instanceof FormData ? 'multipart/form-data' : 'application/json'
+        }
+      };
+
+      const response = await axios.post(
+        `${API_BASE_URL}/register/`,
+        userData,
+        config
+      );
+
+
+      if (response.status >= 200 && response.status < 300) {
+        // window.alert('User created successfully');
+        setUserCreatedSuccessfully(true);
+        return { success: true, data: response.data };
       }
-    };
 
-    const response = await axios.post(
-      `${API_BASE_URL}/register/`, 
-      userData, 
-      config
-    );
-    
+      return { success: false, data: response.data };
 
-    if (response.status >= 200 && response.status < 300) {
-      // window.alert('User created successfully');
-      setUserCreatedSuccessfully(true);
-      return { success: true, data: response.data };
+    } catch (error) {
+      // Handle email exists error
+      if (error.response?.data?.email?.includes('already exists')) {
+        setEmailAlreadyCreated(true);
+      }
+
+      console.error('Registration error:', error);
+      return {
+        success: false,
+        error: error.response?.data || error.message,
+        status: error.response?.status
+      };
+
+    } finally {
+      setLoading(false);
     }
-    
-    return { success: false, data: response.data };
-    
-  } catch (error) {
-    // Handle email exists error
-    if (error.response?.data?.email?.includes('already exists')) {
-      setEmailAlreadyCreated(true);
-    }
-    
-    console.error('Registration error:', error);
-    return { 
-      success: false, 
-      error: error.response?.data || error.message,
-      status: error.response?.status 
-    };
-    
-  } finally {
-    setLoading(false);
-  }
-};
+  };
   const LoginUser = async (userData) => {
     setLoginError("");
     setLoading(true);
@@ -264,7 +266,7 @@ const RegisterUser = async (userData) => {
     setLoading(true);
     try {
       const response = await axios.get(`${API_BASE_URL}/User/${userID}`);
-      
+
       if (response.status === 200) {
         setUser(response.data);
       }
@@ -279,7 +281,7 @@ const RegisterUser = async (userData) => {
     setLoading(true);
     try {
       const response = await axios.get(`${API_BASE_URL}/SubRole/`);
-      
+
       if (response.status === 200) {
         console.log("Subroles fetched successfully:", response.data);
         setNewSubRole(response.data);
@@ -305,30 +307,38 @@ const RegisterUser = async (userData) => {
     setResponseSubrole(null);
     setUser(null);
   };
+const GenerateNewAccessToken = async () => {
+  if (!refreshToken) {
+    LogoutUser();
+    throw new Error("No refresh token available");
+  }
 
-  const GenerateNewAccessToken = async () => {
-    if (!refreshToken) {
-      LogoutUser();
-      throw new Error("No refresh token available");
+  try {
+    const response = await axios.post(`${API_BASE_URL}/login/refresh/`, {
+      refresh: refreshToken
+    });
+
+    if (response.data.access) {
+      const newAccessToken = response.data.access;
+
+      // Update local state
+      setAccessToken(newAccessToken);
+      // Persist
+      localStorage.setItem("accessToken", newAccessToken);
+      // Update global axios header immediately
+      axios.defaults.headers.common["Authorization"] = `Bearer ${newAccessToken}`;
+
+      return newAccessToken;
     }
-    
-    try {
-      const response = await axios.post(`${API_BASE_URL}/login/refresh/`, {
-        refresh: refreshToken
-      });
-      
-      if (response.data.access) {
-        const newAccessToken = response.data.access;
-        setAccessToken(newAccessToken);
-        localStorage.setItem("accessToken", newAccessToken);
-        return newAccessToken;
-      }
-    } catch (error) {
-      console.error("Token refresh failed:", error);
-      LogoutUser();
-      throw error;
-    }
-  };
+
+    throw new Error("Invalid refresh response");
+  } catch (error) {
+    console.error("Token refresh failed:", error);
+    LogoutUser();
+    throw error;
+  }
+};
+
 
   // Fetch user data when accessToken or userID changes (only if not already fetched)
   useEffect(() => {
