@@ -45,14 +45,14 @@ const AssessmentTable = () => {
         };
         fetchData();
     }, []);
-    const studentNameTemplate = (rowData) => (<span style={{ color: "black", fontWeight: "bold" }}>
+    const studentNameTemplate = (rowData) => (<span style={{ color: "black"}}>
       {rowData.student_name}
     </span>);
     const trainerNameTemplate = (rowData) => (<span style={{ color: "black" }}>{rowData.selected_by_trainer}</span>);
-    const batchNameTemplate = (rowData) => (<span style={{ color: "black", fontWeight: "bold" }}>
+    const batchNameTemplate = (rowData) => (<span style={{ color: "black"}}>
       {rowData.batch_name}
     </span>);
-    const assessmentStatusTemplate = (rowData) => (<span style={{ color: "black", fontWeight: "bold" }}>
+    const assessmentStatusTemplate = (rowData) => (<span style={{ color: "black"}}>
       {rowData.assessment_test_status}
     </span>);
     const adminSelectedTemplate = (rowData) => (<div className="flex align-items-center">
