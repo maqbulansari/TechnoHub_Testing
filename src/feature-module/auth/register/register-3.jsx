@@ -9,7 +9,8 @@ import { Tooltip } from "primereact/tooltip";
 import { Badge } from "primereact/badge";
 
 const Register3 = () => {
-  const { API_BASE_URL } = useContext(AuthContext);
+
+  const { userLoggedIN, accessToken, refreshToken, API_BASE_URL  } = useContext(AuthContext);
   const routes = all_routes;
   const navigate = useNavigate();
 
@@ -27,7 +28,7 @@ const Register3 = () => {
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [newSelectedRole, setNewSelectedRole] = useState("ENABLER");
+  const [newSelectedRole, setNewSelectedRole] = useState("LEARNER");
   const [selectedSubrole, setSelectedSubrole] = useState("Choose Your Subrole");
   const [mobileNumber, setMobileNumber] = useState("");
   const [profileImage, setProfileImage] = useState(null);
@@ -367,10 +368,10 @@ const Register3 = () => {
   const filteredSubroles =
     newSelectedRole === "LEARNER"
       ? newSubrole.filter((s) =>
-        ["INTERVIEWEE", "STUDENT"].includes(s.name?.toUpperCase())
+        ["INTERVIEWEE",].includes(s.name?.toUpperCase())
       )
       : newSubrole.filter(
-        (s) => !["INTERVIEWEE", "STUDENT"].includes(s.name?.toUpperCase())
+        (s) => !["INTERVIEWEE", "STUDENT","GUEST LECTURER","MENTOR","APPLICANT"].includes(s.name?.toUpperCase())
       );
 
 
@@ -517,6 +518,7 @@ const Register3 = () => {
                   type="button"
                   data-bs-toggle="dropdown"
                   aria-expanded="false"
+                 disabled={!userLoggedIN && !accessToken && !refreshToken }
                 >
                   {newSelectedRole}
                 </button>
@@ -527,12 +529,12 @@ const Register3 = () => {
                   >
                     LEARNER
                   </li>
-                  <li
+               {userLoggedIN && accessToken && refreshToken && ( <li
                     className="dropdown-item c-pointer text-sm"
                     onClick={() => handleSelectRole("ENABLER")}
                   >
                     ENABLER
-                  </li>
+                  </li>)}
                 </ul>
               </div>
               {errorSelectedRole && (
