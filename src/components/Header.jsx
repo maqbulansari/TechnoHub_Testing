@@ -1,38 +1,39 @@
 import React, { useContext } from "react";
 import { Link } from "react-router-dom";
-import { all_routes } from "../feature-module/router/all_routes";
-import { Button } from "primereact/button";
 import { AuthContext } from "../contexts/authContext";
-const Header = ({ setVisible }) => {
-    const routes = all_routes;
-    const storedRole = localStorage.getItem("role");
-    const { userLoggedIN, accessToken, refreshToken, userID } = useContext(AuthContext);
-    return (<nav className="navbar flex justify-between items-center px-4 py-2 shadow-md bg-white">
-      <div className="flex items-center gap-3">
 
-        {userLoggedIN && accessToken && refreshToken && userID && (<Button icon="pi pi-bars" className="bg-transparent border-transparent text-blue-600" onClick={() => setVisible(true)} aria-label="Open sidebar"/>)}
+export default function Header() {
+  const { userLoggedIN } = useContext(AuthContext);
 
+  return (
+    <header className="w-full bg-white shadow-sm fixed top-0 left-0 z-50">
+      <nav className="max-w-7xl mx-auto flex items-center justify-between py-4 px-6">
         {/* Logo */}
-        <div className="navbar-logo">
-          <div className="navbar-logo">
-        <Link to="/">
-          <h1 className="logoHeading">LGSTechnoHub</h1>
+        <Link to="/" className="text-2xl font-bold text-blue-600 tracking-wide">
+          TechnoHub
         </Link>
-      </div>
-        </div>
-      </div>
 
-      <div className="flex items-center gap-3">
-        {!userLoggedIN && !accessToken && !refreshToken && (<>
-            <Link to={routes.login3} className="btn btn-light text-center">
-              Login
+        {/* Centered nav (desktop only) */}
+        <ul className="hidden md:flex items-center gap-8 text-gray-700 font-medium">
+          <li><a href="#trainers" className="hover:text-blue-600">Trainers</a></li>
+          <li><a href="#tech" className="hover:text-blue-600">Technologies</a></li>
+          <li><a href="#gallery" className="hover:text-blue-600">Gallery</a></li>
+          <li><a href="#reads" className="hover:text-blue-600">Thursday Reads</a></li>
+        </ul>
+
+        {/* Right */}
+        <div>
+          {!userLoggedIN ? (
+            <Link to="/login-3" className="px-5 py-2 bg-blue-600 text-white rounded-full text-sm font-semibold shadow hover:bg-blue-700 transition">
+              Join Now
             </Link>
-
-            {storedRole !== "ADMIN" && userLoggedIN && accessToken && refreshToken && userID && (<Link to={routes.register} className="btn btn-primary text-center">
-                Register
-              </Link>)}
-          </>)}
-      </div>
-    </nav>);
-};
-export default Header;
+          ) : (
+            <Link to="/dashboard" className="px-4 py-2 bg-blue-600 text-white rounded-full text-sm font-semibold shadow hover:bg-blue-700 transition">
+              Dashboard
+            </Link>
+          )}
+        </div>
+      </nav>
+    </header>
+  );
+}

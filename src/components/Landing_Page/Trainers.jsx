@@ -1,113 +1,59 @@
-import { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
-import user from "../../assets/images/trainers/user.png";
-import { AuthContext } from "../../contexts/authContext";
+import placeholder from "../../../public/user.jpg";
+// import { AuthContext } from "../../../contexts/authContext";
+import { motion } from "framer-motion";
+import { AuthContext } from "@/contexts/authContext";
 
 export const Trainers = () => {
   const { API_BASE_URL } = useContext(AuthContext);
-  const [trainerDetails, setTrainerDetails] = useState([]);
+  const [trainers, setTrainers] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // useEffect(() => {
-  //   // If allTrainer is available from context, use it
-  //   if (allTrainer && allTrainer.length > 0) {
-  //     setTrainerDetails(allTrainer);
-  //     setLoading(false);
-  //   } else if (fetchAllTrainer) {
-  //     // Otherwise, fetch it
-  //     fetchAllTrainer().then(() => {
-  //       // After fetch, allTrainer will be updated in context
-  //       if (allTrainer && allTrainer.length > 0) {
-  //         setTrainerDetails(allTrainer);
-  //         setLoading(false);
-  //       }
-  //     });
-  //   } else if (API_BASE_URL) {
-  //     // Fallback: fetch directly if context methods not available (public page)
-  //     const fetchTrainers = async () => {
-  //       try {
-  //         const response = await axios.get(`${API_BASE_URL}/trainers/`);
-  //         if (response.status === 200) {
-  //           const data = Array.isArray(response.data) ? response.data : [response.data];
-  //           setTrainerDetails(data);
-  //         }
-  //       } catch (error) {
-  //         console.error("Error fetching trainers:", error);
-  //       } finally {
-  //         setLoading(false);
-  //       }
-  //     };
-  //     fetchTrainers();
-  //   }
-  // }, [allTrainer, fetchAllTrainer, API_BASE_URL]);
-
-
-     const fetchAllTrainer = async () => {
-        if (trainerDetails.length > 0) return; // Already fetched
-        try {
-          const response = await axios.get(`${API_BASE_URL}/trainers/`);
-          if (response.status === 200) {
-            setTrainerDetails(response.data);
-            console.log(response.data);
-          }
-        } catch (error) {
-          console.error("Error fetching Trainers:", error);
-        } finally {
-          setLoading(false);
-        }
-      };
+  // fetch trainers (keeps your API usage)
   useEffect(() => {
-    
-      fetchAllTrainer();
-    
-  }, []);
-  
-  if (loading) {
-    return <div>Loading trainers...</div>;
-  }
-  
+    let mounted = true;
+    const fetchData = async () => {
+      try {
+        const res = await axios.get(`${API_BASE_URL}/trainers/`);
+        if (mounted && res.status === 200) setTrainers(res.data);
+      } catch (err) {
+        console.warn("Trainers fetch failed, using empty array", err);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+    fetchData();
+    return () => { mounted = false; };
+  }, [API_BASE_URL]);
+
+  const demo = [
+    { id: "d1", first_name: "Aisha", last_name: "Khan", job_title: "Sr. JS Trainer", technologies: ["React"], required_skills: "React, Node", experience: 4, qualification: "MCA", user_profile: placeholder },
+    { id: "d2", first_name: "Rohit", last_name: "Sharma", job_title: "AI Trainer", technologies: ["Python", "ML"], required_skills: "Python, TensorFlow", experience: 5, qualification: "M.Tech", user_profile: placeholder },
+  ];
+
+  const list = trainers && trainers.length ? trainers : demo;
+
+  if (loading) return <div className="py-8 text-center text-gray-600">Loading trainers...</div>;
+
   return (
-    <div className="col-xxl-12 col-xl-12 col-md-12 px-0"><br/>
-      <div className="scrollbar-wrappercenter">
-        <div className="row mx-0 flex-nowrap">
-          {trainerDetails.map((trainer) => (
-            <div className="col-xxl-3 col-xl-3 col-md-3" key={trainer.id}>
-              <div className="card">
-                <img 
-                  src={trainer.user_profile || user} 
-                  alt={`${trainer.first_name} ${trainer.last_name}`} 
-                  className="cardImage" 
-                  onError={(e) => {
-                    e.target.src = user; 
-                  }}
-                />
-                <div className="card-body min-bodyHeight capitalize">
-                  <h2>{trainer.first_name} {trainer.last_name}</h2>
-                  <p className="trainer-skills">
-                    <i className="fa-solid fa-star text-warning me-1"></i>
-                    {trainer.job_title}
-                  </p>
-                  <p className="card-text">
-                    <span className="fw-bold">Technology:</span>{" "}
-                    {trainer.technologies?.join(", ") || "Not specified"}
-                  </p>
-                  <p className="card-text">
-                    <span className="fw-bold">Skills:</span>{" "}
-                    {trainer.required_skills || "Not specified"}
-                  </p>
-                  <p className="card-text">
-                    <span className="fw-bold">Experience:</span>{" "}
-                    {trainer.experience ? `${trainer.experience} years` : "Not specified"}
-                  </p>
-                  <p className="card-text">
-                    <span className="fw-bold">Qualification:</span>{" "}
-                    {trainer.qualification || "Not specified"}
-                  </p>
-                </div>
-              </div>
+    <div className="w-full overflow-x-auto py-6 scrollbar-x">
+      <div className="flex gap-6 px-4 md:px-6">
+        {list.map((tr) => (
+          <motion.div key={tr.id || tr.first_name} whileHover={{ scale: 1.03 }} initial={{ y: 20, opacity: 0 }} whileInView={{ y: 0, opacity: 1 }} transition={{ duration: 0.45 }} className="min-w-[300px] rounded-2xl shadow-lg bg-white border border-gray-100 overflow-hidden">
+            <div className="h-44 w-full bg-gray-50 flex items-center justify-center">
+              <img src={tr.user_profile || placeholder} alt={`${tr.first_name} ${tr.last_name}`} onError={(e) => e.target.src = placeholder} className="h-full w-full object-cover"/>
             </div>
-          ))}
-        </div>
+            <div className="p-5 capitalize">
+              <h4 className="text-lg font-semibold text-gray-800 mb-1">{tr.first_name} {tr.last_name}</h4>
+              <div className="text-blue-600 font-medium mb-2">{tr.job_title || "Trainer"}</div>
+              <p className="text-sm text-gray-700 mb-1"><span className="font-semibold">Technology:</span> {tr.technologies?.join(", ") || "N/A"}</p>
+              <p className="text-sm text-gray-700 mb-1"><span className="font-semibold">Skills:</span> {tr.required_skills || "N/A"}</p>
+              <p className="text-sm text-gray-700 mb-1"><span className="font-semibold">Experience:</span> {tr.experience ? `${tr.experience} years` : "N/A"}</p>
+              <p className="text-sm text-gray-700"><span className="font-semibold">Qualification:</span> {tr.qualification || "N/A"}</p>
+            </div>
+          </motion.div>
+        ))}
       </div>
     </div>
   );

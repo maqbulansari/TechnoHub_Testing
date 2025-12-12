@@ -1,98 +1,37 @@
-import python from "../../assets/images/coursesLogo/python.png";
-import java from "../../assets/images/coursesLogo/java.png";
-import mern from "../../assets/images/coursesLogo/mern.webp";
-import aiml from "../../assets/images/coursesLogo/aiml.png";
+import React from "react";
+import pythonImg from "../../../public/user.jpg";
+import javaImg from "../../../public/user.jpg";
+import mernImg from "../../../public/user.jpg";
+import aiImg from "../../../public/user.jpg";
+import { motion } from "framer-motion";
 
+const techData = [
+  { name: "Python", img: pythonImg, batches: 4, students: 69, desc: "A versatile language for web, data & AI." },
+  { name: "Java", img: javaImg, batches: 1, students: 9, desc: "Enterprise-grade, portable, stable." },
+  { name: "MERN", img: mernImg, batches: 2, students: 30, desc: "Full-stack JavaScript stack." },
+  { name: "AI/ML", img: aiImg, batches: 1, students: 15, desc: "Predictive analytics & CV/NLP." },
+];
 
 export const Technologies = () => {
   return (
-        <div className="col-xxl-12 col-xl-12 col-md-12 px-0"><br/>
-          <div className="scrollbar-wrappercenter">
-            <div className="row mx-0 flex-nowrap">
-              <div className="col-xxl-3 col-xl-3 col-md-3">
-                <div className="card">
-                  <img src={python} alt="" className="cardImage" />
-                  <div className="card-body min-bodyHeight">
-                    <h2>Python</h2>
-                    <p className="card-text">
-                      A versatile programming language that’s easy to learn and
-                      widely used in web development, data science, and AI, with
-                      a strong library ecosystem.
-                    </p>
-                    <p className="card-text">
-                      {" "}
-                      <span className="fw-bold">Current Batches:</span>4
-                    </p>
-                    <p className="card-text">
-                      {" "}
-                      <span className="fw-bold">Current Students:</span>69
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-3 col-xl-3 col-md-3">
-                <div className="card">
-                  <img src={java} alt="" className="cardImage" />
-                  <div className="card-body min-bodyHeight">
-                    <h2>Java</h2>
-                    <p className="card-text">
-                      A popular, object-oriented language known for its
-                      portability and stability, commonly used in enterprise
-                      applications and Android development.
-                    </p>
-                    <p className="card-text">
-                      {" "}
-                      <span className="fw-bold">Current Batches:</span>1
-                    </p>
-                    <p className="card-text">
-                      {" "}
-                      <span className="fw-bold">Current Students:</span>9
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-3 col-xl-3 col-md-3">
-                <div className="card">
-                  <img src={mern} alt="" className="cardImage" />
-                  <div className="card-body min-bodyHeight">
-                    <h2>MERN</h2>
-                    <p className="card-text">
-                      A JavaScript-based framework (MongoDB, Express, React,
-                      Node.js) that enables full-stack web application
-                      development with a unified language across the stack.
-                    </p>
-                    <p className="card-text">
-                      {" "}
-                      <span className="fw-bold">Current Batches:</span>2
-                    </p>
-                    <p className="card-text">
-                      {" "}
-                      <span className="fw-bold">Current Students::</span>30
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-3 col-xl-3 col-md-3">
-                <div className="card">
-                  <img src={aiml} alt="" className="cardImage" />
-                  <div className="card-body min-bodyHeight">
-                    <h2>AI/ML</h2>
-                    <p className="card-text">
-                    Technologies that allow computers to learn and make decisions, transforming industries with applications in predictive analytics, computer vision, and natural language processing.
-                    </p>
-                    <p className="card-text">
-                      {" "}
-                      <span className="fw-bold">Current Batches:</span>1
-                    </p>
-                    <p className="card-text">
-                      {" "}
-                      <span className="fw-bold">Current Students:</span>15
-                    </p>
-                  </div>
-                </div>
+    <div className="w-full overflow-x-auto py-6 scrollbar-x">
+      <div className="flex gap-6 px-4 md:px-6">
+        {techData.map((t) => (
+          <motion.div key={t.name} initial={{ y: 24, opacity: 0 }} whileInView={{ y: 0, opacity: 1 }} whileHover={{ scale: 1.03 }} transition={{ duration: 0.45 }} className="min-w-[300px] bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
+            <div className="h-40 bg-gray-50 flex items-center justify-center">
+              <img src={t.img} alt={t.name} className="h-full object-contain p-4" />
+            </div>
+            <div className="p-5">
+              <h4 className="text-lg font-semibold text-gray-800">{t.name}</h4>
+              <p className="text-gray-600 text-sm mt-2 mb-4">{t.desc}</p>
+              <div className="flex gap-4 text-sm">
+                <div className="flex-1 text-gray-700"><span className="font-semibold">Batches:</span> <span className="text-blue-600 font-bold">{t.batches}</span></div>
+                <div className="flex-1 text-gray-700"><span className="font-semibold">Students:</span> <span className="text-blue-600 font-bold">{t.students}</span></div>
               </div>
             </div>
-          </div>
-        </div>
-  )
-}
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  );
+};

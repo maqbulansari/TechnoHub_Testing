@@ -1,14 +1,17 @@
+import React from "react";
+
 export const Footer = () => {
   return (
-    <div className='footerBg'>
-        <h2 className="dashboardFooterHeading">Address</h2>
-        <h6><i className="fa-solid fa-location-dot text-warning"></i> Moti Masjid: <span >Park, Behind Water Tank, Motia, Near Swarswati Prakashan, Sultania Rd, Madhya Pradesh 462001
-        </span></h6>
-        <h6><i className="fa-solid fa-location-dot text-warning"></i> LGS: <span >Near Noor-Us-Sabah Palace, VIP Road, Kohefiza, Bhopal, Madhya Pradesh 462001
-        </span></h6>
-        <h6><i className="fa-solid fa-location-dot text-warning"></i> Near All Saints: <span >Facing International, Airport Rd, Gandhi Nagar, Bhopal, Madhya Pradesh 462036
-        </span></h6>
-
-    </div>
-  )
-}
+    <footer className="bg-gray-900 border-t mt-10">
+      <div className="max-w-7xl mx-auto px-6 py-8 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="text-gray-700 font-semibold">TechnoHub</div>
+        <div className="text-sm text-gray-500">© {new Date().getFullYear()} TechnoHub — All rights reserved</div>
+        <div className="flex gap-3 text-gray-200 text-sm">
+          <a href="#">Privacy</a>
+          <a href="#">Terms</a>
+          <a href="#">Contact</a>
+        </div>
+      </div>
+    </footer>
+  );
+};

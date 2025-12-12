@@ -1,127 +1,75 @@
-import { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect } from "react";
+// import Header from "../components/Header";
+// import Hero from "../components/Hero";
+// import SectionHeading from "./landing/Sections/SectionHeading";
+// import { Centers } from "./landing/Centers";
+// import { Technologies } from "./landing/Technologies";
+// import { Trainers } from "./landing/Trainers";
+// import { Gallery } from "./landing/Gallery";
+// import { ThursdayReads } from "./landing/ThursdayReads";
+// import { Footer } from "../components/Footer";
+// import { AuthContext } from "../contexts/authContext";
 import { Footer } from "./Footer";
-import { Centers } from "./Centers";
-import { Technologies } from "./Technologies";
+import { ThursdayReads } from "./ThrusdayReads";
+import SectionHeading from "./SectionHeading";
+import { Gallery } from "./Gallery";
 import { Trainers } from "./Trainers";
-import { Projects } from "./Projects";
-import { Testimonials } from "./Testimonials";
-import { Carausel } from "./Carausel";
-import { AuthContext } from "../../contexts/authContext";
+import { Technologies } from "./Technologies";
+import { Centers } from "./Centers";
+import Header from "../Header";
+import Hero from "./Hero";
+import { AuthContext } from "@/contexts/authContext";
+
 export const Landing_page = () => {
-  const { loginSuccess, setLoginSuccess,responseSubrole, } = useContext(AuthContext);
-  const [showModal, setShowModal] = useState(false);
+  const { loginSuccess, setLoginSuccess, responseSubrole } = useContext(AuthContext);
 
+  useEffect(() => {
+    if (loginSuccess) {
+      const t = setTimeout(() => setLoginSuccess(false), 1500);
+      return () => clearTimeout(t);
+    }
+  }, [loginSuccess, setLoginSuccess]);
 
-
-useEffect(() => {
-  if (loginSuccess) {
-    setShowModal(true);
-
-    const timeout = setTimeout(() => {
-      setShowModal(false);
-      setLoginSuccess(false);
-    }, 2000);
-
-    return () => clearTimeout(timeout);
-  }
-}, [loginSuccess]);
-
-useEffect(() => {
-    if (responseSubrole === "SPONSOR") {
-      setShowModal(false);
+  useEffect(() => {
+    if (responseSubrole) {
+      // quick close or handle redirect
       setLoginSuccess(false);
     }
-    if ( responseSubrole === "STUDENT") {
-      setShowModal(false);
-      setLoginSuccess(false);
-    }
-    if ( responseSubrole === "TRAINER") {
-      setShowModal(false);
-      setLoginSuccess(false);
-    }
-    
-    
-    if ( responseSubrole === "RECRUITER") {
-      setShowModal(false);
-      setLoginSuccess(false);
-    }
-    if ( responseSubrole === "INTERVIEWEE") {
-      setShowModal(false);
-      setLoginSuccess(false);
-    }
-
-  }, [ responseSubrole,]);
-
-
+  }, [responseSubrole, setLoginSuccess]);
 
   return (
-    <>
-        <div>
-          <Carausel />
-          <div className="row mx-2 my-3">
-            <div className="text-primary">
-              <hr />
-            </div>
-            <h1>Our Centers</h1>
-            <Centers />
-            <div className="text-primary">
-              <hr />
-            </div>
-            <h1>Technologies We Teach</h1>
-            <Technologies />
-            <div className="text-primary">
-              <hr />
-            </div>
-            <h1>Our Trainers</h1>
-            <Trainers />
-            <div className="text-primary">
-              <hr />
-            </div>
-            <h1>Our Projects</h1>
-            <Projects />
-            <div className="text-primary">
-              <hr />
-            </div>
-            <h1 className="d-none">Testimonials</h1>
-            <Testimonials />
-          </div>
-          <Footer />
-        </div>
-      {showModal && (
-  <div
-    className="modal fade show"
-    style={{ display: "block", background: "rgba(0,0,0,0.5)" }}
-  >
-    <div className="modal-dialog modal-dialog-centered">
-      <div className="modal-content">
-        <div className="modal-header">
-          <h5 className="modal-title">Welcome</h5>
-          <button
-            type="button"
-            className="btn-close"
-            onClick={() => setShowModal(false)}
-          ></button>
-        </div>
+    <div>
+      <Header />
+      <Hero />
 
-        <div className="modal-body">
-          <p>Login successful!</p>
-        </div>
+      <main className="max-w-7xl mx-auto px-4 md:px-6 space-y-12">
+        <section id="centers" className="pt-4">
+          <SectionHeading title="Our Centers" />
+          <Centers />
+        </section>
 
-        <div className="modal-footer">
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={() => setShowModal(false)}
-            data-bs-dismiss="modal"
-          >
-            Continue
-          </button>
-        </div>
-      </div>
+        <section id="tech">
+          <SectionHeading title="Technologies We Teach" />
+          <Technologies />
+        </section>
+
+        <section id="trainers">
+          <SectionHeading title="Meet Our Expert Trainers" />
+          <Trainers />
+        </section>
+
+        <section id="gallery">
+          <SectionHeading title="Our Community in Action" />
+          <Gallery />
+        </section>
+
+        <section id="reads">
+          <SectionHeading title="Thursday Reads" />
+          <ThursdayReads />
+        </section>
+      </main>
+
+      <Footer />
     </div>
-  </div>
-)}
-     </>
-
   );
 };
