@@ -14,7 +14,11 @@ const AdmissionTable = () => {
     const [loading, setLoading] = useState(true);
     
     const { trainers, admin, API_BASE_URL, fetchTrainers, fetchAdmin } = useContext(AuthContext);
-    const trainerName = trainers.length > 0 ? trainers : admin;
+
+  
+    const trainerName =  window.localStorage.getItem("first_name")  + " " + window.localStorage.getItem("last_name") || "N/A"
+    
+    
 
     // Fetch trainers and admin when component mounts
     useEffect(() => {
