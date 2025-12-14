@@ -1,60 +1,85 @@
-import React, { useContext, useEffect, useState } from "react";
-import axios from "axios";
-import placeholder from "../../../public/user.jpg";
-// import { AuthContext } from "../../../contexts/authContext";
 import { motion } from "framer-motion";
-import { AuthContext } from "@/contexts/authContext";
 
-export const Trainers = () => {
-  const { API_BASE_URL } = useContext(AuthContext);
-  const [trainers, setTrainers] = useState([]);
-  const [loading, setLoading] = useState(true);
+const trainers = [
+  {
+    name: "Dr. Evelyn Reed",
+    role: "AI & Machine Learning",
+    desc: "12+ years of experience in data science.",
+    img: "https://randomuser.me/api/portraits/women/44.jpg",
+  },
+  {
+    name: "Marcus Chen",
+    role: "Full-Stack Development",
+    desc: "Expert in modern web frameworks.",
+    img: "https://randomuser.me/api/portraits/men/32.jpg",
+  },
+  {
+    name: "Isabelle Rossi",
+    role: "UX/UI Design",
+    desc: "Award-winning designer.",
+    img: "https://randomuser.me/api/portraits/women/65.jpg",
+  },
+  {
+    name: "Leo Kim",
+    role: "Cybersecurity",
+    desc: "Certified ethical hacker.",
+    img: "https://randomuser.me/api/portraits/men/45.jpg",
+  },
+];
 
-  // fetch trainers (keeps your API usage)
-  useEffect(() => {
-    let mounted = true;
-    const fetchData = async () => {
-      try {
-        const res = await axios.get(`${API_BASE_URL}/trainers/`);
-        if (mounted && res.status === 200) setTrainers(res.data);
-      } catch (err) {
-        console.warn("Trainers fetch failed, using empty array", err);
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    };
-    fetchData();
-    return () => { mounted = false; };
-  }, [API_BASE_URL]);
+export const Trainers = () => (
+  <div
+    className="
+      grid
+      grid-cols-1
+      sm:grid-cols-2
+      md:grid-cols-4
+      gap-6
+      max-w-7xl
+      mx-auto
+      px-4 sm:px-6
+    "
+  >
+    {trainers.map((t) => (
+      <motion.div
+        key={t.name}
+        whileHover={{ y: -6 }}
+        transition={{ type: "spring", stiffness: 280, damping: 22 }}
+        className="
+          bg-white
+          rounded-xl
+          shadow-md
+          pt-4
+          pb-10
+          px-5
+          text-center
+          w-full
+          max-w-[240px]
+          mx-auto
+        "
+      >
+        {/* Avatar */}
+        <img
+          src={t.img}
+          alt={t.name}
+          className="w-16 h-16 mx-auto rounded-full mb-4 object-cover"
+        />
 
-  const demo = [
-    { id: "d1", first_name: "Aisha", last_name: "Khan", job_title: "Sr. JS Trainer", technologies: ["React"], required_skills: "React, Node", experience: 4, qualification: "MCA", user_profile: placeholder },
-    { id: "d2", first_name: "Rohit", last_name: "Sharma", job_title: "AI Trainer", technologies: ["Python", "ML"], required_skills: "Python, TensorFlow", experience: 5, qualification: "M.Tech", user_profile: placeholder },
-  ];
+        {/* Name */}
+        <h4 className="text-sm font-semibold text-dark leading-tight">
+          {t.name}
+        </h4>
 
-  const list = trainers && trainers.length ? trainers : demo;
+        {/* Role */}
+        <p className="text-primary text-xs font-medium mt-1">
+          {t.role}
+        </p>
 
-  if (loading) return <div className="py-8 text-center text-gray-600">Loading trainers...</div>;
-
-  return (
-    <div className="w-full overflow-x-auto py-6 scrollbar-x">
-      <div className="flex gap-6 px-4 md:px-6">
-        {list.map((tr) => (
-          <motion.div key={tr.id || tr.first_name} whileHover={{ scale: 1.03 }} initial={{ y: 20, opacity: 0 }} whileInView={{ y: 0, opacity: 1 }} transition={{ duration: 0.45 }} className="min-w-[300px] rounded-2xl shadow-lg bg-white border border-gray-100 overflow-hidden">
-            <div className="h-44 w-full bg-gray-50 flex items-center justify-center">
-              <img src={tr.user_profile || placeholder} alt={`${tr.first_name} ${tr.last_name}`} onError={(e) => e.target.src = placeholder} className="h-full w-full object-cover"/>
-            </div>
-            <div className="p-5 capitalize">
-              <h4 className="text-lg font-semibold text-gray-800 mb-1">{tr.first_name} {tr.last_name}</h4>
-              <div className="text-blue-600 font-medium mb-2">{tr.job_title || "Trainer"}</div>
-              <p className="text-sm text-gray-700 mb-1"><span className="font-semibold">Technology:</span> {tr.technologies?.join(", ") || "N/A"}</p>
-              <p className="text-sm text-gray-700 mb-1"><span className="font-semibold">Skills:</span> {tr.required_skills || "N/A"}</p>
-              <p className="text-sm text-gray-700 mb-1"><span className="font-semibold">Experience:</span> {tr.experience ? `${tr.experience} years` : "N/A"}</p>
-              <p className="text-sm text-gray-700"><span className="font-semibold">Qualification:</span> {tr.qualification || "N/A"}</p>
-            </div>
-          </motion.div>
-        ))}
-      </div>
-    </div>
-  );
-};
+        {/* Description */}
+        <p className="mt-4 text-xs text-gray-600 leading-relaxed">
+          {t.desc}
+        </p>
+      </motion.div>
+    ))}
+  </div>
+);

@@ -377,7 +377,7 @@ const Register3 = () => {
 
 
   return (
-    <div className="card m-4">
+    <div className="card mx-4 mt-20">
     {/* <div className="register mt-5 mx-2"> */}
       <div className="card-header">
         {/* <h2 className="text-5xl">Register</h2> */}
@@ -759,7 +759,7 @@ const Register3 = () => {
               <div className="text-center mb-4">
                 <h6 className="fw-normal text-dark mb-0 text-sm">
                   Already have an account?
-                  <Link to={routes.login3} className="hover-a ms-2 text-sm">
+                  <Link to={routes.login3} className="hover-a ms-2 text-[#63b3ed] text-sm">
                     Login
                   </Link>
                 </h6>

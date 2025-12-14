@@ -18,7 +18,9 @@ import { Technologies } from "./Technologies";
 import { Centers } from "./Centers";
 import Header from "../Header";
 import Hero from "./Hero";
+import Section from "./Section";
 import { AuthContext } from "@/contexts/authContext";
+import { useLocation } from "react-router-dom";
 
 export const Landing_page = () => {
   const { loginSuccess, setLoginSuccess, responseSubrole } = useContext(AuthContext);
@@ -31,43 +33,82 @@ export const Landing_page = () => {
   }, [loginSuccess, setLoginSuccess]);
 
   useEffect(() => {
-    if (responseSubrole) {
-      // quick close or handle redirect
+    if (responseSubrole === "SPONSOR") {
+      setShowModal(false);
       setLoginSuccess(false);
     }
-  }, [responseSubrole, setLoginSuccess]);
+    if (responseSubrole === "STUDENT") {
+      setShowModal(false);
+      setLoginSuccess(false);
+    }
+    if (responseSubrole === "TRAINER") {
+      setShowModal(false);
+      setLoginSuccess(false);
+    }
+
+
+    if (responseSubrole === "RECRUITER") {
+      setShowModal(false);
+      setLoginSuccess(false);
+    }
+    if (responseSubrole === "INTERVIEWEE") {
+      setShowModal(false);
+      setLoginSuccess(false);
+    }
+
+  }, [responseSubrole,]);
+ 
 
   return (
-    <div>
+    <div className="overflow-x-hidden">
       <Header />
       <Hero />
 
-      <main className="max-w-7xl mx-auto px-4 md:px-6 space-y-12">
-        <section id="centers" className="pt-4">
-          <SectionHeading title="Our Centers" />
-          <Centers />
-        </section>
+      {/* <Section>
+        <SectionHeading title="Our Centers" />
+        <Centers />
+      </Section> */}
 
-        <section id="tech">
-          <SectionHeading title="Technologies We Teach" />
+      <Section gray>
+        <div id="tech" className="scroll-mt-[90px]">
+          <SectionHeading
+            title="Technologies We Teach"
+            subtitle="Stay ahead of the curve with in-demand skills."
+          />
           <Technologies />
-        </section>
+        </div>
+      </Section>
 
-        <section id="trainers">
-          <SectionHeading title="Meet Our Expert Trainers" />
+      <Section>
+        <div id="trainers" className="scroll-mt-[90px]">
+          <SectionHeading
+            title="Meet Our Expert Trainers"
+            subtitle="Learn from industry leaders."
+          />
           <Trainers />
-        </section>
+        </div>
+      </Section>
 
-        <section id="gallery">
-          <SectionHeading title="Our Community in Action" />
+      <Section gray>
+        <div id="gallery" className="scroll-mt-[90px]">
+          <SectionHeading
+            title="Our Community in Action"
+            subtitle="Explore our vibrant learning centers."
+          />
           <Gallery />
-        </section>
+        </div>
+      </Section>
 
-        <section id="reads">
-          <SectionHeading title="Thursday Reads" />
+      <Section gray>
+        <div id="reads" className="scroll-mt-[90px]">
+          <SectionHeading
+            title="Thursday Reads"
+            subtitle="Join the discussion every week."
+          />
           <ThursdayReads />
-        </section>
-      </main>
+        </div>
+      </Section>
+
 
       <Footer />
     </div>
