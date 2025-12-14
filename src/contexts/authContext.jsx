@@ -31,8 +31,8 @@ const AuthProvider = ({ children }) => {
 
 
   // const API_BASE_URL = "https://9gqxjbjg-8000.inc1.devtunnels.ms/auth";//tahur
-  const API_BASE_URL = "https://beyondshahbaz.pythonanywhere.com/auth";//main
-  // const API_BASE_URL = "https://958cp4w5-8000.inc1.devtunnels.ms/auth";//Saba
+  // const API_BASE_URL = "https://beyondshahbaz.pythonanywhere.com/auth";//main
+  const API_BASE_URL = "https://958cp4w5-8000.inc1.devtunnels.ms/auth";//Saba
 
 
 
@@ -269,7 +269,11 @@ const AuthProvider = ({ children }) => {
 
       if (response.status === 200) {
         setUser(response.data);
+        window.localStorage.setItem("first_name",user.first_name)
+        window.localStorage.setItem("last_name",user.last_name)
       }
+      
+      
     } catch (error) {
       console.error("GetUser Error:", error.response?.data || error.message);
     } finally {
@@ -299,6 +303,8 @@ const AuthProvider = ({ children }) => {
     localStorage.removeItem("userID");
     localStorage.removeItem("role");
     localStorage.removeItem("subrole");
+    localStorage.removeItem("first_name");
+    localStorage.removeItem("last_name");
     setUserLoggedIN(false);
     setAccessToken(null);
     setRefreshToken(null);

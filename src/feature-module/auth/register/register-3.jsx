@@ -231,53 +231,53 @@ const Register3 = () => {
         setMobileNumberError("Invalid Mobile Number");
         isValid = false;
       }
-      if (!profileImage) {
-        setUserProfileError("Profile Image is Required");
-        isValid = false;
-      }
-      // ID TYPE VALIDATION
-      if (!selectedIdType || selectedIdType === "Select an ID") {
-        setSelectedIdTypeError("ID Type is Required");
-        isValid = false;
-      }
+      // if (!profileImage) {
+      //   setUserProfileError("Profile Image is Required");
+      //   isValid = false;
+      // }
+      // // ID TYPE VALIDATION
+      // if (!selectedIdType || selectedIdType === "Select an ID") {
+      //   setSelectedIdTypeError("ID Type is Required");
+      //   isValid = false;
+      // }
 
-      // ID NUMBER VALIDATION (EXISTENCE)
-      if (!identity.trim()) {
-        setIdNumberError("ID Number is Required");
-        isValid = false;
-      }
+      // // ID NUMBER VALIDATION (EXISTENCE)
+      // if (!identity.trim()) {
+      //   setIdNumberError("ID Number is Required");
+      //   isValid = false;
+      // }
     }
 
 
-    if (selectedIdType && identity.trim()) {
-      let regex;
-      let errorMessage = "";
+    // if (selectedIdType && identity.trim()) {
+    //   let regex;
+    //   let errorMessage = "";
 
-      switch (selectedIdType) {
-        case "ADHAARCARD":
-          regex = /^\d{12}$/;
-          errorMessage = "Aadhaar must be exactly 12 digits";
-          break;
-        case "PASSPORT":
-          regex = /^[A-Za-z][0-9]{7}$/;
-          errorMessage = "Invalid Passport format (e.g., A1234567)";
-          break;
-        case "VOTER_ID":
-          regex = /^[A-Za-z]{3}[0-9]{7}$/;
-          errorMessage = "Voter ID must be 3 letters followed by 7 digits";
-          break;
-        default:
-          break;
-      }
+    //   switch (selectedIdType) {
+    //     case "ADHAARCARD":
+    //       regex = /^\d{12}$/;
+    //       errorMessage = "Aadhaar must be exactly 12 digits";
+    //       break;
+    //     case "PASSPORT":
+    //       regex = /^[A-Za-z][0-9]{7}$/;
+    //       errorMessage = "Invalid Passport format (e.g., A1234567)";
+    //       break;
+    //     case "VOTER_ID":
+    //       regex = /^[A-Za-z]{3}[0-9]{7}$/;
+    //       errorMessage = "Voter ID must be 3 letters followed by 7 digits";
+    //       break;
+    //     default:
+    //       break;
+    //   }
 
-      if (regex && !regex.test(identity)) {
-        setIdNumberError(errorMessage);
-        isValid = false;
-      }
-    }
+    //   if (regex && !regex.test(identity)) {
+    //     setIdNumberError(errorMessage);
+    //     isValid = false;
+    //   }
+    // }
 
     // if (!isValid) return;
-    if (!isValid) return;
+    // if (!isValid) return;
 
     //   if (!isValid) {
     //   console.log("Validation failed - not calling API");
@@ -627,7 +627,7 @@ const Register3 = () => {
           >
             <div className="col-xxl-4 col-xl-4 col-md-4 mb-3">
               <label className="form-label" htmlFor="user_profile">
-                User Profile Image <span className="text-danger">*</span>
+                User Profile Image <span className="text-danger"></span>
               </label>
               <input
                 id="user_profile"
@@ -661,7 +661,7 @@ const Register3 = () => {
 
             <div className="col-xxl-4 col-xl-4 col-md-4">
               <label className="form-label">
-                ID Type <span className="text-danger">*</span>
+                ID Type <span className="text-danger"></span>
               </label>
               <div className="dropdown">
                 <button
@@ -710,10 +710,10 @@ const Register3 = () => {
                 className="form-label text-nowrap"
                 htmlFor="identityNumber"
               >
-                Identity Number <span className="text-danger">*</span>
+                Identity Number <span className="text-danger"></span>
               </label>
               <input
-                className="mb-0"
+                className="mb-0 text-base"
                 placeholder="Enter Your ID Number"
                 id="identityNumber"
                 type="text"

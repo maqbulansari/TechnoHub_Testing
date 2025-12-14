@@ -76,7 +76,7 @@ const AllTrainer = () => {
             </thead>
             <tbody>
               {trainerData.length == 0 ? <div className="text-center w-full py-4">
-                <span className="text-gray-500">No data available</span>
+                <span className="text-gray-500 text-nowrap">No data available</span>
               </div> : trainerData.map((trainer) => (
                 <tr key={trainer.id} className="tr">
                   <td className="student-nameS text-nowrap capitalize">
