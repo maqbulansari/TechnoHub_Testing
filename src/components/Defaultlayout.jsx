@@ -25,6 +25,7 @@ const Defaultlayout = () => {
   const [role, setRole] = useState("");
   const [subrole, setSubrole] = useState("");
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  
 
   // Handle window resize
   useEffect(() => {
@@ -159,10 +160,9 @@ const Defaultlayout = () => {
   }, [LogoutUser, navigate]);
 
   const handleMenuItemClick = useCallback(() => {
-    if (isMobile) {
-      setVisible(false);
-    }
-  }, [isMobile]);
+    setVisible(false);
+  }, []);
+  
 
   // MenuSection Component (replaces Dropdown)
   const MenuSection = ({ title, items, icon }) => {
@@ -370,7 +370,7 @@ const Defaultlayout = () => {
             <div className="col-12 sticky-header-top pt-0 px-0">
               <Header setVisible={setVisible} toggleSidebar={toggleSidebar} />
             </div>
-            <div className="col-12 px-0">
+            <div className="col-12 p-0 px-0">
               <Outlet />
             </div>
           </div>
@@ -385,10 +385,10 @@ const Defaultlayout = () => {
             <div className="modal-dialog modal-dialog-centered">
               <div className="modal-content">
                 <div className="modal-body">
-                  <h3 className="text-center">
+                  <h3 className="text-center mb-4 mt-2">
                     Are you sure you want to logout?
                   </h3>
-                  <hr />
+                
                   <div className="row">
                     <div className="col-xxl-6 col-xl-6 col-md-6">
                       <button

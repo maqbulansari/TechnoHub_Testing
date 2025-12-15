@@ -155,7 +155,7 @@ const AssignBatch = () => {
   }
 
   return (
-    <div className="assign-batch-container-with-bg">
+    <div className="assign-batch-container-with-bg mt-16">
       <div className="assign-batch-container">
         {/* <h2 className="text-center">Assign Batch to Students</h2> */}
          <div className="header-containerH d-flex justify-center w-100 ">

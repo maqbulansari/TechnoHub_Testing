@@ -112,7 +112,7 @@ const AdmissionTable = () => {
       </div>
     );
   }
-    return (<div className="container mt-4">
+    return (<div className="container mt-16">
         <div className="flex  w-full">
             <div className="header-containerH d-flex justify-center w-100 ">
                 <h2 className="sponsornowHeading pt-2 text-4xl  mb-4 uppercase text-center max-w-[95vw] sm:max-w-[800px] mx-auto">

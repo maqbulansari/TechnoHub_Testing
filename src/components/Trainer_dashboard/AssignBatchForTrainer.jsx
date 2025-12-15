@@ -86,7 +86,7 @@ const AssignBatchForTrainer = () => {
   };
 
   return (
-    <div className="assignABT-batch-container mt-6">
+    <div className="assignABT-batch-container">
       {/* <h1 className="assignABT-batch-title text-center text-nowrap">
         Assign Batch to Trainer
       </h1> */}

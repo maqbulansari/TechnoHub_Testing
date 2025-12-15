@@ -44,7 +44,7 @@ export const SponsorTable = () => {
   });
 
   return (
-    <div className="px-2"><br></br>
+    <div className="px-2 mt-16"><br></br>
       <h1 className="sponsornowHeading">Sponsors</h1>
       <div className="table-wrapperS overflow-y-auto">
         <table className="student-tableS">

@@ -2,6 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: Inter, system-ui, sans-serif;
+  background: #ffffff;
+  color: #24323f;
+}
+img {
+  max-width: 100%;
+  height: auto;
+}
+
 /* Custom base styles */
 @layer base {
   * {
@@ -989,6 +1002,7 @@
 /* These styles are component-specific and kept as-is for compatibility */
 
 /* Arsalan CSS STARTS */
+
 .classHeader {
   padding: 8px 10px;
   display: flex;
@@ -2828,6 +2842,7 @@ td {
   min-height: 100vh;
   width: 100%;
   padding: 20px;
+  margin-top: 65px;
   box-sizing: border-box;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
@@ -3156,6 +3171,7 @@ td {
 .assignABT-batch-container {
   max-width: 800px;
   margin: 0 auto;
+  margin-top: 65px;
   padding: 20px;
 }
 

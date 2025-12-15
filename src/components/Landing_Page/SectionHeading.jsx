@@ -1,10 +1,12 @@
-import React from "react";
-import { motion } from "framer-motion";
-
-export default function SectionHeading({ title }) {
+export default function SectionHeading({ title, subtitle }) {
   return (
-    <motion.h2 initial={{ y: 18, opacity: 0 }} whileInView={{ y: 0, opacity: 1 }} transition={{ duration: 0.5 }} viewport={{ once: true }} className="text-3xl md:text-4xl font-bold text-gray-800 text-center">
-      {title}
-    </motion.h2>
+    <div className="text-center max-w-3xl mx-auto mb-16">
+      <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-text">
+        {title}</h2>
+      {subtitle && (
+        <p className="mt-4 text-muted text-base sm:text-lg">
+          {subtitle}</p>
+      )}
+    </div>
   );
 }

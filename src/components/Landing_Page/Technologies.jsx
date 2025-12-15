@@ -1,37 +1,70 @@
-import React from "react";
-import pythonImg from "../../../public/user.jpg";
-import javaImg from "../../../public/user.jpg";
-import mernImg from "../../../public/user.jpg";
-import aiImg from "../../../public/user.jpg";
 import { motion } from "framer-motion";
 
-const techData = [
-  { name: "Python", img: pythonImg, batches: 4, students: 69, desc: "A versatile language for web, data & AI." },
-  { name: "Java", img: javaImg, batches: 1, students: 9, desc: "Enterprise-grade, portable, stable." },
-  { name: "MERN", img: mernImg, batches: 2, students: 30, desc: "Full-stack JavaScript stack." },
-  { name: "AI/ML", img: aiImg, batches: 1, students: 15, desc: "Predictive analytics & CV/NLP." },
+const tech = [
+  {
+    name: "Python",
+    img: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg",
+  },
+  {
+    name: "React",
+    img: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg",
+  },
+  {
+    name: "Node.js",
+    img: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg",
+  },
+  {
+    name: "AWS",
+    img: "https://unpkg.com/simple-icons@v11/icons/amazonwebservices.svg",
+  },
+  {
+    name: "SQL",
+    img: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg",
+  },
+  {
+    name: "Figma",
+    img: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/figma/figma-original.svg",
+  },
 ];
 
-export const Technologies = () => {
-  return (
-    <div className="w-full overflow-x-auto py-6 scrollbar-x">
-      <div className="flex gap-6 px-4 md:px-6">
-        {techData.map((t) => (
-          <motion.div key={t.name} initial={{ y: 24, opacity: 0 }} whileInView={{ y: 0, opacity: 1 }} whileHover={{ scale: 1.03 }} transition={{ duration: 0.45 }} className="min-w-[300px] bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
-            <div className="h-40 bg-gray-50 flex items-center justify-center">
-              <img src={t.img} alt={t.name} className="h-full object-contain p-4" />
-            </div>
-            <div className="p-5">
-              <h4 className="text-lg font-semibold text-gray-800">{t.name}</h4>
-              <p className="text-gray-600 text-sm mt-2 mb-4">{t.desc}</p>
-              <div className="flex gap-4 text-sm">
-                <div className="flex-1 text-gray-700"><span className="font-semibold">Batches:</span> <span className="text-blue-600 font-bold">{t.batches}</span></div>
-                <div className="flex-1 text-gray-700"><span className="font-semibold">Students:</span> <span className="text-blue-600 font-bold">{t.students}</span></div>
-              </div>
-            </div>
-          </motion.div>
-        ))}
-      </div>
-    </div>
-  );
+const item = {
+  hidden: { opacity: 0, y: 24 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.5,
+      ease: [0.22, 1, 0.36, 1],
+    },
+  },
 };
+
+export const Technologies = () => (
+  <motion.div
+    className="max-w-6xl mx-auto px-6 grid grid-cols-2 md:grid-cols-6 gap-6"
+    initial="hidden"
+    whileInView="visible"
+    viewport={{ once: true, margin: "-80px" }}
+  >
+    {tech.map(t => (
+      <motion.div
+        key={t.name}
+        variants={item}
+        whileHover={{ y: -6 }}
+        transition={{ type: "spring", stiffness: 280, damping: 22 }}
+        className="bg-white rounded-xl py-10 text-center shadow flex flex-col items-center"
+      >
+        <motion.img
+          src={t.img}
+          alt={t.name}
+          className="h-12 w-12 mb-4"
+          whileHover={{ scale: 1.08 }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
+        />
+        <span className="font-semibold text-sm text-text">
+          {t.name}
+        </span>
+      </motion.div>
+    ))}
+  </motion.div>
+);

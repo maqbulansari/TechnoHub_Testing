@@ -42,7 +42,7 @@ export const RecruiterTable = () => {
   });
 
   return (
-    <div className="px-2"><br></br>
+    <div className="px-2 mt-16"><br></br>
       <h1 className="sponsornowHeading">
         Recruiters
       </h1>
