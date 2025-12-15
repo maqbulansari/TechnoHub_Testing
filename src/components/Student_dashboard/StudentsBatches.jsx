@@ -40,7 +40,7 @@ const StudentsBatches = () => {
         <p>Please check your connection or contact support</p>
       </div>);
     }
-    return (<div className="batches-containerHSB">
+    return (<div className="batches-containerHSB mt-20">
       <h1 className="batches-titleHSB uppercase">Student Batch Information</h1>
       <div className="batches-gridHSB">
         <div className="batch-cardHSB">

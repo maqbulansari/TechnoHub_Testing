@@ -58,7 +58,7 @@ const TrainerBatch = () => {
   };
 
   return (
-    <>
+    <div className="mt-20">
       <div>
         <Card title="Your Batches" className="custom-cardH3 m-5 text-black">
           <h3 className="m-0 text-black">For Trainer</h3>
@@ -124,7 +124,7 @@ const TrainerBatch = () => {
     </div>
   </div>
 )}
-    </>
+    </div>
   );
 };
 

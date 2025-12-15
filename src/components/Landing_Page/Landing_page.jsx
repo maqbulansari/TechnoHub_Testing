@@ -1,127 +1,120 @@
-import { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect } from "react";
+// import Header from "../components/Header";
+// import Hero from "../components/Hero";
+// import SectionHeading from "./landing/Sections/SectionHeading";
+// import { Centers } from "./landing/Centers";
+// import { Technologies } from "./landing/Technologies";
+// import { Trainers } from "./landing/Trainers";
+// import { Gallery } from "./landing/Gallery";
+// import { ThursdayReads } from "./landing/ThursdayReads";
+// import { Footer } from "../components/Footer";
+// import { AuthContext } from "../contexts/authContext";
 import { Footer } from "./Footer";
-import { Centers } from "./Centers";
-import { Technologies } from "./Technologies";
+import { ThursdayReads } from "./ThrusdayReads";
+import SectionHeading from "./SectionHeading";
+import { Gallery } from "./Gallery";
 import { Trainers } from "./Trainers";
-import { Projects } from "./Projects";
-import { Testimonials } from "./Testimonials";
-import { Carausel } from "./Carausel";
-import { AuthContext } from "../../contexts/authContext";
+import { Technologies } from "./Technologies";
+import { Centers } from "./Centers";
+import Header from "../Header";
+import Hero from "./Hero";
+import Section from "./Section";
+import { AuthContext } from "@/contexts/authContext";
+import { useLocation } from "react-router-dom";
+
 export const Landing_page = () => {
-  const { loginSuccess, setLoginSuccess,responseSubrole, } = useContext(AuthContext);
-  const [showModal, setShowModal] = useState(false);
+  const { loginSuccess, setLoginSuccess, responseSubrole } = useContext(AuthContext);
 
+  useEffect(() => {
+    if (loginSuccess) {
+      const t = setTimeout(() => setLoginSuccess(false), 1500);
+      return () => clearTimeout(t);
+    }
+  }, [loginSuccess, setLoginSuccess]);
 
-
-useEffect(() => {
-  if (loginSuccess) {
-    setShowModal(true);
-
-    const timeout = setTimeout(() => {
-      setShowModal(false);
-      setLoginSuccess(false);
-    }, 2000);
-
-    return () => clearTimeout(timeout);
-  }
-}, [loginSuccess]);
-
-useEffect(() => {
+  useEffect(() => {
     if (responseSubrole === "SPONSOR") {
       setShowModal(false);
       setLoginSuccess(false);
     }
-    if ( responseSubrole === "STUDENT") {
+    if (responseSubrole === "STUDENT") {
       setShowModal(false);
       setLoginSuccess(false);
     }
-    if ( responseSubrole === "TRAINER") {
-      setShowModal(false);
-      setLoginSuccess(false);
-    }
-    
-    
-    if ( responseSubrole === "RECRUITER") {
-      setShowModal(false);
-      setLoginSuccess(false);
-    }
-    if ( responseSubrole === "INTERVIEWEE") {
+    if (responseSubrole === "TRAINER") {
       setShowModal(false);
       setLoginSuccess(false);
     }
 
-  }, [ responseSubrole,]);
 
+    if (responseSubrole === "RECRUITER") {
+      setShowModal(false);
+      setLoginSuccess(false);
+    }
+    if (responseSubrole === "INTERVIEWEE") {
+      setShowModal(false);
+      setLoginSuccess(false);
+    }
 
+  }, [responseSubrole,]);
+ 
 
   return (
-    <>
-        <div>
-          <Carausel />
-          <div className="row mx-2 my-3">
-            <div className="text-primary">
-              <hr />
-            </div>
-            <h1>Our Centers</h1>
-            <Centers />
-            <div className="text-primary">
-              <hr />
-            </div>
-            <h1>Technologies We Teach</h1>
-            <Technologies />
-            <div className="text-primary">
-              <hr />
-            </div>
-            <h1>Our Trainers</h1>
-            <Trainers />
-            <div className="text-primary">
-              <hr />
-            </div>
-            <h1>Our Projects</h1>
-            <Projects />
-            <div className="text-primary">
-              <hr />
-            </div>
-            <h1 className="d-none">Testimonials</h1>
-            <Testimonials />
-          </div>
-          <Footer />
-        </div>
-      {showModal && (
-  <div
-    className="modal fade show"
-    style={{ display: "block", background: "rgba(0,0,0,0.5)" }}
-  >
-    <div className="modal-dialog modal-dialog-centered">
-      <div className="modal-content">
-        <div className="modal-header">
-          <h5 className="modal-title">Welcome</h5>
-          <button
-            type="button"
-            className="btn-close"
-            onClick={() => setShowModal(false)}
-          ></button>
-        </div>
+    <div className="overflow-x-hidden">
+      <Header />
+      <Hero />
+      
+{/* 
+      <Section>
+        <SectionHeading 
+        title="Centers" 
+        subtitle="Where learning meets real-world experience."
+        />
+        <Centers />
+      </Section> */}
 
-        <div className="modal-body">
-          <p>Login successful!</p>
+      <Section gray>
+        <div id="tech" className="scroll-mt-[90px]">
+          <SectionHeading
+            title="Technologies We Teach"
+            subtitle="Stay ahead of the curve with in-demand skills."
+          />
+          <Technologies />
         </div>
+      </Section>
 
-        <div className="modal-footer">
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={() => setShowModal(false)}
-            data-bs-dismiss="modal"
-          >
-            Continue
-          </button>
+      <Section>
+        <div id="trainers" className="scroll-mt-[90px]">
+          <SectionHeading
+            title="Meet Our Expert Trainers"
+            subtitle="Learn from industry leaders."
+          />
+          <Trainers />
         </div>
-      </div>
+      </Section>
+
+      <Section gray>
+        <div id="gallery" className="scroll-mt-[90px]">
+          <SectionHeading
+            title="Our Community in Action"
+            subtitle="Explore our vibrant learning centers."
+          />
+          <Gallery />
+        </div>
+      </Section>
+
+      <Section gray>
+        <div id="reads" className="scroll-mt-[90px]">
+          <SectionHeading
+            title="Thursday Reads"
+            subtitle="Join the discussion every week."
+          />
+          <ThursdayReads />
+        </div>
+      </Section>
+
+
+      <Footer />
     </div>
-  </div>
-)}
-     </>
-
   );
 };

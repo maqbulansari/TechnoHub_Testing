@@ -13,10 +13,12 @@ const AdmissionTable = () => {
     const [accessToken, setAccessToken] = useState("");
     const [loading, setLoading] = useState(true);
     
-    const { trainers, admin, API_BASE_URL, fetchTrainers, fetchAdmin } = useContext(AuthContext);
+    const { trainers, admin, API_BASE_URL, fetchTrainers, fetchAdmin,user } = useContext(AuthContext);
 
   
-    const trainerName =  window.localStorage.getItem("first_name")  + " " + window.localStorage.getItem("last_name") || "N/A"
+    const trainerName =  `${user?.first_name} ${user?.last_name}`|| "N/A"
+    console.log(trainerName);
+    
     
     
 
@@ -112,7 +114,7 @@ const AdmissionTable = () => {
       </div>
     );
   }
-    return (<div className="container mt-4">
+    return (<div className="container mt-16">
         <div className="flex  w-full">
             <div className="header-containerH d-flex justify-center w-100 ">
                 <h2 className="sponsornowHeading pt-2 text-4xl  mb-4 uppercase text-center max-w-[95vw] sm:max-w-[800px] mx-auto">

@@ -149,7 +149,7 @@ const RecruitmentProfile = () => {
   };
 
   return (
-    <div className="container mt-5">
+    <div className="container mt-16">
       <div className="card shadow-sm border-0 p-3">
         <div className="row ">
           <div className="col-xxl-12  mb-3">

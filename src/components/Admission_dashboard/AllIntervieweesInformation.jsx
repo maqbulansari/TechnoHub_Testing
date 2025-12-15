@@ -60,7 +60,7 @@ const AllIntervieweesInformation = () => {
   }
 
   return (
-    <div className="interviewees-container-with-bg">
+    <div className="interviewees-container-with-bg mt-16">
       <h2 className="sponsornowHeading pt-2 text-4xl  mb-4 uppercase text-center max-w-[95vw] sm:max-w-[800px] mx-auto">
         Interviewees Information
       </h2>

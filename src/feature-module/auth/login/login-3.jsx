@@ -217,7 +217,7 @@ const Login3 = () => {
                     <div className="text-center">
                       <h6 className="fw-normal text-dark mb-0 text-sm">
                         Don’t have an account?{" "}
-                        <Link to={routes.register3} className="hover-a text-sm">
+                        <Link to={routes.register3} className="hover-a text-sm text-[#63b3ed]">
                           {" "}
                           Create Account
                         </Link>

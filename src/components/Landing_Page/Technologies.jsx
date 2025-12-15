@@ -1,98 +1,70 @@
-import python from "../../assets/images/coursesLogo/python.png";
-import java from "../../assets/images/coursesLogo/java.png";
-import mern from "../../assets/images/coursesLogo/mern.webp";
-import aiml from "../../assets/images/coursesLogo/aiml.png";
+import { motion } from "framer-motion";
 
+const tech = [
+  {
+    name: "Python",
+    img: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg",
+  },
+  {
+    name: "React",
+    img: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg",
+  },
+  {
+    name: "Node.js",
+    img: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg",
+  },
+  {
+    name: "Java",
+    img: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg",
+  },
+  {
+    name: "SQL",
+    img: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg",
+  },
+  {
+    name: "Figma",
+    img: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/figma/figma-original.svg",
+  },
+];
 
-export const Technologies = () => {
-  return (
-        <div className="col-xxl-12 col-xl-12 col-md-12 px-0"><br/>
-          <div className="scrollbar-wrappercenter">
-            <div className="row mx-0 flex-nowrap">
-              <div className="col-xxl-3 col-xl-3 col-md-3">
-                <div className="card">
-                  <img src={python} alt="" className="cardImage" />
-                  <div className="card-body min-bodyHeight">
-                    <h2>Python</h2>
-                    <p className="card-text">
-                      A versatile programming language that’s easy to learn and
-                      widely used in web development, data science, and AI, with
-                      a strong library ecosystem.
-                    </p>
-                    <p className="card-text">
-                      {" "}
-                      <span className="fw-bold">Current Batches:</span>4
-                    </p>
-                    <p className="card-text">
-                      {" "}
-                      <span className="fw-bold">Current Students:</span>69
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-3 col-xl-3 col-md-3">
-                <div className="card">
-                  <img src={java} alt="" className="cardImage" />
-                  <div className="card-body min-bodyHeight">
-                    <h2>Java</h2>
-                    <p className="card-text">
-                      A popular, object-oriented language known for its
-                      portability and stability, commonly used in enterprise
-                      applications and Android development.
-                    </p>
-                    <p className="card-text">
-                      {" "}
-                      <span className="fw-bold">Current Batches:</span>1
-                    </p>
-                    <p className="card-text">
-                      {" "}
-                      <span className="fw-bold">Current Students:</span>9
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-3 col-xl-3 col-md-3">
-                <div className="card">
-                  <img src={mern} alt="" className="cardImage" />
-                  <div className="card-body min-bodyHeight">
-                    <h2>MERN</h2>
-                    <p className="card-text">
-                      A JavaScript-based framework (MongoDB, Express, React,
-                      Node.js) that enables full-stack web application
-                      development with a unified language across the stack.
-                    </p>
-                    <p className="card-text">
-                      {" "}
-                      <span className="fw-bold">Current Batches:</span>2
-                    </p>
-                    <p className="card-text">
-                      {" "}
-                      <span className="fw-bold">Current Students::</span>30
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-3 col-xl-3 col-md-3">
-                <div className="card">
-                  <img src={aiml} alt="" className="cardImage" />
-                  <div className="card-body min-bodyHeight">
-                    <h2>AI/ML</h2>
-                    <p className="card-text">
-                    Technologies that allow computers to learn and make decisions, transforming industries with applications in predictive analytics, computer vision, and natural language processing.
-                    </p>
-                    <p className="card-text">
-                      {" "}
-                      <span className="fw-bold">Current Batches:</span>1
-                    </p>
-                    <p className="card-text">
-                      {" "}
-                      <span className="fw-bold">Current Students:</span>15
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-  )
-}
+const item = {
+  hidden: { opacity: 0, y: 24 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.5,
+      ease: [0.22, 1, 0.36, 1],
+    },
+  },
+};
+
+export const Technologies = () => (
+  <motion.div
+    className="max-w-6xl mx-auto px-6 grid grid-cols-2 md:grid-cols-6 gap-6"
+    initial="hidden"
+    whileInView="visible"
+    viewport={{ once: true, margin: "-80px" }}
+  >
+    {tech.map(t => (
+      <motion.div
+        key={t.name}
+        variants={item}
+        whileHover={{ y: -6 }}
+        transition={{ type: "spring", stiffness: 280, damping: 22 }}
+        className="bg-white rounded-xl py-10 text-center shadow flex flex-col items-center"
+      >
+        <motion.img
+          src={t.img}
+          alt={t.name}
+          className="h-12 w-12 mb-4"
+          whileHover={{ scale: 1.08 }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
+        />
+        <span className="font-semibold text-sm text-text">
+          {t.name}
+        </span>
+      </motion.div>
+    ))}
+  </motion.div>
+);

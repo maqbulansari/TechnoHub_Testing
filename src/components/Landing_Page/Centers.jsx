@@ -1,49 +1,37 @@
-import { useContext } from "react";
-import { AllSaints } from "./centers/AllSaints";
-import { LGS } from "./centers/LGS";
-import { Mecaps } from "./centers/Mecaps";
-import { SponsorContext } from "../../contexts/dashboard/sponsorDashboardContext";
+import { motion } from "framer-motion";
+import AnimatedButton from "../ui/AnimatedButton";
 
-export const Centers = () => {
-  const { batchSummary } = useContext(SponsorContext);
-  return (
-    <div>
-      <div className="row flex-nowrap scrollbar-wrappercenter">
-        {batchSummary?.map((batchSum) => {
-          return (
-            <div className="col-xxl-4 col-xl-4 col-md-4" key={batchSum.center}>
-              <br></br>
-              <div className="card">
-                <div className="card-body">
-                  <div className="p-4">
-                    <h1 className="text-center mb-4 capitalize">{batchSum.center}</h1>
-                    <div className="card bg-navyBlue">
-                      <div className="card-body">
-                        <span className="batchesText">
-                          Batches: <span className="numbersContainer">{batchSum.total_batches}</span>
-                        </span>
-                        <span className="float-end">
-                          <i className="fa-solid fa-people-group fa-2xl"></i>
-                        </span>
-                      </div>
-                    </div>
-                    <div className="card bg-navyBlue">
-                      <div className="card-body">
-                        <span className="batchesText">
-                          Students: <span className="numbersContainer">{batchSum.total_students}</span>
-                        </span>
-                        <span className="float-end">
-                          <i className="fa-solid fa-graduation-cap fa-2xl"></i>
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-};
+const centers = [
+  { name: "AllSaints", batches: 5, students: 45, Location: "https://maps.app.goo.gl/y9jkoEG8aN9pgxKM8", },
+  { name: "LGS", batches: 3, students: 28, Location: "https://maps.app.goo.gl/Gmg7JnMpvTRg1ZQi6" },
+  { name: "Mecaps", batches: 6, students: 62, Location: "https://maps.app.goo.gl/9BxCqBefij6KurLN9" },
+];
+
+export const Centers = () => (
+  <div className="flex justify-center gap-8">
+    {centers.map(c => (
+      <motion.div
+        key={c.name}
+        whileHover={{ y: -6 }}
+        className="bg-white w-[260px] rounded-2xl shadow-lg p-8 text-center text-2xl"
+      >
+        <h4 className="font-semibold mb-6">{c.name}</h4>
+        <div className="text-sm text-muted">
+          <p><b>{c.batches}</b> Batches</p>
+          <p><b>{c.students}</b> Students</p>
+        </div><br></br>
+        <AnimatedButton
+          href={c.Location}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="btn bg-primary rounde-16 text-nowrap"
+          // className="bg-primary text-white rounded-full size-20 shadow text-nowrap p-2"
+        >
+          View Location
+        </AnimatedButton>
+
+
+      </motion.div>
+    ))}
+  </div>
+);

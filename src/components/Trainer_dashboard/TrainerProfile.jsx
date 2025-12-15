@@ -83,7 +83,7 @@ const TrainerProfile = () => {
         <span className="ml-4">Loading...</span>
       </div>);
     }
-    return (<div className="container mt-3">
+    return (<div className="container mt-20">
       <div className="card shadow-lg border-0 rounded p-4">
         <div className="row align-items-center">
           <div className="col-sm-12 col-md-4 d-flex flex-column align-items-center justify-content-center mb-3">
