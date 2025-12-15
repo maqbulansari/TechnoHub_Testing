@@ -14,8 +14,8 @@ const tech = [
     img: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg",
   },
   {
-    name: "AWS",
-    img: "https://unpkg.com/simple-icons@v11/icons/amazonwebservices.svg",
+    name: "Java",
+    img: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg",
   },
   {
     name: "SQL",

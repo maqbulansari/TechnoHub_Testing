@@ -63,9 +63,13 @@ export const Landing_page = () => {
     <div className="overflow-x-hidden">
       <Header />
       <Hero />
-
-      {/* <Section>
-        <SectionHeading title="Our Centers" />
+      
+{/* 
+      <Section>
+        <SectionHeading 
+        title="Centers" 
+        subtitle="Where learning meets real-world experience."
+        />
         <Centers />
       </Section> */}
 

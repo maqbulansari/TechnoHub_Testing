@@ -86,7 +86,7 @@ const StudentsProfile = () => {
   }
 
   return (
-    <>
+    <div className="mt-16">
       <div className="container py-4">
         {/* Main Card */}
         <div className="row justify-content-center">
@@ -97,37 +97,38 @@ const StudentsProfile = () => {
                   {/* LEFT COLUMN: AVATAR + BASIC INFO */}
                   <div className="col-12 col-md-4 border-end bg-blue-300 rounded-4">
                     <div className="pt-4 text-center">
-                      <div className="mb-0">
-                        {student.user_profile ? (
-                          <img
-                            src={`${API_BASE_URL}${student.user_profile}`}
-                            className="rounded-circle"
-                            alt="Student"
-                            style={{
-                              width: "150px",
-                              height: "150px",
-                              objectFit: "cover",
-                              border: "3px solid #fff",
-                              boxShadow: "0 0 0 1px rgba(0,0,0,0.05)",
-                            }}
-                          />
-                        ) : (
-                          <div
-                            className="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center mx-auto"
-                            style={{
-                              width: "150px",
-                              height: "150px",
-                              fontSize: "56px",
-                              fontWeight: "bold",
-                              textTransform: "uppercase",
-                            }}
-                          >
-                            {student.first_name?.charAt(0)}
-                          </div>
-                        )}
-                      </div>
+                      <center>
+                        <div className="mb-0">
+                          {student.user_profile ? (
+                            <img
+                              src={`${API_BASE_URL}${student.user_profile}`}
+                              className="rounded-circle"
+                              alt="Student"
+                              style={{
+                                width: "150px",
+                                height: "150px",
+                                objectFit: "cover",
+                                border: "3px solid #fff",
+                                boxShadow: "0 0 0 1px rgba(0,0,0,0.05)",
+                              }}
+                            />
+                          ) : (
+                            <div
+                              className="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center mx-auto"
+                              style={{
+                                width: "150px",
+                                height: "150px",
+                                fontSize: "56px",
+                                fontWeight: "bold",
+                                textTransform: "uppercase",
+                              }}
+                            >
+                              {student.first_name?.charAt(0)}
+                            </div>
+                          )}
+                        </div>
 
-
+                      </center>
 
                     </div>
                   </div>
@@ -431,7 +432,7 @@ const StudentsProfile = () => {
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 };
 

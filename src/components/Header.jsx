@@ -46,7 +46,7 @@ export default function Header({ setVisible }) {
     <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 flex items-center justify-between">
 
       {/* LOGO */}
-      <Link to="/" className="text-xl font-bold text-primary">
+      <Link to="/" className="text-3xl font-bold text-primary">
         TechnoHub
       </Link>
 

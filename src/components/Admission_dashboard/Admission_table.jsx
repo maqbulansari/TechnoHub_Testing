@@ -13,10 +13,12 @@ const AdmissionTable = () => {
     const [accessToken, setAccessToken] = useState("");
     const [loading, setLoading] = useState(true);
     
-    const { trainers, admin, API_BASE_URL, fetchTrainers, fetchAdmin } = useContext(AuthContext);
+    const { trainers, admin, API_BASE_URL, fetchTrainers, fetchAdmin,user } = useContext(AuthContext);
 
   
-    const trainerName =  window.localStorage.getItem("first_name")  + " " + window.localStorage.getItem("last_name") || "N/A"
+    const trainerName =  `${user?.first_name} ${user?.last_name}`|| "N/A"
+    console.log(trainerName);
+    
     
     
 

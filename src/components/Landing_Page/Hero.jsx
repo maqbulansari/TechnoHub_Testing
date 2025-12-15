@@ -4,7 +4,7 @@ import AnimatedButton from "../ui/AnimatedButton";
 
 export default function Hero() {
   return (
-    <section className="bg-soft pt-[140px] pb-[100px]">
+    <section className="bg-soft pt-[120px] pb-[100px]">
       <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
 
         <motion.div
@@ -12,7 +12,7 @@ export default function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7 }}
         >
-          <h1 className="text-[36px] sm:text-[44px] lg:text-[56px] leading-tight font-extrabold text-text">
+          <h1 className="text-[32px] sm:text-[42px] lg:text-[52px] leading-tight font-extrabold text-text">
             Unlock Your <br />
             Potential. <br />
             <span className="text-primary">Join Our Community.</span>

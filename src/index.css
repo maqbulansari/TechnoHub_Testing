@@ -2445,6 +2445,7 @@ td {
   width: 100%;
   margin: 0;
   box-sizing: border-box;
+  margin-top: 42px;
 }
 
 .batches-titleHSB {
