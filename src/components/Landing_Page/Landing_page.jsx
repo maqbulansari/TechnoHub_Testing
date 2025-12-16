@@ -22,6 +22,7 @@ import Section from "./Section";
 import { AuthContext } from "@/contexts/authContext";
 import { useLocation } from "react-router-dom";
 
+
 export const Landing_page = () => {
   const { loginSuccess, setLoginSuccess, responseSubrole } = useContext(AuthContext);
 
@@ -57,14 +58,15 @@ export const Landing_page = () => {
     }
 
   }, [responseSubrole,]);
- 
+
 
   return (
     <div className="overflow-x-hidden">
       <Header />
       <Hero />
-      
-{/* 
+ 
+
+      {/* 
       <Section>
         <SectionHeading 
         title="Centers" 

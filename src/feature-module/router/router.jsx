@@ -40,6 +40,7 @@ import ForgotPassword from "../auth/forgotPassword/forgotPassword";
 import ResetPassword from "../auth/resetPassword/resetPassword";
 import { ChangePassword } from "../auth/changePassword/ChangePassword";
 import AssessmentSelectedStudents from "../../components/Assessment_dashboard/AssessmentSelectedStudents";
+import AssignTrainerForInterview from "@/components/Admission_dashboard/AssignTrainerForInterview";
 const ALLRoutes = () => {
     const routes = all_routes;
     return (<Routes>
@@ -82,6 +83,7 @@ const ALLRoutes = () => {
           <Route path="/RecuriterTable" element={<RecruiterTable />}/>
           <Route path="/Sponsor_Table" element={<SponsorTable />}/>
           <Route path="/Sponsored_Students" element={<SponsoredStudents />}/>
+          <Route path="/AssignTrainerForInterview" element={<AssignTrainerForInterview />}/>
         </Route>
       </Route>
 
