@@ -17,7 +17,7 @@ const AssignBatchForTrainer = () => {
    const fetchAllTrainer = async () => {
       if (allTrainer.length > 0) return; // Already fetched
       try {
-        const response = await axios.get(`${API_BASE_URL}/Trainer/`);
+        const response = await axios.get(`${API_BASE_URL}/trainers/`);
         if (response.status === 200) {
           setAllTrainer(response.data);
           console.log(response.data);

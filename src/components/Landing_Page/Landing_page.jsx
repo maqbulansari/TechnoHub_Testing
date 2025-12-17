@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 // import Header from "../components/Header";
 // import Hero from "../components/Hero";
 // import SectionHeading from "./landing/Sections/SectionHeading";
@@ -25,6 +25,33 @@ import { useLocation } from "react-router-dom";
 
 export const Landing_page = () => {
   const { loginSuccess, setLoginSuccess, responseSubrole } = useContext(AuthContext);
+    const words = ["Trainers", "Developers"];
+    const [currentWordIndex, setCurrentWordIndex] = useState(0);
+    const [displayedText, setDisplayedText] = useState("");
+    const [deleting, setDeleting] = useState(false);
+
+
+    useEffect(() => {
+    const currentWord = words[currentWordIndex];
+    let timer;
+
+    if (!deleting && displayedText.length < currentWord.length) {
+      timer = setTimeout(() => {
+        setDisplayedText(currentWord.slice(0, displayedText.length + 1));
+      }, 150); // typing speed
+    } else if (deleting && displayedText.length > 0) {
+      timer = setTimeout(() => {
+        setDisplayedText(currentWord.slice(0, displayedText.length - 1));
+      }, 150); // deleting speed
+    } else if (!deleting && displayedText.length === currentWord.length) {
+      timer = setTimeout(() => setDeleting(true), 1000); // wait before deleting
+    } else if (deleting && displayedText.length === 0) {
+      setDeleting(false);
+      setCurrentWordIndex((prev) => (prev + 1) % words.length);
+    }
+
+    return () => clearTimeout(timer);
+  }, [displayedText, deleting, words, currentWordIndex]);
 
   useEffect(() => {
     if (loginSuccess) {
@@ -66,7 +93,7 @@ export const Landing_page = () => {
       <Hero />
  
 
-      {/* 
+{/*       
       <Section>
         <SectionHeading 
         title="Centers" 
@@ -88,7 +115,7 @@ export const Landing_page = () => {
       <Section>
         <div id="trainers" className="scroll-mt-[90px]">
           <SectionHeading
-            title="Meet Our Expert Trainers"
+            title={`Meet Our Expert  ${displayedText}`}
             subtitle="Learn from industry leaders."
           />
           <Trainers />

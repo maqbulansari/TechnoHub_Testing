@@ -20,15 +20,16 @@ export const Centers = () => (
           <p><b>{c.batches}</b> Batches</p>
           <p><b>{c.students}</b> Students</p>
         </div><br></br>
+        <a href={c.Location}>
         <AnimatedButton
-          href={c.Location}
+          // href={c.Location}
           target="_blank"
           rel="noopener noreferrer"
           className="btn bg-primary rounde-16 text-nowrap"
           // className="bg-primary text-white rounded-full size-20 shadow text-nowrap p-2"
         >
           View Location
-        </AnimatedButton>
+        </AnimatedButton></a>
 
 
       </motion.div>

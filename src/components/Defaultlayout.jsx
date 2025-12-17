@@ -126,7 +126,13 @@ const Defaultlayout = () => {
       },
       {
         title: "Admission Process",
-        items: [{ path: "/Admission_table", label: "INTERVIEW" }],
+
+        items:
+        role === "ADMIN"
+          ? [{ path: "/Admission_table", label: "INTERVIEW" },{ path: "/AssignTrainerForInterview", label: "ASSIGN TRAINER INTERVIEW" }]
+          : [
+             { path: "/Admission_table", label: "INTERVIEW" },
+            ],
         icon: faTicket,
         key: "admission-process",
       },

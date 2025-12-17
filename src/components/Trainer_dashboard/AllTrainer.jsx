@@ -12,7 +12,7 @@ const AllTrainer = () => {
 
   const fetchAllTrainer = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/Trainer/`);
+      const response = await axios.get(`${API_BASE_URL}/trainers/`);
       if (response.status === 200) {
         setAllTrainer(response.data);
         console.log(response.data);
