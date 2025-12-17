@@ -25,9 +25,19 @@ const TrainerProfile = () => {
             },
         })
             .then((response) => {
-            const trainerData = response.data;
+            const trainerData = response.data[0];
             setTrainer(trainerData);
             reset(trainerData);
+
+
+            const test =  axios
+            .get(`${API_BASE_URL}/technology/`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        })
+        console.log(test);
+        
         })
             .catch((error) => {
             console.error("Error fetching trainer data:", error);
@@ -50,11 +60,11 @@ const TrainerProfile = () => {
         formData.append("date_of_birth", data.date_of_birth);
         if (data.id_type) {
             formData.append("id_type", String(data.id_type));
-        }
-        if (data.technologies && Array.isArray(data.technologies)) {
-            data.technologies.forEach((techId) => {
-                formData.append("technologies", String(techId));
-            });
+        // }
+        // if (data.technologies && Array.isArray(data.technologies)) {
+        //     data.technologies.forEach((techId) => {
+        //         formData.append("technologies", String(techId));
+        //     });
         }
         if (image instanceof File) {
             formData.append("user_profile", image);

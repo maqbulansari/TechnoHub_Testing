@@ -19,68 +19,72 @@ export default function Header({ setVisible }) {
 
   const isAuthenticated =
     userLoggedIN && accessToken && refreshToken && userID;
-    const isHome = location.pathname === "/";
+  const isHome = location.pathname === "/";
   return (
-<header className="fixed top-0 w-full bg-white border-b z-50">
-  {/* FULL WIDTH BAR */}
-  <div className="h-[72px] flex items-center">
+    <header className="fixed top-0 w-full bg-white border-b z-50">
+      {/* FULL WIDTH BAR */}
+      <div className="h-[72px] flex items-center">
 
-    {/* LEFT EDGE ACTION (NOT CENTERED) */}
-    {isAuthenticated && (
-      <Button
-        icon="pi pi-bars"
-        onClick={() => setVisible?.(true)}
-        aria-label="Open sidebar"
-        className="
+        {/* LEFT EDGE ACTION (NOT CENTERED) */}
+        {isAuthenticated && (
+          <Button
+            icon="pi pi-bars"
+            onClick={() => setVisible?.(true)}
+            aria-label="Open sidebar"
+            className="
           ml-2
-          p-2
+          p-4
           text-primary
           bg-transparent
           border-none
           shadow-none
         "
-      />
-    )}
+          />
+        )}
 
-    {/* CENTERED CONTENT */}
-    <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 flex items-center justify-between">
+      {isAuthenticated  && <Link to="/" className="text-3xl ml-2 pt-1 font-bold text-primary">
+          TechnoHub
+        </Link>}
 
-      {/* LOGO */}
-      <Link to="/" className="text-3xl font-bold text-primary">
-        TechnoHub
-      </Link>
+        {/* CENTERED CONTENT */}
+        <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 flex items-center justify-between">
 
-      {/* CENTER NAV */}
-      {!isAuthenticated && isHome && (
-        <nav className="hidden md:flex gap-8 text-sm text-text">
-          <a href="#trainers">Trainers</a>
-          <a href="#tech">Technologies</a>
-          <a href="#gallery">Gallery</a>
-          <a href="#reads">Thursday Reads</a>
-        </nav>
-      )}
+          {/* LOGO */}
+          {!isAuthenticated && <Link to="/" className="text-3xl font-bold text-primary">
+            TechnoHub
+          </Link>}
 
-      {/* RIGHT ACTION */}
-      {!isAuthenticated && (
-        <MotionLink
-          to={routes.login3}
-          whileHover={{ y: -2 }}
-          whileTap={{ scale: 0.96 }}
-          transition={{ type: "spring", stiffness: 300, damping: 20 }}
-          className="
+          {/* CENTER NAV */}
+          {!isAuthenticated && isHome && (
+            <nav className="hidden md:flex gap-8 text-sm text-text">
+              <a href="#trainers">Trainers</a>
+              <a href="#tech">Technologies</a>
+              <a href="#gallery">Gallery</a>
+              <a href="#reads">Thursday Reads</a>
+            </nav>
+          )}
+
+          {/* RIGHT ACTION */}
+          {!isAuthenticated && (
+            <MotionLink
+              to={routes.login3}
+              whileHover={{ y: -2 }}
+              whileTap={{ scale: 0.96 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              className="
             px-5 py-2
             bg-primary text-white
             rounded-full
             text-sm font-semibold
             shadow
           "
-        >
-          Join Now
-        </MotionLink>
-      )}
-    </div>
-  </div>
-</header>
+            >
+              Join Now
+            </MotionLink>
+          )}
+        </div>
+      </div>
+    </header>
 
   );
 }

@@ -81,7 +81,7 @@ const TrainerBatchDetail = () => {
         setSubmitSuccess(false);
         navigate("/Trainer_batch");
     };
-    return (<div className="trainer-batch-detail-container">
+    return (<div className="trainer-batch-detail-container mt-16">
       <div className="batch-headerTBD">
         {/* <h2> */}
         <span className="text-white text-5xl capitalize">Batch: {batchDetail.batch_name}</span><br></br>
