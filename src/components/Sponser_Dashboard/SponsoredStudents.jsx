@@ -169,7 +169,7 @@ export const SponsoredStudents = () => {
     }
 
     return (
-        <div className="px-3 mt-3">
+        <div className="px-3 mt-20">
             <h1 className="sponsornowHeading">Sponsored Students</h1>
                              <div className="flex gap-3 mt-3 flex-wrap pl-8">
                 <div>

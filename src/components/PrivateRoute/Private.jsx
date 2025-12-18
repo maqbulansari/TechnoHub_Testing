@@ -10,7 +10,7 @@ export const ProtectedRoute = ({ children = null }) => {
 
 
   if (userRole === "ADMIN") {
-    return children ? children : <Outlet />; // Always allow ADMIN
+    return children ? children : <Outlet />;
   }
 
   if (!accessToken) {
