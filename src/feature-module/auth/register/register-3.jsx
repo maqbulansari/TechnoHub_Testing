@@ -10,7 +10,7 @@ import { Badge } from "primereact/badge";
 
 const Register3 = () => {
 
-  const { userLoggedIN, accessToken, refreshToken, API_BASE_URL  } = useContext(AuthContext);
+  const { userLoggedIN, accessToken, refreshToken, API_BASE_URL } = useContext(AuthContext);
   const routes = all_routes;
   const navigate = useNavigate();
 
@@ -166,7 +166,7 @@ const Register3 = () => {
 
   const onRegisterUser = async (e) => {
     e.preventDefault();
-    console.log("Register button clicked"); 
+    console.log("Register button clicked");
 
     // Reset all errors
     setErrorFirstName("");
@@ -339,7 +339,7 @@ const Register3 = () => {
         setEmailExistsError(
           "This email is already registered. Please use a different email."
         );
-        
+
       }
 
       // Handle file upload specific errors
@@ -371,22 +371,22 @@ const Register3 = () => {
         ["INTERVIEWEE",].includes(s.name?.toUpperCase())
       )
       : newSubrole.filter(
-        (s) => !["INTERVIEWEE", "STUDENT","GUEST LECTURER","MENTOR","APPLICANT"].includes(s.name?.toUpperCase())
+        (s) => !["INTERVIEWEE", "STUDENT", "GUEST LECTURER", "MENTOR", "APPLICANT"].includes(s.name?.toUpperCase())
       );
 
 
 
   return (
     <div className="card mx-4 mt-20">
-    {/* <div className="register mt-5 mx-2"> */}
+      {/* <div className="register mt-5 mx-2"> */}
       <div className="card-header">
         {/* <h2 className="text-5xl">Register</h2> */}
         <h2 className="sponsornowHeading pt-2 text-4xl  mb-4 uppercase text-center max-w-[95vw] sm:max-w-[800px] mx-auto">
-        Register
-        <p className="text-sm pl-3">Please enter your details to register</p>
-      </h2>
-        
-      </div><br/>
+          Register
+          <p className="text-sm pl-3">Please enter your details to register</p>
+        </h2>
+
+      </div><br />
       <div className="p-3">
         <form onSubmit={onRegisterUser}>
           <div className="row">
@@ -509,38 +509,40 @@ const Register3 = () => {
             </div>
 
             <div className="col-xxl-6 col-xl-6 col-md-6 mb-3">
-              <label className="form-label" htmlFor="Roles">
+              <label className="form-label text-sm mb-1">
                 Select Role <span className="text-danger">*</span>
               </label>
+
               <div className="dropdown">
                 <button
-                  className="btnDropdown dropdown-toggle form-control text-sm"
                   type="button"
                   data-bs-toggle="dropdown"
-                  aria-expanded="false"
-                 disabled={!userLoggedIN && !accessToken && !refreshToken }
+                  disabled={!userLoggedIN && !accessToken && !refreshToken}
+                  className="role-dropdown-btn"
                 >
-                  {newSelectedRole}
+                  {newSelectedRole || "Select Role"}
+                  <span className="arrow">▾</span>
                 </button>
-                <ul className="dropdown-menu w-100">
-                  <li
-                    className="dropdown-item c-pointer text-sm"
-                    onClick={() => handleSelectRole("LEARNER")}
-                  >
+
+                <ul className="dropdown-menu w-100 role-dropdown-menu">
+                  <li onClick={() => handleSelectRole("LEARNER")} className="dropdown-item text-sm">
                     LEARNER
                   </li>
-               {userLoggedIN && accessToken && refreshToken && ( <li
-                    className="dropdown-item c-pointer text-sm"
-                    onClick={() => handleSelectRole("ENABLER")}
-                  >
-                    ENABLER
-                  </li>)}
+
+                  {userLoggedIN && accessToken && refreshToken && (
+                    <li onClick={() => handleSelectRole("ENABLER")} className="dropdown-item text-sm">
+                      ENABLER
+                    </li>
+                  )}
                 </ul>
               </div>
+
               {errorSelectedRole && (
                 <span className="text-danger text-sm">{errorSelectedRole}</span>
               )}
             </div>
+
+
             <div
               className={`col-xxl-6 col-xl-6 col-md-6 mb-3`
               }
@@ -550,12 +552,13 @@ const Register3 = () => {
               </label>
               <div className="dropdown">
                 <button
-                  className="btnDropdown dropdown-toggle form-control text-sm"
+                  className="btnDropdown form-control text-sm"
                   type="button"
                   data-bs-toggle="dropdown"
                   aria-expanded="false"
                 >
                   {selectedSubrole}
+                   <span className="arrow">▾</span>
                 </button>
                 {/* <ul className="dropdown-menu w-100">
                   {newSubrole.length > 0 ? (
@@ -665,12 +668,13 @@ const Register3 = () => {
               </label>
               <div className="dropdown">
                 <button
-                  className="btnDropdown dropdown-toggle form-control"
+                  className="btnDropdown  form-control"
                   type="button"
                   data-bs-toggle="dropdown"
                   aria-expanded="false"
                 >
                   {selectedIdTypeName || "select Your IdType"}
+                   <span className="arrow">▾</span>
                 </button>
                 <ul className="dropdown-menu w-100">
                   {idTypes.length > 0 ? (
@@ -728,7 +732,7 @@ const Register3 = () => {
               )}
             </div>
           </div>
-              <br></br>
+          <br></br>
           <div className="row justify-content-center">
             <div className="col-xxl-5 col-xl-5 col-md-5">
               <div className="mb-3">
@@ -769,41 +773,41 @@ const Register3 = () => {
         </form>
       </div>
 
-          {submitSuccess && (
-          <div
-            className="modal fade show"
-            style={{ display: "block", background: "rgba(0,0,0,0.5)" }}
-          >
-            <div className="modal-dialog modal-dialog-centered">
-              <div className="modal-content">
-                <div className="modal-header">
-                  <h5 className="modal-title">Register</h5>
-                  <button
-                    type="button"
-                    className="btn-close"
-                    onClick={() => setSubmitSuccess(false)}
-                  ></button>
-                </div>
+      {submitSuccess && (
+        <div
+          className="modal fade show"
+          style={{ display: "block", background: "rgba(0,0,0,0.5)" }}
+        >
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Register</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setSubmitSuccess(false)}
+                ></button>
+              </div>
 
-                <div className="modal-body">
-                  <p> User successfully created!</p>
-                </div>
+              <div className="modal-body">
+                <p> User successfully created!</p>
+              </div>
 
-                <div className="modal-footer">
-                  <button
-                    type="button"
-                    className="btn btn-primary"
-                    onClick={() => setSubmitSuccess(false)}
-                    data-bs-dismiss="modal"
-                  >
-                   Ok
-                  </button>
-                </div>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={() => setSubmitSuccess(false)}
+                  data-bs-dismiss="modal"
+                >
+                  Ok
+                </button>
               </div>
             </div>
           </div>
-        )}
-    {/* </div> */}
+        </div>
+      )}
+      {/* </div> */}
     </div>
   );
 };

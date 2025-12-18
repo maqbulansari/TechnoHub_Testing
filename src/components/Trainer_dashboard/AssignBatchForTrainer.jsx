@@ -98,7 +98,7 @@ const AssignBatchForTrainer = () => {
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="form-groupABT">
             <label className="form-labelABT" htmlFor="trainerId">
-              Select Trainer
+              Select Trainer <span className="text-danger">*</span>
             </label>
             <select
               id="trainerId"
@@ -120,7 +120,7 @@ const AssignBatchForTrainer = () => {
 
           <div className="form-groupABT">
             <label className="form-labelABT" htmlFor="batchId">
-              Select Batch
+              Select Batch <span className="text-danger">*</span>
             </label>
             <select
               id="batchId"
