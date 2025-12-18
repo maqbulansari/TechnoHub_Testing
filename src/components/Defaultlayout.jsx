@@ -129,7 +129,7 @@ const Defaultlayout = () => {
 
         items:
         role === "ADMIN"
-          ? [{ path: "/Admission_table", label: "INTERVIEW" },{ path: "/AssignTrainerForInterview", label: "ASSIGN TRAINER INTERVIEW" }]
+          ? [{ path: "/Admission_table", label: "INTERVIEW" },{ path: "/AssignTrainerForInterview", label: "ASSIGN TRAINER INTERVIEW" },{ path: "/SelectedTrainerForInterview", label: "SELECTED TRAINERS" }]
           : [
              { path: "/Admission_table", label: "INTERVIEW" },
             ],

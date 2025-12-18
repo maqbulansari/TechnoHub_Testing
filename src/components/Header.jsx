@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Button } from "primereact/button";
@@ -10,15 +10,28 @@ export default function Header({ setVisible }) {
   const routes = all_routes;
 
   const storedRole = localStorage.getItem("role");
-  const {
-    userLoggedIN,
-    accessToken,
-    refreshToken,
-    userID,
-  } = useContext(AuthContext);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [AccessToken, setAccessToken] = useState(true);
+  const [RefreshToken, setRefreshToken] = useState(true);
+  const [UserID, setUserID] = useState(true);
+  const [UserLoggedIN, setUserLoggedIN] = useState(true);
 
-  const isAuthenticated =
-    userLoggedIN && accessToken && refreshToken && userID;
+  useEffect(() => {
+    const accessToken = localStorage.getItem("accessToken");
+    const refreshToken = localStorage.getItem("refreshToken");
+    const userID = localStorage.getItem("userID");
+
+    if (accessToken && refreshToken && userID) {
+      setUserLoggedIN(true);
+      setAccessToken(accessToken);
+      setRefreshToken(refreshToken);
+      setUserID(userID);
+    }
+
+    setAuthLoading(false);
+  }, []);
+  const isAuthenticated = UserLoggedIN && AccessToken && RefreshToken && UserID;
+
   const isHome = location.pathname === "/";
   return (
     <header className="fixed top-0 w-full bg-white border-b z-50">
@@ -42,7 +55,7 @@ export default function Header({ setVisible }) {
           />
         )}
 
-      {isAuthenticated  && <Link to="/" className="text-3xl ml-2 pt-1 font-bold text-primary">
+        {isAuthenticated && <Link to="/" className="text-3xl ml-2 pt-1 font-bold text-primary">
           TechnoHub
         </Link>}
 

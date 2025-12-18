@@ -8,11 +8,13 @@ const AllTrainer = () => {
   const [loading, setLoading] = useState(true);
   const [allTrainer, setAllTrainer] = useState([]);
 
-
+  const newaccessToken = localStorage.getItem("accessToken");
 
   const fetchAllTrainer = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/trainers/`);
+      const response = await axios.get(`${API_BASE_URL}/trainers/`, {
+        headers: { Authorization: `Bearer ${newaccessToken}` },
+      });
       if (response.status === 200) {
         setAllTrainer(response.data);
         console.log(response.data);
@@ -68,7 +70,7 @@ const AllTrainer = () => {
                 <th className="text-nowrap text-white">Job Title</th>
                 <th className='text-white'>Experience</th>
                 <th className='text-white'>Technologies</th>
-                <th className="text-nowrap text-white">Batches - Centers</th>
+                {/* <th className="text-nowrap text-white">Batches - Centers</th> */}
                 <th className='text-white'>Email</th>
                 <th className='text-white'>Mobile</th>
                 <th className='text-white'>Gender</th>
@@ -92,27 +94,7 @@ const AllTrainer = () => {
                         </span>
                       ))}
                   </td>
-                  <td className="batchAll-center-container">
-                    {trainer.batches && trainer.batches.length > 0 ? (
-                      <>
-                        {trainer.batches.map((batch, index) => (
-                          <span key={index} className="batchAll-center-tag">
-                            <span className="batchAll-name">{batch.batch_name}</span>
-                            {/* {trainer.centers[index] && (
-                            <> */}
-                            <span className="separatorAll">→</span>
-                            <span className="centerAll-name">
-                              {batch.center}
-                            </span>
-                            {/* </>
-                          )} */}
-                          </span>
-                        ))}
-                      </>
-                    ) : (
-                      "N/A"
-                    )}
-                  </td>
+                
                   <td className="text-nowrap">{trainer.email}</td>
                   <td>{trainer.mobile_no || "N/A"}</td>
                   <td>{trainer.gender || "N/A"}</td>
