@@ -134,7 +134,7 @@ const ForgotPassword = () => {
                     <div className="text-center">
                       <h6 className="fw-normal text-dark mb-0 text-sm">
                         Remember your password?{" "}
-                        <Link to={routes.login} className="hover-a text-sm">
+                        <Link to={routes.login} className="hover-a text-sm text-primary">
                           Back to Login
                         </Link>
                       </h6>
