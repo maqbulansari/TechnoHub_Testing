@@ -64,7 +64,7 @@ const AllTrainer = () => {
 
         <div className="table-wrapperS">
           <table className="student-tableS">
-            <thead className="thead">
+            <thead className="thead top-0 sticky">
               <tr>
                 <th className='text-white'>Name</th>
                 <th className="text-nowrap text-white">Job Title</th>

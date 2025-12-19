@@ -2277,14 +2277,14 @@ a {
   color: #2c3e50;
   margin-bottom: 20px;
   text-transform: uppercase;
-  letter-spacing: 2px;
+  letter-spacing: 1px;
   position: relative;
 }
 
 .sponsornowHeading::after {
   content: "";
   display: block;
-  width: 60px;
+  width: auto;
   height: 4px;
   background-color: #3498db;
   margin: 10px auto 0;
