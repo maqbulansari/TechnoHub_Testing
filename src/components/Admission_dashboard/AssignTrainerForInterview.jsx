@@ -23,7 +23,7 @@ const AssignTrainerForInterview = () => {
 
   const fetchAllTrainer = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/trainers/`, {
+      const response = await axios.get(`${API_BASE_URL}/interview-schedules/users-by-role/?role=enabler&subrole=trainer`, {
         headers: { Authorization: `Bearer ${newaccessToken}` },
       });
       if (response.status === 200) setAllTrainer(response.data);
@@ -83,6 +83,9 @@ const AssignTrainerForInterview = () => {
       .includes(searchTerm.toLowerCase())
   );
 
+
+  console.log(selectedTrainers);
+  
   const onSubmit = async (data) => {
     if (selectedTrainers.length === 0) {
       setError("trainer_ids", { type: "manual", message: "At least one trainer is required" });
@@ -252,7 +255,7 @@ const AssignTrainerForInterview = () => {
           </div>
 
           {/* Start Time */}
-          <div className="form-groupABT">
+          {/* <div className="form-groupABT">
             <label className="form-labelABT" htmlFor="start_time">
               Start Time <span className="text-danger">*</span>
             </label>
@@ -264,10 +267,10 @@ const AssignTrainerForInterview = () => {
               disabled={isSubmitting}
             />
             {errors.start_time && <p className="error-message text-red-500">{errors.start_time.message}</p>}
-          </div>
+          </div> */}
 
           {/* End Time */}
-          <div className="form-groupABT">
+          {/* <div className="form-groupABT">
             <label className="form-labelABT" htmlFor="end_time">
               End Time <span className="text-danger">*</span>
             </label>
@@ -286,7 +289,7 @@ const AssignTrainerForInterview = () => {
               disabled={isSubmitting}
             />
             {errors.end_time && <p className="error-message text-red-500">{errors.end_time.message}</p>}
-          </div>
+          </div> */}
 
           <button type="submit" className="submit-buttonABT" disabled={isSubmitting}>
             {isSubmitting ? (

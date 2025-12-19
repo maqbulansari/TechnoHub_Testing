@@ -4499,3 +4499,12 @@ input[type="password"]::-ms-clear {
   cursor: pointer;
 }
 
+@keyframes caret {
+  0%, 50%, 100% { opacity: 1; }
+  25%, 75% { opacity: 0; }
+}
+
+.after\:animate-caret::after {
+  animation: caret 1s infinite;
+}
+
