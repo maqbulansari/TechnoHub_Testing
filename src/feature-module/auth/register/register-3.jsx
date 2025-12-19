@@ -29,7 +29,7 @@ const Register3 = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [newSelectedRole, setNewSelectedRole] = useState("LEARNER");
-  const [selectedSubrole, setSelectedSubrole] = useState("Choose Your Subrole");
+  const [selectedSubrole, setSelectedSubrole] = useState("INTERVIEWEE");
   const [mobileNumber, setMobileNumber] = useState("");
   const [profileImage, setProfileImage] = useState(null);
   const [idTypes, setIdType] = useState([]);
@@ -56,6 +56,7 @@ const Register3 = () => {
   // const [proposerMobileError, setproposerMobileError] = useState("");
   const [emailExistsError, setEmailExistsError] = useState("");
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [isloading, setisloading] = useState(false);
 
 
 
@@ -97,8 +98,19 @@ const Register3 = () => {
   };
 
   const handleSelectRole = (role) => {
+    console.log(role);
+
     setNewSelectedRole(role);
     setErrorSelectedRole("");
+    setErrorSelectedSubsRole("");
+    if (role == "LEARNER") {
+      setSelectedSubrole("INTERVIEWEE");
+      setSelectedSubroleId(2);
+      setErrorSelectedSubsRole("");
+
+    }
+    else { setSelectedSubrole("Choose Your Subrole"); }
+    // setSelectedSubroleId("")
   };
 
   // Fetch ID types from API
@@ -166,7 +178,6 @@ const Register3 = () => {
 
   const onRegisterUser = async (e) => {
     e.preventDefault();
-    console.log("Register button clicked");
 
     // Reset all errors
     setErrorFirstName("");
@@ -181,20 +192,17 @@ const Register3 = () => {
     setIdNumberError("");
     setEmailExistsError("");
 
-
     let isValid = true;
 
-    // Validation checks
+    // Validation logic...
     if (!firstName.trim()) {
       setErrorFirstName("First Name is Required");
       isValid = false;
     }
-
     if (!lastName.trim()) {
       setErrorLastName("Last Name is Required");
       isValid = false;
     }
-
     if (!email.trim()) {
       setErrorEmail("Email is Required");
       isValid = false;
@@ -202,7 +210,6 @@ const Register3 = () => {
       setErrorEmail("Invalid Email Format");
       isValid = false;
     }
-
     if (!password) {
       setErrorPassword("Password is Required");
       isValid = false;
@@ -212,18 +219,11 @@ const Register3 = () => {
       );
       isValid = false;
     }
-
     if (!newSelectedRole) {
       setErrorSelectedRole("Select a Role");
       isValid = false;
     }
-
-    if (newSelectedRole === "ENABLER") {
-      if (!selectedSubrole || selectedSubrole === "Choose Your Subrole") {
-        setErrorSelectedSubsRole("Select a subrole");
-        isValid = false;
-      }
-    } else if (newSelectedRole === "LEARNER") {
+    if (newSelectedRole === "LEARNER") {
       if (!mobileNumber) {
         setMobileNumberError("Mobile Number is Required");
         isValid = false;
@@ -231,62 +231,14 @@ const Register3 = () => {
         setMobileNumberError("Invalid Mobile Number");
         isValid = false;
       }
-      // if (!profileImage) {
-      //   setUserProfileError("Profile Image is Required");
-      //   isValid = false;
-      // }
-      // // ID TYPE VALIDATION
-      // if (!selectedIdType || selectedIdType === "Select an ID") {
-      //   setSelectedIdTypeError("ID Type is Required");
-      //   isValid = false;
-      // }
-
-      // // ID NUMBER VALIDATION (EXISTENCE)
-      // if (!identity.trim()) {
-      //   setIdNumberError("ID Number is Required");
-      //   isValid = false;
-      // }
     }
 
-
-    // if (selectedIdType && identity.trim()) {
-    //   let regex;
-    //   let errorMessage = "";
-
-    //   switch (selectedIdType) {
-    //     case "ADHAARCARD":
-    //       regex = /^\d{12}$/;
-    //       errorMessage = "Aadhaar must be exactly 12 digits";
-    //       break;
-    //     case "PASSPORT":
-    //       regex = /^[A-Za-z][0-9]{7}$/;
-    //       errorMessage = "Invalid Passport format (e.g., A1234567)";
-    //       break;
-    //     case "VOTER_ID":
-    //       regex = /^[A-Za-z]{3}[0-9]{7}$/;
-    //       errorMessage = "Voter ID must be 3 letters followed by 7 digits";
-    //       break;
-    //     default:
-    //       break;
-    //   }
-
-    //   if (regex && !regex.test(identity)) {
-    //     setIdNumberError(errorMessage);
-    //     isValid = false;
-    //   }
-    // }
-
-    // if (!isValid) return;
-    // if (!isValid) return;
-
-    //   if (!isValid) {
-    //   console.log("Validation failed - not calling API");
-    //   return;
-    // }
+    if (!isValid) return;
 
     try {
-      const formData = new FormData();
+      setisloading(true); // start loading only before API call
 
+      const formData = new FormData();
       formData.append("first_name", firstName.trim());
       formData.append("last_name", lastName.trim());
       formData.append("email", email.trim());
@@ -298,38 +250,20 @@ const Register3 = () => {
         formData.append("id_type", selectedIdType);
         formData.append("identity", identity.trim());
         formData.append("subrole", SelectedSubroleId);
-        if (profileImage) {
-          formData.append("user_profile", profileImage);
-        }
+        if (profileImage) formData.append("user_profile", profileImage);
       } else if (newSelectedRole === "ENABLER") {
         formData.append("role", "3");
-        const subroleMapping = {
-          APPLICANT: 1,
-          INTERVIEWEE: 2,
-          STUDENT: 3,
-          SPONSOR: 4,
-          TRAINER: 5,
-          RECRUITER: 6,
-          "GUEST LECTURER": 7,
-        };
         formData.append("subrole", SelectedSubroleId);
       }
 
       const response = await RegisterUser(formData);
-      console.log('response', response);
 
       if (response && response.success) {
-        setSubmitSuccess(true)
-      }
-
-      // Handle email exists case based on success = false
-      if (response && !response.success && response.error?.email) {
+        setSubmitSuccess(true);
+      } else if (response && response.error?.email) {
         setEmailExistsError(response.error.email.join(", "));
       }
-
     } catch (error) {
-
-      // Handle email already exists error
       if (
         error.response?.data?.email &&
         error.response.data.email.some((msg) =>
@@ -339,30 +273,16 @@ const Register3 = () => {
         setEmailExistsError(
           "This email is already registered. Please use a different email."
         );
-
       }
 
-      // Handle file upload specific errors
       if (error.response?.data?.user_profile) {
         setUserProfileError(error.response.data.user_profile.join(", "));
-      } else if (error.message?.includes("user_profile")) {
-        setUserProfileError(error.message);
       }
-
-      // Handle other API errors
-      if (error.response?.data) {
-        const errors = error.response.data;
-
-        if (errors.email) {
-          setErrorEmail(errors.email.join(", "));
-        }
-
-        if (errors.mobileNumber) {
-          setMobileNumberError(errors.mobileNumber.join(", "));
-        }
-      }
+    } finally {
+      setisloading(false); // stop loading regardless of success/error
     }
   };
+
 
   // Filter subroles based on selected role
   const filteredSubroles =
@@ -558,7 +478,7 @@ const Register3 = () => {
                   aria-expanded="false"
                 >
                   {selectedSubrole}
-                   <span className="arrow">▾</span>
+                  <span className="arrow">▾</span>
                 </button>
                 {/* <ul className="dropdown-menu w-100">
                   {newSubrole.length > 0 ? (
@@ -674,7 +594,7 @@ const Register3 = () => {
                   aria-expanded="false"
                 >
                   {selectedIdTypeName || "select Your IdType"}
-                   <span className="arrow">▾</span>
+                  <span className="arrow">▾</span>
                 </button>
                 <ul className="dropdown-menu w-100">
                   {idTypes.length > 0 ? (
@@ -746,17 +666,17 @@ const Register3 = () => {
                 <button
                   type="submit"
                   className="btn btn-primary w-40 loginBtn"
+                  disabled={isloading}
                 >
-                  {loading ? (
-                    <>
-                      <i className="fas fa-spinner fa-spin me-2"></i>
-                    </>
+                  {isloading ? (
+                    <i className="fas fa-spinner fa-spin me-2"></i>
                   ) : (
                     <>
                       Create Account <i className="fa-solid fa-right-to-bracket ml-2"></i>
                     </>
                   )}
                 </button>
+
 
 
               </div>

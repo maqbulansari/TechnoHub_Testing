@@ -13,6 +13,7 @@ const Login3 = () => {
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
 
 
@@ -28,9 +29,9 @@ const Login3 = () => {
   };
 
 
-  const validatePassword = (password) => {
-    return password >= 8;
-  };
+  // const validatePassword = (password) => {
+  //   return password >= 8;
+  // };
 
   const togglePasswordVisibility = () => {
     setPasswordVisibility((prevState) => ({
@@ -40,44 +41,41 @@ const Login3 = () => {
   };
 
   const loginUser = async (e) => {
-
     e.preventDefault();
 
     setEmailError("");
     setPasswordError("");
+    setLoginError("");
 
     let isValid = true;
 
     if (!email) {
       setEmailError("Email is required");
       isValid = false;
-    } else if (!validateEmail) {
-      setEmailError("Enter a Valid Email Address");
+    } else if (!validateEmail(email)) {
+      setEmailError("Enter a valid email address");
       isValid = false;
     }
 
     if (!password) {
-      setPasswordError("Password is Required");
-      isValid = false;
-    } else if (!validatePassword) {
-      setPasswordError("Enter a Valid Password");
+      setPasswordError("Password is required");
       isValid = false;
     }
+    //  else if (!validatePassword(password)) {
+    //   setPasswordError("Enter a valid password");
+    //   isValid = false;
+    // }
 
-    if (!isValid) {
-      return;
-    }
+    if (!isValid) return;
 
     try {
-      let userData = {
-        email,
-        password,
-      };
-      await LoginUser(userData);
+      setIsLoggingIn(true); // start loading
+      await LoginUser({ email, password });
       setLoginSuccess(true);
-      console.log('responsesubrole', responseSubrole);
     } catch (error) {
-      console.log(error);
+      console.error(error);
+    } finally {
+      setIsLoggingIn(false); // stop loading
     }
   };
 
@@ -110,7 +108,7 @@ const Login3 = () => {
     <>
       <div className="row bgLoginScreen m-0">
         <div className="hidden md:block col-xxl-8 col-xl-8 col-md-8 mobile-image-container">
-          <img src={login}  alt="..." className="loginImg mobile-login-img object-center" />
+          <img src={login} alt="..." className="loginImg mobile-login-img object-center" />
         </div>
 
         <div className="col-xxl-4 col-xl-4 col-md-4 d-flex align-items-center md:my-0 my-1">
@@ -130,7 +128,7 @@ const Login3 = () => {
                     <label htmlFor="emailAddress" className="form-label">
                       Email Address <span className="text-danger">*</span>
                     </label>
-                    <input 
+                    <input
                       placeholder="Enter Your Email"
                       id="emailAddress"
                       type="email"
@@ -173,11 +171,11 @@ const Login3 = () => {
                   </div>
 
                   <div className="col-xxl-12 col-xl-12 col-md-12 mb-3">
-                   
 
-                  <div className="col-xxl-12 col-xl-12 col-md-12 mb-3">
-                    <div className="mb-3">
-                      {/* <Link
+
+                    <div className="col-xxl-12 col-xl-12 col-md-12 mb-3">
+                      <div className="mb-3">
+                        {/* <Link
                       type="submit"
                       className="btn btn-primary loginBtn"
                       onClick={loginUser}
@@ -186,30 +184,29 @@ const Login3 = () => {
                 
 
                     </Link> */}
-                    <center className="my-1">
-                     {loginError && <span className="text-danger text-center">{loginError}</span>}</center>
-                      <button
-                        type="submit"
-                        className="btn btn-primary loginBtn pt-2"
-                        onClick={loginUser}>
-                        {loading ? (
-                          <>
-                            <i className="fas fa-spinner fa-spin me-2 "></i>
-                          </>
-                        ) : (
-                          <>
-                            {/* Sign In */}
-                            Login <i className="fa-solid fa-right-to-bracket ml-2"></i>
-                            
-                          </>
-                        )}
-                      </button>
-                      <div className="text-end ">
-                      <Link to={routes.forgotPassword} className="link-danger text-sm">
-                        Forgot Password?
-                      </Link>
-                    </div>
-                  </div>
+                        <center className="my-1">
+                          {loginError && <span className="text-danger text-center">{loginError}</span>}</center>
+                        <button
+                          type="submit"
+                          className="btn btn-primary loginBtn pt-2"
+                          onClick={loginUser}
+                          disabled={isLoggingIn} // disable button while logging in
+                        >
+                          {isLoggingIn ? (
+                            <i className="fas fa-spinner fa-spin me-2"></i>
+                          ) : (
+                            <>
+                              Login <i className="fa-solid fa-right-to-bracket ml-2"></i>
+                            </>
+                          )}
+                        </button>
+
+                        <div className="text-end ">
+                          <Link to={routes.forgotPassword} className="link-danger text-sm">
+                            Forgot Password?
+                          </Link>
+                        </div>
+                      </div>
                     </div>
                   </div>
 

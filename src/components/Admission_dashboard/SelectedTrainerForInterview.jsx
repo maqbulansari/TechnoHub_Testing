@@ -154,7 +154,7 @@ const SelectedTrainerForInterview = () => {
     };
 
     const actionTemplate = (rowData) => (
-        <div className="flex gap-2">
+        <div className="flex gap-2 justify-center">
             <Button
                 label="Delete"
                 className="btn text-white bg-red-600"
@@ -180,7 +180,7 @@ const SelectedTrainerForInterview = () => {
     return (
         <div className="container mt-16">
             <div className="header-containerH d-flex justify-center w-100 ">
-                <h2 className="sponsornowHeading pt-2 text-4xl  mb-4 uppercase text-center max-w-[95vw] sm:max-w-[800px] mx-auto">
+                <h2 className="sponsornowHeading pt-2 text-4xl mb-4 uppercase text-center max-w-[95vw] sm:max-w-[800px] mx-auto">
                     Selected Trainer For Interview
                 </h2>
             </div>
@@ -217,10 +217,10 @@ const SelectedTrainerForInterview = () => {
                         body={endDateTemplate}
                         sortable
                     />
-                    <Column
+                    {/* <Column
                         header="Interview Time"
                         body={timeTemplate}
-                    />
+                    /> */}
                     {/* <Column
                         header="Approval Status"
                         body={approvalTemplate}
