@@ -13,7 +13,6 @@ import { Footer } from "./Footer";
 import { ThursdayReads } from "./ThrusdayReads";
 import SectionHeading from "./SectionHeading";
 import { Gallery } from "./Gallery";
-import { Trainers } from "./Trainers";
 import { Technologies } from "./Technologies";
 import { Centers } from "./Centers";
 import Header from "../Header";
@@ -22,6 +21,7 @@ import Section from "./Section";
 import { AuthContext } from "@/contexts/authContext";
 import { useLocation } from "react-router-dom";
 import AnimatedWord from "../ui/AnimatedWord";
+import { Testimonials } from "./Testimonials";
 
 
 export const Landing_page = () => {
@@ -97,7 +97,7 @@ export const Landing_page = () => {
             <AnimatedWord words={["Trainers", "Developers"]} />
           </SectionHeading>
 
-          <Trainers />
+          <Testimonials />
         </div>
       </Section>
 

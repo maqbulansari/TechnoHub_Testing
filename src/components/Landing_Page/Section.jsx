@@ -16,7 +16,7 @@ export default function Section({ children, gray = false }) {
   return (
     <section className={gray ? "bg-light" : "bg-white"}>
       <motion.div
-        className="py-8 sm:py-20 lg:py-24"
+        className="py-6 sm:py-20 lg:py-24"
         variants={variants}
         initial="hidden"
         whileInView="visible"

@@ -26,18 +26,12 @@ const AuthProvider = ({ children }) => {
 
 
 
-  // const API_BASE_URL = "https://techie01.pythonanywhere.com/auth";
-  // const API_BASE_URL = "https://gl8tx74f-8000.inc1.devtunnels.ms/auth";
 
-
+  const API_BASE_URL = "https://technohub.pythonanywhere.com/auth";//main
   // const API_BASE_URL = "https://9gqxjbjg-8000.inc1.devtunnels.ms/auth";//tahur
-  // const API_BASE_URL = "https://beyondshahbaz.pythonanywhere.com/auth";//main
   // const API_BASE_URL = "https://187gwsw1-8000.inc1.devtunnels.ms/auth";//farha
-  const API_BASE_URL = "https://958cp4w5-8000.inc1.devtunnels.ms/auth";//Saba
+  // const API_BASE_URL = "https://958cp4w5-8000.inc1.devtunnels.ms/auth";//Saba
 
-
-
-  // const API_BASE_URL = "https://gl8tx74f-8000.inc1.devtunnels.ms/auth";//mam
 
 
 
@@ -270,11 +264,11 @@ const AuthProvider = ({ children }) => {
 
       if (response.status === 200) {
         setUser(response.data);
-        window.localStorage.setItem("first_name",user.first_name)
-        window.localStorage.setItem("last_name",user.last_name)
+        window.localStorage.setItem("first_name", user.first_name)
+        window.localStorage.setItem("last_name", user.last_name)
       }
-      
-      
+
+
     } catch (error) {
       console.error("GetUser Error:", error.response?.data || error.message);
     } finally {
@@ -314,38 +308,38 @@ const AuthProvider = ({ children }) => {
     setResponseSubrole(null);
     setUser(null);
   };
-const GenerateNewAccessToken = async () => {
-  if (!refreshToken) {
-    LogoutUser();
-    throw new Error("No refresh token available");
-  }
-
-  try {
-    const response = await axios.post(`${API_BASE_URL}/login/refresh/`, {
-      refresh: refreshToken
-    });
-
-    if (response.data.access) {
-      const newAccessToken = response.data.access;
-
-      // Update local state
-      setAccessToken(newAccessToken);
-      // Persist
-      localStorage.setItem("accessToken", newAccessToken);
-      // Update global axios header immediately
-      axios.defaults.headers.common["Authorization"] = `Bearer ${newAccessToken}`;
-
-      return newAccessToken;
+  const GenerateNewAccessToken = async () => {
+    if (!refreshToken) {
+      LogoutUser();
+      throw new Error("No refresh token available");
     }
 
-    throw new Error("Invalid refresh response");
-  } catch (error) {
-    console.error("Token refresh failed:", error);
-    LogoutUser();
-    throw error;
-  }
-};
-   
+    try {
+      const response = await axios.post(`${API_BASE_URL}/login/refresh/`, {
+        refresh: refreshToken
+      });
+
+      if (response.data.access) {
+        const newAccessToken = response.data.access;
+
+        // Update local state
+        setAccessToken(newAccessToken);
+        // Persist
+        localStorage.setItem("accessToken", newAccessToken);
+        // Update global axios header immediately
+        axios.defaults.headers.common["Authorization"] = `Bearer ${newAccessToken}`;
+
+        return newAccessToken;
+      }
+
+      throw new Error("Invalid refresh response");
+    } catch (error) {
+      console.error("Token refresh failed:", error);
+      LogoutUser();
+      throw error;
+    }
+  };
+
 
   // Fetch user data when accessToken or userID changes (only if not already fetched)
   useEffect(() => {

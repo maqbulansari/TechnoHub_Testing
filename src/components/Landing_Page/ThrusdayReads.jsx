@@ -7,7 +7,7 @@ export const ThursdayReads = () => (
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-120px" }}
       transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-      className="bg-white rounded-lg shadow p-10 grid md:grid-cols-2 gap-12"
+      className="bg-white rounded-lg  border border-gray-200 p-10 grid md:grid-cols-2 gap-12"
     >
       {/* Book Image */}
       <div className="bg-light rounded-lg p-4 sm:p-6">

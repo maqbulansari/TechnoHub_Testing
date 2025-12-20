@@ -2281,14 +2281,16 @@ a {
   position: relative;
 }
 
-.sponsornowHeading::after {
+/* .sponsornowHeading::after {
   content: "";
   display: block;
-  width: auto;
+  width: 70px;
   height: 4px;
-  background-color: #3498db;
-  margin: 10px auto 0;
-}
+  margin: 12px auto 0;
+  background: linear-gradient(90deg, #3498db, #2ecc71);
+  border-radius: 2px;
+} */
+
 
 .sponsor-button:disabled {
   cursor: not-allowed;

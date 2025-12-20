@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import axios from 'axios';
 import { baseURL } from '../../utils/axios';
 import { AuthContext } from '../../contexts/authContext';
+import Loading from '@/Loading';
 
 const AllIntervieweesInformation = () => {
   const [interviewees, setInterviewees] = useState([]);
@@ -52,10 +53,7 @@ const AllIntervieweesInformation = () => {
 
   if (loading) {
     return (
-      <div className="loading-minimal">
-        <div className="dot-flashing"></div>
-        <span className="ml-4">Loading ...</span>
-      </div>
+      <Loading/>
     );
   }
 

@@ -162,7 +162,7 @@ const Defaultlayout = () => {
     setRole("");
     setSubrole("");
     LogoutUser();
-    navigate("/login-3");
+    navigate("/");
   }, [LogoutUser, navigate]);
 
   const handleMenuItemClick = useCallback(() => {
@@ -171,7 +171,7 @@ const Defaultlayout = () => {
   
 
   // MenuSection Component (replaces Dropdown)
-  const MenuSection = ({ title, items, icon }) => {
+  const MenuSection = ({ title, items, icon }) => {    
     return (
       <div className="menu-section">
         <div className="menu-heading">

@@ -7,6 +7,7 @@ import { Button } from "primereact/button";
 import { Tag } from "primereact/tag";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../contexts/authContext";
+import Loading from "@/Loading";
 
 const SelectedTrainerForInterview = () => {
     const [data, setData] = useState([]);
@@ -170,10 +171,7 @@ const SelectedTrainerForInterview = () => {
 
     if (loading) {
         return (
-            <div className="loading-minimal">
-                <div className="dot-flashing"></div>
-                <span className="ml-4">Loading ...</span>
-            </div>
+           <Loading/>
         );
     }
 

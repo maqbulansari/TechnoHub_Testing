@@ -6,6 +6,7 @@ import { Column } from "primereact/column";
 import { Button } from "primereact/button";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../contexts/authContext";
+import Loading from "@/Loading";
 const AssessmentSelectedStudents = () => {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -98,10 +99,7 @@ const AssessmentSelectedStudents = () => {
         navigate("/StudentInformation");
     };
     if (loading) {
-        return (<div className="loading-minimal">
-        <div className="dot-flashing"></div>
-        <span className="ml-4">Loading ...</span>
-      </div>);
+        return (  <Loading/>);
     }
     if (error) {
         return <div className="error">Error fetching data: {error}</div>;

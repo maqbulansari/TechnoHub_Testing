@@ -6,6 +6,7 @@ import { Column } from "primereact/column";
 import { Button } from "primereact/button";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../contexts/authContext";
+import Loading from "@/Loading";
 const AdmissionTable = () => {
     const [data, setData] = useState([]);
     const navigate = useNavigate();
@@ -108,10 +109,7 @@ const AdmissionTable = () => {
 
       if (loading) {
     return (
-      <div className="loading-minimal">
-        <div className="dot-flashing"></div>
-        <span className="ml-4">Loading ...</span>
-      </div>
+      <Loading/>
     );
   }
     return (<div className="container mt-16">
