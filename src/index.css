@@ -1157,6 +1157,7 @@ img {
   font-weight: 500;
 }
 
+
 /* SIDEBAR CSS */
 .mySidebar {
   position: sticky;
@@ -2272,13 +2273,11 @@ a {
 
 .sponsornowHeading {
   text-align: center;
-  font-size: 2.5rem;
-  font-weight: bold;
-  color: #2c3e50;
-  margin-bottom: 20px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  position: relative;
+  font-size: 1.75rem;       /* smaller, cleaner */
+  font-weight: 500;         /* not bold */
+  color: #1f2937;           /* dark neutral */
+  margin-bottom: 1.5rem;
+  letter-spacing: 0.4px;
 }
 
 /* .sponsornowHeading::after {
@@ -2864,13 +2863,17 @@ td {
   font-size: 24px;
   font-weight: 600;
 }
-.thead{
-   background-color: #3498db;
+.thead {
+  background-color: #f2f2f2; /* light gray */
+  color: #333 !important;
 }
 
+
+
+
 .p-datatable .p-datatable-thead > tr > th {
-  background-color: #3498db !important;
-  color: white !important;
+  background-color: #f2f2f2; /* light gray */
+  color: #333 !important;
   font-weight: 600;
 }
 
@@ -2886,31 +2889,44 @@ td {
 
 .student-tableS {
   width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-  background: white;
+  border-collapse: collapse;
+  background: #ffffff;
   min-width: 600px;
-  border-radius: 8px;
-   display: table !important;
+  display: table;
+  font-weight: 400; /* reset boldness */
 }
 
+/* Header cells */
 .student-tableS th {
   padding: 12px 15px;
-  text-align: left;
-  font-weight: 600;
+  text-align: center;
+  font-weight: 400; /* NOT bold */
   color: #495057;
-  border: 1px solid #dee2e6;
+  background-color: #f1f3f5;
+  border-bottom: 1px solid #dee2e6 !important;
 }
 
+/* Body cells */
 .student-tableS td {
   padding: 12px 15px;
-  border-bottom: 1px solid #ecf0f1;
+  text-align: center;
+  font-weight: 400; /* normal text */
   color: #34495e;
+  border: none !important;
+  border-bottom: 1px solid #ecf0f1 !important;
 }
 
-.student-tableS .tr:hover {
+/* Remove any row borders */
+.student-tableS tr {
+  border: none !important;
+}
+
+/* Hover */
+.student-tableS tbody tr:hover {
   background-color: #f8f9fa;
 }
+
+
 
 .student-nameS {
   font-weight: 600;
@@ -2918,14 +2934,40 @@ td {
 }
 
 .batch-tagS {
-  display: inline-block;
-  padding: 3px 8px;
-  border-radius: 15px;
-  font-size: 12px;
-  font-weight: 600;
-  background-color: #e3f2fd;
-  color: #1976d2;
+  display: inline-flex;
+  align-items: center;
+
+  padding: 4px 10px;
+  margin-right: 6px;
+  margin-bottom: 4px;
+  border-radius: 999px; /* pill shape */
+  font-size: 11px;
+  font-weight: 500; /* softer than 600 */
+  letter-spacing: 0.3px;
+  background-color: #eef5ff; 
+  color: #2b6cb0;
+
   white-space: nowrap;
+}
+
+/* Remove vertical borders */
+.admission-table .p-datatable-tbody > tr > td {
+    border-left: none !important;
+    border-right: none !important;
+    font-weight: 500; /* medium weight for table text */
+    /* center all td text */
+}
+
+.admission-table .p-datatable-thead > tr > th {
+     /* center all headers */
+    font-weight: 600; /* bold for headers */
+}
+
+.table-cell-text {
+    font-weight: 500;
+    color: #000;
+    display: block;
+    
 }
 
 
@@ -3244,7 +3286,6 @@ td {
   margin: 25px auto 0 auto;
   width: 200px;
   text-align: center;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .submit-buttonABT:hover {

@@ -46,18 +46,18 @@ const AllStudent = () => {
   return (
     <div className='bg-gray-50'>
       <div className="student-info-containerS">
-        <h2 className="sponsornowHeading pt-2 text-4xl mb-4 uppercase text-center max-w-[95vw] sm:max-w-[800px] mx-auto">
+        <h2 className="sponsornowHeading pt-2">
           Student Information
         </h2>
         <div className="table-wrapperS overflow-y-auto ">
           <table className="student-tableS">
             <thead className='thead z-2 sticky top-0'>
               <tr>
-                <th className='text-white'>Name</th>
-                <th className='text-white'>Email</th>
-                <th className='text-white'>Mobile No</th>
-                <th className='text-white'>Gender</th>
-                <th className='text-white'>Batch</th>
+                <th className=''>Name</th>
+                <th className=''>Email</th>
+                <th className=''>Mobile No</th>
+                <th className=''>Gender</th>
+                <th className=''>Batch</th>
               </tr>
             </thead>
             <tbody>

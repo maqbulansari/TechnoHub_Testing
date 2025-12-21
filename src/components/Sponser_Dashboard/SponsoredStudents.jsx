@@ -101,9 +101,9 @@ export const SponsoredStudents = () => {
                 <table className="student-tableS">
                     <thead className="thead sticky top-0">
                         <tr>
-                            <th className="text-white text-nowrap">Student Name</th>
-                            <th className="text-white text-nowrap">Batch Name</th>
-                            <th className="text-white text-nowrap">Fee</th>
+                            <th className="text-nowrap">Student Name</th>
+                            <th className="text-nowrap">Batch Name</th>
+                            <th className="text-nowrap">Fee</th>
                         </tr>
                     </thead>
 

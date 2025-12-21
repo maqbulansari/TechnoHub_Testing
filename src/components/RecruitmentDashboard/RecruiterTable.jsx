@@ -44,11 +44,11 @@ export const RecruiterTable = () => {
         <table className="student-tableS">
           <thead className="thead z-2 sticky top-0">
             <tr>
-              <th className="text-nowrap text-white">Name</th>
-              <th className="text-nowrap text-white">Company</th>
-              <th className="text-nowrap text-white">Email</th>
-              <th className="text-nowrap text-white">Gender</th>
-              <th className="text-nowrap text-white">Mobile</th>
+              <th className="text-nowrap ">Name</th>
+              <th className="text-nowrap">Company</th>
+              <th className="text-nowrap">Email</th>
+              <th className="text-nowrap">Gender</th>
+              <th className="text-nowrap">Mobile</th>
             </tr>
           </thead>
           <tbody>

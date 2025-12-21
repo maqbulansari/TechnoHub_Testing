@@ -34,8 +34,12 @@ const AllTrainer = () => {
   //   }
   // }, [fetchAllTrainer]);
 
+
+
+
   useEffect(() => {
     fetchAllTrainer()
+   
   }, []);
 
 
@@ -56,7 +60,7 @@ const AllTrainer = () => {
     <div className='bg-gray-50'>
       <div className="student-info-containerS">
 
-        <h2 className="sponsornowHeading pt-2 text-4xl  mb-4 uppercase text-center max-w-[95vw] sm:max-w-[800px] mx-auto">
+        <h2 className="sponsornowHeading pt-2">
           Trainer Information
         </h2>
 
@@ -64,14 +68,14 @@ const AllTrainer = () => {
           <table className="student-tableS">
             <thead className="thead top-0 sticky">
               <tr>
-                <th className='text-white'>Name</th>
-                <th className="text-nowrap text-white">Job Title</th>
-                <th className='text-white'>Experience</th>
-                <th className='text-white'>Technologies</th>
-                {/* <th className="text-nowrap text-white">Batches - Centers</th> */}
-                <th className='text-white'>Email</th>
-                <th className='text-white'>Mobile</th>
-                <th className='text-white'>Gender</th>
+                <th className=''>Name</th>
+                <th className="text-nowrap ">Job Title</th>
+                <th className=''>Experience</th>
+                <th className=''>Technologies</th>
+                {/* <th className="text-nowrap ">Batches - Centers</th> */}
+                <th className=''>Email</th>
+                <th className=''>Mobile</th>
+                <th className=''>Gender</th>
               </tr>
             </thead>
             <tbody>

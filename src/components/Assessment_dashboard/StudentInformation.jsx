@@ -45,18 +45,18 @@ const StudentInformation = () => {
 
   return (
     <div className="student-info-containerS">
-      <h1 className="sponsornowHeading header-titleH text-center flex flex-column absolute top-5 w-full">
+      <h1 className="sponsornowHeading mt-2 text-center flex flex-column absolute top-5 w-full">
         Student Information
       </h1>
-      <br /><br /><br /><br />
-      <div className="table-wrapperS">
+      
+      <div className="table-wrapperS mt-7">
         <table className="student-tableS">
           <thead className='thead'>
             <tr>
-              <th className='text-white'>Student Name</th>
-              <th className='text-white'>Batch</th>
-              <th className='text-white'>Center</th>
-              <th className='text-white'>Selected By Trainer</th>
+              <th className=''>Student Name</th>
+              <th className=''>Batch</th>
+              <th className=''>Center</th>
+              <th className=''>Selected By Trainer</th>
             </tr>
           </thead>
           <tbody>
