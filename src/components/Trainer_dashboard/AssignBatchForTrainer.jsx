@@ -90,7 +90,7 @@ const AssignBatchForTrainer = () => {
       {/* <h1 className="assignABT-batch-title text-center text-nowrap">
         Assign Batch to Trainer
       </h1> */}
-       <h2 className="sponsornowHeading pt-2 text-4xl  mb-4 text-center max-w-[95vw] sm:max-w-[800px] mx-auto">
+       <h2 className="sponsornowHeading pt-3  mb-4 text-center max-w-[95vw] sm:max-w-[800px] mx-auto">
         Assign Batch to Trainer
       </h2>
 

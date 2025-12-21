@@ -57,7 +57,9 @@ const Defaultlayout = () => {
       items: [
         { path: "/Students_profile", label: "PROFILE" },
         { path: "/Students_batches", label: "BATCH" },
+        { path: "/Admission_table", label: "INTERVIEW" },
       ],
+      
       icon: faSchool,
       key: "student-dashboard",
     },
