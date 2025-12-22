@@ -100,21 +100,21 @@ const AllIntervieweesInformation = () => {
               <table className="interviewees-tableYY">
                 <thead className='thead'>
                   <tr>
-                    <th className='text-white'>ID</th>
-                    <th className='text-white'>Name</th>
-                    <th className='text-white'>Email</th>
-                    <th className='text-white'>Mobile</th>
-                    <th className='text-white'>Subrole</th>
-                    <th className='text-white'>Batch</th>
-                    <th className='text-nowrap text-white'>Eng Comm</th>
-                    <th className='text-white'>Background</th>
-                    <th className='text-white'>Laptop</th>
-                    <th className='text-white'>Profession</th>
-                    <th className='text-white'>Status</th>
-                    <th className='text-white'>Level</th>
-                    <th className='text-white'>Source</th>
-                    <th className='text-white'>Remarks</th>
-                    <th className='text-nowrap text-white'>Interview By</th>
+                    <th className=''>ID</th>
+                    <th className=''>Name</th>
+                    <th className=''>Email</th>
+                    <th className=''>Mobile</th>
+                    <th className=''>Subrole</th>
+                    <th className=''>Batch</th>
+                    <th className='text-nowrap'>Eng Comm</th>
+                    <th className=''>Background</th>
+                    <th className=''>Laptop</th>
+                    <th className=''>Profession</th>
+                    <th className=''>Status</th>
+                    <th className=''>Level</th>
+                    <th className=''>Source</th>
+                    <th className=''>Remarks</th>
+                    <th className='text-nowrap'>Interview By</th>
                   </tr>
                 </thead>
                 <tbody>

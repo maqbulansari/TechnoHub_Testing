@@ -18,6 +18,11 @@ const AssignTrainerForInterview = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+
+
 
   const newaccessToken = localStorage.getItem("accessToken");
 
@@ -104,18 +109,37 @@ const AssignTrainerForInterview = () => {
         is_approved: true,
       };
 
-      await axios.post(`${API_BASE_URL}/interview-schedules/`, payload, {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
+      const response = await axios.post(
+        `${API_BASE_URL}/interview-schedules/`,
+        payload,
+        {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        }
+      );
 
+      setSuccessMessage(
+        response.data?.message || "Interview schedule(s) created successfully"
+      );
       setSubmitSuccess(true);
+
       reset();
       setSelectedUsers([]);
       setRoleType("");
       setAllUsers([]);
-    } catch (error) {
-      setSubmitError(error.response?.data?.message || "Failed to assign batch");
-    } finally {
+    }
+
+    catch (error) {
+      const data = error.response?.data;
+
+      if (data?.non_field_errors?.length) {
+        setModalMessage(data.non_field_errors[0]); // first error message
+        setShowErrorModal(true);
+      } else {
+        setSubmitError(data?.message || "Failed to assign batch");
+      }
+    }
+
+    finally {
       setIsSubmitting(false);
     }
   };
@@ -264,6 +288,73 @@ const AssignTrainerForInterview = () => {
           </button>
         </form>
       </div>
+      {showErrorModal && (
+        <div
+          className="modal fade show"
+          style={{ display: "block", background: "rgba(0,0,0,0.5)" }}
+        >
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title ">Scheduling</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setShowErrorModal(false)}
+                ></button>
+              </div>
+
+              <div className="modal-body">
+                <p>{modalMessage}</p>
+              </div>
+
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={() => setShowErrorModal(false)}
+                >
+                  Ok
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {submitSuccess && (
+        <div
+          className="modal fade show"
+          style={{ display: "block", background: "rgba(0,0,0,0.5)" }}
+        >
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Success</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setSubmitSuccess(false)}
+                ></button>
+              </div>
+
+              <div className="modal-body">
+                <p>{successMessage}</p>
+              </div>
+
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={() => setSubmitSuccess(false)}
+                >
+                  Ok
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };
