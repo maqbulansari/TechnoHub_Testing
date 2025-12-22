@@ -176,12 +176,12 @@ const AssignBatch = () => {
                     <th>
                       <input type="checkbox" checked={selectAll} onChange={handleSelectAll} />
                     </th>
-                    <th className="text-white">Name</th>
-                    <th className="text-white">Email</th>
-                    <th className="text-white">Mobile</th>
-                    <th className="text-white">Level</th>
-                    <th className="text-white">Laptop</th>
-                    <th className="text-white">Interview By</th>
+                    <th className="">Name</th>
+                    <th className="">Email</th>
+                    <th className="">Mobile</th>
+                    <th className="">Level</th>
+                    <th className="">Laptop</th>
+                    <th className="">Interview By</th>
                   </tr>
                 </thead>
                 <tbody>

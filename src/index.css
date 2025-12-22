@@ -3999,6 +3999,7 @@ input[type="password"]::-ms-clear {
   padding: 10px 10px;
   color: #000000;
   text-decoration: none;
+  text-transform: capitalize !important;
   font-size: 12px;
   transition: all 0.2s ease;
   border-radius: 4px;
@@ -4022,6 +4023,7 @@ input[type="password"]::-ms-clear {
   color: #adb5bd;
   flex-shrink: 0;
 }
+
 
 .menu-item:hover .menu-item-arrow,
 .menu-item:active .menu-item-arrow {
