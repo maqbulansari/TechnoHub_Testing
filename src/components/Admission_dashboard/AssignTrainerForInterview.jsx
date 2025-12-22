@@ -28,7 +28,7 @@ const AssignTrainerForInterview = () => {
       const endpoint =
         role === "trainer"
           ? `${API_BASE_URL}/interview-schedules/users-by-role/?role=enabler&subrole=trainer`
-          : `${API_BASE_URL}/interview-schedules/users-by-role/?role=learner&subrole=student`;
+          : `${API_BASE_URL}/interview-schedules/users-by-role/?role=learner&subrole=students`;
 
       const response = await axios.get(endpoint, {
         headers: { Authorization: `Bearer ${newaccessToken}` },
@@ -126,7 +126,7 @@ const AssignTrainerForInterview = () => {
         Assign Trainer / Student For Interview
       </h2>
 
-      <div className="assignABT-form-container">
+      <div className="assignABT-form-container border border-e-gray-300">
         <form onSubmit={handleSubmit(onSubmit)}>
           {/* Hidden input to sync selected users */}
           <input

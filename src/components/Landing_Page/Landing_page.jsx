@@ -38,25 +38,25 @@ export const Landing_page = () => {
 
   useEffect(() => {
     if (responseSubrole === "SPONSOR") {
-      setShowModal(false);
+      // setShowModal(false);
       setLoginSuccess(false);
     }
     if (responseSubrole === "STUDENT") {
-      setShowModal(false);
+      // setShowModal(false);
       setLoginSuccess(false);
     }
     if (responseSubrole === "TRAINER") {
-      setShowModal(false);
+      // setShowModal(false);
       setLoginSuccess(false);
     }
 
 
     if (responseSubrole === "RECRUITER") {
-      setShowModal(false);
+      // setShowModal(false);
       setLoginSuccess(false);
     }
     if (responseSubrole === "INTERVIEWEE") {
-      setShowModal(false);
+      // setShowModal(false);
       setLoginSuccess(false);
     }
 

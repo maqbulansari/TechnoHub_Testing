@@ -65,30 +65,51 @@ const TrainerBatch = () => {
         </Card>
 
         {/* Flex container with wrapping */}
-        <div className="flex flex-wrap gap-5 m-5 w-full pl-4">
-          {/* Map over the batches array to render multiple cards */}
-          {batches.map((batch) => (
-            <div
-              key={batch.batch_id} // Use batch ID as the key
-              className="card trainer-batch-cardH2 w-1/4 min-w-[250px]"
-              onClick={() => handleCardClick(batch.batch_id)} // Pass batch ID to handleCardClick
-              style={{ cursor: "pointer" }} // Change cursor to pointer to indicate clickability
-            >
-              <img
-                src={TrainerImage}
-                className="card-img-topH2"
-                alt={batch.batch_name}
-              />
-              <div className="card-bodyH2">
-                <h5 className="card-titleH2 uppercase">{batch.batch_name}</h5>
-                <p className="card-textH2">
-                  Current Students: {batch.student_count} <br/>
-                  Center: {batch.center}
-                </p>
-              </div>
-            </div>
-          ))}
+       <div className="flex flex-wrap gap-5 m-5 w-full pl-4">
+  {batches.length > 0 ? (
+    batches.map((batch) => (
+      <div
+        key={batch.batch_id}
+        className="card trainer-batch-cardH2 w-1/4 min-w-[250px]"
+        onClick={() => handleCardClick(batch.batch_id)}
+        style={{ cursor: "pointer" }}
+      >
+        <img
+          src={TrainerImage}
+          className="card-img-topH2"
+          alt={batch.batch_name}
+        />
+        <div className="card-bodyH2">
+          <h5 className="card-titleH2 uppercase">
+            {batch.batch_name}
+          </h5>
+          <p className="card-textH2">
+            Current Students: {batch.student_count} <br />
+            Center: {batch.center}
+          </p>
         </div>
+      </div>
+    ))
+  ) : (
+    /* Empty card – SAME SIZE & STYLE */
+    <div className="card trainer-batch-cardH2 w-1/4 min-w-[250px]">
+      <img
+        src={TrainerImage}
+        className="card-img-topH2 opacity-50"
+        alt="No batches"
+      />
+      <div className="card-bodyH2 text-center">
+        <h5 className="card-titleH2 uppercase text-gray-500">
+          No Batches
+        </h5>
+        <p className="card-textH2 text-gray-400">
+          You are not assigned to any batch yet
+        </p>
+      </div>
+    </div>
+  )}
+</div>
+
       </div>
        {showModal && (
   <div
