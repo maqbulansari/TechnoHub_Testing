@@ -1,40 +1,35 @@
 import React, { useContext, useState, useEffect } from "react";
 import { SponsorContext } from "../../contexts/dashboard/sponsorDashboardContext";
 import { AuthContext } from "../../contexts/authContext";
+import Loading from "@/Loading";
 
 export const SponsorTable = () => {
   const { sponsorProfileDetails, FetchSponsor, dataFetched, setDataFetched } = useContext(SponsorContext);
   const { role, responseSubrole } = useContext(AuthContext);
-  console.log("sponsorProfileDetails", sponsorProfileDetails);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   // Fetch sponsor data when component mounts (only if not already fetched)
   useEffect(() => {
     if ((responseSubrole === "SPONSOR" || role === "ADMIN") && !dataFetched['sponsor']) {
-      FetchSponsor().then(() => {
-        setDataFetched(prev => ({ ...prev, 'sponsor': true }));
-      });
-    }
-  }, [responseSubrole, role, dataFetched, FetchSponsor, setDataFetched]);
-
-  useEffect(() => {
-    if (sponsorProfileDetails && sponsorProfileDetails.length > 0) {
+      FetchSponsor()
+        .then(() => setDataFetched(prev => ({ ...prev, 'sponsor': true })))
+        .catch(err => setError(err.message))
+        .finally(() => setLoading(false));
+    } else if (sponsorProfileDetails && sponsorProfileDetails.length > 0) {
       setLoading(false);
     }
-  }, [sponsorProfileDetails]);
+  }, [responseSubrole, role, dataFetched, FetchSponsor, setDataFetched, sponsorProfileDetails]);
 
   if (loading) {
     return (
-      <div className="loading-minimal">
-        <div className="dot-flashing"></div>
-        <span className="ml-4">Loading ...</span>
-      </div>
+     <Loading />
     );
   }
 
   if (error) {
-    return <div className="error">Error fetching data: {error}</div>;
+    return <div className="error text-center">Error fetching data: {error}</div>;
   }
 
   const sortedSponsors = [...sponsorProfileDetails].sort((a, b) => {
@@ -44,45 +39,39 @@ export const SponsorTable = () => {
   });
 
   return (
-    <div className="px-2 mt-16"><br></br>
-      <h1 className="sponsornowHeading">Sponsors</h1>
+    <div className="px-2 mt-16">
+      <h1 className="sponsornowHeading pt-4">Sponsors</h1>
       <div className="table-wrapperS overflow-y-auto">
         <table className="student-tableS">
           <thead className="thead z-2 sticky top-0">
             <tr>
-              {/* <th className="text-nowrap">User Profile</th> */}
-              <th className="text-nowrap text-white">Name</th>
-              <th className="text-nowrap text-white">Company</th>
-              <th className="text-nowrap text-white">Email</th>
-              <th className="text-nowrap text-white">Gender</th>
-              {/* <th className="text-nowrap">Qualification</th> */}
-              <th className="text-nowrap text-white">Mobile</th>
-              {/* <th className="text-noewrap">Identity</th> */}
-              <th className="text-nowrap text-white">Contribution Value</th>
-              <th className="text-nowrap text-white">Contribution Type</th>
+              <th className="text-nowrap ">Name</th>
+              <th className="text-nowrap">Company</th>
+              <th className="text-nowrap">Email</th>
+              <th className="text-nowrap">Gender</th>
+              <th className="text-nowrap">Mobile</th>
+              <th className="text-nowrap">Contribution Value</th>
+              <th className="text-nowrap">Contribution Type</th>
             </tr>
           </thead>
           <tbody>
             {sortedSponsors.length > 0 ? (
-              sortedSponsors.map((profile) => (
+              sortedSponsors.map(profile => (
                 <tr key={profile.id} className="tr">
-                  {/* <td>{profile.image}</td> */}
-                  <td className="text-nowrap capitalize">
-                    {profile.first_name} {profile.last_name}
-                  </td>
+                  <td className="text-nowrap capitalize">{profile.first_name} {profile.last_name}</td>
                   <td className="text-nowrap capitalize">{profile.company_name}</td>
                   <td className="text-nowrap">{profile.email}</td>
                   <td className="text-nowrap capitalize">{profile.gender || "N/A"}</td>
-                  {/* <td className="text-nowrap">{profile.qualification}</td> */}
                   <td className="text-nowrap">{profile.mobile_no}</td>
-                  {/* <td className="text-nowrap">{profile.identity}</td> */}
                   <td className="text-nowrap">₹ {profile.contribution_value}</td>
                   <td className="text-nowrap">{profile.contribution_type}</td>
                 </tr>
               ))
             ) : (
-              <tr className="text-center p-3 w-100">
-                <td colSpan={8}>No Sponsors Found</td>
+              <tr>
+                <td colSpan={7} className="text-center py-4">
+                  No Sponsors Found
+                </td>
               </tr>
             )}
           </tbody>
@@ -91,4 +80,3 @@ export const SponsorTable = () => {
     </div>
   );
 };
-

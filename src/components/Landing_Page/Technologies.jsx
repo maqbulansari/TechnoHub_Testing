@@ -41,7 +41,7 @@ const item = {
 
 export const Technologies = () => (
   <motion.div
-    className="max-w-6xl mx-auto px-6 grid grid-cols-2 md:grid-cols-6 gap-6"
+    className="max-w-6xl  mx-auto px-6 grid grid-cols-2 md:grid-cols-6 gap-6"
     initial="hidden"
     whileInView="visible"
     viewport={{ once: true, margin: "-80px" }}
@@ -52,7 +52,7 @@ export const Technologies = () => (
         variants={item}
         whileHover={{ y: -6 }}
         transition={{ type: "spring", stiffness: 280, damping: 22 }}
-        className="bg-white rounded-xl py-10 text-center shadow flex flex-col items-center"
+        className="bg-white border border-gray-200 py-10 text-center rounded-lg flex flex-col items-center"
       >
         <motion.img
           src={t.img}

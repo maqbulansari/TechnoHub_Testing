@@ -1,234 +1,191 @@
 import { useContext, useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Input } from "@/components/ui/input";
+import { X, Eye, EyeOff } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { all_routes } from "../../router/all_routes";
-import { AuthContext } from "../../../contexts/authContext";
-import login from "../../../assets/images/login/login.png";
+import { AuthContext } from "@/contexts/authContext";
+import { all_routes } from "@/feature-module/router/all_routes";
 
-const Login3 = () => {
+export default function LoginModal({ open, onClose, onForgot }) {
+  const {
+    LoginUser,
+    loginError,
+    setLoginError,
+    userLoggedIN,
+    responseSubrole,
+    role,
+    setLoginSuccess,
+  } = useContext(AuthContext);
+
   const routes = all_routes;
-  const { LoginUser, loading, loginError, responseSubrole, userLoggedIN, setLoginError, role, setLoginSuccess } = useContext(AuthContext);
+  const navigate = useNavigate();
 
-  const navigation = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
-  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
+  const validateEmail = (value) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
-
-  console.log('responseSubrole', responseSubrole);
-  const [passwordVisibility, setPasswordVisibility] = useState({
-    password: false,
-  });
-  console.log(role)
-  console.log(responseSubrole)
-  const validateEmail = (email) => {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test(String(email).toLowerCase());
-  };
-
-
-  // const validatePassword = (password) => {
-  //   return password >= 8;
-  // };
-
-  const togglePasswordVisibility = () => {
-    setPasswordVisibility((prevState) => ({
-      ...prevState,
-      password: !prevState.password,
-    }));
-  };
-
-  const loginUser = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-
+    setLoginError("");
     setEmailError("");
     setPasswordError("");
-    setLoginError("");
 
-    let isValid = true;
+    let valid = true;
 
     if (!email) {
       setEmailError("Email is required");
-      isValid = false;
+      valid = false;
     } else if (!validateEmail(email)) {
-      setEmailError("Enter a valid email address");
-      isValid = false;
+      setEmailError("Enter a valid email");
+      valid = false;
     }
 
     if (!password) {
       setPasswordError("Password is required");
-      isValid = false;
+      valid = false;
     }
-    //  else if (!validatePassword(password)) {
-    //   setPasswordError("Enter a valid password");
-    //   isValid = false;
-    // }
 
-    if (!isValid) return;
+    if (!valid) return;
 
     try {
-      setIsLoggingIn(true); // start loading
+      setLoading(true);
       await LoginUser({ email, password });
       setLoginSuccess(true);
-    } catch (error) {
-      console.error(error);
     } finally {
-      setIsLoggingIn(false); // stop loading
+      setLoading(false);
     }
   };
 
-
   useEffect(() => {
-    if (userLoggedIN && responseSubrole === "SPONSOR") {
-      navigation("/Students_SponserDashboard");
-    }
-    if (userLoggedIN && responseSubrole === "STUDENT") {
-      navigation("/Students_profile");
-    }
-    if (userLoggedIN && responseSubrole === "TRAINER") {
-      navigation("/Trainer_batch");
-    }
-    if (userLoggedIN && role === "ADMIN") {
-      navigation("/");
-    }
-    if (userLoggedIN && responseSubrole === "RECRUITER") {
-      navigation("/ReadyToRecruitDashboard");
-    }
-    if (userLoggedIN && responseSubrole === "INTERVIEWEE") {
-      navigation("/Interviewee");
-    }
-    if (userLoggedIN && !role && !responseSubrole) {
-      navigation("/");
-    }
-  }, [userLoggedIN, responseSubrole, role, navigation]);
+    if (!userLoggedIN) return;
+
+    onClose();
+
+    if (responseSubrole === "SPONSOR") navigate("/Students_SponserDashboard");
+    else if (responseSubrole === "STUDENT") navigate("/Students_profile");
+    else if (responseSubrole === "TRAINER") navigate("/Trainer_batch");
+    else if (responseSubrole === "RECRUITER") navigate("/ReadyToRecruitDashboard");
+    else if (responseSubrole === "INTERVIEWEE") navigate("/Interviewee");
+    else if (role === "ADMIN") navigate("/");
+    else navigate("/");
+  }, [userLoggedIN]);
 
   return (
-    <>
-      <div className="row bgLoginScreen m-0">
-        <div className="hidden md:block col-xxl-8 col-xl-8 col-md-8 mobile-image-container">
-          <img src={login} alt="..." className="loginImg mobile-login-img object-center" />
-        </div>
+    <AnimatePresence>
+      {open && (
+        <>
+          {/* Backdrop */}
+          <motion.div
+            className="fixed inset-0 z-40 bg-black/40"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+          />
 
-        <div className="col-xxl-4 col-xl-4 col-md-4 d-flex align-items-center md:my-0 my-1">
-          <form>
-            <div className="card">
-              <div className="card-body">
-                {/* <h1 className="mt-5 text-5xl">Welcome</h1>
-                <p className="txt-gray mb-5 text-sm">
-                  Please enter your details to sign in
-                </p> */}
-                <h2 className="sponsornowHeading pt-2 text-4xl  mb-4 uppercase text-center max-w-[95vw] sm:max-w-[800px] mx-auto">
-                  Welcome
-                  <p className="text-sm pl-3"> Please enter your details to sign in</p>
-                </h2>
-                <div className="row mt-3">
-                  <div className="col-xxl-12 col-xl-12 col-md-12 mb-3">
-                    <label htmlFor="emailAddress" className="form-label">
-                      Email Address <span className="text-danger">*</span>
-                    </label>
-                    <input
-                      placeholder="Enter Your Email"
-                      id="emailAddress"
-                      type="email"
-                      required
-                      value={email}
-                      onChange={(e) => {
-                        setEmail(e.target.value);
-                        setEmailError("");
-                        setLoginError("");
-                      }
-                      }
-                      className="mb-0 text-sm"
-                    />
-                    {emailError && (
-                      <span className="text-danger">{emailError}</span>
-                    )}
-                  </div>
+          {/* Modal */}
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center px-4"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+          >
+            <div className="relative w-full max-w-md rounded-lg bg-white  p-6">
+              {/* Close */}
+              <button
+                onClick={onClose}
+                className="absolute right-4 top-4 text-muted-foreground hover:text-black"
+              >
+                <X size={18} />
+              </button>
 
-                  <div className="col-xxl-12 col-xl-12 col-md-12 mb-3 posRel">
-                    <label htmlFor="password" className="form-label">
-                      Password <span className="text-danger">*</span>
-                    </label>
-                    <input
-                      className="mb-0 text-sm"
-                      id="password"
-                      required
-                      placeholder="Enter Your Password"
-                      type={passwordVisibility.password ? "text" : "password"}
-                      value={password}
-                      onChange={(e) => { setPassword(e.target.value); setPasswordError(""); setLoginError(""); }}
-                    />
-                    <span
-                      className={`ti toggle-passwordsSignup ${passwordVisibility.password ? "ti-eye" : "ti-eye-off"
-                        }`}
-                      onClick={togglePasswordVisibility}
-                    ></span>
-                    {passwordError && (
-                      <span className="text-danger">{passwordError}</span>
-                    )}
-                  </div>
+              {/* Header */}
+              <h2 className="text-2xl font-bold text-center">Welcome Back</h2>
+              <p className="text-sm text-muted-foreground text-center mb-6">
+                Sign in to continue
+              </p>
 
-                  <div className="col-xxl-12 col-xl-12 col-md-12 mb-3">
-
-
-                    <div className="col-xxl-12 col-xl-12 col-md-12 mb-3">
-                      <div className="mb-3">
-                        {/* <Link
-                      type="submit"
-                      className="btn btn-primary loginBtn"
-                      onClick={loginUser}
-                    >
-                      <span>Sign In</span>
-                
-
-                    </Link> */}
-                        <center className="my-1">
-                          {loginError && <span className="text-danger text-center">{loginError}</span>}</center>
-                        <button
-                          type="submit"
-                          className="btn btn-primary loginBtn pt-2"
-                          onClick={loginUser}
-                          disabled={isLoggingIn} // disable button while logging in
-                        >
-                          {isLoggingIn ? (
-                            <i className="fas fa-spinner fa-spin me-2"></i>
-                          ) : (
-                            <>
-                              Login <i className="fa-solid fa-right-to-bracket ml-2"></i>
-                            </>
-                          )}
-                        </button>
-
-                        <div className="text-end ">
-                          <Link to={routes.forgotPassword} className="link-danger text-sm">
-                            Forgot Password?
-                          </Link>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="col-xxl-12 col-xl-12 col-md-12 mb-3">
-                    <div className="text-center">
-                      <h6 className="fw-normal text-dark mb-0 text-sm">
-                        Don’t have an account?{" "}
-                        <Link to={routes.register3} className="hover-a text-sm text-[#63b3ed]">
-                          {" "}
-                          Create Account
-                        </Link>
-                      </h6>
-                    </div>
-                  </div>
+              {/* Form */}
+              <form onSubmit={handleLogin} className="space-y-4">
+                {/* Email */}
+                <div>
+                  <Input
+                    placeholder="Email"
+                    value={email}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      setEmailError("");
+                      setLoginError("");
+                    }}
+                  />
+                  {emailError && <p className="text-xs text-red-500 mt-1">{emailError}</p>}
                 </div>
+
+                {/* Password */}
+                <div className="relative">
+                  <Input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                      setPasswordError("");
+                      setLoginError("");
+                    }}
+                    className="pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                  {passwordError && <p className="text-xs text-red-500 mt-1">{passwordError}</p>}
+                </div>
+
+                {loginError && <p className="text-sm text-red-500 text-center">{loginError}</p>}
+
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.97 }}
+                  type="submit"
+                  disabled={loading}
+                  className="w-full h-10 rounded-xl bg-primary text-white font-medium disabled:opacity-60"
+                >
+                  {loading ? "Signing in..." : "Login"}
+                </motion.button>
+              </form>
+
+              {/* Links */}
+              <div className="mt-4 flex justify-between text-sm">
+                <button
+                  type="button"
+                  onClick={onForgot} // parent handles switching modals
+                  className="text-muted-foreground hover:text-primary"
+                >
+                  Forgot password?
+                </button>
+
+                <Link
+                  to={routes.register3}
+                  onClick={onClose}
+                  className="text-primary font-semibold"
+                >
+                  Create account
+                </Link>
               </div>
             </div>
-          </form>
-        </div>
-      </div>
-    </>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
   );
-};
-
-export default Login3;
+}

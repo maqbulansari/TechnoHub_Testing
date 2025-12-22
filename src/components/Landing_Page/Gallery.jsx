@@ -26,7 +26,7 @@ export const Gallery = () => (
         variants={item}
         whileHover={{ y: -6 }}
         transition={{ type: "spring", stiffness: 280, damping: 22 }}
-        className="rounded-xl overflow-hidden shadow bg-white"
+        className="rounded-sm overflow-hidden shadow bg-white"
       >
         <motion.img
           src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f"

@@ -680,14 +680,14 @@ const Register3 = () => {
 
 
               </div>
-              <div className="text-center mb-4">
+              {/* <div className="text-center mb-4">
                 <h6 className="fw-normal text-dark mb-0 text-sm">
                   Already have an account?
                   <Link to={routes.login3} className="hover-a ms-2 text-[#63b3ed] text-sm">
                     Login
                   </Link>
                 </h6>
-              </div>
+              </div> */}
             </div>
           </div>
         </form>

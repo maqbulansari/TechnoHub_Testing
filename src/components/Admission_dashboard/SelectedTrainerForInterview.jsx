@@ -7,6 +7,7 @@ import { Button } from "primereact/button";
 import { Tag } from "primereact/tag";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../contexts/authContext";
+import Loading from "@/Loading";
 
 const SelectedTrainerForInterview = () => {
     const [data, setData] = useState([]);
@@ -170,17 +171,14 @@ const SelectedTrainerForInterview = () => {
 
     if (loading) {
         return (
-            <div className="loading-minimal">
-                <div className="dot-flashing"></div>
-                <span className="ml-4">Loading ...</span>
-            </div>
+            <Loading />
         );
     }
 
     return (
         <div className="container mt-16">
             <div className="header-containerH d-flex justify-center w-100 ">
-                <h2 className="sponsornowHeading pt-2 text-4xl mb-4 uppercase text-center max-w-[95vw] sm:max-w-[800px] mx-auto">
+                <h2 className="sponsornowHeading pt-4  max-w-[95vw] sm:max-w-[800px] mx-auto">
                     Selected Trainer For Interview
                 </h2>
             </div>
@@ -194,7 +192,14 @@ const SelectedTrainerForInterview = () => {
                     scrollHeight="600px"
                     focusable={false}
 
-                    emptyMessage="No interview schedules available"
+                    emptyMessage={
+                        <div className="flex justify-center items-center w-full py-4">
+                            <span className="text-gray-500 text-lg">
+                                No interview schedules available
+                            </span>
+                        </div>
+                    }
+
                 >
                     <Column
                         field="user_name"
@@ -240,66 +245,66 @@ const SelectedTrainerForInterview = () => {
 
 
             {showDeleteModal && (
-    <div
-        className="modal fade show"
-        style={{ display: "block", background: "rgba(0,0,0,0.5)" }}
-    >
-        <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content">
-                <div className="modal-header">
-                    <h5 className="modal-title">Confirm Delete</h5>
-                </div>
+                <div
+                    className="modal fade show"
+                    style={{ display: "block", background: "rgba(0,0,0,0.5)" }}
+                >
+                    <div className="modal-dialog modal-dialog-centered">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title">Confirm Delete</h5>
+                            </div>
 
-                <div className="modal-body">
-                    <p>
-                        Are you sure you want to delete the interview schedule for{" "}
-                        <strong>{rowToDelete?.user_name}</strong>?
-                    </p>
-                </div>
+                            <div className="modal-body">
+                                <p>
+                                    Are you sure you want to delete the interview schedule for{" "}
+                                    <strong>{rowToDelete?.user_name}</strong>?
+                                </p>
+                            </div>
 
-                <div className="modal-footer">
-                    <button
-                        type="button"
-                        className="btn btn-secondary"
-                        onClick={() => setShowDeleteModal(false)}
-                    >
-                        Cancel
-                    </button>
-                    <button
-                        type="button"
-                        className="btn btn-danger"
-                        onClick={async () => {
-                            try {
-                                await axios.delete(
-                                    `${API_BASE_URL}/interview-schedules/${rowToDelete.id}/`,
-                                    {
-                                        headers: {
-                                            Authorization: `Bearer ${accessToken}`,
-                                        },
-                                    }
-                                );
+                            <div className="modal-footer">
+                                <button
+                                    type="button"
+                                    className="btn btn-secondary"
+                                    onClick={() => setShowDeleteModal(false)}
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="button"
+                                    className="btn btn-danger"
+                                    onClick={async () => {
+                                        try {
+                                            await axios.delete(
+                                                `${API_BASE_URL}/interview-schedules/${rowToDelete.id}/`,
+                                                {
+                                                    headers: {
+                                                        Authorization: `Bearer ${accessToken}`,
+                                                    },
+                                                }
+                                            );
 
-                                setData((prev) =>
-                                    prev.filter((item) => item.id !== rowToDelete.id)
-                                );
-                            } catch (error) {
-                                console.error(
-                                    "Error deleting interview schedule:",
-                                    error
-                                );
-                            } finally {
-                                setShowDeleteModal(false);
-                                setRowToDelete(null);
-                            }
-                        }}
-                    >
-                        Delete
-                    </button>
+                                            setData((prev) =>
+                                                prev.filter((item) => item.id !== rowToDelete.id)
+                                            );
+                                        } catch (error) {
+                                            console.error(
+                                                "Error deleting interview schedule:",
+                                                error
+                                            );
+                                        } finally {
+                                            setShowDeleteModal(false);
+                                            setRowToDelete(null);
+                                        }
+                                    }}
+                                >
+                                    Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-    </div>
-)}
+            )}
 
         </div>
     );

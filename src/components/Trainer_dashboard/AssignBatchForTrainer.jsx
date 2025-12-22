@@ -14,26 +14,27 @@ const AssignBatchForTrainer = () => {
 
 
 
-   const fetchAllTrainer = async () => {
-      if (allTrainer.length > 0) return; // Already fetched
-      try {
-        const response = await axios.get(`${API_BASE_URL}/trainers/`);
-        if (response.status === 200) {
-          setAllTrainer(response.data);
-          console.log(response.data);
-        }
-      } catch (error) {
-        console.error("Error fetching Trainers:", error);
-      } finally {
-        setLoading(false);
+  const fetchAllTrainer = async () => {
+    if (allTrainer.length > 0) return; // Already fetched
+    try {
+      const response = await axios.get(`${API_BASE_URL}/trainers/`);
+      if (response.status === 200) {
+        setAllTrainer(response.data);
+        console.log(response.data);
       }
-    };
+    } catch (error) {
+      console.error("Error fetching Trainers:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Fetch batches and trainers when component mounts
   useEffect(() => {
-    if (fetchBatches) fetchBatches();
-    if (fetchAllTrainer) fetchAllTrainer();
-  }, [fetchBatches, fetchAllTrainer]);
+    fetchBatches();
+    fetchAllTrainer();
+  }, []);
+
 
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
@@ -74,7 +75,7 @@ const AssignBatchForTrainer = () => {
       console.log("Assignment successful:", response.data);
       setSubmitSuccess(true);
       reset();
-    
+
     } catch (error) {
       console.error("Assignment failed:", error);
       setSubmitError(
@@ -90,11 +91,11 @@ const AssignBatchForTrainer = () => {
       {/* <h1 className="assignABT-batch-title text-center text-nowrap">
         Assign Batch to Trainer
       </h1> */}
-       <h2 className="sponsornowHeading pt-2 text-4xl  mb-4 uppercase text-center max-w-[95vw] sm:max-w-[800px] mx-auto">
+      <h2 className="sponsornowHeading pt-3  mb-4 text-center max-w-[95vw] sm:max-w-[800px] mx-auto">
         Assign Batch to Trainer
       </h2>
 
-      <div className="assignABT-form-container">
+      <div className="assignABT-form-container border border-e-gray-300">
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="form-groupABT">
             <label className="form-labelABT" htmlFor="trainerId">
@@ -157,7 +158,7 @@ const AssignBatchForTrainer = () => {
               </>
             ) : (
               <>
-               <i className="fa-solid fa-paper-plane mr-2"></i> Assign Batch
+                <i className="fa-solid fa-paper-plane mr-2"></i> Assign Batch
               </>
             )}
           </button>

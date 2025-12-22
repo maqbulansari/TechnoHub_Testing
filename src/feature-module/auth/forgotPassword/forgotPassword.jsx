@@ -1,154 +1,112 @@
-import { useContext, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { all_routes } from "../../router/all_routes";
-import login from "../../../assets/images/login/login.png";
-import { AuthContext } from "../../../contexts/authContext";
-import axios from "axios";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Input } from "@/components/ui/input";
+import { X } from "lucide-react";
 
-const ForgotPassword = () => {
-  const { API_BASE_URL } = useContext(AuthContext);
-  const routes = all_routes;
+export default function ForgotPasswordModal({ open, onClose, onBackToLogin }) {
   const [email, setEmail] = useState("");
-  const [allEmails, setAllEmails] = useState([]);
+  const [emailError, setEmailError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const [emailNotFoundError, setEmailNotFoundError] = useState("");
-  const [loading,setLoading]=useState(false)
+  const validateEmail = (value) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
-  const GetAllUsers = async () => {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/User/`);
-      const data = response.data;
-      const emails = data.map((user) => user.email.toLowerCase());
-      setAllEmails(emails);
-    } catch (error) {
-      console.log("cannot get all users", error);
-    }
-  };
-
-  useEffect(() => {
-    GetAllUsers();
-  }, []);   
-
-  const handleResetPassword = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setLoading(true)
+    setEmailError("");
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      setEmailNotFoundError("Please enter a valid email address.");
-      setLoading(false)
-      return;
+    let valid = true;
+
+    if (!email) {
+      setEmailError("Email is required");
+      valid = false;
+    } else if (!validateEmail(email)) {
+      setEmailError("Enter a valid email");
+      valid = false;
     }
 
-    // Check if email exists in the database
-    if (!allEmails.includes(email.toLowerCase())) {
-      setEmailNotFoundError("Email address not found.");
-      setLoading(false)
-      return;
-    }
+    if (!valid) return;
 
-    // If valid, clear any previous error
-    setEmailNotFoundError("");
+    setLoading(true);
 
-    try {
-      const response = await axios.post(
-        `${API_BASE_URL}/forgot-password/`,
-        { email },
-        { headers: { "Content-Type": "application/json" } }
-      );
-
-      if (response.status === 200) {
-        alert("Reset Password link is sent to your email successfully");
-      }
-    } catch (error) {
-      console.log(error);
-    } finally{
-      setLoading(false)
-    }
+    // Call forgot password API here
+    setTimeout(() => {
+      setLoading(false);
+      onClose();
+    }, 1000);
   };
 
   return (
-    <>
-      <div className="row bgLoginScreen m-0">
-        <div className="col-xxl-8 col-xl-8 col-md-8">
-          <img src={login} alt="..." className="loginImg" />
-        </div>
+    <AnimatePresence>
+      {open && (
+        <>
+          {/* Backdrop */}
+          <motion.div
+            className="fixed inset-0 z-40 bg-black/40"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+          />
 
-        <div className="col-xxl-4 col-xl-4 col-md-4 d-flex align-items-center">
-          <form onSubmit={handleResetPassword}>
-            <div className="card">
-              <div className="card-body">
-                {/* <h1 className="mt-5">Forgot Password?</h1>
-                <p className="txt-gray mb-5">
-                  Enter your email to receive a password reset link
-                </p> */}
+          {/* Modal */}
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center px-4"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+          >
+            <div className="relative w-full max-w-md rounded-lg bg-white shadow-xl p-6">
+              {/* Close */}
+              <button
+                onClick={onClose}
+                className="absolute right-4 top-4 text-muted-foreground hover:text-black"
+              >
+                <X size={18} />
+              </button>
 
-                 <h2 className="sponsornowHeading pt-2 text-4xl  mb-4 uppercase text-center max-w-[95vw] sm:max-w-[800px] mx-auto">
-                 Forgot Password
-                  <p className="text-sm pl-3"> Enter your email to receive a password reset link</p>
-                </h2>
+              {/* Header */}
+              <h2 className="text-2xl font-bold text-center">Forgot Password?</h2>
+              <p className="text-sm text-muted-foreground text-center mb-6">
+                Enter your email to receive reset instructions
+              </p>
 
-                <div className="row mt-3">
-                  <div className="col-xxl-12 col-xl-12 col-md-12 mb-3">
-                    <label htmlFor="resetEmail" className="form-label">
-                      Email Address <span className="text-danger">*</span>
-                    </label>
-                    <input
-                      placeholder="Enter Your Registered Email"
-                      id="resetEmail"
-                      type="email"
-                      required
-                      value={email}
-                      onChange={(e) => {
-                        setEmail(e.target.value);
-                        setEmailNotFoundError("");
-                      }}
-                      className="mb-0 text-sm"
-                    />
-                    {emailNotFoundError && (
-                      <div className="text-danger mt-1">
-                        {emailNotFoundError}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="col-xxl-12 col-xl-12 col-md-12 mb-3">
-                    {/* <button type="submit" className="btn btn-primary w-100">
-                      Reset Password
-                    </button> */}
-                    <button type="submit"
-                     className="btn btn-primary w-100" >
-                      {loading ? (
-                         <>
-                           <i className="fas fa-spinner fa-spin me-2"></i> 
-                         </>
-                        ) : (
-                         <>
-                           Reset Password  <i className="fa-solid fa-key ml-2"></i>
-                         </>
-                        )}
-                      </button>
-                  </div>
-
-                  <div className="col-xxl-12 col-xl-12 col-md-12 mb-3">
-                    <div className="text-center">
-                      <h6 className="fw-normal text-dark mb-0 text-sm">
-                        Remember your password?{" "}
-                        <Link to={routes.login} className="hover-a text-sm text-primary">
-                          Back to Login
-                        </Link>
-                      </h6>
-                    </div>
-                  </div>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <Input
+                    placeholder="Email"
+                    value={email}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      setEmailError("");
+                    }}
+                  />
+                  {emailError && <p className="text-xs text-red-500 mt-1">{emailError}</p>}
                 </div>
+
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.97 }}
+                  disabled={loading}
+                  className="w-full h-10 rounded-md bg-primary text-white font-medium disabled:opacity-60"
+                >
+                  {loading ? "Sending..." : "Send Reset Link"}
+                </motion.button>
+              </form>
+
+              <div className="mt-4 text-center text-sm">
+                <button
+                  type="button"
+                  onClick={onBackToLogin} // parent handles going back to login
+                  className="text-primary font-semibold"
+                >
+                  Back to Login
+                </button>
               </div>
             </div>
-          </form>
-        </div>
-      </div>
-    </>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
   );
-};
-
-export default ForgotPassword;
-
+}

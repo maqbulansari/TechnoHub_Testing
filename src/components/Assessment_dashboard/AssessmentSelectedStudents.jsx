@@ -6,6 +6,7 @@ import { Column } from "primereact/column";
 import { Button } from "primereact/button";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../contexts/authContext";
+import Loading from "@/Loading";
 const AssessmentSelectedStudents = () => {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -98,24 +99,21 @@ const AssessmentSelectedStudents = () => {
         navigate("/StudentInformation");
     };
     if (loading) {
-        return (<div className="loading-minimal">
-        <div className="dot-flashing"></div>
-        <span className="ml-4">Loading ...</span>
-      </div>);
+        return (  <Loading/>);
     }
     if (error) {
         return <div className="error">Error fetching data: {error}</div>;
     }
     return (<div className="container mt-16">
-      <div className="header-containerH flex flex-column align-items-center mb-3 relative">
+      <div className="header-containerH flex flex-column align-items-center mb-1relative">
         {/* <h2 className="header-titleH">ASSESSMENTS</h2> */}
        
-         <h1 className="sponsornowHeading header-titleH text-center flex flex-column absolute top-5">
-        ASSESSMENTS
+         <h1 className="sponsornowHeading pt-2 header-titleH text-center flex flex-column absolute top-5">
+         Assessments
       </h1><br></br><br></br>
       </div>
       {/* <div className="w-100 flex justify-content-end px-3"> */}
-      <div className="header-containerH ">
+      <div className="header-containerH pb-0">
 
         <Button 
     // className="header-buttonH mb-1"
@@ -125,7 +123,13 @@ const AssessmentSelectedStudents = () => {
 
       <div className="card">
         {/* paginator rows={20} */}
-        <DataTable value={data} stripedRows>
+        <DataTable value={data} stripedRows  emptyMessage={
+                        <div className="flex justify-center items-center w-full py-">
+                            <span className="text-gray-500 text-lg">
+                                No data available
+                            </span>
+                        </div>
+                    }>
           <Column field="student_name" header="Student Name" body={studentNameTemplate} sortable className="text-nowrap capitalize"></Column>
           <Column field="assessed_by" header="Trainer Name" body={trainerNameTemplate} sortable className="text-nowrap capitalize"></Column>
           <Column field="batch_name" header="Batch Name" body={batchNameTemplate} sortable className="text-nowrap capitalize"></Column>
