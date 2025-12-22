@@ -55,11 +55,10 @@ const Defaultlayout = () => {
     STUDENT: {
       title: "Student Dashboard",
       items: [
-        { path: "/Students_profile", label: "PROFILE" },
-        { path: "/Students_batches", label: "BATCH" },
-        { path: "/Admission_table", label: "INTERVIEW" },
-      ],
-      
+        { path: "/Students_profile", label: "Profile" },
+        { path: "/Students_batches", label: "Batch" },
+        { path: "/Admission_table", label: "Interview" },
+      ],  
       icon: faSchool,
       key: "student-dashboard",
     },
@@ -67,21 +66,21 @@ const Defaultlayout = () => {
       {
         title: "Trainer Dashboard",
         items: [
-          { path: "/Trainer_profile", label: "PROFILE" },
-          { path: "/Trainer_batch", label: "BATCH" },
+          { path: "/Trainer_profile", label: "Profile" },
+          { path: "/Trainer_batch", label: "Batch" },
         ],
         icon: faChalkboardUser,
         key: "trainer-dashboard",
       },
       {
         title: "Admission Process",
-        items: [{ path: "/Admission_table", label: "INTERVIEW" }],
+        items: [{ path: "/Admission_table", label: "Interview" }],
         icon: faTicket,
         key: "admission-process",
       },
       {
         title: "Assessment Process",
-        items: [{ path: "/AssessmentTable", label: "ASSESSMENT CANDIDATE" }],
+        items: [{ path: "/AssessmentTable", label: "Assessment Candidate" }],
         icon: faCubes,
         key: "assessment-process",
       },
@@ -90,10 +89,10 @@ const Defaultlayout = () => {
       title: "Recruitment",
       items:
         role === "ADMIN"
-          ? [{ path: "/RecuriterTable", label: "RECRUITER" }]
+          ? [{ path: "/RecuriterTable", label: "Recruiter" }]
           : [
-              { path: "/Recruitment_Profile", label: "PROFILE" },
-              { path: "/ReadyToRecruitDashboard", label: "DASHBOARD" },
+              { path: "/Recruitment_Profile", label: "Profile" },
+              { path: "/ReadyToRecruitDashboard", label: "Dashboard" },
             ],
       icon: faChalkboardUser,
       key: "recruiter-dashboard",
@@ -102,17 +101,17 @@ const Defaultlayout = () => {
       title: "Sponsor",
       items:
         role === "ADMIN"
-          ? [{ path: "/Sponsor_Table", label: "SPONSORS" },{ path: "/Sponsored_Students", label: "SPONSORED STUDENTS" }]
+          ? [{ path: "/Sponsor_Table", label: "Sponsors" },{ path: "/Sponsored_Students", label: "Sponsored Students" }]
           : [
-              { path: "/Sponsor_Profile", label: "PROFILE" },
-              { path: "/Students_SponserDashboard", label: "DASHBOARD" },
+              { path: "/Sponsor_Profile", label: "Profile" },
+              { path: "/Students_SponserDashboard", label: "Dashboard" },
             ],
       icon: faCubes,
       key: "sponsor-dashboard",
     },
     ADMIN: {
       title: "Assessment Process",
-      items: [{ path: "/AssessmentTable", label: "ASSESSMENT CANDIDATE" }],
+      items: [{ path: "/AssessmentTable", label: "Assessment Candidate" }],
       icon: faCubes,
       key: "admin-assessment-process",
     },
@@ -120,8 +119,8 @@ const Defaultlayout = () => {
       {
         title: "Trainer Dashboard",
         items: [
-          { path: "/AllTrainer", label: "TRAINERS" },
-          { path: "/AssignBatchForTrainer", label: "ASSIGN TRAINER BATCH" },
+          { path: "/AllTrainer", label: "Trainers" },
+          { path: "/AssignBatchForTrainer", label: "Assign Trainer Batch" },
         ],
         icon: faChalkboardUser,
         key: "AllTrainer-dashboard",
@@ -131,9 +130,9 @@ const Defaultlayout = () => {
 
         items:
         role === "ADMIN"
-          ? [{ path: "/Admission_table", label: "INTERVIEW" },{ path: "/AssignTrainerForInterview", label: "ASSIGN TRAINER INTERVIEW" },{ path: "/SelectedTrainerForInterview", label: "SELECTED TRAINERS" }]
+          ? [{ path: "/Admission_table", label: "Interview" },{ path: "/AssignTrainerForInterview", label: "Assign Trainer Interview" },{ path: "/SelectedTrainerForInterview", label: "Selected Trainer" }]
           : [
-             { path: "/Admission_table", label: "INTERVIEW" },
+             { path: "/Admission_table", label: "Interview" },
             ],
         icon: faTicket,
         key: "admission-process",
@@ -142,14 +141,14 @@ const Defaultlayout = () => {
         title: "Assessment Process",
         items:
           role === "ADMIN"
-          ?  [{ path: "/AssessmentSelectedStudent", label: "ASSESSMENT CANDIDATE" }] :[{ path: "/AssessmentTable", label: "ASSESSMENT CANDIDATE" }] ,
+          ?  [{ path: "/AssessmentSelectedStudent", label: "Assessment Candidate" }] :[{ path: "/AssessmentTable", label: "Assessment Candidate" }] ,
         icon: faCubes,
         key: "assessment-process",
       },
     ],
     ALLSTUDENT: {
       title: "Student Dashboard",
-      items: [{ path: "/AllStudent", label: "STUDENTS" }],
+      items: [{ path: "/AllStudent", label: "Students" }],
       icon: faSchool,
       key: "All-student-dashboard",
     },
@@ -180,18 +179,18 @@ const Defaultlayout = () => {
           <div className="px-2">
             <FontAwesomeIcon icon={icon} />
           </div>
-          <span className="menu-title">{title}</span>
+          <span className="menu-title capitalize">{title}</span>
         </div>
         <div className="pl-3">
-          {items.map((item, index) => (
+          {items.map((item, index) => (                 
             <Link
               key={index}
               to={item.path}
-              className="menu-item"
+              className="menu-item capitalize"
               onClick={handleMenuItemClick}
             >
               <FontAwesomeIcon icon={faChevronRight} className="menu-item-arrow" />
-              <span>{item.label}</span>
+              <span className="capitalize">{item.label}</span>
             </Link>
           ))}
         </div>
@@ -331,8 +330,8 @@ const Defaultlayout = () => {
                   className="dropdownBtn ml-2 "
                   onClick={handleMenuItemClick}
                 >
-                  <i className="pi pi-plus me-2 text-black font-bold"></i>
-                  <span className="menu-title text-blue-400">Create Enabler</span>
+                  <i className="pi pi-plus me-2  text-black font-bold"></i>
+                  <span className="menu-title capitalize  text-blue-500">Create Enabler</span>
                 </Link>
               )}
             </div>
@@ -344,12 +343,15 @@ const Defaultlayout = () => {
                   <div className="me-2">
                     <i
                       className="pi pi-sign-out ml-3 "
-                      style={{ fontSize: "1.5rem", color: "#dc3545" }}
+                      style={{ fontSize: "1.5rem", color: "#dc3545", cursor: 'pointer' }}
+                      onClick={() => setVisible(false)}
+                      data-bs-target="#logoutModal"
+                       data-bs-toggle="modal"
                     ></i>
                   </div>
                   <div className="d-flex flex-column">
                     <span
-                      className="menu-title text-red-500"
+                      className="menu-title capitalize text-red-500"
                       style={{ cursor: 'pointer' }}
                       data-bs-toggle="modal"
                       data-bs-target="#logoutModal"
@@ -358,7 +360,7 @@ const Defaultlayout = () => {
                       Logout
                     </span>
                     <span
-                      className="menu-title text-blue-300"
+                      className="menu-title capitalize text-blue-500"
                       style={{ cursor: 'pointer' }}
                       onClick={() => {
                         setVisible(false);
