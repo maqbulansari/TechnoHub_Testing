@@ -32,6 +32,7 @@ export const CreateBatches = () => {
     const [trainerSearchTerm, setTrainerSearchTerm] = useState("");
 
     const [submitSuccess, setSubmitSuccess] = useState(false);
+    const today = new Date().toISOString().split("T")[0];
 
 
 
@@ -183,6 +184,7 @@ export const CreateBatches = () => {
                 <div className="flex flex-col">
                     <Label htmlFor="start_date">Start Date</Label>
                     <Input
+                    min={today}
                         type="date"
                         id="start_date"
                         {...register("start_date", { required: "Start Date is required" })}
@@ -197,6 +199,7 @@ export const CreateBatches = () => {
                 <div className="flex flex-col">
                     <Label htmlFor="end_date">End Date</Label>
                     <Input
+                    min={today}
                         type="date"
                         id="end_date"
                         {...register("end_date", { required: "End Date is required" })}
