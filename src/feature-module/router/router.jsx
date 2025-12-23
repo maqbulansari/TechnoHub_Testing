@@ -42,6 +42,9 @@ import { ChangePassword } from "../auth/changePassword/ChangePassword";
 import AssessmentSelectedStudents from "../../components/Assessment_dashboard/AssessmentSelectedStudents";
 import AssignTrainerForInterview from "@/components/Admission_dashboard/AssignTrainerForInterview";
 import SelectedTrainerForInterview from "@/components/Admission_dashboard/SelectedTrainerForInterview";
+import { CreateBatches } from "@/components/Batches/CreateBatches";
+import { AllBatches } from "@/components/Batches/AllBatches";
+import { EditBatch } from "@/components/Batches/EditBatch";
 const ALLRoutes = () => {
     const routes = all_routes;
     return (<Routes>
@@ -86,6 +89,9 @@ const ALLRoutes = () => {
           <Route path="/Sponsored_Students" element={<SponsoredStudents />}/>
           <Route path="/AssignTrainerForInterview" element={<AssignTrainerForInterview />}/>
           <Route path="/SelectedTrainerForInterview" element={<SelectedTrainerForInterview />}/>
+          <Route path="/CreateBatches" element={<CreateBatches />}/>
+          <Route path="/AllBatches" element={<AllBatches />}/>
+          <Route path="/EditBatch/:batchId" element={<EditBatch />}/>
         </Route>
       </Route>
 

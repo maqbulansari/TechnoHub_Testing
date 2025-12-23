@@ -145,6 +145,14 @@ const Defaultlayout = () => {
         icon: faCubes,
         key: "assessment-process",
       },
+      {
+        title: "Batches Management",
+        items:
+          role === "ADMIN"
+          &&  [{ path: "/CreateBatches", label: "Create Batch" },{ path: "/AllBatches", label: "All Batchs" }] ,
+        icon: faCubes,
+        key: "assessment-process",
+      },
     ],
     ALLSTUDENT: {
       title: "Student Dashboard",

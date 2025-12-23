@@ -12,12 +12,17 @@ const AssignBatchForTrainer = () => {
   const [allTrainer, setAllTrainer] = useState([]);
 
 
-
+  const token = localStorage.getItem("accessToken");
 
   const fetchAllTrainer = async () => {
     if (allTrainer.length > 0) return; // Already fetched
+    if (!token) return;
     try {
-      const response = await axios.get(`${API_BASE_URL}/trainers/`);
+      const response = await axios.get(`${API_BASE_URL}/trainers/`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
       if (response.status === 200) {
         setAllTrainer(response.data);
         console.log(response.data);
