@@ -63,7 +63,7 @@ export const EditBatch = () => {
                     capacity: batch.capacity || "",
                     time_slot: batch.time_slot || "",
                     fee: batch.fee || "",
-                    status_id: batch.status_id?.toString() || "",
+                    status_id: batch.id?.toString() || "",
                     center: batch.center || "",
                 });
 
