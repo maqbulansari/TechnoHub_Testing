@@ -45,6 +45,9 @@ import SelectedTrainerForInterview from "@/components/Admission_dashboard/Select
 import { CreateBatches } from "@/components/Batches/CreateBatches";
 import { AllBatches } from "@/components/Batches/AllBatches";
 import { EditBatch } from "@/components/Batches/EditBatch";
+import { CreateAssignments } from "@/components/Assignments/CreateAssignments";
+import AllAssignments from "@/components/Assignments/AllAssignments";
+import { StudentAssignment } from "@/components/Assignments/StudentAssignment";
 const ALLRoutes = () => {
     const routes = all_routes;
     return (<Routes>
@@ -92,6 +95,12 @@ const ALLRoutes = () => {
           <Route path="/CreateBatches" element={<CreateBatches />}/>
           <Route path="/AllBatches" element={<AllBatches />}/>
           <Route path="/EditBatch/:batchId" element={<EditBatch />}/>
+          <Route path="/CreateAssignments/:batchId" element={<CreateAssignments />}/>
+          <Route path="/AllAssignments/:batchId" element={<AllAssignments />}/>
+          <Route path="/StudentAssignment" element={<StudentAssignment />}/>
+
+
+
         </Route>
       </Route>
 

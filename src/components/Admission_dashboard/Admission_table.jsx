@@ -23,7 +23,7 @@ const AdmissionTable = () => {
     useEffect(() => {
         if (fetchTrainers) fetchTrainers();
         if (fetchAdmin) fetchAdmin();
-    }, [fetchTrainers, fetchAdmin]);
+    }, []);
 
     // Fetch real admission data from backend
     useEffect(() => {
@@ -38,6 +38,7 @@ const AdmissionTable = () => {
                     },
                 });
 
+
                 setData(response.data);
             } catch (error) {
                 console.error("Error fetching data:", error);
@@ -47,6 +48,8 @@ const AdmissionTable = () => {
         };
         fetchData();
     }, [API_BASE_URL]);
+
+ 
 
     const nameTemplate = (rowData) => <span className="table-cell-text">{rowData.name}</span>;
     const emailTemplate = (rowData) => <span className="table-cell-text">{rowData.email}</span>;
