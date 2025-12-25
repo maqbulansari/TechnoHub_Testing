@@ -428,7 +428,7 @@ const Register3 = () => {
               )}
             </div>
 
-            <div className="col-xxl-6 col-xl-6 col-md-6 mb-3">
+            <div className={`col-xxl-6 col-xl-6 col-md-6 mb-3 ${!userLoggedIN && !accessToken && !refreshToken ? "hidden" : ""}`}>
               <label className="form-label text-sm mb-1">
                 Select Role <span className="text-danger">*</span>
               </label>
@@ -464,8 +464,7 @@ const Register3 = () => {
 
 
             <div
-              className={`col-xxl-6 col-xl-6 col-md-6 mb-3`
-              }
+              className={`col-xxl-6 col-xl-6 col-md-6 mb-3  ${!userLoggedIN && !accessToken && !refreshToken ? "hidden" : ""}`}
             >
               <label className="form-label" htmlFor="Roles">
                 Select Subrole <span className="text-danger">*</span>

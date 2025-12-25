@@ -21,10 +21,12 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog";
 import Loading from "@/Loading";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 export const CreateAssignments = ({ onSuccess }) => {
-    const { batchId } = useParams(); 
+    const { batchId } = useParams();
+
+
     const { API_BASE_URL, user } = useContext(AuthContext);
     const token = localStorage.getItem("accessToken");
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -53,7 +55,7 @@ export const CreateAssignments = ({ onSuccess }) => {
             data.append("description", formData.description);
             data.append("due_date", formData.due_date);
             data.append("batch", batchId);
-            data.append("trainer", user.id);
+            data.append("trainer", user.id);    
             if (formData.assignment_file) {
                 data.append("assignment_file", formData.assignment_file);
             }
@@ -137,7 +139,7 @@ export const CreateAssignments = ({ onSuccess }) => {
 export const AllAssignments = () => {
     const { API_BASE_URL } = useContext(AuthContext);
     const token = localStorage.getItem("accessToken");
-
+    const navigate = useNavigate();
     const [assignments, setAssignments] = useState([]);
     const [editingId, setEditingId] = useState(null);
     const [formData, setFormData] = useState({});
@@ -158,6 +160,10 @@ export const AllAssignments = () => {
             const res = await axios.get(`${API_BASE_URL}/assignments/`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
+            const re = await axios.get(`${API_BASE_URL}/assignments/${1}`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
             const updatedData = res.data.map((a) => ({
                 ...a,
                 assignment_file: a.assignment_file
@@ -222,7 +228,7 @@ export const AllAssignments = () => {
                 {/* Create Assignment Modal */}
                 <Dialog open={openCreate} onOpenChange={setOpenCreate}>
                     <DialogTrigger asChild>
-                        <Button>Create Assignment</Button>
+                        <Button variant="outlinegray">New Announcement</Button>
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-[600px]">
                         <DialogHeader>
@@ -244,7 +250,7 @@ export const AllAssignments = () => {
                 <div key={batchName} className="space-y-4">
                     <h2 className="text-xl font-semibold">{batchName}</h2>
                     {batchAssignments.map((a) => (
-                        <Card key={a.id} className="transition rounded-md shadow-none">
+                        <Card key={a.id} className="transition rounded-md shadow-none bg-blue-50">
                             <CardHeader className="flex flex-col md:flex-row justify-between py-4 items-start md:items-center gap-2 md:gap-4">
                                 <div className="flex flex-col md:flex-row items-start md:items-center gap-4 w-full">
                                     <div>
@@ -255,7 +261,7 @@ export const AllAssignments = () => {
                                         </p>
                                     </div>
                                 </div>
-                                <Badge variant={a.is_active ? "green" : "destructive"}>
+                                <Badge variant={a.is_active ? "green" : "red"}>
                                     {a.is_active ? "Active" : "Closed"}
                                 </Badge>
                             </CardHeader>
@@ -267,8 +273,21 @@ export const AllAssignments = () => {
                                         className="w-40 max-h-40 rounded border"
                                     />
                                 )}
+
                                 <p className="text-gray-700 pt-2">{a.description}</p>
+
+                                {/* Read Comments Button */}
+                                <div className="flex justify-end pt-2">
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => navigate(`/AssignmentComments/${a.id}`)}
+                                    >
+                                        Read Comments
+                                    </Button>
+                                </div>
                             </CardContent>
+
                         </Card>
                     ))}
                 </div>
