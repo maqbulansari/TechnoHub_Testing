@@ -49,6 +49,7 @@ import { CreateAssignments } from "@/components/Assignments/CreateAssignments";
 import AllAssignments from "@/components/Assignments/AllAssignments";
 import { StudentAssignment } from "@/components/Assignments/StudentAssignment";
 import AssignmentComments from "@/components/Assignments/AssignmentComments";
+import Notifications from "@/components/Notifications";
 
 const ALLRoutes = () => {
     const routes = all_routes;
@@ -101,6 +102,7 @@ const ALLRoutes = () => {
           <Route path="/AllAssignments/:batchId" element={<AllAssignments />}/>
           <Route path="/StudentAssignment" element={<StudentAssignment />}/>
           <Route path="/AssignmentComments/:assignmentId" element={<AssignmentComments />}/>
+          <Route path="/Notifications" element={<Notifications />}/>
 
 
 
