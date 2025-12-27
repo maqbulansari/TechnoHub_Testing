@@ -5,6 +5,8 @@ import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { FileText, Archive, ImageIcon, MessageCircle, Pen, X } from "lucide-react"
+import { FaFilePdf, FaFileWord, FaFileAlt } from "react-icons/fa"
 import Loading from "@/Loading";
 
 export const StudentAssignment = () => {
@@ -18,11 +20,15 @@ export const StudentAssignment = () => {
     const [file, setFile] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
 
+    // Changed to object to track per assignment
+    const [showSubmissionForm, setShowSubmissionForm] = useState({}); // {assignmentId: boolean}
+    const [showSubmissions, setShowSubmissions] = useState({}); // {assignmentId: boolean}
+
     useEffect(() => {
         fetchAssignments();
     }, []);
 
-    const fetchAssignments = async () => {
+      const fetchAssignments = async () => {
         setLoading(true);
         try {
             const res = await axios.get(`${API_BASE_URL}/assignments/`, {
@@ -31,6 +37,7 @@ export const StudentAssignment = () => {
 
             const sortedAssignments = res.data.sort((a, b) => b.is_active - a.is_active);
             setAssignments(sortedAssignments);
+
         } catch (err) {
             console.error(err);
         } finally {
@@ -41,7 +48,7 @@ export const StudentAssignment = () => {
     const handleChange = (e, assignmentId) => {
         const { value, files } = e.target;
         if (files) setFile((prev) => ({ ...prev, [assignmentId]: files[0] }));
-        setFormData((prev) => ({ ...prev, [assignmentId]: value }));
+        else setFormData((prev) => ({ ...prev, [assignmentId]: value }));
     };
 
     const handleSubmit = async (assignmentId) => {
@@ -62,7 +69,8 @@ export const StudentAssignment = () => {
             alert("Submission successful!");
             setFormData((prev) => ({ ...prev, [assignmentId]: "" }));
             setFile((prev) => ({ ...prev, [assignmentId]: null }));
-            fetchSubmissions(assignmentId); // fetch all submissions immediately
+            setShowSubmissionForm((prev) => ({ ...prev, [assignmentId]: false }));
+            fetchSubmissions(assignmentId);
         } catch (err) {
             console.error(err);
             alert("Failed to submit");
@@ -71,27 +79,61 @@ export const StudentAssignment = () => {
         }
     };
 
-    const handleDownload = async (fileUrl, fileName) => {
-        try {
-            const response = await fetch(fileUrl);
-            if (!response.ok) throw new Error("Network response was not ok");
+    const getFileTypeAndIcon = (url) => {
+        const ext = url.split(".").pop()?.toLowerCase()
+        if (!ext) return { type: "file", Icon: FileText, color: "text-gray-500" }
 
-            const blob = await response.blob();
-            const url = window.URL.createObjectURL(blob);
+        if (["jpg", "jpeg", "png", "gif", "webp", "svg"].includes(ext))
+            return { type: "image", Icon: ImageIcon, color: "text-green-500" }
 
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = fileName;
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            window.URL.revokeObjectURL(url);
-        } catch (error) {
-            console.error("Download failed:", error);
+        if (["zip", "rar", "7z"].includes(ext))
+            return { type: "zip", Icon: Archive, color: "text-yellow-500" }
+
+        if (["pdf"].includes(ext)) return { type: "pdf", Icon: FaFilePdf, color: "text-red-500" }
+
+        if (["doc", "docx"].includes(ext)) return { type: "doc", Icon: FaFileWord, color: "text-blue-500" }
+
+        return { type: ext, Icon: FaFileAlt, color: "text-gray-500" }
+    }
+
+    const downloadFile = (url) => {
+        const link = document.createElement("a")
+        link.href = url
+        link.download = url.split("/").pop()
+        link.click()
+    }
+
+    // Toggle submission form for specific assignment
+    const toggleSubmissionForm = (assignmentId) => {
+        setShowSubmissionForm((prev) => ({
+            ...prev,
+            [assignmentId]: !prev[assignmentId]
+        }));
+        // Close submissions view when opening form
+        if (!showSubmissionForm[assignmentId]) {
+            setShowSubmissions((prev) => ({ ...prev, [assignmentId]: false }));
         }
     };
 
-    // Fetch all submissions for an assignment
+    // Toggle submissions view for specific assignment
+    const toggleSubmissions = (assignmentId) => {
+        const isCurrentlyShowing = showSubmissions[assignmentId];
+
+        if (!isCurrentlyShowing) {
+            // Fetch submissions when opening
+            fetchSubmissions(assignmentId);
+        }
+
+        setShowSubmissions((prev) => ({
+            ...prev,
+            [assignmentId]: !prev[assignmentId]
+        }));
+        // Close form when opening submissions
+        if (!isCurrentlyShowing) {
+            setShowSubmissionForm((prev) => ({ ...prev, [assignmentId]: false }));
+        }
+    };
+  // Fetch all submissions for an assignment
     const fetchSubmissions = async (assignmentId) => {
         try {
             const res = await axios.get(`${API_BASE_URL}/assignments/${assignmentId}/`, {
@@ -113,6 +155,8 @@ export const StudentAssignment = () => {
         <div className="max-w-4xl mx-auto mt-20 space-y-6 pb-6">
             {assignments.map((a) => {
                 const assignmentSubmissions = submissions[a.id] || [];
+                const isFormOpen = showSubmissionForm[a.id];
+                const isSubmissionsOpen = showSubmissions[a.id];
 
                 return (
                     <Card key={a.id} className="transition rounded-md shadow-none">
@@ -120,7 +164,7 @@ export const StudentAssignment = () => {
                             <div className="flex flex-col md:flex-row items-start md:items-center gap-4 w-full">
                                 <div>
                                     <h3 className="text-lg font-semibold">{a.title}</h3>
-                                    <p className="text-sm text-gray-500 flex flex-col md:flex-row md:items-center gap-2">
+                                    <p className="text-xs text-black/60 leading-tight flex items-center gap-1">
                                         <span>Batch: {a.batch_name}</span>
                                         <span>| Trainer: {a.trainer_name}</span>
                                         <span>| Due: {new Date(a.due_date).toLocaleDateString()}</span>
@@ -132,106 +176,70 @@ export const StudentAssignment = () => {
                             </Badge>
                         </CardHeader>
 
-                        <CardContent className="space-y-2 pb-2">
-                            {a.assignment_file && (
-                                <button
-                                    onClick={() =>
-                                        handleDownload(
-                                            a.assignment_file.replace(/^http:\/\/localhost:8000/, API_BASE_URL),
-                                            a.title + ".pdf"
-                                        )
-                                    }
-                                    className="text-blue-600 underline"
-                                >
-                                    Download Assignment File
-                                </button>
-                            )}
-                            {a.assignment_file && (
-                                <img
-                                    src={a.assignment_file.replace(/^http:\/\/localhost:8000/, API_BASE_URL)}
-                                    alt="assignment"
-                                    className="w-40 max-h-40 rounded border"
-                                />
-                            )}
-                            <p className="text-gray-700 pt-2">{a.description}</p>
+                        <CardContent className="space-y-2 pb-4">
+                            {a.assignment_file && (() => {
+                                const { type, Icon, color } = getFileTypeAndIcon(a.assignment_file);
+                                const fullFilename = a.assignment_file.split("/").pop();
+                                const dotIndex = fullFilename.lastIndexOf(".");
+                                const nameOnly = dotIndex !== -1 ? fullFilename.slice(0, dotIndex) : fullFilename;
+                                const extOnly = dotIndex !== -1 ? fullFilename.slice(dotIndex) : "";
 
-                            {/* Button to fetch all submissions */}
-                            {assignmentSubmissions.length === 0 && (
-                                <div className="mt-2">
+                                return (
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => downloadFile(a.assignment_file.replace(/^http:\/\/localhost:8000/, API_BASE_URL))}
+                                        className="inline-flex items-center gap-1 px-2 py-1 shadow-md text-xs hover:bg-muted transition min-w-0"
+                                    >
+                                        <Icon className={`w-4 h-4 flex-shrink-0 ${color}`} />
+                                        <span className="flex items-center gap-1 truncate max-w-[100px]">
+                                            <span className="truncate">{nameOnly}</span>
+                                            <span className="flex-shrink-0 text-muted-foreground">{extOnly}</span>
+                                        </span>
+                                    </Button>
+                                );
+                            })()}
+
+                            <p className="text-black/70 text-sm pt-2">{a.description}</p>
+
+                            {/* Action Buttons - Always visible */}
+                            <div className="pt-3 border-t border-gray-200 flex justify-start gap-2">
+                                {/* Submit Assignment Button */}
+                                {a.is_active && (
                                     <Button
                                         size="sm"
-                                        variant="outline"
-                                        onClick={() => fetchSubmissions(a.id)}
+                                        variant={isFormOpen ? "secondary" : "default"}
+                                        onClick={() => toggleSubmissionForm(a.id)}
                                     >
-                                        Show All Submissions
+                                        {isFormOpen ? (
+                                            <>
+
+                                                Close Form
+                                            </>
+                                        ) : (
+                                            <>
+
+                                                Submit Assignment
+                                            </>
+                                        )}
                                     </Button>
-                                </div>
-                            )}
+                                )}
 
-                            {/* Render all submissions */}
+                                {/* All Submissions Button */}
+                                <Button
+                                    size="sm"
+                                    className="p-2"
+                                    variant={isSubmissionsOpen ? "secondary" : "outlin"}
+                                    onClick={() => toggleSubmissions(a.id)}
+                                >
+                                    {isSubmissionsOpen ? "" : <MessageCircle className="w-4 h-4 mr-1" />}
+                                    {isSubmissionsOpen ? "Hide Submissions" : "All Submissions"}
+                                </Button>
+                            </div>
 
-                            {assignmentSubmissions.length > 0 && (
-                                <div className="mt-4 space-y-2">
-                                    {assignmentSubmissions.map((sub) => (
-                                        <div
-                                            key={sub.id}
-                                            className="border rounded-md bg-white p-3 shadow-sm hover:shadow-md transition"
-                                        >
-                                            {/* Header */}
-                                            <div className="flex justify-between items-center mb-1">
-                                                <p className="font-semibold text-sm text-gray-800">{sub.student_name}</p>
-                                                {sub.is_late && (
-                                                    <Badge variant="destructive" className="text-xs px-2 py-0.5">
-                                                        Late
-                                                    </Badge>
-                                                )}
-                                            </div>
-
-                                            {/* Answer */}
-                                            {sub.text_answer && (
-                                                <p className="text-gray-700 text-sm mb-1">
-                                                    <span className="font-medium">Answer:</span> {sub.text_answer}
-                                                </p>
-                                            )}
-
-                                            {/* Submitted File */}
-                                            {sub.submission_file && (
-                                                <a
-                                                    href={sub.submission_file.replace(/^http:\/\/localhost:8000/, API_BASE_URL)}
-                                                    target="_blank"
-                                                    rel="noreferrer"
-                                                    className="text-blue-600 underline text-sm mb-1 inline-block"
-                                                >
-                                                    View Submitted File
-                                                </a>
-                                            )}
-
-                                            {/* Feedback and Marks */}
-                                            {(sub.trainer_feedback || sub.trainer_marks) && (
-                                                <div className="bg-blue-50 p-2 rounded text-gray-800 text-sm mt-1">
-                                                    {sub.trainer_feedback && (
-                                                        <p>
-                                                            <span className="font-medium">Feedback:</span> {sub.trainer_feedback}
-                                                        </p>
-                                                    )}
-                                                    {sub.trainer_marks && (
-                                                        <p>
-                                                            <span className="font-medium">Marks:</span> {sub.trainer_marks}
-                                                        </p>
-                                                    )}
-                                                </div>
-                                            )}
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-
-
-
-
-                            {/* Submission Form */}
-                            {a.is_active && (
-                                <div className="mt-4 border-t pt-4">
+                            {/* Submission Form - Only for this specific assignment */}
+                            {isFormOpen && a.is_active && (
+                                <div className="mt-4 border-t pt-4 bg-gray-50 p-4 rounded-md">
                                     <Input
                                         name="text_answer"
                                         placeholder="Write your answer..."
@@ -250,12 +258,104 @@ export const StudentAssignment = () => {
                                             className="hidden"
                                         />
                                     </label>
-                                    {file[a.id] && <p>{file[a.id].name}</p>}
-                                    <div className="flex justify-end gap-2 mt-2">
-                                        <Button onClick={() => handleSubmit(a.id)} disabled={isSubmitting}>
+                                    {file[a.id] && (
+                                        <p className="text-sm text-green-600 mt-1">
+                                            Selected: {file[a.id].name}
+                                        </p>
+                                    )}
+                                    <div className="flex justify-end gap-2 mt-3">
+                                        <Button
+                                            size="sm"
+                                            variant="outline"
+                                            onClick={() => toggleSubmissionForm(a.id)}
+                                        >
+                                            Cancel
+                                        </Button>
+                                        <Button
+                                            size="sm"
+                                            onClick={() => handleSubmit(a.id)}
+                                            disabled={isSubmitting}
+                                        >
                                             {isSubmitting ? "Submitting..." : "Submit"}
                                         </Button>
                                     </div>
+                                </div>
+                            )}
+
+                            {/* Render submissions - Only for this specific assignment */}
+                            {isSubmissionsOpen && assignmentSubmissions.length > 0 && (
+                                <div className="mt-4 space-y-2">
+                                    <h4 className="font-medium text-sm text-gray-600">
+                                        Submissions ({assignmentSubmissions.length})
+                                    </h4>
+                                    {assignmentSubmissions.map((sub) => (
+                                        <div
+                                            key={sub.id}
+                                            className="border rounded-md bg-white p-3 shadow-sm hover:shadow-md transition"
+                                        >
+                                            <div className="flex justify-between items-center mb-1">
+                                                <p className="font-semibold text-sm text-gray-800">
+                                                    {sub.student_name}
+                                                </p>
+                                                {sub.is_late && (
+                                                    <Badge variant="destructive" className="text-xs px-2 py-0.5">
+                                                        Late
+                                                    </Badge>
+                                                )}
+                                            </div>
+
+                                            {sub.text_answer && (
+                                                <p className="text-gray-700 text-sm mb-1">
+                                                    <span className="font-medium">Answer:</span> {sub.text_answer}
+                                                </p>
+                                            )}
+
+                                            {sub.submission_file && (() => {
+                                                const { type, Icon, color } = getFileTypeAndIcon(sub.submission_file);
+                                                const fullFilename = sub.submission_file.split("/").pop();
+                                                const dotIndex = fullFilename.lastIndexOf(".");
+                                                const nameOnly = dotIndex !== -1 ? fullFilename.slice(0, dotIndex) : fullFilename;
+                                                const extOnly = dotIndex !== -1 ? fullFilename.slice(dotIndex) : "";
+
+                                                return (
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        onClick={() => downloadFile(sub.submission_file.replace(/^http:\/\/localhost:8000/, API_BASE_URL))}
+                                                        className="inline-flex items-center gap-1 px-2 py-1 shadow-md text-xs hover:bg-muted transition min-w-0 my-1"
+                                                    >
+                                                        <Icon className={`w-4 h-4 flex-shrink-0 ${color}`} />
+                                                        <span className="flex items-center gap-1 truncate max-w-[100px]">
+                                                            <span className="truncate">{nameOnly}</span>
+                                                            <span className="flex-shrink-0 text-muted-foreground">{extOnly}</span>
+                                                        </span>
+                                                    </Button>
+                                                );
+                                            })()}
+
+                                            {(sub.trainer_feedback || sub.trainer_marks) && (
+                                                <div className="bg-blue-50 p-2 rounded text-gray-800 text-sm mt-2">
+                                                    {sub.trainer_feedback && (
+                                                        <p>
+                                                            <span className="font-medium">Feedback:</span> {sub.trainer_feedback}
+                                                        </p>
+                                                    )}
+                                                    {sub.trainer_marks && (
+                                                        <p>
+                                                            <span className="font-medium">Marks:</span> {sub.trainer_marks}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            {/* No submissions message */}
+                            {isSubmissionsOpen && assignmentSubmissions.length === 0 && (
+                                <div className="mt-4 p-4 bg-gray-50 rounded-md text-center text-gray-500 text-sm">
+                                    No submissions yet for this assignment.
                                 </div>
                             )}
                         </CardContent>

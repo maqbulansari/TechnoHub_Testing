@@ -7,6 +7,8 @@ import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { FileText, Archive, ImageIcon, MessageCircle, Pen } from "lucide-react"
+import { FaFilePdf, FaFileWord, FaFileAlt } from "react-icons/fa"
 import Loading from "@/Loading";
 
 export const AssignmentComments = () => {
@@ -25,6 +27,8 @@ export const AssignmentComments = () => {
     useEffect(() => {
         fetchAssignment();
     }, [assignmentId]);
+
+
 
     const fetchAssignment = async () => {
         try {
@@ -67,21 +71,47 @@ export const AssignmentComments = () => {
         }
     };
 
+    // File type and icon helper
+    const getFileTypeAndIcon = (url) => {
+        const ext = url.split(".").pop()?.toLowerCase()
+        if (!ext) return { type: "file", Icon: FileText, color: "text-gray-500" }
+
+        if (["jpg", "jpeg", "png", "gif", "webp", "svg"].includes(ext))
+            return { type: "image", Icon: ImageIcon, color: "text-green-500" }
+
+        if (["zip", "rar", "7z"].includes(ext))
+            return { type: "zip", Icon: Archive, color: "text-yellow-500" }
+
+        if (["pdf"].includes(ext)) return { type: "pdf", Icon: FaFilePdf, color: "text-red-500" }
+
+        if (["doc", "docx"].includes(ext)) return { type: "doc", Icon: FaFileWord, color: "text-blue-500" }
+
+        return { type: ext, Icon: FaFileAlt, color: "text-gray-500" }
+    }
+
+    // Download helper
+    const downloadFile = (url) => {
+        const link = document.createElement("a")
+        link.href = url
+        link.download = url.split("/").pop()
+        link.click()
+    }
+
     if (loading) return <Loading />;
 
     return (
         <div className="max-w-4xl mx-auto mt-20 space-y-6 mb-4">
             {/* Assignment Info */}
-            <Card className="shadow-none">
-                <CardHeader>
+            <Card className="shadow-none ">
+                <CardHeader className="pt-4 pb-3">
                     <h2 className="text-xl font-semibold">{assignment.title}</h2>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-xs text-black/60 leading-tight flex items-center gap-1">
                         Batch: {assignment.batch_name} | Due:{" "}
                         {new Date(assignment.due_date).toLocaleDateString()}
                     </p>
                 </CardHeader>
                 <CardContent>
-                    <p className="text-gray-700">{assignment.description}</p>
+                    <p className="text-black/70 text-sm pt-2">{assignment.description}</p>
                 </CardContent>
             </Card>
 
@@ -92,9 +122,9 @@ export const AssignmentComments = () => {
 
             {assignment.submissions.map((s) => (
                 <Card key={s.id} className="shadow-none">
-                    <CardHeader className="flex justify-between">
+                    <CardHeader className="flex flex-col  md:flex-row justify-between pt-4 pb-3 items-start md:items-center gap-2 md:gap-4">
                         <div>
-                            <p className="font-medium">{s.student_name}</p>
+                            <h3 className="font-medium">{s.student_name}</h3>
                             <p className="text-xs text-gray-500">
                                 Submitted on{" "}
                                 {new Date(s.submitted_at).toLocaleString()}
@@ -104,55 +134,57 @@ export const AssignmentComments = () => {
                     </CardHeader>
 
                     <CardContent className="space-y-3 pb-3">
+
                         {/* Student Content */}
                         {s.text_answer && (
-                            <p className="text-gray-700">{s.text_answer}</p>
+                            <p className="text-black/70 text-sm pt-2">{s.text_answer}</p>
                         )}
 
-                        {s.submission_file && (
-                            <a
-                                href={s.submission_file}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="text-blue-600 underline text-sm"
-                            >
-                                View Submitted File
-                            </a>
-                        )}
+                        {s.submission_file && (() => {
+                            const { type, Icon, color } = getFileTypeAndIcon(s.submission_file);
+                            const fullFilename = s.submission_file.split("/").pop();
+                            const dotIndex = fullFilename.lastIndexOf(".");
+                            const nameOnly = dotIndex !== -1 ? fullFilename.slice(0, dotIndex) : fullFilename;
+                            const extOnly = dotIndex !== -1 ? fullFilename.slice(dotIndex) : "";
 
-                        {/* Trainer Feedback */}
-                        {s.trainer_feedback && (
-                            <div className="bg-blue-50 p-3 rounded text-sm">
-                                <p>
-                                    <strong>Feedback:</strong> {s.trainer_feedback}
-                                </p>
-                                <p>
-                                    <strong>Marks:</strong> {s.trainer_marks}
-                                </p>
-                            </div>
-                        )}
+                            return (
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => downloadFile(s.submission_file)}
+                                    className="inline-flex items-center gap-1 px-2 py-1 shadow-md text-xs hover:bg-muted transition min-w-0"
+                                >
+                                    <Icon className={`w-4 h-4 flex-shrink-0 ${color}`} />
+                                    <span className="flex items-center gap-1 truncate max-w-[100px]">
+                                        <span className="truncate">{nameOnly}</span>
+                                        <span className="flex-shrink-0 text-muted-foreground">{extOnly}</span>
+                                    </span>
+                                </Button>
+                            );
+                        })()}
 
-                        {/* Divider */}
-                        {!s.trainer_feedback && <hr className="my-3" />}
+
 
                         {/* Actions Section */}
                         {!s.trainer_feedback && (
-                            <div className="flex justify-end">
+                            <div className="pt-3 border-t border-gray-200 flex justify-start">
                                 <Button
                                     size="sm"
-                                    variant="outline"
+                                    variant="outlin"
+                                    className={`p-0 ${openFormId === s.id ? "hidden" : ""
+                                        }`}
                                     onClick={() =>
                                         setOpenFormId(openFormId === s.id ? null : s.id)
                                     }
-                                >
-                                    {openFormId === s.id ? "Cancel" : "Add Feedback"}
+                                > <MessageCircle className="w-4 h-4" />
+                                    Add Feedback
                                 </Button>
                             </div>
                         )}
 
                         {/* Inline Form (Footer Style) */}
                         {openFormId === s.id && (
-                            <div className="mt-3 border rounded-md p-3 space-y-3 bg-gray-50">
+                            <div className="mt-3 border rounded-md p-3 space-y-3 ">
                                 <Input
                                     type="number"
                                     placeholder="Marks"
@@ -173,6 +205,7 @@ export const AssignmentComments = () => {
                                 <div className="flex items-center gap-3">
                                     <Button
                                         size="sm"
+                                        variant="default"
                                         onClick={() => handleEvaluate(s.id)}
                                         disabled={submitting}
                                     >

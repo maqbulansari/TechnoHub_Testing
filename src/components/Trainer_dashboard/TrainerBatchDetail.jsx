@@ -5,6 +5,7 @@ import { Column } from "primereact/column";
 import { Checkbox } from "primereact/checkbox";
 import axios from "axios";
 import { AuthContext } from "../../contexts/authContext";
+import Loading from "@/Loading";
 const TrainerBatchDetail = () => {
     const { batchId } = useParams();
     const [batchDetail, setBatchDetail] = useState(null);
@@ -72,10 +73,7 @@ const TrainerBatchDetail = () => {
         }
     };
     if (!batchDetail) {
-        return (<div className="loading-minimal">
-        <div className="dot-flashing"></div>
-        <span className="ml-4">Loading ...</span>
-      </div>);
+        return (<Loading />); 
     }
     const handleOnclseModal = () => {
         setSubmitSuccess(false);

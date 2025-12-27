@@ -28,7 +28,7 @@ export default function Header({ setVisible }) {
   return (
     <>
       <header className="fixed top-0 w-full bg-white border-b z-50">
-        <div className="h-[72px] flex items-center">
+        <div className="h-[54px] flex items-center">
           {isAuthenticated && (
             <Button
               icon="pi pi-bars"

@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { baseURL } from "../../utils/axios";
 import { AuthContext } from "../../contexts/authContext";
+import Loading from "@/Loading";
 const TrainerProfile = () => {
     const [trainer, setTrainer] = useState(null);
     const [editMode, setEditMode] = useState(false);
@@ -88,10 +89,7 @@ const TrainerProfile = () => {
         }
     };
     if (!trainer) {
-        return (<div className="loading-minimal">
-        <div className="dot-flashing"></div>
-        <span className="ml-4">Loading...</span>
-      </div>);
+        return (<Loading />);
     }
     return (<div className="container mt-20">
       <div className="card shadow-lg border-0 rounded p-4">
