@@ -16,6 +16,7 @@ import {
     SelectItem,
 } from "@/components/ui/select";
 import { Toast } from "@/components/ui/toast";
+import Loading from "@/Loading";
 
 export const EditBatch = () => {
     const { API_BASE_URL } = useContext(AuthContext);
@@ -138,7 +139,7 @@ export const EditBatch = () => {
         }
     };
 
-    if (loading) return <div>Loading...</div>;
+    if (loading) return <Loading />;
 
     return (
         <div className="max-w-4xl mx-auto p-6 mt-12 border border-gray-200 rounded-lg">

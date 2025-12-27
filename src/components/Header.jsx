@@ -34,7 +34,7 @@ export default function Header({ setVisible }) {
               icon="pi pi-bars"
               onClick={() => setVisible?.(true)}
               aria-label="Open sidebar"
-              className="ml-3 p-2 text-primary bg-transparent border-none shadow-none"
+              className="ml-3 p-2 text-gray-700 bg-transparent border-none shadow-none"
             />
           )}
           {isAuthenticated && (

@@ -50,7 +50,7 @@ const Register3 = () => {
   const [userProfileError, setUserProfileError] = useState("");
   const [idTypeError, setSelectedIdTypeError] = useState("");
   const [selectedIdTypeName, setselectedIdTypeName] = useState("");
-  const [SelectedSubroleId, setSelectedSubroleId] = useState("");
+  const [SelectedSubroleId, setSelectedSubroleId] = useState("7");
   const [idNumberError, setIdNumberError] = useState("");
   // const [proposerEmailError, setProposerEmailError] = useState("");
   // const [proposerMobileError, setproposerMobileError] = useState("");
@@ -428,7 +428,7 @@ const Register3 = () => {
               )}
             </div>
 
-            <div className="col-xxl-6 col-xl-6 col-md-6 mb-3">
+            <div className={`col-xxl-6 col-xl-6 col-md-6 mb-3 ${!userLoggedIN && !accessToken && !refreshToken ? "hidden" : ""}`}>
               <label className="form-label text-sm mb-1">
                 Select Role <span className="text-danger">*</span>
               </label>
@@ -464,8 +464,7 @@ const Register3 = () => {
 
 
             <div
-              className={`col-xxl-6 col-xl-6 col-md-6 mb-3`
-              }
+              className={`col-xxl-6 col-xl-6 col-md-6 mb-3  ${!userLoggedIN && !accessToken && !refreshToken ? "hidden" : ""}`}
             >
               <label className="form-label" htmlFor="Roles">
                 Select Subrole <span className="text-danger">*</span>
@@ -480,34 +479,6 @@ const Register3 = () => {
                   {selectedSubrole}
                   <span className="arrow">▾</span>
                 </button>
-                {/* <ul className="dropdown-menu w-100">
-                  {newSubrole.length > 0 ? (
-                    newSubrole
-                      .map((subrole) => (
-                        <li
-                          className="dropdown-item c-pointer"
-                          key={subrole.id}
-                          onClick={() => {
-                            setSelectedSubrole(subrole.name);
-                            setSelectedSubroleId(subrole.id)
-                            setErrorSelectedSubsRole("");
-                          }}
-                        >
-                          {subrole.name}
-                        </li>
-                      ))
-                  ) : (
-                    <li className="dropdown-item dropdownLoader">
-                      Loading{" "}
-                      <BeatLoader
-                        size={5}
-                        speedMultiplier={0.5}
-                        loading={loading}
-                        className="loginLoader"
-                      />
-                    </li>
-                  )}
-                </ul> */}
 
                 <ul className="dropdown-menu w-100">
                   {filteredSubroles.length > 0 ? (

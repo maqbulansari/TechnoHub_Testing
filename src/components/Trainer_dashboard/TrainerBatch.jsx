@@ -1,150 +1,112 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Card } from "primereact/card";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import TrainerImage from "../../assets/images/trainers/Trainer.jpg";
-import { baseURL } from "../../utils/axios";
 import { AuthContext } from "../../contexts/authContext";
 
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import TrainerImage from "../../assets/images/trainers/Trainer.jpg";
+
 const TrainerBatch = () => {
-  const{loginSuccess, setLoginSuccess}=useContext(AuthContext)
+  const { loginSuccess, setLoginSuccess, API_BASE_URL } = useContext(AuthContext);
   const [showModal, setShowModal] = useState(false);
   const [batches, setBatches] = useState([]);
   const navigate = useNavigate();
-     const {API_BASE_URL} =useContext(AuthContext)
+
   useEffect(() => {
-  if (loginSuccess) {
-    setShowModal(true);
+    if (loginSuccess) {
+      setShowModal(true);
+      const timeout = setTimeout(() => {
+        setShowModal(false);
+        setLoginSuccess(false);
+      }, 2000);
+      return () => clearTimeout(timeout);
+    }
+  }, [loginSuccess]);
 
-    const timeout = setTimeout(() => {
-      setShowModal(false);
-      setLoginSuccess(false);
-    }, 2000);
-
-    return () => clearTimeout(timeout);
-  }
-}, [loginSuccess]);
-
-  // Fetch batch data from the API
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
 
     const fetchBatches = async () => {
       try {
-        const response = await axios.get(
-          `${API_BASE_URL}/trainers/batches/`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        console.log(response.data.data.batches);
-        setBatches(response.data.data.batches);
+        const response = await axios.get(`${API_BASE_URL}/batches/`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setBatches(response.data);
       } catch (error) {
-        console.error("Error fetching batch data:", error);
+        console.error("Error fetching batches:", error);
       }
     };
 
     fetchBatches();
-  }, []);
+  }, [API_BASE_URL]);
 
-  
-  // Function to handle card click
   const handleCardClick = (batchId) => {
-    console.log(batches);
-    console.log("Navigating to batch ID:", batchId);
-    navigate(`/TrainerBatchDetail/${batchId}`); // Navigate to /TrainerBatchDetail with batch ID
+    navigate(`/AllAssignments/${batchId}`);
+  };
+  const handleCardClickAssessment = (batchId) => {
+    navigate(`/TrainerBatchDetail/${batchId}`);
   };
 
   return (
-    <div className="mt-20">
-      <div>
-        <Card title="Your Batches" className="custom-cardH3 m-5 text-black">
-          <h3 className="m-0 text-black">For Trainer</h3>
-        </Card>
+    <div className="max-w-6xl mx-auto mt-20 px-4">
+      <h1 className="text-3xl font-bold mb-6 text-center">Your Batches</h1>
 
-        {/* Flex container with wrapping */}
-       <div className="flex flex-wrap gap-5 m-5 w-full pl-4">
-  {batches.length > 0 ? (
-    batches.map((batch) => (
-      <div
-        key={batch.batch_id}
-        className="card trainer-batch-cardH2 w-1/4 min-w-[250px]"
-        onClick={() => handleCardClick(batch.batch_id)}
-        style={{ cursor: "pointer" }}
-      >
-        <img
-          src={TrainerImage}
-          className="card-img-topH2"
-          alt={batch.batch_name}
-        />
-        <div className="card-bodyH2">
-          <h5 className="card-titleH2 uppercase">
-            {batch.batch_name}
-          </h5>
-          <p className="card-textH2">
-            Current Students: {batch.student_count} <br />
-            Center: {batch.center}
-          </p>
-        </div>
-      </div>
-    ))
-  ) : (
-    /* Empty card – SAME SIZE & STYLE */
-    <div className="card trainer-batch-cardH2 w-1/4 min-w-[250px]">
-      <img
-        src={TrainerImage}
-        className="card-img-topH2 opacity-50"
-        alt="No batches"
-      />
-      <div className="card-bodyH2 text-center">
-        <h5 className="card-titleH2 uppercase text-gray-500">
-          No Batches
-        </h5>
-        <p className="card-textH2 text-gray-400">
-          You are not assigned to any batch yet
-        </p>
-      </div>
-    </div>
-  )}
-</div>
-
-      </div>
-       {showModal && (
-  <div
-    className="modal fade show"
-    style={{ display: "block", background: "rgba(0,0,0,0.5)" }}
-  >
-    <div className="modal-dialog modal-dialog-centered">
-      <div className="modal-content">
-        <div className="modal-header">
-          <h5 className="modal-title">Welcome</h5>
-          <button
-            type="button"
-            className="btn-close"
-            onClick={() => setShowModal(false)}
-          ></button>
-        </div>
-
-        <div className="modal-body">
-          <p>Login successful!</p>
-        </div>
-
-        <div className="modal-footer">
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={() => setShowModal(false)}
-            data-bs-dismiss="modal"
+      {/* Batch Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {batches.map((batch) => (
+          <Card
+            key={batch.id}
+            className=" hover:border border-gray-300 flex flex-col justify-between"
+           
           >
-            Continue
-          </button>
-        </div>
+            <CardHeader  onClick={() => handleCardClick(batch.id)} className="cursor-pointer flex flex-col items-center text-center pb-2 pt-4">
+              <img
+                src={TrainerImage}
+                alt={batch.batch_name}
+                className="w-20 h-20 rounded-full object-cover mb-2"
+              />
+              <h2 className="text-lg font-semibold uppercase truncate w-full">{batch.batch_name}</h2>
+              <Badge
+                variant={batch.status.toLowerCase() === "active" ? "green" : "green"}
+                className="mt-1"
+              >
+                {batch.status}
+              </Badge>
+            </CardHeader>
+
+            <CardContent className="text-sm text-gray-700 space-y-1 p-3 flex-1 flex flex-col justify-between">
+              <div className="space-y-1">
+                <p><strong>Students:</strong> {batch.student_count}/{batch.capacity}</p>
+                <p className="truncate"><strong>Trainer:</strong> {batch.trainer?.join(", ") || "N/A"}</p>
+                <p className="truncate"><strong>Center:</strong> {batch.center}</p>
+              </div>
+              <div className="text-xs text-gray-500 mt-2 flex justify-between">
+                <span><strong>Start:</strong> {batch.start_date}</span>
+                <span><strong>End:</strong> {batch.end_date}</span>
+              </div>
+              <Button onClick={() => handleCardClickAssessment(batch.batch_id)} variant="outline">Assessment</Button>
+            </CardContent>
+          </Card>
+        ))}
       </div>
-    </div>
-  </div>
-)}
+
+      {/* Login Success Modal */}
+      <Dialog open={showModal} onOpenChange={setShowModal}>
+        <DialogContent className="sm:max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle>Welcome!</DialogTitle>
+          </DialogHeader>
+          <div className="py-4 text-center">
+            <p className="text-gray-700">Login successful!</p>
+          </div>
+          <DialogFooter className="flex justify-center">
+            <Button onClick={() => setShowModal(false)}>Continue</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
