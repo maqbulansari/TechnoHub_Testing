@@ -27,8 +27,8 @@ const AuthProvider = ({ children }) => {
 
 
 
-  const API_BASE_URL = "https://technohub.pythonanywhere.com/auth";//main
-  // const API_BASE_URL = "https://9gqxjbjg-8000.inc1.devtunnels.ms/auth";//tahur
+  // const API_BASE_URL = "https://technohub.pythonanywhere.com/auth";//main
+  const API_BASE_URL = "https://9gqxjbjg-8000.inc1.devtunnels.ms/auth";//tahur
   // const API_BASE_URL = "https://187gwsw1-8000.inc1.devtunnels.ms/auth";//farha
   // const API_BASE_URL = "https://958cp4w5-8000.inc1.devtunnels.ms/auth";//Saba
 
@@ -230,7 +230,7 @@ const AuthProvider = ({ children }) => {
       setAccessToken(response.data.access);
       setRefreshToken(response.data.refresh);
       setUserID(response.data.user_id);
-      setResponseSubrole(response.data.subrole);
+      setResponseSubrole(response.data.subrole);    
       setRole(response.data.role);
       localStorage.setItem("accessToken", response.data.access);
       localStorage.setItem("refreshToken", response.data.refresh);
@@ -300,6 +300,7 @@ const AuthProvider = ({ children }) => {
     localStorage.removeItem("subrole");
     localStorage.removeItem("first_name");
     localStorage.removeItem("last_name");
+    localStorage.removeItem("fcm_token");
     setUserLoggedIN(false);
     setAccessToken(null);
     setRefreshToken(null);
