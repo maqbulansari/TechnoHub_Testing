@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { AuthContext } from "../../contexts/authContext";
+import Loading from "@/Loading";
 const StudentsBatches = () => {
     const [batch, setBatch] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -28,10 +29,7 @@ const StudentsBatches = () => {
         fetchData();
     }, []);
     if (loading) {
-        return (<div className="loading-minimal">
-        <div className="dot-flashing"></div>
-        <span className="ml-4">Loading ...</span>
-      </div>);
+        return (<Loading />);
     }
     if (!batch) {
         return (<div className="error-containerHSB">
