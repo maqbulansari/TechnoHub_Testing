@@ -1,23 +1,28 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, {
+  useContext,
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+} from "react";
 import { motion } from "framer-motion";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "primereact/button";
 import { Bell } from "lucide-react";
 import { AuthContext } from "../contexts/authContext";
-import { all_routes } from "../feature-module/router/all_routes";
 import LoginModal from "@/feature-module/auth/login/login-3";
 import ForgotPasswordModal from "@/feature-module/auth/forgotPassword/forgotPassword";
 import axios from "axios";
 import { onForegroundMessage } from "@/firebase/notificationsHelper";
-import { useRef } from "react"; 
+import { toast } from "sonner";
 
 
 export default function Header({ setVisible }) {
   const MotionLink = motion(Link);
-  const routes = all_routes;
   const location = useLocation();
-
+  const navigate = useNavigate();
   const { API_BASE_URL } = useContext(AuthContext);
+
   const requestIdRef = useRef(0);
 
   const isAuthenticated =
@@ -27,55 +32,106 @@ export default function Header({ setVisible }) {
 
   const isHome = location.pathname === "/";
 
-  // Add modal state
   const [loginOpen, setLoginOpen] = useState(false);
   const [forgotOpen, setForgotOpen] = useState(false);
 
-  // Notification state
   const [notificationCount, setNotificationCount] = useState(0);
-  const [isNotificationLoading, setIsNotificationLoading] = useState(false);
+  
 
-  const navigate = useNavigate();
+  // DEBUG: log on every render to ensure this instance is the one you see
+  console.log("Header render, notificationCount:", notificationCount);
 
-  // Fetch unread notifications count
-const fetchNotificationCount = async () => {
-  if (!isAuthenticated) return;
+  // Stable fetch function + race-condition protection
+  const fetchNotificationCount = useCallback(async () => {
+    if (!isAuthenticated) return;
 
-  const currentRequestId = ++requestIdRef.current;
+    const currentRequestId = ++requestIdRef.current;
+    console.log("fetchNotificationCount requestId:", currentRequestId);
 
-  try {
-    const accessToken = localStorage.getItem("accessToken");
-    const response = await axios.get(
-      `${API_BASE_URL}/notifications/unread/`,
-      {
-        headers: { Authorization: `Bearer ${accessToken}` },
+    try {
+      const accessToken = localStorage.getItem("accessToken");
+      const response = await axios.get(
+        `${API_BASE_URL}/notifications/unread/`,
+        {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        }
+      );
+
+      const unread = response.data?.unread ?? 0;
+      console.log(
+        "API returned unread:",
+        unread,
+        "for requestId:",
+        currentRequestId,
+        "latest requestIdRef:",
+        requestIdRef.current
+      );
+
+      // Only update state if this is the latest request
+      if (currentRequestId === requestIdRef.current) {
+        setNotificationCount(unread);
+        console.log("unread",unread);
+        
+      } else {    
+        console.log(
+          "Ignored stale response for requestId:",
+          currentRequestId
+        );
       }
-    );
-
-    // Ignore outdated responses
-    if (currentRequestId !== requestIdRef.current) return;
-
-    setNotificationCount(response.data.unread ?? 0);
-  } catch (error) {
-    if (currentRequestId !== requestIdRef.current) return;
-    console.error("Error fetching notification count:", error);
-  }
-};
-
+    } catch (error) {
+      console.error("Error fetching notification count:", error);
+    }
+  }, [API_BASE_URL, isAuthenticated]);
 
   useEffect(() => {
-     if (!isAuthenticated) return;
-      fetchNotificationCount(); 
-
-  const unsubscribe = onForegroundMessage((payload) => {
-
-    if (payload?.data?.type === "notification") {
-      fetchNotificationCount(); 
+    if (!isAuthenticated) {
+      setNotificationCount(0);
+      return;
     }
-  });
 
-  return () => unsubscribe?.();
-  }, [isAuthenticated]);
+    // initial load
+    fetchNotificationCount();
+
+    const unsubscribe = onForegroundMessage((payload) => {
+      console.log("FCM payload:", payload);
+
+      if (payload?.data?.type === "notification") {
+        // always refetch on each notification
+        fetchNotificationCount();
+          toast("New notification", {
+            description: payload?.notification?.body || "You have a new notification",
+          });
+
+
+      }
+    });
+
+    return () => unsubscribe?.();
+  }, []);
+
+  useEffect(() => {
+    console.log("notificationCount changed:", notificationCount);
+  }, [notificationCount]);
+
+
+  const handleNavigate = () => async () => {
+    try {
+      const accessToken = localStorage.getItem("accessToken");
+      await axios.post(
+        `${API_BASE_URL}/notifications/mark-all-read/`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        }
+      );
+      setNotificationCount(0);
+    } catch (error) {
+      console.log(error);
+    }
+    finally {
+      navigate("/notifications");
+    }
+  };
 
   return (
     <>
@@ -91,7 +147,7 @@ const fetchNotificationCount = async () => {
           )}
           {isAuthenticated && (
             <Link to="/" className="text-3xl ml-3 pt-1 font-bold text-primary">
-              TechnoHub
+              TechnoHub {notificationCount}
             </Link>
           )}
 
@@ -123,33 +179,22 @@ const fetchNotificationCount = async () => {
               </motion.button>
             )}
 
-            {/* Bell Icon for Authenticated Users */}
             {isAuthenticated && (
               <div className="flex items-center gap-4 ml-auto">
                 <motion.button
-                 
-                  onClick={() => {
-                   navigate("/notifications");
-                  }}
-                  className="relative p-2 rounded-full  transition-colors"
+                  key={notificationCount}
+                  onClick={handleNavigate()}
+                  className="relative p-2 rounded-full transition-colors"
                   aria-label="Notifications"
                 >
                   <Bell className="w-6 h-8 text-gray-600" />
-                  
-                  {/* Notification Badge */}
-                  {notificationCount > 0 && (
-                    <motion.span
-                     
-                      className="absolute top-0 right-[5px] min-w-[20px] h-5 flex items-center justify-center bg-red-500 text-white text-xs font-bold rounded-full px-1"
-                    >
-                      {notificationCount > 99 ? "99+" : notificationCount}
-                    </motion.span>
-                  )}
 
-                  {/* Pulse animation for new notifications */}
-                  {notificationCount > 0 && (
-                    <span className="absolute -top-1 -right-1 min-w-[20px] h-5  rounded-full opacity-75" />
-                  )}
+                  {/* Use plain span for now to avoid animation confusion */}
+                   {notificationCount > 0 && (
+                    <span
+                      className="absolute top-2 right-4 w-2.5 h-2.5 rounded-full bg-red-500"
+                    /> 
+                )}
                 </motion.button>
               </div>
             )}
@@ -157,7 +202,6 @@ const fetchNotificationCount = async () => {
         </div>
       </header>
 
-      {/* Login Modal */}
       {!isAuthenticated && (
         <LoginModal
           open={loginOpen}
@@ -169,7 +213,6 @@ const fetchNotificationCount = async () => {
         />
       )}
 
-      {/* Forgot Password Modal */}
       {!isAuthenticated && (
         <ForgotPasswordModal
           open={forgotOpen}
@@ -182,4 +225,4 @@ const fetchNotificationCount = async () => {
       )}
     </>
   );
-}
+}    
