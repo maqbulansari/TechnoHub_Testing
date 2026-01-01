@@ -27,9 +27,9 @@ jobs:
       - name: Trigger Infra Deployment
         run: |
           set -e
-          curl -v -X POST \
+          curl -X POST \
             -H "Authorization: token ${{ secrets.INFRA_TRIGGER_TOKEN }}" \
             -H "Accept: application/vnd.github+json" \
-            https://api.github.com/repos/Sameer-EI/technohub-deployment-infra/dispatches \
+            https://api.github.com/repos/Sameer-El/technohub-deployment-infra/dispatches \
             -d '{"event_type":"deploy"}'
-
+      
