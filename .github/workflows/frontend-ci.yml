@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - main
+      
+permissions:
+  contents: read
+  actions: write
 
 jobs:
   build-and-deploy:
@@ -32,4 +36,3 @@ jobs:
             -H "Accept: application/vnd.github+json" \
             https://api.github.com/repos/Sameer-El/technohub-deployment-infra/dispatches \
             -d '{"event_type":"deploy"}'
-      
