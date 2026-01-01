@@ -34,5 +34,5 @@ jobs:
           curl -X POST \
             -H "Authorization: token ${{ secrets.INFRA_TRIGGER_TOKEN }}" \
             -H "Accept: application/vnd.github+json" \
-             https://github.com/Sameer-EI/technohub-deployment-infra/dispatches \
+             https://api.github.com/Sameer-EI/technohub-deployment-infra/dispatches \
             -d '{"event_type":"deploy"}'
