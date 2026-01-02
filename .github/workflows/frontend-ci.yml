@@ -1,31 +1,82 @@
-name: Frontend CI/CD
+# name: Frontend CI/CD
+
+# on:
+#   push:
+#     branches:
+#       - main
+      
+# permissions:
+#   contents: read
+#   actions: write
+
+# jobs:
+#   build-and-deploy:
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v4
+
+#       - name: Login to Docker Hub
+#         uses: docker/login-action@v3
+#         with:
+#           username: ${{ secrets.DOCKERHUB_USERNAME }}
+#           password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+#       - name: Build & Push Frontend Image
+#         run: |
+#           docker build -t sameerei/technohub-frontend:latest .
+#           docker push sameerei/technohub-frontend:latest
+
+#       - name: Trigger Infra Deployment
+#         run: |
+#           set -e
+#           curl -i -X POST \
+#             -H "Authorization: token ${{ secrets.INFRA_TRIGGER_TOKEN }}" \
+#             -H "Accept: application/vnd.github+json" \
+#             https://api.github.com/repos/Sameer-EI/technohub-deployment-infra/dispatches \
+#             -d '{"event_type":"deploy"}'
+
+name: Frontend CI
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
-  build-and-push:
+  test-build-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout source code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+      - name: Build test image
+        run: docker build -t frontend:test .
 
-      - name: Login to Docker Hub
+      - name: Run container for health check
+        run: |
+          docker run -d --name fe-test -p 18080:80 frontend:test
+          sleep 5
+          curl -f http://localhost:18080
+          docker rm -f fe-test
+
+      # ✅ ONLY AFTER HEALTH PASS
+      - name: Login Docker Hub
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build & Push Frontend Image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: true
-          tags: |
-            sameerei/technohub-frontend:latest
+      - name: Build & push production image
+        run: |
+          docker build -t sameerei/technohub-frontend:latest .
+          docker push sameerei/technohub-frontend:latest
+
+      - name: Trigger Infra Deploy
+        run: |
+          curl -X POST \
+            -H "Authorization: token ${{ secrets.INFRA_TRIGGER_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/Sameer-EI/technohub-deployment-infra/dispatches \
+            -d '{"event_type":"deploy"}'
+
