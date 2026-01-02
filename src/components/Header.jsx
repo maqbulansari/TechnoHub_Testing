@@ -54,7 +54,7 @@ export default function Header({ setVisible }) {
               <nav className="hidden md:flex gap-8 text-sm text-text">
                 <a href="#trainers">Trainers</a>
                 <a href="#tech">Technologies</a>          
-                <a href="#gallery">Gallery</a>
+                <a href="#gallery">Galleryy</a>
                 <a href="#reads">Thursday Reads</a>
               </nav>
             )}
