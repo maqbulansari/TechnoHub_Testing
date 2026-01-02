@@ -1,117 +1,262 @@
-import { AuthContext } from "@/contexts/authContext"
-import axios from "axios"
-import React, { useContext, useEffect, useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Separator } from "@/components/ui/separator"
-import { getFCMToken, onForegroundMessage } from "@/firebase/notificationsHelper"
+// import { AuthContext } from "@/contexts/authContext"
+// import axios from "axios"
+// import React, { useContext, useEffect, useState } from "react"
+// import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+// import { ScrollArea } from "@/components/ui/scroll-area"
+// import { Separator } from "@/components/ui/separator"
+// import { getFCMToken, onForegroundMessage } from "@/firebase/notificationsHelper"
 
-const Notifications = () => {
-  const { API_BASE_URL } = useContext(AuthContext)
-  const token = localStorage.getItem("accessToken")
+// const Notifications = () => {
+//   const { API_BASE_URL } = useContext(AuthContext)
+//   const token = localStorage.getItem("accessToken")
 
-  const [notifications, setNotifications] = useState([])
+//   const [notifications, setNotifications] = useState([])
 
 
-  // 🔹 Fetch notifications from backend
+//   // 🔹 Fetch notifications from backend
+//   const fetchNotifications = async () => {
+//     try {
+//       const res = await axios.get(`${API_BASE_URL}/notifications/`, {
+//         headers: { Authorization: `Bearer ${token}` },
+//       })
+//        setNotifications(res.data);
+//     } catch (err) {
+//       console.error("Failed to fetch notifications", err)
+//     }
+//   }
+
+
+//   // 🔹 Save FCM token to backend
+//   const saveFCMToken = async () => {
+//     try {
+//       const existing = localStorage.getItem("fcm_token")
+//       const fcmToken = await getFCMToken()
+//       if (!fcmToken || existing === fcmToken) return
+
+//       localStorage.setItem("fcm_token", fcmToken)
+
+//       await axios.post(
+//         `${API_BASE_URL}/notifications/save-token/`,
+//         { token: fcmToken }, 
+//         {
+//           headers: { Authorization: `Bearer ${token}` },
+//         }
+//       )
+//     } catch (err) {
+//       console.error("FCM token save failed", err)
+//     }
+//   }
+
+
+// useEffect(() => {
+//   // Fetch notifications on mount
+//   fetchNotifications();
+//   saveFCMToken();
+
+
+//   const handler = () => fetchNotifications();
+
+
+//   window.addEventListener("notification-received", handler);
+
+
+//   // const interval = setInterval(() => {
+//   //   fetchNotifications();
+//   // }, 5000);
+
+//   return () => {
+//     window.removeEventListener("notification-received", handler);
+//     // clearInterval(interval);
+//   };
+// }, []);
+
+
+
+
+
+//   return (
+//     <div className="flex justify-center px-4 sm:px-6 lg:px-8 mt-6">
+//       <Card className="w-full max-w-2xl border-none shadow-none">
+//         <CardHeader className="pb-2">
+//           <CardTitle className="text-lg font-semibold">Notifications</CardTitle>
+//         </CardHeader>
+
+//         <CardContent className="p-0">
+//           <ScrollArea className="h-[calc(100vh-140px)]">
+//             {notifications.length === 0 ? (
+//               <p className="px-4 py-6 text-sm text-muted-foreground">
+//                 You’re all caught up 🎉
+//               </p>
+//             ) : (
+//               notifications.map((notification, index) => (
+//                 <React.Fragment key={notification.id}>
+//                   <div
+//                     className={`px-4 py-3 cursor-pointer hover:bg-muted ${
+//                       !notification.is_read ? "bg-muted/40" : ""
+//                     }`}
+//                   >
+//                     <p className="text-sm font-medium">{notification.title}</p>
+//                     <p className="text-sm text-muted-foreground mt-1">
+//                       {notification.message}
+//                     </p>
+//                     <span className="block mt-2 text-xs text-muted-foreground">
+//                       {new Date(notification.created_at).toLocaleString()}
+//                     </span>
+//                   </div>
+//                   {index !== notifications.length - 1 && <Separator />}
+//                 </React.Fragment>
+//               ))
+//             )}
+//           </ScrollArea>
+//         </CardContent>
+//       </Card>
+//     </div>
+//   )
+// }
+
+// export default Notifications
+import axios from "axios";
+import { useContext, useEffect, useState } from "react";
+import { AuthContext } from "@/contexts/authContext";
+import { motion, AnimatePresence } from "framer-motion";
+
+const NotificationPopover = ({ refreshCount }) => {
+  const { API_BASE_URL } = useContext(AuthContext);
+  const token = localStorage.getItem("accessToken");
+
+  const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+ 
   const fetchNotifications = async () => {
     try {
+      setLoading(true);
       const res = await axios.get(`${API_BASE_URL}/notifications/`, {
         headers: { Authorization: `Bearer ${token}` },
-      })
-       setNotifications(res.data);
+      });
+      setNotifications(res.data);
     } catch (err) {
-      console.error("Failed to fetch notifications", err)
+      console.error("Failed to fetch notifications", err);
+    } finally {
+      setLoading(false);
     }
-  }
-
-  
-  // 🔹 Save FCM token to backend
-  const saveFCMToken = async () => {
-    try {
-      const existing = localStorage.getItem("fcm_token")
-      const fcmToken = await getFCMToken()
-      if (!fcmToken || existing === fcmToken) return
-
-      localStorage.setItem("fcm_token", fcmToken)
-
-      await axios.post(
-        `${API_BASE_URL}/notifications/save-token/`,
-        { token: fcmToken }, 
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      )
-    } catch (err) {
-      console.error("FCM token save failed", err)
-    }
-  }
-
-
-useEffect(() => {
-  // Fetch notifications on mount
-  fetchNotifications();
-  saveFCMToken();
-
-  
-  const handler = () => fetchNotifications();
-  
-
-  window.addEventListener("notification-received", handler);
-
-
-  // const interval = setInterval(() => {
-  //   fetchNotifications();
-  // }, 5000);
-
-  return () => {
-    window.removeEventListener("notification-received", handler);
-    // clearInterval(interval);
   };
-}, []);
+
+  useEffect(() => {
+    fetchNotifications();
+  }, []);
 
 
+  const markAllRead = async () => {
+    await axios.post(
+      `${API_BASE_URL}/notifications/mark-all-read/`,
+      {},
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    refreshCount();
+    fetchNotifications();
+  };
 
+  const listVariants = {
+    visible: {
+      transition: { staggerChildren: 0.06 },
+    },
+  };
 
+  const itemVariants = {
+    hidden: { opacity: 0, y: 6 },
+    visible: { opacity: 1, y: 0 },
+  };
+
+  // ---------------- SKELETON ----------------
+  const SkeletonItem = () => (
+    <div className="px-4 py-3 animate-pulse">
+      <div className="h-3 w-3/4 bg-muted rounded mb-2" />
+      <div className="h-3 w-1/2 bg-muted rounded" />
+    </div>
+  );
 
   return (
-    <div className="flex justify-center px-4 sm:px-6 lg:px-8 mt-6">
-      <Card className="w-full max-w-2xl border-none shadow-none">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-lg font-semibold">Notifications</CardTitle>
-        </CardHeader>
+    <div className="w-80 bg-white border rounded-xl shadow-lg overflow-hidden">
+ 
+      <div className="flex items-center justify-between px-4 py-3 border-b">
+        <h4 className="text-sm font-semibold">Notifications</h4>
+        <button
+          onClick={markAllRead}
+          className="text-xs text-primary hover:underline"
+        >
+          Mark all as read
+        </button>
+      </div>
 
-        <CardContent className="p-0">
-          <ScrollArea className="h-[calc(100vh-140px)]">
-            {notifications.length === 0 ? (
-              <p className="px-4 py-6 text-sm text-muted-foreground">
-                You’re all caught up 🎉
-              </p>
-            ) : (
-              notifications.map((notification, index) => (
-                <React.Fragment key={notification.id}>
-                  <div
-                    className={`px-4 py-3 cursor-pointer hover:bg-muted ${
-                      !notification.is_read ? "bg-muted/40" : ""
+    
+      <div className="max-h-[420px] overflow-y-auto">
+        <AnimatePresence mode="wait">
+          {loading ? (
+            <motion.div
+              key="loading"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              {[1, 2, 3, 4].map((i) => (
+                <SkeletonItem key={i} />
+              ))}
+            </motion.div>
+          ) : notifications.length === 0 ? (
+            <motion.p
+              key="empty"
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              className="px-4 py-6 text-sm text-muted-foreground"
+            >
+              You’re all caught up 🎉
+            </motion.p>
+          ) : (
+            <motion.div
+              key="list"
+              variants={listVariants}
+              initial="hidden"
+              animate="visible"
+            >
+              {notifications.map((n) => (
+                <motion.div
+                  key={n.id}
+                  variants={itemVariants}
+                  whileHover={{ backgroundColor: "rgba(0,0,0,0.03)" }}
+                  className={`px-4 py-2 flex gap-3 cursor-pointer items-start ${!n.is_read ? "bg-muted/40" : ""
                     }`}
-                  >
-                    <p className="text-sm font-medium">{notification.title}</p>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      {notification.message}
+                >
+                  {/* Unread dot */}
+                  {!n.is_read && (
+                    <span className="mt-1 w-2 h-2 rounded-full bg-orange-500 shrink-0" />
+                  )}
+
+                  {/* Content */}
+                  <div className="flex-1 leading-tight">
+                    <p className="text-sm font-medium leading-snug">
+                      {n.title}
                     </p>
-                    <span className="block mt-2 text-xs text-muted-foreground">
-                      {new Date(notification.created_at).toLocaleString()}
+
+                    <p className="text-xs text-muted-foreground leading-snug">
+                      {n.message}
+                    </p>
+
+                    <span className="block text-[11px] text-muted-foreground mt-0.5">
+                      {new Date(n.created_at).toLocaleString()}
                     </span>
                   </div>
-                  {index !== notifications.length - 1 && <Separator />}
-                </React.Fragment>
-              ))
-            )}
-          </ScrollArea>
-        </CardContent>
-      </Card>
-    </div>
-  )
-}
+                </motion.div>
+              ))}
 
-export default Notifications
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+};
+
+export default NotificationPopover;
+

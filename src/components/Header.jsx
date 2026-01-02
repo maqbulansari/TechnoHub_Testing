@@ -15,6 +15,7 @@ import ForgotPasswordModal from "@/feature-module/auth/forgotPassword/forgotPass
 import axios from "axios";
 import { onForegroundMessage } from "@/firebase/notificationsHelper";
 import { toast } from "sonner";
+import NotificationPopover from "./Notifications";
 
 
 export default function Header({ setVisible }) {
@@ -36,7 +37,21 @@ export default function Header({ setVisible }) {
   const [forgotOpen, setForgotOpen] = useState(false);
 
   const [notificationCount, setNotificationCount] = useState(0);
-  
+
+  const [openNotifications, setOpenNotifications] = useState(false);
+  const notifRef = useRef(null);
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (notifRef.current && !notifRef.current.contains(e.target)) {
+        setOpenNotifications(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+
 
   // DEBUG: log on every render to ensure this instance is the one you see
   console.log("Header render, notificationCount:", notificationCount);
@@ -70,9 +85,9 @@ export default function Header({ setVisible }) {
       // Only update state if this is the latest request
       if (currentRequestId === requestIdRef.current) {
         setNotificationCount(unread);
-        console.log("unread",unread);
-        
-      } else {    
+        console.log("unread", unread);
+
+      } else {
         console.log(
           "Ignored stale response for requestId:",
           currentRequestId
@@ -94,13 +109,15 @@ export default function Header({ setVisible }) {
 
     const unsubscribe = onForegroundMessage((payload) => {
       console.log("FCM payload:", payload);
+      window.dispatchEvent(new Event("notification-received"));
+
 
       if (payload?.data?.type === "notification") {
         // always refetch on each notification
         fetchNotificationCount();
-          toast("New notification", {
-            description: payload?.notification?.body || "You have a new notification",
-          });
+        toast("New notification", {
+          description: payload?.notification?.body || "You have a new notification",
+        });
 
 
       }
@@ -147,7 +164,7 @@ export default function Header({ setVisible }) {
           )}
           {isAuthenticated && (
             <Link to="/" className="text-3xl ml-3 pt-1 font-bold text-primary">
-              TechnoHub {notificationCount}
+              TechnoHub
             </Link>
           )}
 
@@ -182,20 +199,16 @@ export default function Header({ setVisible }) {
             {isAuthenticated && (
               <div className="flex items-center gap-4 ml-auto">
                 <motion.button
-                  key={notificationCount}
-                  onClick={handleNavigate()}
-                  className="relative p-2 rounded-full transition-colors"
-                  aria-label="Notifications"
+                  onClick={() => setOpenNotifications((prev) => !prev)}
+                  className="relative p-2 rounded-full"
                 >
-                  <Bell className="w-6 h-8 text-gray-600" />
+                  <Bell className="w-8 h-6 text-gray-600" />
 
-                  {/* Use plain span for now to avoid animation confusion */}
-                   {notificationCount > 0 && (
-                    <span
-                      className="absolute top-2 right-4 w-2.5 h-2.5 rounded-full bg-red-500"
-                    /> 
-                )}
+                  {notificationCount > 0 && (
+                    <span className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full bg-red-500" />
+                  )}
                 </motion.button>
+
               </div>
             )}
           </div>
@@ -223,6 +236,15 @@ export default function Header({ setVisible }) {
           }}
         />
       )}
+      {openNotifications && (
+        <div ref={notifRef} className="absolute right-6 top-16 z-50">
+          <NotificationPopover
+            onClose={() => setOpenNotifications(false)}
+            refreshCount={fetchNotificationCount}
+          />
+        </div>
+      )}
+
     </>
   );
 }    
