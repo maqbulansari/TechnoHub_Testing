@@ -1,20 +1,17 @@
 import React, { useState, useEffect, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import { Input } from "@/components/ui/input";
+import { Eye, EyeOff, Info, X, ChevronDown, Loader2, Check } from "lucide-react";
 import { all_routes } from "../../router/all_routes";
 import axios from "axios";
 import { AuthContext } from "../../../contexts/authContext";
-import ClipLoader from "react-spinners/ClipLoader";
-import BeatLoader from "react-spinners/BeatLoader";
-import { Tooltip } from "primereact/tooltip";
-import { Badge } from "primereact/badge";
 
 const Register3 = () => {
-
   const { userLoggedIN, accessToken, refreshToken, API_BASE_URL } = useContext(AuthContext);
   const routes = all_routes;
   const navigate = useNavigate();
 
-  // CONTEXT API
   const {
     RegisterUser,
     newSubrole,
@@ -34,10 +31,15 @@ const Register3 = () => {
   const [profileImage, setProfileImage] = useState(null);
   const [idTypes, setIdType] = useState([]);
   const [identity, setIdentity] = useState("");
-  // const [proposerEmail, setProposerEmail] = useState("");
-  // const [proposerNumber, setProposerNumber] = useState("");
   const [selectedIdType, setSelectedIdType] = useState("");
   const [imagePreview, setImagePreview] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPasswordTooltip, setShowPasswordTooltip] = useState(false);
+
+  // Dropdown states
+  const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
+  const [subroleDropdownOpen, setSubroleDropdownOpen] = useState(false);
+  const [idTypeDropdownOpen, setIdTypeDropdownOpen] = useState(false);
 
   // Error states
   const [errorFirstName, setErrorFirstName] = useState("");
@@ -52,26 +54,15 @@ const Register3 = () => {
   const [selectedIdTypeName, setselectedIdTypeName] = useState("");
   const [SelectedSubroleId, setSelectedSubroleId] = useState("7");
   const [idNumberError, setIdNumberError] = useState("");
-  // const [proposerEmailError, setProposerEmailError] = useState("");
-  // const [proposerMobileError, setproposerMobileError] = useState("");
   const [emailExistsError, setEmailExistsError] = useState("");
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [isloading, setisloading] = useState(false);
-
-
-
-  const [passwordVisibility, setPasswordVisibility] = useState({
-    password: false,
-  });
 
   const ID_TYPE_MAPPING = {
     'PASSPORT': 2,
     'VOTER_ID': 3,
     'ADHAARCARD': 1
   };
-
-
-  console.log(selectedIdType);
 
   // Validation functions
   const validatePassword = (password) => {
@@ -90,30 +81,20 @@ const Register3 = () => {
     return mobileRegex.test(number);
   };
 
-  const togglePasswordVisibility = () => {
-    setPasswordVisibility((prevState) => ({
-      ...prevState,
-      password: !prevState.password,
-    }));
-  };
-
   const handleSelectRole = (role) => {
-    console.log(role);
-
     setNewSelectedRole(role);
     setErrorSelectedRole("");
     setErrorSelectedSubsRole("");
-    if (role == "LEARNER") {
+    setRoleDropdownOpen(false);
+    if (role === "LEARNER") {
       setSelectedSubrole("INTERVIEWEE");
       setSelectedSubroleId(2);
       setErrorSelectedSubsRole("");
-
+    } else {
+      setSelectedSubrole("Choose Your Subrole");
     }
-    else { setSelectedSubrole("Choose Your Subrole"); }
-    // setSelectedSubroleId("")
   };
 
-  // Fetch ID types from API
   const fetchIdType = async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/idtypes/`);
@@ -125,29 +106,24 @@ const Register3 = () => {
     }
   };
 
-  // Enhanced image upload handler
   const handleImageUpload = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate file type
     const validTypes = ['image/jpeg', 'image/png', 'image/jpg'];
     if (!validTypes.includes(file.type)) {
       setUserProfileError("Only JPG, JPEG, or PNG files are allowed");
       return;
     }
 
-    // Validate file size (max 2MB)
     if (file.size > 2 * 1024 * 1024) {
       setUserProfileError("Image size should be less than 2MB");
       return;
     }
 
-    // If validations pass, set the file to state and create preview
     setProfileImage(file);
     setUserProfileError("");
     setImagePreview(URL.createObjectURL(file));
-
   };
 
   const removeImage = () => {
@@ -158,13 +134,10 @@ const Register3 = () => {
     }
   };
 
-
-
   useEffect(() => {
     fetchNewSubrole();
     fetchIdType();
 
-    // Clean up object URLs when component unmounts
     return () => {
       if (imagePreview) {
         URL.revokeObjectURL(imagePreview);
@@ -172,14 +145,9 @@ const Register3 = () => {
     };
   }, []);
 
-
-
-  console.log(SelectedSubroleId);
-
   const onRegisterUser = async (e) => {
     e.preventDefault();
 
-    // Reset all errors
     setErrorFirstName("");
     setErrorLastName("");
     setErrorEmail("");
@@ -194,7 +162,6 @@ const Register3 = () => {
 
     let isValid = true;
 
-    // Validation logic...
     if (!firstName.trim()) {
       setErrorFirstName("First Name is Required");
       isValid = false;
@@ -236,7 +203,7 @@ const Register3 = () => {
     if (!isValid) return;
 
     try {
-      setisloading(true); // start loading only before API call
+      setisloading(true);
 
       const formData = new FormData();
       formData.append("first_name", firstName.trim());
@@ -279,426 +246,450 @@ const Register3 = () => {
         setUserProfileError(error.response.data.user_profile.join(", "));
       }
     } finally {
-      setisloading(false); // stop loading regardless of success/error
+      setisloading(false);
     }
   };
 
-
-  // Filter subroles based on selected role
   const filteredSubroles =
     newSelectedRole === "LEARNER"
       ? newSubrole.filter((s) =>
-        ["INTERVIEWEE",].includes(s.name?.toUpperCase())
-      )
+          ["INTERVIEWEE"].includes(s.name?.toUpperCase())
+        )
       : newSubrole.filter(
-        (s) => !["INTERVIEWEE", "STUDENT", "GUEST LECTURER", "MENTOR", "APPLICANT"].includes(s.name?.toUpperCase())
-      );
-
-
+          (s) => !["INTERVIEWEE", "STUDENT", "GUEST LECTURER", "MENTOR", "APPLICANT"].includes(s.name?.toUpperCase())
+        );
 
   return (
-    <div className="card mx-4 mt-20">
-      {/* <div className="register mt-5 mx-2"> */}
-      <div className="card-header">
-        {/* <h2 className="text-5xl">Register</h2> */}
-        <h2 className="sponsornowHeading pt-2 text-4xl  mb-4 uppercase text-center max-w-[95vw] sm:max-w-[800px] mx-auto">
-          Register
-          <p className="text-sm pl-3">Please enter your details to register</p>
-        </h2>
+    <div className="min-h-screen mt-10 py-12 px-4 sm:px-6 lg:px-8">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="w-full max-w-4xl mx-auto"
+      >
+        {/* Header */}
+        <div className="text-center mb-10">
+          <h2 className="text-4xl font-bold text-gray-900 uppercase">Register</h2>
+          <p className="text-muted-foreground mt-2">
+            Please enter your details to register
+          </p>
+        </div>
 
-      </div><br />
-      <div className="p-3">
-        <form onSubmit={onRegisterUser}>
-          <div className="row">
-            <div className="col-xxl-6 col-xl-6 col-md-6 mb-3">
-              <label htmlFor="firstName" className="form-label">
-                First Name <span className="text-danger">*</span>
+        {/* Form */}
+        <form onSubmit={onRegisterUser} className="space-y-6">
+          {/* Row 1: First Name & Last Name */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                First Name <span className="text-red-500">*</span>
               </label>
-              <input
-                id="firstName"
+              <Input
                 placeholder="Enter Your First Name"
-                type="text"
                 value={firstName}
                 onChange={(e) => {
                   setFirstName(e.target.value);
                   setErrorFirstName("");
                 }}
-                className="mb-0 text-sm"
+              
               />
               {errorFirstName && (
-                <span className="text-danger text-sm">{errorFirstName}</span>
+                <p className="text-xs text-red-500 mt-1">{errorFirstName}</p>
               )}
             </div>
 
-            <div className="col-xxl-6 col-xl-6 col-md-6 mb-3">
-              <label htmlFor="lastName" className="form-label">
-                Last Name <span className="text-danger">*</span>
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Last Name <span className="text-red-500">*</span>
               </label>
-              <input
-                className="mb-0 text-sm"
-                id="lastName"
+              <Input
                 placeholder="Enter Your Last Name"
-                type="text"
                 value={lastName}
                 onChange={(e) => {
                   setLastName(e.target.value);
                   setErrorLastName("");
                 }}
+               
               />
               {errorLastName && (
-                <span className="text-danger text-sm">{errorLastName}</span>
+                <p className="text-xs text-red-500 mt-1">{errorLastName}</p>
               )}
             </div>
+          </div>
 
-            <div className="col-xxl-6 col-xl-6 col-md-6 mb-3">
-              <label htmlFor="emailAddress" className="form-label">
-                Email Address <span className="text-danger">*</span>
+          {/* Row 2: Email & Password */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Email Address <span className="text-red-500">*</span>
               </label>
-              <input
-                placeholder="Enter Your Email"
-                id="emailAddress"
+              <Input
                 type="email"
+                placeholder="Enter Your Email"
                 value={email}
                 onChange={(e) => {
                   setEmail(e.target.value);
                   setErrorEmail("");
                   setEmailExistsError("");
                 }}
-                className="mb-0 text-sm"
+              
               />
-              {errorEmail && <span className="text-danger text-sm">{errorEmail}</span>}
+              {errorEmail && (
+                <p className="text-xs text-red-500 mt-1">{errorEmail}</p>
+              )}
               {emailExistsError && (
-                <span className="text-danger text-sm">{emailExistsError}</span>
+                <p className="text-xs text-red-500 mt-1">{emailExistsError}</p>
               )}
             </div>
 
-            <div className="col-xxl-6 col-xl-6 col-md-6 posRel mb-3">
-              <label htmlFor="password" className="form-label">
-                Password <span className="text-danger">*</span>
+            <div>
+              <label className="block text-sm font-medium mb-2 flex items-center gap-2">
+                Password <span className="text-red-500">*</span>
+                <div className="relative">
+                  <Info
+                    size={16}
+                    className="text-muted-foreground cursor-pointer"
+                    onMouseEnter={() => setShowPasswordTooltip(true)}
+                    onMouseLeave={() => setShowPasswordTooltip(false)}
+                  />
+                  <AnimatePresence>
+                    {showPasswordTooltip && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 5 }}
+                        className="absolute left-6 top-0 z-10 w-64 p-2 bg-gray-900 text-white text-xs rounded-lg shadow-lg"
+                      >
+                        Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
               </label>
-              <Tooltip target=".custom-target-icon" />
-
-              <i
-                className="custom-target-icon pi pi-info-circle p-text-secondary ms-5"
-                data-pr-tooltip="Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character"
-                data-pr-position="right"
-                data-pr-at="right+5 top"
-                data-pr-my="left center-2"
-                style={{ fontSize: "1rem", cursor: "pointer" }}
-              ></i>
-              <input
-                id="password"
-                placeholder="Enter Your Password"
-                type={passwordVisibility.password ? "text" : "password"}
-                value={password}
-                className="mb-0 text-sm"
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                  setErrorPassword("");
-                }}
-              />
-              <span
-                className={`ti toggle-passwordsSignup ${passwordVisibility.password ? "ti-eye" : "ti-eye-off"
-                  }`}
-                onClick={togglePasswordVisibility}
-              ></span>
+              <div className="relative">
+                <Input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Enter Your Password"
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    setErrorPassword("");
+                  }}
+                  className="h-11 pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-gray-700"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
               {errorPassword && (
-                <span className="text-danger text-sm">{errorPassword}</span>
+                <p className="text-xs text-red-500 mt-1">{errorPassword}</p>
               )}
             </div>
+          </div>
 
-            <div className="col-xxl-6 col-xl-6 col-md-6  mb-3">
-
-              <label className="form-label" htmlFor="mobileNumber">
-                Mobile Number <span className="text-danger">*</span>
+          {/* Row 3: Mobile Number & Role */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Mobile Number <span className="text-red-500">*</span>
               </label>
-              <input
-                className="mb-0 text-sm"
+              <Input
                 placeholder="Enter Your Number"
-                id="mobileNumber"
-                type="text"
                 value={mobileNumber}
                 onChange={(e) => {
                   setMobileNumber(e.target.value);
                   setMobileNumberError("");
                 }}
+               
               />
               {mobilenumberError && (
-                <span className="text-danger text-sm">{mobilenumberError}</span>
+                <p className="text-xs text-red-500 mt-1">{mobilenumberError}</p>
               )}
             </div>
 
-            <div className={`col-xxl-6 col-xl-6 col-md-6 mb-3 ${!userLoggedIN && !accessToken && !refreshToken ? "hidden" : ""}`}>
-              <label className="form-label text-sm mb-1">
-                Select Role <span className="text-danger">*</span>
-              </label>
-
-              <div className="dropdown">
-                <button
-                  type="button"
-                  data-bs-toggle="dropdown"
-                  disabled={!userLoggedIN && !accessToken && !refreshToken}
-                  className="role-dropdown-btn"
-                >
-                  {newSelectedRole || "Select Role"}
-                  <span className="arrow">▾</span>
-                </button>
-
-                <ul className="dropdown-menu w-100 role-dropdown-menu">
-                  <li onClick={() => handleSelectRole("LEARNER")} className="dropdown-item text-sm">
-                    LEARNER
-                  </li>
-
-                  {userLoggedIN && accessToken && refreshToken && (
-                    <li onClick={() => handleSelectRole("ENABLER")} className="dropdown-item text-sm">
-                      ENABLER
-                    </li>
-                  )}
-                </ul>
-              </div>
-
-              {errorSelectedRole && (
-                <span className="text-danger text-sm">{errorSelectedRole}</span>
-              )}
-            </div>
-
-
-            <div
-              className={`col-xxl-6 col-xl-6 col-md-6 mb-3  ${!userLoggedIN && !accessToken && !refreshToken ? "hidden" : ""}`}
-            >
-              <label className="form-label" htmlFor="Roles">
-                Select Subrole <span className="text-danger">*</span>
-              </label>
-              <div className="dropdown">
-                <button
-                  className="btnDropdown form-control text-sm"
-                  type="button"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
-                >
-                  {selectedSubrole}
-                  <span className="arrow">▾</span>
-                </button>
-
-                <ul className="dropdown-menu w-100">
-                  {filteredSubroles.length > 0 ? (
-                    filteredSubroles.map((subrole) => (
-                      <li
-                        className="dropdown-item c-pointer text-sm"
-                        key={subrole.id}
-                        onClick={() => {
-                          setSelectedSubrole(subrole.name);
-                          setSelectedSubroleId(subrole.id);
-                          setErrorSelectedSubsRole("");
-                        }}
-                      >
-                        {subrole.name}
-                      </li>
-                    ))
-                  ) : (
-                    <li className="dropdown-item dropdownLoader">
-                      Loading{" "}
-                      <BeatLoader
-                        size={5}
-                        speedMultiplier={0.5}
-                        loading={loading}
-                        className="loginLoader"
-                      />
-                    </li>
-                  )}
-                </ul>
-
-              </div>
-              {errorSelectedSubRole && (
-                <span className="text-danger text-sm">{errorSelectedSubRole}</span>
-              )}
-            </div>
-          </div>
-
-          <div
-            className={`row ${newSelectedRole === "ENABLER" ? "d-none" : "d-flex mt-4"
-              }`}
-          >
-            <div className="col-xxl-4 col-xl-4 col-md-4 mb-3">
-              <label className="form-label" htmlFor="user_profile">
-                User Profile Image <span className="text-danger"></span>
-              </label>
-              <input
-                id="user_profile"
-                type="file"
-                name="user_profile"
-                className="form-control mb-0"
-                accept="image/jpeg, image/png, image/jpg"
-                onChange={handleImageUpload}
-              />
-              {userProfileError && (
-                <span className="text-danger text-sm">{userProfileError}</span>
-              )}
-              {imagePreview && (
-                <div className="mt-2">
-                  <img
-                    src={imagePreview}
-                    alt="Preview"
-                    style={{ maxWidth: '100px', maxHeight: '100px', display: 'block' }}
-                    className="mb-2"
-                  />
+            {(userLoggedIN && accessToken && refreshToken) && (
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  Select Role <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
                   <button
                     type="button"
-                    className="btn btn-sm btn-danger"
-                    onClick={removeImage}
+                    onClick={() => setRoleDropdownOpen(!roleDropdownOpen)}
+                    className="w-full h-11 px-3 rounded-md border border-input bg-background flex items-center justify-between text-sm"
                   >
-                    Remove Image
+                    {newSelectedRole || "Select Role"}
+                    <ChevronDown size={16} className="text-muted-foreground" />
                   </button>
-                </div>
-              )}
-            </div>
-
-            <div className="col-xxl-4 col-xl-4 col-md-4">
-              <label className="form-label">
-                ID Type <span className="text-danger"></span>
-              </label>
-              <div className="dropdown">
-                <button
-                  className="btnDropdown  form-control"
-                  type="button"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
-                >
-                  {selectedIdTypeName || "select Your IdType"}
-                  <span className="arrow">▾</span>
-                </button>
-                <ul className="dropdown-menu w-100">
-                  {idTypes.length > 0 ? (
-                    idTypes.map((idtype) => (
-                      <li
-                        key={idtype.id}
-                        onClick={() => {
-                          setselectedIdTypeName(idtype.idTypeName)
-                          setSelectedIdType(idtype.id);
-                          setSelectedIdTypeError("");
-                        }}
-                        className="dropdown-item c-pointer"
+                  <AnimatePresence>
+                    {roleDropdownOpen && (
+                      <motion.ul
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="absolute z-20 w-full mt-1 bg-white border border-input rounded-md shadow-lg overflow-hidden"
                       >
-                        {idtype.idTypeName}
-                      </li>
-                    ))
-                  ) : (
-                    <li className="dropdown-item dropdownLoader">
-                      Loading{" "}
-                      <BeatLoader
-                        size={5}
-                        speedMultiplier={0.5}
-                        loading={loading}
-                        className="loginLoader"
+                        <li
+                          onClick={() => handleSelectRole("LEARNER")}
+                          className="px-3 py-2 text-sm hover:bg-gray-100 cursor-pointer"
+                        >
+                          LEARNER
+                        </li>
+                        <li
+                          onClick={() => handleSelectRole("ENABLER")}
+                          className="px-3 py-2 text-sm hover:bg-gray-100 cursor-pointer"
+                        >
+                          ENABLER
+                        </li>
+                      </motion.ul>
+                    )}
+                  </AnimatePresence>
+                </div>
+                {errorSelectedRole && (
+                  <p className="text-xs text-red-500 mt-1">{errorSelectedRole}</p>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Subrole - Only show when logged in */}
+          {(userLoggedIN && accessToken && refreshToken) && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  Select Subrole <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setSubroleDropdownOpen(!subroleDropdownOpen)}
+                    className="w-full h-11 px-3 rounded-md border border-input bg-background flex items-center justify-between text-sm"
+                  >
+                    {selectedSubrole}
+                    <ChevronDown size={16} className="text-muted-foreground" />
+                  </button>
+                  <AnimatePresence>
+                    {subroleDropdownOpen && (
+                      <motion.ul
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="absolute z-20 w-full mt-1 bg-white border border-input rounded-md shadow-lg max-h-48 overflow-y-auto"
+                      >
+                        {filteredSubroles.length > 0 ? (
+                          filteredSubroles.map((subrole) => (
+                            <li
+                              key={subrole.id}
+                              onClick={() => {
+                                setSelectedSubrole(subrole.name);
+                                setSelectedSubroleId(subrole.id);
+                                setErrorSelectedSubsRole("");
+                                setSubroleDropdownOpen(false);
+                              }}
+                              className="px-3 py-2 text-sm hover:bg-gray-100 cursor-pointer"
+                            >
+                              {subrole.name}
+                            </li>
+                          ))
+                        ) : (
+                          <li className="px-3 py-2 text-sm text-muted-foreground flex items-center gap-2">
+                            <Loader2 size={14} className="animate-spin" />
+                            Loading...
+                          </li>
+                        )}
+                      </motion.ul>
+                    )}
+                  </AnimatePresence>
+                </div>
+                {errorSelectedSubRole && (
+                  <p className="text-xs text-red-500 mt-1">{errorSelectedSubRole}</p>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Additional fields for LEARNER role */}
+          {newSelectedRole !== "ENABLER" && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+            >
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                {/* Profile Image */}
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    User Profile Image
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="file"
+                      accept="image/jpeg, image/png, image/jpg"
+                      onChange={handleImageUpload}
+                      className="w-full h-11 px-3 py-2 rounded-md border border-input bg-background text-sm file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:bg-primary file:text-white cursor-pointer"
+                    />
+                  </div>
+                  {userProfileError && (
+                    <p className="text-xs text-red-500 mt-1">{userProfileError}</p>
+                  )}
+                  {imagePreview && (
+                    <div className="mt-3 flex items-center gap-3">
+                      <img
+                        src={imagePreview}
+                        alt="Preview"
+                        className="w-16 h-16 object-cover rounded-lg border"
                       />
-                    </li>
+                      <button
+                        type="button"
+                        onClick={removeImage}
+                        className="text-red-500 hover:text-red-700 text-sm flex items-center gap-1"
+                      >
+                        <X size={14} /> Remove
+                      </button>
+                    </div>
                   )}
-                </ul>
-              </div>
-              {idTypeError && (
-                <span className="text-danger text-sm">{idTypeError}</span>
-              )}
-            </div>
+                </div>
 
-            <div className="col-xxl-4 col-xl-4 col-md-4  mb-3">
-              <label
-                className="form-label text-nowrap"
-                htmlFor="identityNumber"
-              >
-                Identity Number <span className="text-danger"></span>
-              </label>
-              <input
-                className="mb-0 text-base"
-                placeholder="Enter Your ID Number"
-                id="identityNumber"
-                type="text"
-                onChange={(e) => {
-                  setIdentity(e.target.value);
-                  setIdNumberError("");
-                }}
-                value={identity}
-              />
-              {idNumberError && (
-                <span className="text-danger text-sm">{idNumberError}</span>
-              )}
-            </div>
-          </div>
-          <br></br>
-          <div className="row justify-content-center">
-            <div className="col-xxl-5 col-xl-5 col-md-5">
-              <div className="mb-3">
-                {/* <button
-                  type="submit"
-                  className="btn btn-primary w-100 loginBtn"
-                  disabled={loading}
-                >
-                  Create Account
-                </button> */}
-                <button
-                  type="submit"
-                  className="btn btn-primary w-40 loginBtn"
-                  disabled={isloading}
-                >
-                  {isloading ? (
-                    <i className="fas fa-spinner fa-spin me-2"></i>
-                  ) : (
-                    <>
-                      Create Account <i className="fa-solid fa-right-to-bracket ml-2"></i>
-                    </>
+                {/* ID Type */}
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    ID Type
+                  </label>
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => setIdTypeDropdownOpen(!idTypeDropdownOpen)}
+                      className="w-full h-11 px-3 rounded-md border border-input bg-background flex items-center justify-between text-sm"
+                    >
+                      {selectedIdTypeName || "Select Your ID Type"}
+                      <ChevronDown size={16} className="text-muted-foreground" />
+                    </button>
+                    <AnimatePresence>
+                      {idTypeDropdownOpen && (
+                        <motion.ul
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          className="absolute z-20 w-full mt-1 bg-white border border-input rounded-md shadow-lg max-h-48 overflow-y-auto"
+                        >
+                          {idTypes.length > 0 ? (
+                            idTypes.map((idtype) => (
+                              <li
+                                key={idtype.id}
+                                onClick={() => {
+                                  setselectedIdTypeName(idtype.idTypeName);
+                                  setSelectedIdType(idtype.id);
+                                  setSelectedIdTypeError("");
+                                  setIdTypeDropdownOpen(false);
+                                }}
+                                className="px-3 py-2 text-sm hover:bg-gray-100 cursor-pointer"
+                              >
+                                {idtype.idTypeName}
+                              </li>
+                            ))
+                          ) : (
+                            <li className="px-3 py-2 text-sm text-muted-foreground flex items-center gap-2">
+                              <Loader2 size={14} className="animate-spin" />
+                              Loading...
+                            </li>
+                          )}
+                        </motion.ul>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                  {idTypeError && (
+                    <p className="text-xs text-red-500 mt-1">{idTypeError}</p>
                   )}
-                </button>
+                </div>
 
-
-
+                {/* Identity Number */}
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Identity Number
+                  </label>
+                  <Input
+                    placeholder="Enter Your ID Number"
+                    value={identity}
+                    onChange={(e) => {
+                      setIdentity(e.target.value);
+                      setIdNumberError("");
+                    }}
+                  
+                  />
+                  {idNumberError && (
+                    <p className="text-xs text-red-500 mt-1">{idNumberError}</p>
+                  )}
+                </div>
               </div>
-              {/* <div className="text-center mb-4">
-                <h6 className="fw-normal text-dark mb-0 text-sm">
-                  Already have an account?
-                  <Link to={routes.login3} className="hover-a ms-2 text-[#63b3ed] text-sm">
-                    Login
-                  </Link>
-                </h6>
-              </div> */}
-            </div>
+            </motion.div>
+          )}
+
+          {/* Submit Button */}
+          <div className="pt-6 flex justify-center">
+            <motion.button
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.98 }}
+              type="submit"
+              disabled={isloading}
+              className="w-full max-w-md h-12 rounded-xl bg-primary text-white font-medium disabled:opacity-60 flex items-center justify-center gap-2"
+            >
+              {isloading ? (
+                <>
+                  <Loader2 size={18} className="animate-spin" />
+                  Creating Account...
+                </>
+              ) : (
+                "Create Account"
+              )}
+            </motion.button>
           </div>
+        
         </form>
-      </div>
+      </motion.div>
 
-      {submitSuccess && (
-        <div
-          className="modal fade show"
-          style={{ display: "block", background: "rgba(0,0,0,0.5)" }}
-        >
-          <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Register</h5>
-                <button
-                  type="button"
-                  className="btn-close"
-                  onClick={() => setSubmitSuccess(false)}
-                ></button>
+      {/* Success Modal */}
+      <AnimatePresence>
+        {submitSuccess && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-40 bg-black/40"
+              onClick={() => setSubmitSuccess(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="fixed inset-0 z-50 flex items-center justify-center px-4"
+            >
+              <div className="bg-white rounded-xl p-6 w-full max-w-sm shadow-xl">
+                <div className="text-center">
+                  <div className="mx-auto w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-4">
+                    <Check className="text-green-600" size={24} />
+                  </div>
+                  <h3 className="text-xl font-bold mb-2">Success!</h3>
+                  <p className="text-muted-foreground mb-6">
+                    User successfully created!
+                  </p>
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setSubmitSuccess(false)}
+                    className="w-full h-10 rounded-xl bg-primary text-white font-medium"
+                  >
+                    OK
+                  </motion.button>
+                </div>
               </div>
-
-              <div className="modal-body">
-                <p> User successfully created!</p>
-              </div>
-
-              <div className="modal-footer">
-                <button
-                  type="button"
-                  className="btn btn-primary"
-                  onClick={() => setSubmitSuccess(false)}
-                  data-bs-dismiss="modal"
-                >
-                  Ok
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-      {/* </div> */}
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

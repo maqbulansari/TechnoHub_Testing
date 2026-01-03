@@ -51,6 +51,7 @@ import { StudentAssignment } from "@/components/Assignments/StudentAssignment";
 import AssignmentComments from "@/components/Assignments/AssignmentComments";
 import Notifications from "@/components/Notifications";
 
+
 const ALLRoutes = () => {
     const routes = all_routes;
     return (<Routes>
@@ -103,10 +104,12 @@ const ALLRoutes = () => {
           <Route path="/StudentAssignment" element={<StudentAssignment />}/>
           <Route path="/AssignmentComments/:assignmentId" element={<AssignmentComments />}/>
           <Route path="/Notifications" element={<Notifications />}/>
+          
 
 
 
         </Route>
+        
       </Route>
 
       {/* Feature-based route groups */}

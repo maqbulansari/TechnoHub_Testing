@@ -162,14 +162,14 @@ export const CreateBatches = () => {
 
     return (
         <div className="max-w-4xl mx-auto p-6 mt-12 border border-gray-200 rounded-lg">
-            <h2 className="text-3xl font-bold mb-6 text-center">Create Batch</h2>
+            <h2 className="text-2xl font-bold mb-6 text-left">Create Batch</h2>
             <form
                 onSubmit={handleSubmit(onSubmit)}
                 className="grid grid-cols-1 md:grid-cols-2 gap-4"
             >
                 {/* Batch Name */}
-                <div className="flex flex-col">
-                    <Label htmlFor="batch_name">Batch Name</Label>
+                <div className="flex flex-col gap-1">
+                    <Label htmlFor="batch_name">Batch Name <span className="text-red-500">*</span></Label>
                     <Input
                         id="batch_name"
                         {...register("batch_name", { required: "Batch Name is required" })}
@@ -181,10 +181,10 @@ export const CreateBatches = () => {
                 </div>
 
                 {/* Start Date */}
-                <div className="flex flex-col">
-                    <Label htmlFor="start_date">Start Date</Label>
+                <div className="flex flex-col gap-1">
+                    <Label htmlFor="start_date">Start Date <span className="text-red-500">*</span></Label>
                     <Input
-                    min={today}
+                        min={today}
                         type="date"
                         id="start_date"
                         {...register("start_date", { required: "Start Date is required" })}
@@ -196,10 +196,10 @@ export const CreateBatches = () => {
                 </div>
 
                 {/* End Date */}
-                <div className="flex flex-col">
-                    <Label htmlFor="end_date">End Date</Label>
+                <div className="flex flex-col gap-1">
+                    <Label htmlFor="end_date">End Date <span className="text-red-500">*</span></Label>
                     <Input
-                    min={today}
+                        min={today}
                         type="date"
                         id="end_date"
                         {...register("end_date", { required: "End Date is required" })}
@@ -211,8 +211,8 @@ export const CreateBatches = () => {
                 </div>
 
                 {/* Capacity */}
-                <div className="flex flex-col">
-                    <Label htmlFor="capacity">Capacity</Label>
+                <div className="flex flex-col gap-1">
+                    <Label htmlFor="capacity">Capacity <span className="text-red-500">*</span></Label>
                     <Input
                         type="number"
                         id="capacity"
@@ -224,176 +224,219 @@ export const CreateBatches = () => {
                     )}
                 </div>
 
-                {/* Time Slot */}
-                <div className="flex flex-col md:col-span-2">
-                    <Label htmlFor="time_slot">Time Slot</Label>
-                    <Input
-                        id="time_slot"
-                        placeholder="e.g. 10:00 AM - 12:00 PM"
-                        {...register("time_slot", { required: "Time Slot is required" })}
-                        disabled={isSubmitting}
-                    />
-                    {errors.time_slot && (
-                        <p className="text-red-500 text-sm mt-1">{errors.time_slot.message}</p>
-                    )}
-                </div>
-
-                {/* Fee */}
-                <div className="flex flex-col">
-                    <Label htmlFor="fee">Fee</Label>
-                    <Input
-                        type="number"
-                        step="0.01"
-                        id="fee"
-                        {...register("fee", { required: "Fee is required" })}
-                        disabled={isSubmitting}
-                    />
-                    {errors.fee && (
-                        <p className="text-red-500 text-sm mt-1">{errors.fee.message}</p>
-                    )}
-                </div>
-                {/* Status */}
-                <div className="flex flex-col">
-                    <Label>Status</Label>
-                    <Controller
-                        name="status_id" // <-- change to match backend
-                        control={control}
-                        rules={{ required: "Status is required" }}
-                        render={({ field }) => (
-                            <Select
-                                value={field.value}
-                                onValueChange={(val) => field.onChange(val)}
-                                disabled={isSubmitting}
-                            >
-                                <SelectTrigger className="w-full">
-                                    <SelectValue placeholder="-- Select Status --" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {statuses.map((s) => (
-                                        <SelectItem key={s.id} value={s.id.toString()}>
-                                            {s.name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                {/* Time Slot + Fee */}
+                <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Time Slot */}
+                    <div className="flex flex-col gap-1">
+                        <Label htmlFor="time_slot">
+                            Time Slot <span className="text-red-500">*</span>
+                        </Label>
+                        <Input
+                            id="time_slot"
+                            placeholder="e.g. 10:00 AM - 12:00 PM"
+                            {...register("time_slot", { required: "Time Slot is required" })}
+                            disabled={isSubmitting}
+                        />
+                        {errors.time_slot && (
+                            <p className="text-red-500 text-sm mt-1">
+                                {errors.time_slot.message}
+                            </p>
                         )}
-                    />
-                    {errors.status_id && (
-                        <p className="text-red-500 text-sm mt-1">{errors.status_id.message}</p>
-                    )}
+                    </div>
+
+                    {/* Fee */}
+                    <div className="flex flex-col gap-1">
+                        <Label htmlFor="fee">
+                            Fee <span className="text-red-500">*</span>
+                        </Label>
+                        <Input
+                            type="number"
+                            step="0.01"
+                            id="fee"
+                            {...register("fee", { required: "Fee is required" })}
+                            disabled={isSubmitting}
+                        />
+                        {errors.fee && (
+                            <p className="text-red-500 text-sm mt-1">
+                                {errors.fee.message}
+                            </p>
+                        )}
+                    </div>
+                </div>
+
+                {/* Status + Technologies */}
+                <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Status */}
+                    <div className="flex flex-col gap-1">
+                        <Label>
+                            Status <span className="text-red-500">*</span>
+                        </Label>
+                        <Controller
+                            name="status_id"
+                            control={control}
+                            rules={{ required: "Status is required" }}
+                            render={({ field }) => (
+                                <Select
+                                    value={field.value}
+                                    onValueChange={(val) => field.onChange(val)}
+                                    disabled={isSubmitting}
+                                >
+                                    <SelectTrigger className="w-full">
+                                        <SelectValue placeholder="Select Status" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {statuses.map((s) => (
+                                            <SelectItem key={s.id} value={s.id.toString()}>
+                                                {s.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            )}
+                        />
+                        {errors.status_id && (
+                            <p className="text-red-500 text-sm mt-1">
+                                {errors.status_id.message}
+                            </p>
+                        )}
+                    </div>
+
+                    {/* Technologies */}
+                    <div className="flex flex-col gap-1">
+                        <Label>
+                            Technologies <span className="text-red-500">*</span>
+                        </Label>
+                        <Popover>
+                            <PopoverTrigger asChild>
+                                <Button variant="outline" className="w-full justify-between">
+                                    {selectedTechs.length > 0
+                                        ? `${selectedTechs.length} technology(s) selected`
+                                        : "Select Technologies"}
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="p-0 w-[300px]">
+                                <div className="p-2 border-b">
+                                    <Input
+                                        placeholder="Search technologies..."
+                                        value={techSearchTerm}
+                                        onChange={(e) => setTechSearchTerm(e.target.value)}
+                                    />
+                                </div>
+                                <ScrollArea className="max-h-60">
+                                    {filteredTechnologies.map((tech) => (
+                                        <label
+                                            key={tech.id}
+                                            className="flex items-center px-3 py-2 cursor-pointer hover:bg-gray-50"
+                                        >
+                                            <input
+                                                type="checkbox"
+                                                className="mr-2 w-4 h-4 rounded"
+                                                checked={selectedTechs.includes(tech.id)}
+                                                onChange={() => handleTechChange(tech.id)}
+                                            />
+                                            <span className="text-sm font-medium">{tech.name}</span>
+                                        </label>
+                                    ))}
+                                </ScrollArea>
+                            </PopoverContent>
+                        </Popover>
+                        <input
+                            type="hidden"
+                            {...register("technoLogies", { validate: validateTechnologies })}
+                        />
+                        {errors.technoLogies && (
+                            <p className="text-red-500 text-sm mt-1">
+                                {errors.technoLogies.message}
+                            </p>
+                        )}
+                    </div>
                 </div>
 
 
 
-                {/* Technologies */}
-                <div className="flex flex-col md:col-span-2">
-                    <Label>Technologies *</Label>
-                    <Popover>
-                        <PopoverTrigger asChild>
-                            <Button variant="outline" className="w-full justify-between">
-                                {selectedTechs.length > 0
-                                    ? `${selectedTechs.length} technology(s) selected`
-                                    : "-- Select Technologies --"}
-                            </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="p-0 w-[300px]">
-                            <div className="p-2 border-b">
-                                <Input
-                                    placeholder="Search technologies..."
-                                    value={techSearchTerm}
-                                    onChange={(e) => setTechSearchTerm(e.target.value)}
-                                />
-                            </div>
-                            <ScrollArea className="max-h-60">
-                                {filteredTechnologies.map((tech) => (
-                                    <label
-                                        key={tech.id}
-                                        className="flex items-center px-3 py-2 cursor-pointer hover:bg-gray-50"
-                                    >
-                                        <input
-                                            type="checkbox"
-                                            className="mr-2 w-4 h-4 rounded"
-                                            checked={selectedTechs.includes(tech.id)}
-                                            onChange={() => handleTechChange(tech.id)}
-                                        />
-                                        <span className="text-sm font-medium">{tech.name}</span>
-                                    </label>
-                                ))}
-                            </ScrollArea>
-                        </PopoverContent>
-                    </Popover>
-                    <input
-                        type="hidden"
-                        {...register("technoLogies", { validate: validateTechnologies })}
-                    />
-                    {errors.technoLogies && (
-                        <p className="text-red-500 text-sm mt-1">{errors.technoLogies.message}</p>
-                    )}
+
+
+
+                {/* Trainers + Center */}
+                <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Trainers */}
+                    <div className="flex flex-col gap-1">
+                        <Label>
+                            Trainers <span className="text-red-500">*</span>
+                        </Label>
+                        <Popover>
+                            <PopoverTrigger asChild>
+                                <Button variant="outline" className="w-full justify-between">
+                                    {selectedTrainers.length > 0
+                                        ? `${selectedTrainers.length} trainer(s) selected`
+                                        : "Select Trainers"}
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="p-0 w-[300px]">
+                                <div className="p-2 border-b">
+                                    <Input
+                                        placeholder="Search trainers..."
+                                        value={trainerSearchTerm}
+                                        onChange={(e) => setTrainerSearchTerm(e.target.value)}
+                                    />
+                                </div>
+                                <ScrollArea className="max-h-60">
+                                    {filteredTrainers.map((trainer) => (
+                                        <label
+                                            key={trainer.id}
+                                            className="flex items-center px-3 py-2 cursor-pointer hover:bg-gray-50"
+                                        >
+                                            <input
+                                                type="checkbox"
+                                                className="mr-2 w-4 h-4 rounded"
+                                                checked={selectedTrainers.includes(trainer.id)}
+                                                onChange={() => handleTrainerChange(trainer.id)}
+                                            />
+                                            <div className="flex flex-col">
+                                                <span className="text-sm font-medium text-gray-700 capitalize">
+                                                    {trainer.first_name} {trainer.last_name}
+                                                </span>
+                                                <span className="text-xs text-gray-500">
+                                                    {trainer.email}
+                                                </span>
+                                            </div>
+                                        </label>
+                                    ))}
+                                </ScrollArea>
+                            </PopoverContent>
+                        </Popover>
+                        <input
+                            type="hidden"
+                            {...register("trainer", { validate: validateTrainers })}
+                        />
+                        {errors.trainer && (
+                            <p className="text-red-500 text-sm mt-1">
+                                {errors.trainer.message}
+                            </p>
+                        )}
+                    </div>
+
+                    {/* Center */}
+                    <div className="flex flex-col gap-1">
+                        <Label htmlFor="center">
+                            Center <span className="text-red-500">*</span>
+                        </Label>
+                        <Input
+                            id="center"
+                            {...register("center", { required: "Center is required" })}
+                            disabled={isSubmitting}
+                        />
+                        {errors.center && (
+                            <p className="text-red-500 text-sm mt-1">
+                                {errors.center.message}
+                            </p>
+                        )}
+                    </div>
                 </div>
 
-                {/* Trainers */}
-                <div className="flex flex-col md:col-span-2">
-                    <Label>Trainers *</Label>
-                    <Popover>
-                        <PopoverTrigger asChild>
-                            <Button variant="outline" className="w-full justify-between">
-                                {selectedTrainers.length > 0
-                                    ? `${selectedTrainers.length} trainer(s) selected`
-                                    : "-- Select Trainers --"}
-                            </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="p-0 w-[300px]">
-                            <div className="p-2 border-b">
-                                <Input
-                                    placeholder="Search trainers..."
-                                    value={trainerSearchTerm}
-                                    onChange={(e) => setTrainerSearchTerm(e.target.value)}
-                                />
-                            </div>
-                            <ScrollArea className="max-h-60">
-                                {filteredTrainers.map((trainer) => (
-                                    <label
-                                        key={trainer.id}
-                                        className="flex items-center px-3 py-2 cursor-pointer hover:bg-gray-50"
-                                    >
-                                        <input
-                                            type="checkbox"
-                                            className="mr-2 w-4 h-4 rounded"
-                                            checked={selectedTrainers.includes(trainer.id)}
-                                            onChange={() => handleTrainerChange(trainer.id)}
-                                        />
-                                        <div className="flex flex-col">
-                                            <span className="text-sm font-medium text-gray-700 capitalize">
-                                                {trainer.first_name} {trainer.last_name}
-                                            </span>
-                                            <span className="text-xs text-gray-500">{trainer.email}</span>
-                                        </div>
-                                    </label>
-                                ))}
-                            </ScrollArea>
-                        </PopoverContent>
-                    </Popover>
-                    <input
-                        type="hidden"
-                        {...register("trainer", { validate: validateTrainers })}
-                    />
-                    {errors.trainer && (
-                        <p className="text-red-500 text-sm mt-1">{errors.trainer.message}</p>
-                    )}
-                </div>
 
-                {/* Center */}
-                <div className="flex flex-col md:col-span-2">
-                    <Label htmlFor="center">Center</Label>
-                    <Input
-                        id="center"
-                        {...register("center", { required: "Center is required" })}
-                        disabled={isSubmitting}
-                    />
-                    {errors.center && (
-                        <p className="text-red-500 text-sm mt-1">{errors.center.message}</p>
-                    )}
-                </div>
+
+
 
                 {/* Submit */}
                 <div className="md:col-span-2 flex justify-center mt-4">
