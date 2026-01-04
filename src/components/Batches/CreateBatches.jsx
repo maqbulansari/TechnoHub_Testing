@@ -5,8 +5,8 @@ import axios from "axios";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
-import { Toast } from "@/components/ui/toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
     Select,
@@ -15,6 +15,15 @@ import {
     SelectContent,
     SelectItem,
 } from "@/components/ui/select";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+    DialogFooter,
+} from "@/components/ui/dialog";
+
 export const CreateBatches = () => {
     const { API_BASE_URL } = useContext(AuthContext);
     const token = localStorage.getItem("accessToken");
@@ -25,7 +34,8 @@ export const CreateBatches = () => {
     const [loading, setLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    // Multi-select states
+    const [modalMessage, setModalMessage] = useState("");
+
     const [selectedTechs, setSelectedTechs] = useState([]);
     const [selectedTrainers, setSelectedTrainers] = useState([]);
     const [techSearchTerm, setTechSearchTerm] = useState("");
@@ -33,8 +43,6 @@ export const CreateBatches = () => {
 
     const [submitSuccess, setSubmitSuccess] = useState(false);
     const today = new Date().toISOString().split("T")[0];
-
-
 
     const {
         register,
@@ -46,7 +54,6 @@ export const CreateBatches = () => {
         clearErrors,
     } = useForm();
 
-    // Fetch data
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
@@ -74,7 +81,6 @@ export const CreateBatches = () => {
         fetchData();
     }, [API_BASE_URL, token]);
 
-    // Update RHF values when multi-select changes
     useEffect(() => {
         setValue("technoLogies", selectedTechs);
         if (selectedTechs.length > 0) clearErrors("technoLogies");
@@ -85,84 +91,72 @@ export const CreateBatches = () => {
         if (selectedTrainers.length > 0) clearErrors("trainer");
     }, [selectedTrainers, setValue, clearErrors]);
 
-    // Filtering
     const filteredTechnologies = technologies.filter((t) =>
         t.name.toLowerCase().includes(techSearchTerm.toLowerCase())
     );
     const filteredTrainers = trainers.filter(
         (t) =>
-            `${t.first_name} ${t.last_name}`
-                .toLowerCase()
-                .includes(trainerSearchTerm.toLowerCase()) ||
+            `${t.first_name} ${t.last_name}`.toLowerCase().includes(trainerSearchTerm.toLowerCase()) ||
             t.email.toLowerCase().includes(trainerSearchTerm.toLowerCase())
     );
 
-    // Handlers
     const handleTechChange = (id) => {
-        if (selectedTechs.includes(id)) {
-            setSelectedTechs(selectedTechs.filter((x) => x !== id));
-        } else {
-            setSelectedTechs([...selectedTechs, id]);
-        }
+        setSelectedTechs((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
     };
+
     const handleTrainerChange = (id) => {
-        if (selectedTrainers.includes(id)) {
-            setSelectedTrainers(selectedTrainers.filter((x) => x !== id));
-        } else {
-            setSelectedTrainers([...selectedTrainers, id]);
-        }
+        setSelectedTrainers((prev) =>
+            prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+        );
     };
 
-    // Validation
-    const validateTechnologies = () =>
-        selectedTechs.length > 0 || "Select at least one technology";
-    const validateTrainers = () =>
-        selectedTrainers.length > 0 || "Select at least one trainer";
+    const validateTechnologies = () => selectedTechs.length > 0 || "Select at least one technology";
+    const validateTrainers = () => selectedTrainers.length > 0 || "Select at least one trainer";
 
-    const onSubmit = async (data) => {
-        setIsSubmitting(true);
-        console.log(data);
+ const onSubmit = async (data) => {
+    setIsSubmitting(true);
+    try {
+        const payload = {
+            batch_name: data.batch_name,
+            start_date: data.start_date,
+            end_date: data.end_date,
+            capacity: parseInt(data.capacity),
+            time_slot: data.time_slot,
+            fee: parseFloat(data.fee),
+            status_id: parseInt(data.status_id),
+            technoLogies: selectedTechs,
+            trainer: selectedTrainers,
+            center: data.center,
+        };
 
-        try {
-            const payload = {
-                batch_name: data.batch_name,
-                start_date: data.start_date,
-                end_date: data.end_date,
-                capacity: parseInt(data.capacity),
-                time_slot: data.time_slot,
-                fee: parseFloat(data.fee),
-                status_id: parseInt(data.status_id),
-                technoLogies: selectedTechs,
-                trainer: selectedTrainers,
-                center: data.center,
-            };
+        await axios.post(`${API_BASE_URL}/batches/`, payload, {
+            headers: { Authorization: `Bearer ${token}` },
+        });
 
+        setModalMessage("Batch created successfully!");
+        setSubmitSuccess(true);
 
-            await axios.post(`${API_BASE_URL}/batches/`, payload, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
+        reset();
+        setSelectedTechs([]);
+        setSelectedTrainers([]);
+        setTechSearchTerm("");
+        setTrainerSearchTerm("");
+    } catch (err) {
+        console.error(err);
 
-            setSubmitSuccess(true);
-            reset();
-            setSelectedTechs([]);
-            setSelectedTrainers([]);
-            setTechSearchTerm("");
-            setTrainerSearchTerm("");
-        } catch (err) {
-            console.error(err);
-            Toast({
-                title: "Error",
-                description: err.response?.data?.message || "Failed to create batch",
-                variant: "destructive",
-            });
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
+        // Handle non_field_errors
+        const errorMsg = err.response?.data?.non_field_errors?.[0] 
+                         || "Failed to create batch";
+        setModalMessage(errorMsg);
+        setSubmitSuccess(true); // open modal to show error
+    } finally {
+        setIsSubmitting(false);
+    }
+};
 
     return (
-        <div className="max-w-4xl mx-auto p-6 mt-12 border border-gray-200 rounded-lg">
-            <h2 className="text-2xl font-bold mb-6 text-left">Create Batch</h2>
+        <Card className="max-w-4xl mx-auto p-6 mt-20 border border-gray-200 shadow-sm rounded-lg">
+            <h2 className="text-2xl font-bold mb-6 text-center">Create Batch</h2>
             <form
                 onSubmit={handleSubmit(onSubmit)}
                 className="grid grid-cols-1 md:grid-cols-2 gap-4"
@@ -172,6 +166,7 @@ export const CreateBatches = () => {
                     <Label htmlFor="batch_name">Batch Name <span className="text-red-500">*</span></Label>
                     <Input
                         id="batch_name"
+                        placeholder="Enter batch name"
                         {...register("batch_name", { required: "Batch Name is required" })}
                         disabled={isSubmitting}
                     />
@@ -434,10 +429,6 @@ export const CreateBatches = () => {
                     </div>
                 </div>
 
-
-
-
-
                 {/* Submit */}
                 <div className="md:col-span-2 flex justify-center mt-4">
                     <Button type="submit" disabled={isSubmitting}>
@@ -446,43 +437,28 @@ export const CreateBatches = () => {
                 </div>
             </form>
 
+            {/* Dialog Modal */}
+           <Dialog open={submitSuccess} onOpenChange={setSubmitSuccess}>
+    <DialogContent className="sm:max-w-md p-0 gap-0 overflow-hidden [&>button]:hidden rounded-xl">
+        <DialogHeader className="px-5 pt-4 pb-4 space-y-1">
+            <DialogTitle className="text-xl pb-2 font-semibold">
+                {modalMessage === "Batch created successfully!" ? "Success" : "Error"}
+            </DialogTitle>
+            <DialogDescription className="text-sm pb-2 text-muted-foreground leading-relaxed">
+                {modalMessage}
+            </DialogDescription>
+        </DialogHeader>
+        <DialogFooter className="px-3 pb-3 bg-muted/30">
+            <Button onClick={() => setSubmitSuccess(false)} className="w-full sm:w-auto">
+                Close
+            </Button>
+        </DialogFooter>
+    </DialogContent>
+</Dialog>
 
-            {submitSuccess && (
-                <div
-                    className="modal fade show"
-                    style={{ display: "block", background: "rgba(0,0,0,0.5)" }}
-                >
-                    <div className="modal-dialog modal-dialog-centered">
-                        <div className="modal-content">
-                            <div className="modal-header">
-                                <h5 className="modal-title">Register</h5>
-                                <button
-                                    type="button"
-                                    className="btn-close"
-                                    onClick={() => setSubmitSuccess(false)}
-                                ></button>
-                            </div>
-
-                            <div className="modal-body">
-                                <p> User successfully created!</p>
-                            </div>
-
-                            <div className="modal-footer">
-                                <button
-                                    type="button"
-                                    className="btn btn-primary"
-                                    onClick={() => setSubmitSuccess(false)}
-                                    data-bs-dismiss="modal"
-                                >
-                                    Ok
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
-        </div>
+        </Card>
     );
 };
 
 export default CreateBatches;
+
