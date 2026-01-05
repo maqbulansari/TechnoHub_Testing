@@ -153,7 +153,7 @@ const SelectedTrainerForInterview = () => {
                     {row.user_name}
                   </TableCell>
 
-                  <TableCell className="flex flex-wrap gap-1">
+                  <TableCell className="flex flex-wrap items-center gap-1 border-none">
                     {row.batches_names?.map((b) => (
                       <Badge key={b.id} variant="">
                         {b.name}

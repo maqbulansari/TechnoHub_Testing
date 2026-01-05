@@ -91,7 +91,7 @@ export const AllBatches = () => {
       <h2 className="text-2xl font-semibold text-left">Batch Information</h2>
 
       {/* Filters */}
-      <div className="flex flex-col md:flex-row gap-4">
+      <div className="flex flex-col md:flex-row gap-4 w-1/2">
         <Input
           placeholder="Search by name or ID..."
           value={search}
@@ -167,7 +167,7 @@ export const AllBatches = () => {
                   <TableCell>{batch.center}</TableCell>
                   <TableCell>
                     <Button
-                      variant="secondary"
+                      variant="outline"
                       size="sm"
                       onClick={() => handleEdit(batch.batch_id)}
                     >
