@@ -58,6 +58,7 @@ const Defaultlayout = () => {
         { path: "/Students_profile", label: "Profile" },
         { path: "/Students_batches", label: "Batch" },
         { path: "/Admission_table", label: "Interview" },
+        { path: "/StudentAssignment", label: "Assignment" },
       ],  
       icon: faSchool,
       key: "student-dashboard",

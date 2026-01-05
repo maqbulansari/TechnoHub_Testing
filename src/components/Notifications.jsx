@@ -113,7 +113,9 @@ const NotificationPopover = ({ refreshCount }) => {
                 >
                   {/* Unread dot */}
                   {!n.is_read && (
-                    <span className="mt-1 w-2 h-2 rounded-full bg-orange-500 shrink-0" />
+                    <span className=" w-1.5 h-1.5 rounded-full bg-orange-500" />
+                  //  <span className="mt-1 w-2 h-2 rounded-full bg-orange-500 shrink-0" />
+
                   )}
 
                   {/* Content */}
