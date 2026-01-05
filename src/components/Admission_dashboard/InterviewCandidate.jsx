@@ -1,329 +1,439 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { AuthContext } from "../../contexts/authContext";
+
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+
 const InterviewCandidate = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { candidateData } = location.state || {};
-  const { error1, batches, loadingBatches, fetchBatches, API_BASE_URL } = useContext(AuthContext);
-  const [accessToken, setAccessToken] = useState("");
+
+  const { batches, loadingBatches, fetchBatches, API_BASE_URL } =
+    useContext(AuthContext);
+
+  const token = localStorage.getItem("accessToken");
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
-  // Fetch batches when component mounts
-  useEffect(() => {
-    if (fetchBatches) {
-      fetchBatches();
-    }
-  }, [fetchBatches]);
-
-  useEffect(() => {
-    const token = localStorage.getItem("accessToken");
-    if (token) {
-      setAccessToken(token);
-    }
-  }, []);
-  const { register, handleSubmit, formState: { errors }, } = useForm({
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm({
     defaultValues: {
-      id: candidateData?.id || "",
-      name: candidateData?.name || "",
-      email: candidateData?.email || "",
-      mobile_no: candidateData?.mobile_no || "",
-      role: candidateData?.role || "",
-      subrole: candidateData?.subrole || "",
-      gender: candidateData?.gender || "",
-      batch: candidateData?.batch || "",
-      eng_comm_skills: candidateData?.eng_comm_skills || 1,
-      humble_background: candidateData?.humble_background || "",
-      laptop: candidateData?.laptop || "",
-      profession: candidateData?.profession || "",
-      selected_status: candidateData?.selected_status || "",
-      level: candidateData?.level || 1,
-      source: candidateData?.source || "",
-      remarks: candidateData?.remarks || "",
+      id: candidateData?.id ?? "",
+      name: candidateData?.name ?? "",
+      email: candidateData?.email ?? "",
+      mobile_no: candidateData?.mobile_no ?? "",
+      role: candidateData?.role ?? "",
+      subrole: candidateData?.subrole ?? "",
+      gender: candidateData?.gender ?? "",
+      batch: candidateData?.batch ?? "",
+      eng_comm_skills: candidateData?.eng_comm_skills
+        ? String(candidateData.eng_comm_skills)
+        : "",
+      humble_background: candidateData?.humble_background ?? "",
+      laptop: candidateData?.laptop ?? "",
+      profession: candidateData?.profession ?? "",
+      selected_status: candidateData?.selected_status ?? "",
+      level: candidateData?.level ? String(candidateData.level) : "",
+      source: candidateData?.source ?? "",
+      remarks: candidateData?.remarks ?? "",
     },
   });
+
+  useEffect(() => {
+    fetchBatches?.();
+  }, [fetchBatches]);
+
   const onSubmit = async (data) => {
-    console.log(data);
-    if (!accessToken) {
-      alert("No authentication token available");
-      return;
-    }
     try {
-      const response = await axios.put(`${API_BASE_URL}/Learner/${data.id}/update_selected/`, data, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          'Content-Type': 'application/json'
-        }
-      });
-      console.log("Data updated successfully:", response.data);
+      await axios.put(
+        `${API_BASE_URL}/Learner/${data.id}/update_selected/`,
+        data,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
       setSubmitSuccess(true);
-      // alert("Candidate data updated successfully!");
-    }
-    catch (error) {
-      console.error("Error updating data:", error);
-      alert("Failed to update candidate data.");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to update candidate data");
     }
   };
+
   if (!candidateData) {
-    return <div className="container mt-4">No candidate data found.</div>;
+    return <div className="text-center mt-10">No candidate data found.</div>;
   }
-  const handleOnclosemodal = () => {
-    setSubmitSuccess(false);
-    navigate("/Admission_table");
-  };
-  return (<div className="card m-4">
-    <div className="card-header">
-      {/* <h1 className="card-title text-center mb-2 text-primary fs-3">
-          CANDIDATE INFORMATION FOR INTERVIEW
-        </h1> */}
-      <div className="header-containerH d-flex justify-center w-100 ">
-        <h2 className="sponsornowHeading pt-2 text-4xl  mb-4 uppercase text-center max-w-[95vw] sm:max-w-[800px] mx-auto">
-          CANDIDATE  INFORMATION  FOR  INTERVIEW
-        </h2>
-      </div>
-    </div>
-    <div className="card-body">
-      <form onSubmit={handleSubmit(onSubmit)} className="row g-3">
+
+  return (
+    <Card className="max-w-5xl mx-auto mt-20 p-6 shadow-sm">
+      <h2 className="text-2xl font-bold text-center mb-6">
+        Candidate Information For Interview
+      </h2>
+
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="grid grid-cols-1 md:grid-cols-2 gap-4"
+      >
         {/* Name */}
-        <div className="col-xxl-6 col-xl-6 col-md-6">
-          <label className="form-label ">Name</label>
-          <input type="text" className={`form-control text-base ${errors.name ? "is-invalid" : ""}`} {...register("name", { required: "Name is required." })} readOnly />
-          {errors.name && (<div className="invalid-feedback">{errors.name.message}</div>)}
+        <div>
+          <Label>Name</Label>
+          <Input {...register("name")} readOnly />
         </div>
 
         {/* Email */}
-        <div className="col-xxl-6 col-xl-6 col-md-6">
-          <label className="form-label ">Email</label>
-          <input type="email" className={`form-control ${errors.email ? "is-invalid" : ""}`} {...register("email", { required: "Email is required." })} readOnly />
-          {errors.email && (<div className="invalid-feedback">{errors.email.message}</div>)}
+        <div>
+          <Label>Email</Label>
+          <Input {...register("email")} readOnly />
         </div>
 
-        {/* Mobile No */}
-        <div className="col-xxl-6 col-xl-6 col-md-6">
-          <label className="form-label ">
-            Mobile No{" "}
-            <span className="text-danger" style={{ fontSize: "1.2em" }}>
-              *
-            </span>
-          </label>
-          <input type="number" className={`form-control text-base ${errors.mobile_no ? "is-invalid" : ""}`} {...register("mobile_no", {
-            required: "Mobile No is required.", minLength: {
-              value: 10,
-              message: "Mobile number must be 10 digits."
-            },
-            maxLength: {
-              value: 10,
-              message: "Mobile number must be 10 digits."
-            },
-          })} />
-          {errors.mobile_no && (<div className="invalid-feedback">{errors.mobile_no.message}</div>)}
+        {/* Mobile */}
+        <div className="h-[60px]">
+          <Label>
+            Mobile No <span className="text-red-500">*</span>
+          </Label>
+          <Input
+            type="text"
+            inputMode="numeric"
+            placeholder="10 digit mobile number"
+            {...register("mobile_no", {
+              required: "Mobile number is required",
+              pattern: {
+                value: /^[0-9]{10}$/,
+                message: "Mobile number must be exactly 10 digits",
+              },
+            })}
+          />
+          {errors.mobile_no && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.mobile_no.message}
+            </p>
+          )}
         </div>
 
         {/* Role */}
-        <div className="col-xxl-6 col-xl-6 col-md-6">
-          <label className="form-label ">Role</label>
-          <input type="text" className={`form-control ${errors.role ? "is-invalid" : ""} text-sm`} {...register("role", { required: "Role is required." })} readOnly />
-          {errors.role && (<div className="invalid-feedback">{errors.role.message}</div>)}
-        </div>
+        {/* <div>
+          <Label>Role</Label>
+          <Input {...register("role")} readOnly />
+        </div> */}
 
         {/* Subrole */}
-        <div className="col-xxl-6 col-xl-6 col-md-6">
-          <label className="form-label ">Subrole</label>
-          <input type="text" className="form-control text-sm" {...register("subrole")} readOnly />
-        </div>
+        {/* <div>
+          <Label>Subrole</Label>
+          <Input {...register("subrole")} readOnly />
+        </div> */}
 
         {/* Gender */}
-        <div className="col-xxl-6 col-xl-6 col-md-6">
-          <label className="form-label ">
-            Gender <span className="text-danger">*</span>
-          </label>
-          <select className={`form-select ${errors.gender ? "is-invalid" : ""}`} {...register("gender", { required: "Gender is required." })}>
-            <option value="">Select Gender</option>
-            <option value="Male">Male</option>
-            <option value="Female">Female</option>
-            <option value="Other">Other</option>
-          </select>
-          {errors.gender && (<div className="invalid-feedback">{errors.gender.message}</div>)}
+        <div>
+          <Label>
+            Gender <span className="text-red-500">*</span>
+          </Label>
+          <Controller
+            name="gender"
+            control={control}
+            rules={{ required: "Gender is required" }}
+            render={({ field }) => (
+              <Select value={field.value} onValueChange={field.onChange}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select gender" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Male">Male</SelectItem>
+                  <SelectItem value="Female">Female</SelectItem>
+                  <SelectItem value="Other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
+          />
+          {errors.gender && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.gender.message}
+            </p>
+          )}
         </div>
 
-        {/* Batch - Updated with dynamic data */}
-        <div className="col-xxl-6 col-xl-6 col-md-6">
-          <label className="form-label ">Batch </label>
-          {loadingBatches ? (<select className="form-select" disabled>
-            <option>Loading batches...</option>
-          </select>) : error1 ? (<select className="form-select" disabled>
-            <option className="text-danger">{error1}</option>
-          </select>) : (<select className="form-select" {...register("batch")}>
-            <option value="">Select batch</option>
-            {batches.map((batch) => (<option key={batch.id} value={batch.batch_id}>
-              {batch.batch_name} - {batch.trainer.join(", ")} -{" "}
-              {batch.center}
-            </option>))}
-          </select>)}
+        {/* Batch */}
+        <div>
+          <Label>Batch</Label>
+          <Controller
+            name="batch"
+            control={control}
+            render={({ field }) => (
+              <Select value={field.value} onValueChange={field.onChange}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select batch" />
+                </SelectTrigger>
+                <SelectContent>
+                  {loadingBatches ? (
+                    <SelectItem value="loading">Loading...</SelectItem>
+                  ) : (
+                    batches.map((b) => (
+                      <SelectItem key={b.id} value={b.batch_id}>
+                        {b.batch_name} - {b.center}
+                      </SelectItem>
+                    ))
+                  )}
+                </SelectContent>
+              </Select>
+            )}
+          />
         </div>
 
-        {/* English Communication Skills */}
-        <div className="col-xxl-6 col-xl-6 col-md-6">
-          <label className="form-label ">
-            English Communication Skills <span className="text-danger">*</span>
-          </label>
-          <select className={`form-select ${errors.eng_comm_skills ? "is-invalid" : ""}`} {...register("eng_comm_skills", {
-            required: "English communication skill rating is required.",
-          })}>
-            <option value="">Select</option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-          </select>
-          {errors.eng_comm_skills && (<div className="invalid-feedback">{errors.eng_comm_skills.message}</div>)}
+        {/* English Communication */}
+        <div>
+          <Label>
+            English Communication <span className="text-red-500">*</span>
+          </Label>
+          <Controller
+            name="eng_comm_skills"
+            control={control}
+            rules={{ required: "English communication rating is required" }}
+            render={({ field }) => (
+              <Select value={field.value} onValueChange={field.onChange}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Rate 1–5" />
+                </SelectTrigger>
+                <SelectContent>
+                  {[1, 2, 3, 4, 5].map((v) => (
+                    <SelectItem key={v} value={String(v)}>
+                      {v}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          />
+          {errors.eng_comm_skills && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.eng_comm_skills.message}
+            </p>
+          )}
         </div>
 
         {/* Humble Background */}
-        <div className="col-xxl-6 col-xl-6 col-md-6">
-          <label className="form-label ">
-            Humble Background <span className="text-danger">*</span>
-          </label>
-          <select className={`form-select ${errors.humble_background ? "is-invalid" : ""}`} {...register("humble_background", {
-            required: "Please select humble background option.",
-          })}>
-            <option value="">Select</option>
-            <option value="Y">Yes</option>
-            <option value="N">No</option>
-          </select>
-          {errors.humble_background && (<div className="invalid-feedback">
-            {errors.humble_background.message}
-          </div>)}
+        <div>
+          <Label>
+            Humble Background <span className="text-red-500">*</span>
+          </Label>
+          <Controller
+            name="humble_background"
+            control={control}
+            rules={{ required: "Required" }}
+            render={({ field }) => (
+              <Select value={field.value} onValueChange={field.onChange}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select option" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Y">Yes</SelectItem>
+                  <SelectItem value="N">No</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
+          />
+          {errors.humble_background && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.humble_background.message}
+            </p>
+          )}
         </div>
 
         {/* Laptop */}
-        <div className="col-xxl-6 col-xl-6 col-md-6">
-          <label className="form-label ">
-            Laptop <span className="text-danger">*</span>
-          </label>
-          <select className={`form-select ${errors.laptop ? "is-invalid" : ""}`} {...register("laptop", { required: "Please select laptop option." })}>
-            <option value="">Select</option>
-            <option value="Y">Yes</option>
-            <option value="N">No</option>
-          </select>
-          {errors.laptop && (<div className="invalid-feedback">{errors.laptop.message}</div>)}
+        <div>
+          <Label>
+            Laptop <span className="text-red-500">*</span>
+          </Label>
+          <Controller
+            name="laptop"
+            control={control}
+            rules={{ required: "Required" }}
+            render={({ field }) => (
+              <Select value={field.value} onValueChange={field.onChange}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Laptop availability" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Y">Yes</SelectItem>
+                  <SelectItem value="N">No</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
+          />
+          {errors.laptop && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.laptop.message}
+            </p>
+          )}
         </div>
 
         {/* Profession */}
-        <div className="col-xxl-6 col-xl-6 col-md-6">
-          <label className="form-label">
-            Profession <span className="text-danger">*</span>
-          </label>
-          <input type="text" className={`form-control text-base ${errors.profession ? "is-invalid" : ""}`} {...register("profession", {
-            required: "Profession is required.", pattern: {
-              value: /^[A-Za-z\s]+$/,
-              message: "Profession should contain only letters."
-            }
-          },)} />
-          {errors.profession && (<div className="invalid-feedback">{errors.profession.message}</div>)}
+        <div>
+          <Label>
+            Profession <span className="text-red-500">*</span>
+          </Label>
+          <Input
+            {...register("profession", {
+              required: "Profession is required",
+              pattern: {
+                value: /^[A-Za-z\s]+$/,
+                message: "Only letters allowed",
+              },
+            })}
+          />
+          {errors.profession && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.profession.message}
+            </p>
+          )}
         </div>
 
         {/* Selected Status */}
-        <div className="col-xxl-6 col-xl-6 col-md-6">
-          <label className="form-label">
-            Selected Status <span className="text-danger">*</span>
-          </label>
-          <select className={`form-select ${errors.selected_status ? "is-invalid" : ""}`} {...register("selected_status", {
-            required: "Please select a status.",
-          })}>
-            <option value="">Select</option>
-            <option value="Y">Yes</option>
-            <option value="N">No</option>
-            <option value="TBD">To Be Determined</option>
-          </select>
-          {errors.selected_status && (<div className="invalid-feedback">{errors.selected_status.message}</div>)}
+        <div>
+          <Label>
+            Selected Status <span className="text-red-500">*</span>
+          </Label>
+          <Controller
+            name="selected_status"
+            control={control}
+            rules={{ required: "Selection status is required" }}
+            render={({ field }) => (
+              <Select value={field.value} onValueChange={field.onChange}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Y">Yes</SelectItem>
+                  <SelectItem value="N">No</SelectItem>
+                  <SelectItem value="TBD">TBD</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
+          />
+          {errors.selected_status && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.selected_status.message}
+            </p>
+          )}
         </div>
 
         {/* Level */}
-        <div className="col-xxl-6 col-xl-6 col-md-6">
-          <label className="form-label">
-            Level <span className="text-danger">*</span>
-          </label>
-          <select className={`form-select ${errors.level ? "is-invalid" : ""}`} {...register("level", { required: "Please select level." })}>
-            <option value="">Select</option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-          </select>
-          {errors.level && (<div className="invalid-feedback">{errors.level.message}</div>)}
+        <div>
+          <Label>
+            Level <span className="text-red-500">*</span>
+          </Label>
+          <Controller
+            name="level"
+            control={control}
+            rules={{ required: "Level is required" }}
+            render={({ field }) => (
+              <Select value={field.value} onValueChange={field.onChange}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select level" />
+                </SelectTrigger>
+                <SelectContent>
+                  {[1, 2, 3, 4, 5].map((l) => (
+                    <SelectItem key={l} value={String(l)}>
+                      {l}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          />
+          {errors.level && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.level.message}
+            </p>
+          )}
         </div>
 
         {/* Source */}
-        <div className="col-xxl-6 col-xl-6 col-md-6">
-          <label className="form-label">
-            Source <span className="text-danger">*</span>
-          </label>
-          <input type="text" className={`form-control ${errors.source ? "is-invalid" : ""}`} {...register("source", {
-            required: "Source is required.", pattern: {
-              value: /^[A-Za-z\s]+$/,
-              message: "Source should contain only letters."
-            }
-          })} />
-          {errors.source && (<div className="invalid-feedback">{errors.source.message}</div>)}
+        <div>
+          <Label>
+            Source <span className="text-red-500">*</span>
+          </Label>
+          <Input
+            {...register("source", {
+              required: "Source is required",
+            })}
+          />
+          {errors.source && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.source.message}
+            </p>
+          )}
         </div>
 
         {/* Remarks */}
-        <div className="col-12">
-          <label className="form-label">
-            Remarks <span className="text-danger">*</span>
-          </label>
-          <textarea
-            className={`form-control ${errors.remarks ? "is-invalid" : ""}`}
+        <div className="md:col-span-2">
+          <Label>
+            Remarks <span className="text-red-500">*</span>
+          </Label>
+          <Textarea
             {...register("remarks", {
-              required: "Remarks are required.",
+              required: "Remarks are required",
               minLength: {
                 value: 3,
-                message: "Remarks must be at least 3 characters."
+                message: "Minimum 3 characters required",
               },
               maxLength: {
                 value: 200,
-                message: "Remarks cannot exceed 200 characters."
-              }
+                message: "Maximum 200 characters allowed",
+              },
             })}
           />
-          {errors.remarks && (<div className="invalid-feedback">{errors.remarks.message}</div>)}
+          {errors.remarks && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.remarks.message}
+            </p>
+          )}
         </div>
 
-        {/* Submit Button */}
-        <div className="col-12 d-flex justify-content-center">
-          <button type="submit" className="custom-button-interview">
-            Update Candidate
-          </button>
+        {/* Submit */}
+        <div className="md:col-span-2 flex justify-center mt-6">
+          <Button type="submit">Update Candidate</Button>
         </div>
       </form>
-    </div>
 
-
-    {submitSuccess && (<div className="modal fade show" style={{ display: "block", background: "rgba(0,0,0,0.5)" }}>
-      <div className="modal-dialog modal-dialog-centered">
-        <div className="modal-content">
-          <div className="modal-header">
-            <h5 className="modal-title">INFORMATION</h5>
-            <button type="button" className="btn-close" onClick={() => handleOnclosemodal()}></button>
-          </div>
-
-          <div className="modal-body">
-            <p>Candidate data updated successfully!</p>
-          </div>
-
-          <div className="modal-footer">
-            <button type="button" className="btn btn-primary" onClick={() => handleOnclosemodal()} data-bs-dismiss="modal">
-              Ok
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>)}
-  </div>);
+      {/* Success Dialog */}
+      <Dialog open={submitSuccess} onOpenChange={setSubmitSuccess}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Success</DialogTitle>
+            <DialogDescription>
+              Candidate data updated successfully.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button onClick={() => navigate("/Admission_table")}>
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </Card>
+  );
 };
+
 export default InterviewCandidate;
