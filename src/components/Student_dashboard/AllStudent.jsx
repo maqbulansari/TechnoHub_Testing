@@ -1,12 +1,35 @@
-import React, { useState, useEffect, useContext } from 'react';
-import axios from 'axios';
-import { AuthContext } from '../../contexts/authContext';
-import Loading from '@/Loading';
+import React, { useState, useEffect, useContext, useMemo } from "react";
+import axios from "axios";
+import { AuthContext } from "../../contexts/authContext";
+import Loading from "@/Loading";
+
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 
 const AllStudent = () => {
   const [studentData, setStudentData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const [search, setSearch] = useState("");
+  const [genderFilter, setGenderFilter] = useState("all");
+  const [batchFilter, setBatchFilter] = useState("all");
+
   const { API_BASE_URL } = useContext(AuthContext);
 
   useEffect(() => {
@@ -16,15 +39,12 @@ const AllStudent = () => {
         const response = await axios.get(
           `${API_BASE_URL}/Learner/interviewee_student/?selected_status=Y`,
           {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+            headers: { Authorization: `Bearer ${token}` },
           }
         );
         setStudentData(response.data);
       } catch (err) {
         setError(err.message);
-        console.log(err);
       } finally {
         setLoading(false);
       }
@@ -33,54 +53,114 @@ const AllStudent = () => {
     fetchStudentData();
   }, [API_BASE_URL]);
 
-  if (loading) {
-    return (
-      <Loading/>
-    );
-  }
+  const filteredStudents = useMemo(() => {
+    return studentData.filter((student) => {
+      const matchesSearch =
+        student.name.toLowerCase().includes(search.toLowerCase()) ||
+        student.email.toLowerCase().includes(search.toLowerCase());
 
-  if (error) {
-    return <div className="error">Error fetching data: {error}</div>;
-  }
+      const matchesGender =
+        genderFilter === "all" || student.gender === genderFilter;
+
+      const matchesBatch =
+        batchFilter === "all" || student.batch === batchFilter;
+
+      return matchesSearch && matchesGender && matchesBatch;
+    });
+  }, [studentData, search, genderFilter, batchFilter]);
+
+  if (loading) return <Loading />;
+
+  if (error)
+    return (
+      <div className="text-red-500 text-center py-10">
+        Error fetching data: {error}
+      </div>
+    );
 
   return (
-    <div className='bg-gray-50'>
-      <div className="student-info-containerS">
-        <h2 className="sponsornowHeading pt-2">
-          Student Information
-        </h2>
-        <div className="table-wrapperS overflow-y-auto ">
-          <table className="student-tableS">
-            <thead className='thead z-2 sticky top-0'>
-              <tr>
-                <th className=''>Name</th>
-                <th className=''>Email</th>
-                <th className=''>Mobile No</th>
-                <th className=''>Gender</th>
-                <th className=''>Batch</th>
-              </tr>
-            </thead>
-            <tbody>
-              {studentData.length > 0 ? (
-                studentData.map((student) => (
-                  <tr key={student.id || student.email} className='tr'>
-                    <td className="student-nameS capitalize text-nowrap">{student.name}</td>
-                    <td>{student.email}</td>
-                    <td>{student.mobile_no}</td>
-                    <td>{student.gender}</td>
-                    <td><span className="batch-tagS uppercase">{student.batch || "N/A"}</span></td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="5" className="text-center py-4">
-                    No students found
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+    <div className="p-6 mt-16 space-y-6">
+      <h2 className="text-2xl font-semibold">Students</h2>
+
+      {/* Filters */}
+      <div className="flex flex-col md:flex-row gap-4">
+        <Input
+          placeholder="Search by name or email..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="md:w-1/3"
+        />
+
+        <Select value={genderFilter} onValueChange={setGenderFilter}>
+          <SelectTrigger className="md:w-40">
+            <SelectValue placeholder="Gender" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All</SelectItem>
+            <SelectItem value="Male">Male</SelectItem>
+            <SelectItem value="Female">Female</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select value={batchFilter} onValueChange={setBatchFilter}>
+          <SelectTrigger className="md:w-40">
+            <SelectValue placeholder="Batch" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All</SelectItem>
+            {[...new Set(studentData.map((s) => s.batch))].map(
+              (batch) =>
+                batch && (
+                  <SelectItem key={batch} value={batch}>
+                    {batch}
+                  </SelectItem>
+                )
+            )}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Table */}
+      <div className="rounded-lg border bg-white shadow-sm overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Name</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>Mobile</TableHead>
+              <TableHead>Gender</TableHead>
+              <TableHead>Batch</TableHead>
+            </TableRow>
+          </TableHeader>
+
+          <TableBody>
+            {filteredStudents.length > 0 ? (
+              filteredStudents.map((student) => (
+                <TableRow key={student.id || student.email}>
+                  <TableCell className="font-medium capitalize">
+                    {student.name}
+                  </TableCell>
+                  <TableCell>{student.email}</TableCell>
+                  <TableCell>{student.mobile_no}</TableCell>
+                  <TableCell>
+                    <Badge variant="outline">{student.gender}</Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Badge className="uppercase">
+                      {student.batch || "N/A"}
+                    </Badge>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={5} className="text-center py-6">
+                  No students found
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
       </div>
     </div>
   );

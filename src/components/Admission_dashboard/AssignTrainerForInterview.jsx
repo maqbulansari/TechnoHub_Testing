@@ -1,360 +1,292 @@
-import React, { useContext, useState, useEffect, useRef } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { AuthContext } from "../../contexts/authContext";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
 const AssignTrainerForInterview = () => {
   const { batches, fetchBatches, API_BASE_URL } = useContext(AuthContext);
-  const [loading, setLoading] = useState(true);
-  const [roleType, setRoleType] = useState(""); // "trainer" or "student"
+  const token = localStorage.getItem("accessToken");
+
   const [allUsers, setAllUsers] = useState([]);
+  const [loadingUsers, setLoadingUsers] = useState(false);
+  const [roleType, setRoleType] = useState("");
   const [selectedUsers, setSelectedUsers] = useState([]);
-  const [accessToken, setAccessToken] = useState("");
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const dropdownRef = useRef(null);
-  const navigate = useNavigate();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState(null);
-  const [submitSuccess, setSubmitSuccess] = useState(false);
-  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [batchId, setBatchId] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalTitle, setModalTitle] = useState("");
   const [modalMessage, setModalMessage] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
 
-
-
-  const newaccessToken = localStorage.getItem("accessToken");
-
-  const fetchUsersByRole = async (role) => {
-    if (!role) return;
-    setLoading(true);
-    try {
-      const endpoint =
-        role === "trainer"
-          ? `${API_BASE_URL}/interview-schedules/users-by-role/?role=enabler&subrole=trainer`
-          : `${API_BASE_URL}/interview-schedules/users-by-role/?role=learner&subrole=students`;
-
-      const response = await axios.get(endpoint, {
-        headers: { Authorization: `Bearer ${newaccessToken}` },
-      });
-
-      if (response.status === 200) setAllUsers(response.data);
-    } catch (error) {
-      console.error("Error fetching users:", error.response?.data || error.message);
-    } finally {
-      setLoading(false);
-      setSelectedUsers([]); // reset selection on role change
-    }
-  };
+  const {
+    register,
+    setValue,
+    clearErrors,
+    formState: { errors },
+  } = useForm();
 
   useEffect(() => {
     if (fetchBatches) fetchBatches();
   }, []);
 
+  // Fetch users whenever role changes
   useEffect(() => {
-    const token = localStorage.getItem("accessToken");
-    if (token) setAccessToken(token);
-  }, []);
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsDropdownOpen(false);
+    const fetchUsers = async () => {
+      if (!roleType) return;
+      setLoadingUsers(true);
+      try {
+        const endpoint =
+          roleType === "trainer"
+            ? `${API_BASE_URL}/interview-schedules/users-by-role/?role=enabler&subrole=trainer`
+            : `${API_BASE_URL}/interview-schedules/users-by-role/?role=learner&subrole=students`;
+        const res = await axios.get(endpoint, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setAllUsers(res.data);
+        setSelectedUsers([]);
+        setSearchTerm("");
+        setValue("user_ids", []);
+        clearErrors("user_ids");
+      } catch (err) {
+        setModalTitle("Error");
+        setModalMessage("Failed to fetch users");
+        setModalOpen(true);
+      } finally {
+        setLoadingUsers(false);
       }
     };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+    fetchUsers();
+  }, [roleType, API_BASE_URL, token, setValue, clearErrors]);
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    setValue,
-    setError,
-    clearErrors,
-    formState: { errors },
-  } = useForm();
-
-  const handleUserChange = (userId) => {
+  // Handle checkbox selection
+  const handleUserChange = (id) => {
     setSelectedUsers((prev) => {
-      let updated = prev.includes(userId)
-        ? prev.filter((id) => id !== userId)
-        : [...prev, userId];
-      setValue("user_ids", updated, { shouldValidate: true });
-      clearErrors("user_ids");
+      const updated = prev.includes(id)
+        ? prev.filter((x) => x !== id)
+        : [...prev, id];
+      setValue("user_ids", updated);
+      if (updated.length > 0) clearErrors("user_ids");
       return updated;
     });
   };
 
+  // Filter users based on search term
   const filteredUsers = allUsers.filter((user) =>
-    `${user.first_name} ${user.last_name} ${user.email}`.toLowerCase().includes(searchTerm.toLowerCase())
+    `${user.first_name} ${user.last_name} ${user.email}`
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase())
   );
 
-  const onSubmit = async (data) => {
-    if (selectedUsers.length === 0) {
-      setError("user_ids", { type: "manual", message: "At least one user is required" });
+  const handleSubmitForm = async (e) => {
+    e.preventDefault();
+
+    const newErrors = {};
+    if (!roleType) newErrors.roleType = "Role is required";
+    if (selectedUsers.length === 0)
+      newErrors.user_ids = `${roleType === "trainer" ? "Trainer(s)" : "Student(s)"} is required`;
+    if (!batchId) newErrors.batchId = "Batch is required";
+
+    if (Object.keys(newErrors).length > 0) {
+      // setErrors manually
+      Object.entries(newErrors).forEach(([key, val]) =>
+        setValue(key, val)
+      );
       return;
     }
 
-    setIsSubmitting(true);
-    setSubmitError(null);
-    setSubmitSuccess(false);
-
+    setSubmitting(true);
     try {
-      const payload = {
-        batches: [Number(data.batch_id)],
-        user: selectedUsers,
-        is_approved: true,
-      };
-
-      const response = await axios.post(
+      await axios.post(
         `${API_BASE_URL}/interview-schedules/`,
-        payload,
         {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        }
+          batches: [parseInt(batchId)],
+          user: selectedUsers.map((id) => parseInt(id)),
+          is_approved: true,
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      setSuccessMessage(
-        response.data?.message || "Interview schedule(s) created successfully"
-      );
-      setSubmitSuccess(true);
+      setModalTitle("Success");
+      setModalMessage("Interview schedule assigned successfully!");
+      setModalOpen(true);
 
-      reset();
-      setSelectedUsers([]);
       setRoleType("");
-      setAllUsers([]);
-    }
-
-    catch (error) {
-      const data = error.response?.data;
-
-      if (data?.non_field_errors?.length) {
-        setModalMessage(data.non_field_errors[0]); // first error message
-        setShowErrorModal(true);
-      } else {
-        setSubmitError(data?.message || "Failed to assign batch");
-      }
-    }
-
-    finally {
-      setIsSubmitting(false);
+      setSelectedUsers([]);
+      setBatchId("");
+      setSearchTerm("");
+    } catch (err) {
+      setModalTitle("Error");
+      setModalMessage(err.response?.data?.message || "Failed to assign interview");
+      setModalOpen(true);
+    } finally {
+      setSubmitting(false);
     }
   };
 
   return (
-    <div className="assignABT-batch-container">
-      <h2 className="sponsornowHeading pt-2 mb-4 text-center">
-        Assign Trainer / Student For Interview
-      </h2>
+    <div className="max-w-2xl mx-auto mt-20 px-4">
+      <Card className="p-6 space-y-6 shadow-sm">
+        <h2 className="text-2xl font-semibold text-center">
+          Assign Trainer / Student For Interview
+        </h2>
 
-      <div className="assignABT-form-container border border-e-gray-300">
-        <form onSubmit={handleSubmit(onSubmit)}>
-          {/* Hidden input to sync selected users */}
-          <input
-            type="hidden"
-            {...register("user_ids", { required: "Select at least one user" })}
-            value={selectedUsers}
-          />
-
-          {/* Role Type Dropdown */}
-          <div className="form-groupABT">
-            <label className="form-labelABT">Select Role <span className="text-danger">*</span></label>
-            <select
-              className="form-selectABT"
-              value={roleType}
-              onChange={(e) => {
-                setRoleType(e.target.value);
-                fetchUsersByRole(e.target.value);
-              }}
-            >
-              <option value="">-- Select Role --</option>
-              <option value="trainer">Trainer</option>
-              <option value="student">Student</option>
-            </select>
+        <form onSubmit={handleSubmitForm} className="space-y-6" noValidate>
+          {/* Role Select */}
+          <div>
+            <label className="block text-gray-900 font-medium mb-1">
+              Select Role <span className="text-red-500">*</span>
+            </label>
+            <Select value={roleType} onValueChange={setRoleType} disabled={submitting}>
+              <SelectTrigger>
+                <SelectValue placeholder="Choose role" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="trainer">Trainer</SelectItem>
+                <SelectItem value="student">Student</SelectItem>
+              </SelectContent>
+            </Select>
+            {errors.roleType && (
+              <p className="text-red-500 text-sm mt-1">{errors.roleType}</p>
+            )}
           </div>
 
-          {/* User Multi-Select */}
+          {/* Users Multi-Select */}
           {roleType && (
-            <div className="form-groupABT">
-              <label className="form-labelABT">
-                {roleType === "trainer"
-                  ? "Select Trainer(s) *"
-                  : "Select Student(s) *"}
+            <div className="flex flex-col gap-1">
+              <label className="block font-medium text-gray-900 mb-1">
+                Select {roleType === "trainer" ? "Trainer(s)" : "Student(s)"}{" "}
+                <span className="text-red-500">*</span>
               </label>
-              <div className="relative" ref={dropdownRef}>
-                <div
-                  className={`form-selectABT cursor-pointer flex items-center justify-between min-h-[42px]`}
-                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                >
-                  <div className="flex flex-wrap gap-1 flex-1">
-                    {selectedUsers.length === 0 ? (
-                      <span>-- Select {roleType === "trainer" ? "Trainer(s)" : "Student(s)"} --</span>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className="w-full justify-between">
+                    {selectedUsers.length > 0
+                      ? `${selectedUsers.length} selected`
+                      : `Select ${roleType === "trainer" ? "Trainer(s)" : "Student(s)"}`}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="p-0 w-[300px]">
+                  <div className="p-2 border-b">
+                    <input
+                      type="text"
+                      placeholder="Search users..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="w-full px-2 py-1 border rounded focus:outline-none"
+                    />
+                  </div>
+                  <ScrollArea className="max-h-60">
+                    {loadingUsers ? (
+                      <p className="text-center text-gray-500 py-2">Loading...</p>
+                    ) : filteredUsers.length === 0 ? (
+                      <p className="text-center text-gray-500 py-2">No users found</p>
                     ) : (
-                      <span className="inline-flex items-center px-2 py-2 rounded bg-blue-100 text-blue-800 text-sm">
-                        {selectedUsers.length} {roleType === "trainer" ? "trainer(s)" : "student(s)"} selected
-                      </span>
+                      filteredUsers.map((user) => (
+                        <label
+                          key={user.id}
+                          className="flex items-center px-3 py-2 cursor-pointer hover:bg-gray-50"
+                        >
+                          <input
+                            type="checkbox"
+                            className="mr-2 w-4 h-4 rounded"
+                            checked={selectedUsers.includes(user.id)}
+                            onChange={() => handleUserChange(user.id)}
+                          />
+                          <div className="flex flex-col">
+                            <span className="text-sm font-medium text-gray-700">
+                              {user.first_name} {user.last_name}
+                            </span>
+                            <span className="text-xs text-gray-500">{user.email}</span>
+                          </div>
+                        </label>
+                      ))
                     )}
-                  </div>
-                  {selectedUsers.length > 0 && (
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedUsers([]);
-                        setValue("user_ids", []);
-                        clearErrors("user_ids");
-                      }}
-                      className="mr-2 text-gray-400 hover:text-gray-600"
-                      title="Clear all"
-                    >
-                      ×
-                    </button>
-                  )}
-                </div>
-
-                {isDropdownOpen && (
-                  <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-72 overflow-hidden">
-                    {/* Search Input */}
-                    <div className="p-2 border-b border-gray-200 sticky top-0 bg-white">
-                      <input
-                        type="text"
-                        placeholder="Search..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                        onClick={(e) => e.stopPropagation()}
-                      />
-                    </div>
-
-                    <div className="max-h-48 overflow-y-auto">
-                      {loading ? (
-                        <div className="px-3 py-4 text-center text-gray-500">Loading...</div>
-                      ) : filteredUsers.length === 0 ? (
-                        <div className="text-center py-2 text-gray-500">No users found</div>
-                      ) : (
-                        filteredUsers.map((user) => (
-                          <label
-                            key={user.id}
-                            className={`flex items-center px-3 py-3 cursor-pointer hover:bg-gray-50 ${selectedUsers.includes(user.id) ? "bg-blue-50" : ""
-                              }`}
-                          >
-                            <input
-                              type="checkbox"
-                              checked={selectedUsers.includes(user.id)}
-                              onChange={() => handleUserChange(user.id)}
-                              className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-                            />
-                            <div className="ml-3 flex gap-2 flex-row">
-                              <span className="text-sm font-medium text-gray-700 capitalize">
-                                {user.first_name} {user.last_name}
-                              </span>
-                              <span className="text-sm font-medium text-gray-500 block">{user.email}</span>
-                            </div>
-                          </label>
-                        ))
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-              {errors.user_ids && <p className="text-red-500 mt-1">{errors.user_ids.message}</p>}
+                  </ScrollArea>
+                </PopoverContent>
+              </Popover>
+              <input type="hidden" {...register("user_ids")} />
+              {errors.user_ids && (
+                <p className="text-red-500 text-sm mt-1">{errors.user_ids}</p>
+              )}
             </div>
           )}
 
-
-          {/* Batch Selection */}
-          <div className="form-groupABT">
-            <label className="form-labelABT">Select Batch <span className="text-danger">*</span></label>
-            <select
-              {...register("batch_id", { required: "Batch is required" })}
-              className="form-selectABT capitalize"
-              disabled={isSubmitting}
+          {/* Batch Select */}
+          <div>
+            <label className="block text-gray-900 font-medium mb-1">
+              Select Batch <span className="text-red-500">*</span>
+            </label>
+            <Select
+              value={batchId}
+              onValueChange={setBatchId}
+              disabled={submitting}
             >
-              <option value="">-- Select Batch --</option>
-              {batches.map((batch) => (
-                <option key={batch.batch_id} value={batch.id}>
-                  {batch.batch_name} - {batch.center}
-                </option>
-              ))}
-            </select>
-            {errors.batch_id && <p className="text-red-500">{errors.batch_id.message}</p>}
+              <SelectTrigger>
+                <SelectValue placeholder="Choose batch" />
+              </SelectTrigger>
+              <SelectContent>
+                {batches.map((batch) => (
+                  <SelectItem key={batch.batch_id} value={batch.batch_id.toString()}>
+                    {batch.batch_name} - {batch.center}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {errors.batchId && (
+              <p className="text-red-500 text-sm mt-1">{errors.batchId}</p>
+            )}
           </div>
 
-          <button type="submit" className="submit-buttonABT" disabled={isSubmitting}>
-            Assign
-          </button>
+          <div className="flex justify-center">
+            <Button type="submit" disabled={submitting} className="w-1/2">
+              {submitting ? "Assigning..." : "Assign"}
+            </Button>
+          </div>
         </form>
-      </div>
-      {showErrorModal && (
-        <div
-          className="modal fade show"
-          style={{ display: "block", background: "rgba(0,0,0,0.5)" }}
-        >
-          <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title ">Scheduling</h5>
-                <button
-                  type="button"
-                  className="btn-close"
-                  onClick={() => setShowErrorModal(false)}
-                ></button>
-              </div>
+      </Card>
 
-              <div className="modal-body">
-                <p>{modalMessage}</p>
-              </div>
+      {/* Modal */}
+      <Dialog open={modalOpen} onOpenChange={setModalOpen}>
+        <DialogContent className="sm:max-w-md p-0 gap-0 overflow-hidden [&>button]:hidden rounded-xl">
+          <DialogHeader className="px-5 pt-4 pb-4 space-y-1">
+            <DialogTitle className="text-xl pb-2 font-semibold">
+              {modalTitle}
+            </DialogTitle>
+            <DialogDescription className="text-sm pb-2 text-muted-foreground leading-relaxed">
+              {modalMessage}
+            </DialogDescription>
+          </DialogHeader>
 
-              <div className="modal-footer">
-                <button
-                  type="button"
-                  className="btn btn-primary"
-                  onClick={() => setShowErrorModal(false)}
-                >
-                  Ok
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-      {submitSuccess && (
-        <div
-          className="modal fade show"
-          style={{ display: "block", background: "rgba(0,0,0,0.5)" }}
-        >
-          <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Success</h5>
-                <button
-                  type="button"
-                  className="btn-close"
-                  onClick={() => setSubmitSuccess(false)}
-                ></button>
-              </div>
-
-              <div className="modal-body">
-                <p>{successMessage}</p>
-              </div>
-
-              <div className="modal-footer">
-                <button
-                  type="button"
-                  className="btn btn-primary"
-                  onClick={() => setSubmitSuccess(false)}
-                >
-                  Ok
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
+          <DialogFooter className="px-3 pb-3 bg-muted/30">
+            <Button
+              onClick={() => setModalOpen(false)}
+              className="w-full sm:w-auto"
+            >
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
