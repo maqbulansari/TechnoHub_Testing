@@ -1,134 +1,173 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useMemo } from "react";
 import axios from "axios";
-import "bootstrap/dist/css/bootstrap.min.css";
-import { DataTable } from "primereact/datatable";
-import { Column } from "primereact/column";
-import { Button } from "primereact/button";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../contexts/authContext";
 import Loading from "@/Loading";
 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+
 const AdmissionTable = () => {
-    const [data, setData] = useState([]);
-    const navigate = useNavigate();
-    const [hoveredRow, setHoveredRow] = useState(null);
-    const [accessToken, setAccessToken] = useState("");
-    const [loading, setLoading] = useState(true);
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
 
-    const { trainers, admin, API_BASE_URL, fetchTrainers, fetchAdmin, user } = useContext(AuthContext);
+  const navigate = useNavigate();
+  const { API_BASE_URL, fetchTrainers, fetchAdmin, user } =
+    useContext(AuthContext);
 
-    const trainerName = `${user?.first_name} ${user?.last_name}` || "N/A";
+  const trainerName = `${user?.first_name || ""} ${user?.last_name || ""}`.trim();
 
-    // Fetch trainers and admin on mount
-    useEffect(() => {
-        if (fetchTrainers) fetchTrainers();
-        if (fetchAdmin) fetchAdmin();
-    }, [fetchTrainers, fetchAdmin]);
+  useEffect(() => {
+    if (fetchTrainers) fetchTrainers();
+    if (fetchAdmin) fetchAdmin();
+  }, []);
 
-    // Fetch real admission data from backend
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const token = localStorage.getItem("accessToken");
-                if (token) setAccessToken(token);
-
-                const response = await axios.get(`${API_BASE_URL}/Learner/`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                setData(response.data);
-            } catch (error) {
-                console.error("Error fetching data:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchData();
-    }, [API_BASE_URL]);
-
-    const nameTemplate = (rowData) => <span className="table-cell-text">{rowData.name}</span>;
-    const emailTemplate = (rowData) => <span className="table-cell-text">{rowData.email}</span>;
-    const mobileTemplate = (rowData) => <span className="table-cell-text">{rowData.mobile_no || "N/A"}</span>;
-    const interviewByTemplate = (rowData) => <span className="table-cell-text">{rowData.interview_by || "N/A"}</span>;
-
-    const handleEditInterviewer = async (rowData) => {
-        const updatedData = data.map((item) =>
-            item.id === rowData.id ? { ...item, interview_by: trainerName } : item
-        );
-        setData(updatedData);
-
-        try {
-            await axios.put(
-                `${API_BASE_URL}/Learner/${rowData.id}/update_selected/`,
-                { ...rowData, interview_by: trainerName },
-                { headers: { Authorization: `Bearer ${accessToken}` } }
-            );
-            console.log("Interviewer updated successfully");
-        } catch (error) {
-            console.error("Error updating interviewer:", error);
-        }
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const token = localStorage.getItem("accessToken");
+        const response = await axios.get(`${API_BASE_URL}/Learner/`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setData(response.data);
+      } catch (err) {
+        console.error("Error fetching data", err);
+      } finally {
+        setLoading(false);
+      }
     };
+    fetchData();
+  }, [API_BASE_URL]);
 
-    const handleEdit = (rowData) => {
-        navigate(`/interview-candidate/${rowData.id}`, { state: { candidateData: rowData } });
-    };
-
-    const editTemplate = (rowData) => {
-        if (!rowData.interview_by) {
-            return (
-                <Button
-                    label="Select"
-                    icon="pi pi-user-plus"
-                    className="btn btn-primary w-full"
-                    style={{ background: hoveredRow === rowData.id ? "var(--bs-info)" : "rgb(92, 160, 232)" }}
-                    onMouseEnter={() => setHoveredRow(rowData.id)}
-                    onMouseLeave={() => setHoveredRow(null)}
-                    onClick={() => handleEditInterviewer(rowData)}
-                />
-            );
-        } else {
-            return (
-                <Button
-                    label="Update"
-                    icon="pi pi-pencil"
-                    className="btn btn-primary w-full"
-                    onClick={() => handleEdit(rowData)}
-                />
-            );
-        }
-    };
-
-    const handleAllIntervieweesInformationClick = () => navigate("/AllIntervieweesInformation");
-    const handleAssignBatchClick = () => navigate("/AssignBatch");
-
-    if (loading) return <Loading />;
-
-    return (
-        <div className="container mt-16">
-            <div className="text-center mb-4">
-                <h2 className="sponsornowHeading pt-4">Interviewees</h2>
-                <Button className="btn btn-primary me-2" label="Assign Batch For Students" onClick={handleAssignBatchClick} />
-                <Button className="btn btn-primary" label="All Interviewees Information" onClick={handleAllIntervieweesInformationClick} />
-            </div>
-
-            <div className="card">
-                <DataTable
-                    value={data}
-                    stripedRows
-                    className="admission-table"
-                    emptyMessage={<div className="text-center py-4 text-gray-500">No data available</div>}
-                >
-                    <Column field="name" header="Name" body={nameTemplate} sortable className="text-nowrap"></Column>
-                    <Column field="email" header="Email" body={emailTemplate} sortable></Column>
-                    <Column field="mobile_no" header="Mobile No" body={mobileTemplate} sortable></Column>
-                    <Column field="interview_by" header="Interviewer Name" body={interviewByTemplate} sortable className="text-nowrap"></Column>
-                    <Column header="Actions" body={editTemplate} className="text-nowrap"></Column>
-                </DataTable>
-            </div>
-        </div>
+  const filteredData = useMemo(() => {
+    return data.filter((item) =>
+      `${item.name} ${item.email}`
+        .toLowerCase()
+        .includes(search.toLowerCase())
     );
+  }, [data, search]);
+
+  const handleSelectInterviewer = async (row) => {
+    const token = localStorage.getItem("accessToken");
+
+    setData((prev) =>
+      prev.map((item) =>
+        item.id === row.id ? { ...item, interview_by: trainerName } : item
+      )
+    );
+
+    try {
+      await axios.put(
+        `${API_BASE_URL}/Learner/${row.id}/update_selected/`,
+        { ...row, interview_by: trainerName },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+    } catch (error) {
+      console.error("Failed to update interviewer", error);
+    }
+  };
+
+  const handleEdit = (row) => {
+    navigate(`/interview-candidate/${row.id}`, {
+      state: { candidateData: row },
+    });
+  };
+
+  if (loading) return <Loading />;
+
+  return (
+    <div className="p-6 mt-16 space-y-6">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <h2 className="text-2xl font-semibold">Interviewees</h2>
+
+        <div className="flex gap-2">
+          <Button onClick={() => navigate("/AssignBatch")}>
+            Assign Batch
+          </Button>
+          <Button variant="outline" onClick={() => navigate("/AllIntervieweesInformation")}>
+            All Interviewees
+          </Button>
+        </div>
+      </div>
+
+      {/* Search */}
+      <Input
+        placeholder="Search by name or email..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        className="max-w-md"
+      />
+
+      {/* Table */}
+      <div className="rounded-lg border bg-white shadow-sm overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Name</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>Mobile</TableHead>
+              <TableHead>Interviewer</TableHead>
+              <TableHead className="text-right">Action</TableHead>
+            </TableRow>
+          </TableHeader>
+
+          <TableBody>
+            {filteredData.length ? (
+              filteredData.map((row) => (
+                <TableRow key={row.id}>
+                  <TableCell className="font-medium">{row.name}</TableCell>
+                  <TableCell>{row.email}</TableCell>
+                  <TableCell>{row.mobile_no || "N/A"}</TableCell>
+                  <TableCell>
+                    {row.interview_by ? (
+                      <Badge>{row.interview_by}</Badge>
+                    ) : (
+                      <Badge variant="outline">Not Assigned</Badge>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {!row.interview_by ? (
+                      <Button
+                        size="sm"
+                        onClick={() => handleSelectInterviewer(row)}
+                      >
+                        Select
+                      </Button>
+                    ) : (
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        onClick={() => handleEdit(row)}
+                      >
+                        Update
+                      </Button>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={5} className="text-center py-6">
+                  No interviewees found
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
+  );
 };
 
 export default AdmissionTable;

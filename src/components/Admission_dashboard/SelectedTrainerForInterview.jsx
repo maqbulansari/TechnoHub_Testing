@@ -1,313 +1,227 @@
-import React, { useContext, useEffect, useState, useRef } from "react";
+import React, { useContext, useEffect, useState, useMemo } from "react";
 import axios from "axios";
-import "bootstrap/dist/css/bootstrap.min.css";
-import { DataTable } from "primereact/datatable";
-import { Column } from "primereact/column";
-import { Button } from "primereact/button";
-import { Tag } from "primereact/tag";
-import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../contexts/authContext";
 import Loading from "@/Loading";
 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Trash2 } from "lucide-react";
+
 const SelectedTrainerForInterview = () => {
-    const [data, setData] = useState([]);
-    const navigate = useNavigate();
-    const [hoveredRow, setHoveredRow] = useState(null);
-    const [accessToken, setAccessToken] = useState("");
-    const [loading, setLoading] = useState(true);
-    const tableRef = useRef(null);
-    const [showDeleteModal, setShowDeleteModal] = useState(false);
-    const [rowToDelete, setRowToDelete] = useState(null);
+  const { API_BASE_URL } = useContext(AuthContext);
 
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-    const { trainers, admin, API_BASE_URL, fetchTrainers, fetchAdmin, user } =
-        useContext(AuthContext);
+  const [search, setSearch] = useState("");
+  const [batchFilter, setBatchFilter] = useState("all");
 
-    const trainerName = `${user?.first_name} ${user?.last_name}` || "N/A";
-    console.log(trainerName);
+  const [rowToDelete, setRowToDelete] = useState(null);
 
-    useEffect(() => {
-        if (fetchTrainers) fetchTrainers();
-        if (fetchAdmin) fetchAdmin();
-    }, [fetchTrainers, fetchAdmin]);
+  const token = localStorage.getItem("accessToken");
 
-    useEffect(() => {
-        const fetchData = async () => {
-            const token = localStorage.getItem("accessToken");
-            if (token) setAccessToken(token);
-
-            try {
-                const response = await axios.get(
-                    `${API_BASE_URL}/interview-schedules/`,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        },
-                    }
-                );
-                setData(response.data);
-            } catch (error) {
-                console.error("Error fetching data:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchData();
-    }, [API_BASE_URL]);
-
-    /* ---------- Templates ---------- */
-
-    const userNameTemplate = (rowData) => (
-        <span className="capitalize text-black">
-            {rowData.user_name || "N/A"}
-        </span>
-    );
-
-    const batchesTemplate = (rowData) => (
-        <div className="flex flex-wrap gap-1">
-            {rowData.batches_names?.length ? (
-                rowData.batches_names.map((batch) => (
-                    <Tag
-                        key={batch.id}
-                        value={batch.name}
-                        severity="info"
-                        className="mr-1 mb-1"
-                        tabIndex={-1}
-                    />
-                ))
-            ) : (
-                <span>N/A</span>
-            )}
-        </div>
-    );
-
-    const startDateTemplate = (rowData) => (
-        <div>
-            <span className="text-black">{rowData.start_date}</span>
-            <br />
-            <small className="text-muted">({rowData.start_day})</small>
-        </div>
-    );
-
-    const endDateTemplate = (rowData) => (
-        <div>
-            <span className="text-black">{rowData.end_date}</span>
-            <br />
-            <small className="text-muted">({rowData.end_day})</small>
-        </div>
-    );
-
-    const timeTemplate = (rowData) => {
-        const formatTime = (time) => {
-            if (!time) return "N/A";
-            return new Date(time).toLocaleTimeString("en-US", {
-                hour: "2-digit",
-                minute: "2-digit",
-                hour12: true,
-            });
-        };
-
-        return (
-            <div>
-                <span>
-                    {formatTime(rowData.start_time)}
-                </span>
-                {" - "}
-                <span>
-                    {formatTime(rowData.end_time)}
-                </span>
-            </div>
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(
+          `${API_BASE_URL}/interview-schedules/`,
+          { headers: { Authorization: `Bearer ${token}` } }
         );
+        setData(response.data);
+      } catch (err) {
+        console.error("Error fetching schedules", err);
+      } finally {
+        setLoading(false);
+      }
     };
+    fetchData();
+  }, [API_BASE_URL]);
 
-    const approvalTemplate = (rowData) => (
-        <Tag
-            value={rowData.is_approved ? "Approved" : "Pending"}
-            severity={rowData.is_approved ? "success" : "warning"}
-            tabIndex={-1}
-        />
-    );
+  const allBatches = useMemo(() => {
+    return [
+      ...new Set(
+        data.flatMap((i) =>
+          i.batches_names?.map((b) => b.name) || []
+        )
+      ),
+    ];
+  }, [data]);
 
-    const activeStatusTemplate = (rowData) => (
-        <Tag
-            value={rowData.is_active ? "Active" : "Inactive"}
-            severity={rowData.is_active ? "success" : "danger"}
-            tabIndex={-1}
-        />
-    );
+  const filteredData = useMemo(() => {
+    return data.filter((item) => {
+      const matchesSearch = item.user_name
+        ?.toLowerCase()
+        .includes(search.toLowerCase());
 
+      const matchesBatch =
+        batchFilter === "all" ||
+        item.batches_names?.some((b) => b.name === batchFilter);
 
-    const handleDelete = async (rowData) => {
-        try {
-            await axios.delete(
-                `${API_BASE_URL}/interview-schedules/${rowData.id}/`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${accessToken}`,
-                    },
-                }
-            );
+      return matchesSearch && matchesBatch;
+    });
+  }, [data, search, batchFilter]);
 
-        } catch (error) {
-            console.error("Error deleting interview schedule:", error);
-        }
-    };
-
-    const actionTemplate = (rowData) => (
-        <div className="flex gap-2 justify-center">
-            <Button
-                label="Delete"
-                className="btn text-white bg-red-600"
-                onClick={() => {
-                    setRowToDelete(rowData);
-                    setShowDeleteModal(true);
-                }}
-                tabIndex={-1}
-            />
-        </div>
-    );
-
-
-    if (loading) {
-        return (
-            <Loading />
-        );
+  const handleDelete = async () => {
+    try {
+      await axios.delete(
+        `${API_BASE_URL}/interview-schedules/${rowToDelete.id}/`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setData((prev) => prev.filter((i) => i.id !== rowToDelete.id));
+    } catch (err) {
+      console.error("Delete failed", err);
+    } finally {
+      setRowToDelete(null);
     }
+  };
 
-    return (
-        <div className="container mt-16">
-            <div className="header-containerH d-flex justify-center w-100 ">
-                <h2 className="sponsornowHeading pt-4  max-w-[95vw] sm:max-w-[800px] mx-auto">
-                    Selected Trainer For Interview
-                </h2>
-            </div>
+  if (loading) return <Loading />;
 
+  return (
+    <div className="p-6 mt-16 space-y-6">
+      <h2 className="text-2xl font-semibold">
+        Selected Trainer For Interview
+      </h2>
 
-            <div className="card" ref={tableRef}>
-                <DataTable
-                    value={data}
-                    stripedRows
-                    scrollable
-                    scrollHeight="600px"
-                    focusable={false}
+      {/* Filters Card */}
+      <div className="flex flex-col md:flex-row gap-4">
+        <div className="flex flex-col md:flex-row gap-4">
+          <Input
+            placeholder="Candidate name..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="md:w-1/3"
+          />
 
-                    emptyMessage={
-                        <div className="flex justify-center items-center w-full py-4">
-                            <span className="text-gray-500 text-lg">
-                                No interview schedules available
-                            </span>
-                        </div>
-                    }
-
-                >
-                    <Column
-                        field="user_name"
-                        header="Candidate Name"
-                        body={userNameTemplate}
-                        sortable
-                    />
-                    <Column
-                        header="Batches"
-                        body={batchesTemplate}
-                        style={{ minWidth: "200px" }}
-                    />
-                    <Column
-                        header="Start Date"
-                        body={startDateTemplate}
-                        sortable
-                    />
-                    <Column
-                        header="End Date"
-                        body={endDateTemplate}
-                        sortable
-                    />
-                    {/* <Column
-                        header="Interview Time"
-                        body={timeTemplate}
-                    /> */}
-                    {/* <Column
-                        header="Approval Status"
-                        body={approvalTemplate}
-                        sortable
-                    />
-                    <Column
-                        header="Status"
-                        body={activeStatusTemplate}
-                        sortable
-                    /> */}
-                    <Column
-                        header="Actions"
-                        body={actionTemplate}
-                    />
-                </DataTable>
-            </div>
-
-
-            {showDeleteModal && (
-                <div
-                    className="modal fade show"
-                    style={{ display: "block", background: "rgba(0,0,0,0.5)" }}
-                >
-                    <div className="modal-dialog modal-dialog-centered">
-                        <div className="modal-content">
-                            <div className="modal-header">
-                                <h5 className="modal-title">Confirm Delete</h5>
-                            </div>
-
-                            <div className="modal-body">
-                                <p>
-                                    Are you sure you want to delete the interview schedule for{" "}
-                                    <strong>{rowToDelete?.user_name}</strong>?
-                                </p>
-                            </div>
-
-                            <div className="modal-footer">
-                                <button
-                                    type="button"
-                                    className="btn btn-secondary"
-                                    onClick={() => setShowDeleteModal(false)}
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    type="button"
-                                    className="btn btn-danger"
-                                    onClick={async () => {
-                                        try {
-                                            await axios.delete(
-                                                `${API_BASE_URL}/interview-schedules/${rowToDelete.id}/`,
-                                                {
-                                                    headers: {
-                                                        Authorization: `Bearer ${accessToken}`,
-                                                    },
-                                                }
-                                            );
-
-                                            setData((prev) =>
-                                                prev.filter((item) => item.id !== rowToDelete.id)
-                                            );
-                                        } catch (error) {
-                                            console.error(
-                                                "Error deleting interview schedule:",
-                                                error
-                                            );
-                                        } finally {
-                                            setShowDeleteModal(false);
-                                            setRowToDelete(null);
-                                        }
-                                    }}
-                                >
-                                    Delete
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
-
+          <Select value={batchFilter} onValueChange={setBatchFilter}>
+            <SelectTrigger className="md:w-48">
+              <SelectValue placeholder="Filter by batch" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Batches</SelectItem>
+              {allBatches.map((batch) => (
+                <SelectItem key={batch} value={batch}>
+                  {batch}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
-    );
+      </div>
+
+      {/* Table */}
+      <div className="rounded-lg border bg-white shadow-sm overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Candidate</TableHead>
+              <TableHead>Batches</TableHead>
+              <TableHead>Start Date</TableHead>
+              <TableHead>End Date</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+
+          <TableBody>
+            {filteredData.length ? (
+              filteredData.map((row) => (
+                <TableRow key={row.id}>
+                  <TableCell className="font-medium capitalize">
+                    {row.user_name}
+                  </TableCell>
+
+                  <TableCell className="flex flex-wrap gap-1">
+                    {row.batches_names?.map((b) => (
+                      <Badge key={b.id} variant="">
+                        {b.name}
+                      </Badge>
+                    ))}
+                  </TableCell>
+
+                  <TableCell>
+                    {row.start_date}
+                    <div className="text-xs text-muted-foreground">
+                      ({row.start_day})
+                    </div>
+                  </TableCell>
+
+                  <TableCell>
+                    {row.end_date}
+                    <div className="text-xs text-muted-foreground">
+                      ({row.end_day})
+                    </div>
+                  </TableCell>
+
+                  <TableCell className="text-right">
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={() => setRowToDelete(row)}
+                      className="text-red-600 hover:text-red-700"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={5} className="text-center py-6">
+                  No interview schedules found
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      {/* Delete Dialog */}
+      <Dialog open={!!rowToDelete} onOpenChange={() => setRowToDelete(null)}>
+        <DialogContent className="pt-4 pb-3 px-6 sm:w-[400px]">
+          <DialogHeader>
+            <DialogTitle>Delete Interview Schedule</DialogTitle>
+          </DialogHeader>
+
+          <p>
+            Are you sure you want to delete the interview schedule for{" "}
+            <strong>{rowToDelete?.user_name}</strong>?
+          </p>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRowToDelete(null)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleDelete}>
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
 };
 
 export default SelectedTrainerForInterview;

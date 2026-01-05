@@ -1,114 +1,183 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useState, useEffect, useMemo } from "react";
 import { AuthContext } from "../../contexts/authContext";
 import axios from "axios";
 import Loading from "@/Loading";
 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 
 const AllTrainer = () => {
-  const { error, API_BASE_URL } = useContext(AuthContext);
+  const { API_BASE_URL } = useContext(AuthContext);
   const [loading, setLoading] = useState(true);
   const [allTrainer, setAllTrainer] = useState([]);
+  const [error, setError] = useState(null);
 
-  const newaccessToken = localStorage.getItem("accessToken");
+  const [search, setSearch] = useState("");
+  const [genderFilter, setGenderFilter] = useState("all");
+  const [techFilter, setTechFilter] = useState("all");
+
+  const token = localStorage.getItem("accessToken");
 
   const fetchAllTrainer = async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/trainers/`, {
-        headers: { Authorization: `Bearer ${newaccessToken}` },
+        headers: { Authorization: `Bearer ${token}` },
       });
-      if (response.status === 200) {
-        setAllTrainer(response.data);
-        console.log(response.data);
-      }
-    } catch (error) {
-      console.error("Error fetching Trainers:", error);
+      setAllTrainer(response.data);
+    } catch (err) {
+      setError("Failed to fetch trainers");
     } finally {
       setLoading(false);
     }
   };
 
-  // Fetch trainers when component mounts
-  // useEffect(() => {
-  //   if (fetchAllTrainer) {
-  //     fetchAllTrainer();
-  //   }
-  // }, [fetchAllTrainer]);
-
-
-
-
   useEffect(() => {
-    fetchAllTrainer()
-   
+    fetchAllTrainer();
   }, []);
 
+  const allTechnologies = useMemo(() => {
+    return [
+      ...new Set(
+        allTrainer.flatMap((trainer) => trainer.technologies || [])
+      ),
+    ];
+  }, [allTrainer]);
 
-  const trainerData = allTrainer;
+  const filteredTrainers = useMemo(() => {
+    return allTrainer.filter((trainer) => {
+      const fullName = `${trainer.first_name} ${trainer.last_name}`.toLowerCase();
 
-  if (loading) {
+      const matchesSearch =
+        fullName.includes(search.toLowerCase()) ||
+        trainer.email.toLowerCase().includes(search.toLowerCase());
+
+      const matchesGender =
+        genderFilter === "all" || trainer.gender === genderFilter;
+
+      const matchesTech =
+        techFilter === "all" ||
+        trainer.technologies?.includes(techFilter);
+
+      return matchesSearch && matchesGender && matchesTech;
+    });
+  }, [allTrainer, search, genderFilter, techFilter]);
+
+  if (loading) return <Loading />;
+
+  if (error)
     return (
-    <Loading/>
+      <div className="text-red-500 text-center py-10">{error}</div>
     );
-  }
-
-  console.log(trainerData);
-  if (error) {
-    return <div className="error">{error}</div>;
-  }
 
   return (
-    <div className='bg-gray-50'>
-      <div className="student-info-containerS">
+    <div className="p-6 mt-16 space-y-6">
+      <h2 className="text-2xl font-semibold">Trainer Information</h2>
 
-        <h2 className="sponsornowHeading pt-2">
-          Trainer Information
-        </h2>
+      {/* Filters */}
+      <div className="flex flex-col md:flex-row gap-4">
+        <Input
+          placeholder="Search by name or email..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="md:w-1/3"
+        />
 
-        <div className="table-wrapperS">
-          <table className="student-tableS">
-            <thead className="thead top-0 sticky">
-              <tr>
-                <th className=''>Name</th>
-                <th className="text-nowrap ">Job Title</th>
-                <th className=''>Experience</th>
-                <th className=''>Technologies</th>
-                {/* <th className="text-nowrap ">Batches - Centers</th> */}
-                <th className=''>Email</th>
-                <th className=''>Mobile</th>
-                <th className=''>Gender</th>
-              </tr>
-            </thead>
-            <tbody>
-              {trainerData.length == 0 ? 
-                <tr>
-                  <td colSpan="7" className="text-center py-4">
-                    No trainers found
-                  </td>
-                </tr>
-               : trainerData.map((trainer) => (
-                <tr key={trainer.id} className="tr">
-                  <td className="student-nameS text-nowrap capitalize">
+        <Select value={genderFilter} onValueChange={setGenderFilter}>
+          <SelectTrigger className="md:w-40">
+            <SelectValue placeholder="Gender" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All</SelectItem>
+            <SelectItem value="Male">Male</SelectItem>
+            <SelectItem value="Female">Female</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select value={techFilter} onValueChange={setTechFilter}>
+          <SelectTrigger className="md:w-48">
+            <SelectValue placeholder="Technology" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All</SelectItem>
+            {allTechnologies.map((tech) => (
+              <SelectItem key={tech} value={tech}>
+                {tech}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Table */}
+      <div className="rounded-lg border bg-white shadow-sm overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Name</TableHead>
+              <TableHead>Job Title</TableHead>
+              <TableHead>Experience</TableHead>
+              <TableHead>Technologies</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>Mobile</TableHead>
+              <TableHead>Gender</TableHead>
+            </TableRow>
+          </TableHeader>
+
+          <TableBody>
+            {filteredTrainers.length > 0 ? (
+              filteredTrainers.map((trainer) => (
+                <TableRow key={trainer.id}>
+                  <TableCell className="font-medium capitalize text-nowrap">
                     {trainer.first_name} {trainer.last_name}
-                  </td>
-                  <td className="capitalize text-nowrap">{trainer.job_title}</td>
-                  <td>{trainer.experience} years</td>
-                  <td>
-                    {trainer.technologies &&
-                      trainer.technologies.map((tech, index) => (
-                        <span key={index} className="batch-tagS uppercase">
+                  </TableCell>
+                  <TableCell className="capitalize text-nowrap">
+                    {trainer.job_title}
+                  </TableCell>
+                  <TableCell>{trainer.experience} yrs</TableCell>
+                  <TableCell className="flex flex-wrap gap-1">
+                    {trainer.technologies?.length ? (
+                      trainer.technologies.map((tech, idx) => (
+                        <Badge key={idx} variant="outline">
                           {tech}
-                        </span>
-                      ))}
-                  </td>
-                
-                  <td className="text-nowrap">{trainer.email}</td>
-                  <td>{trainer.mobile_no || "N/A"}</td>
-                  <td>{trainer.gender || "N/A"}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                        </Badge>
+                      ))
+                    ) : (
+                      "N/A"
+                    )}
+                  </TableCell>
+                  <TableCell>{trainer.email}</TableCell>
+                  <TableCell>{trainer.mobile_no || "N/A"}</TableCell>
+                  <TableCell>
+                    <Badge variant="outline">
+                      {trainer.gender || "N/A"}
+                    </Badge>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={7} className="text-center py-6">
+                  No trainers found
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
       </div>
     </div>
   );

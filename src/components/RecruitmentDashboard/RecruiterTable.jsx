@@ -1,77 +1,153 @@
-import { useContext, useState, useEffect } from "react";
+import React, { useContext, useState, useEffect, useMemo } from "react";
 import { SponsorContext } from "../../contexts/dashboard/sponsorDashboardContext";
 import { AuthContext } from "../../contexts/authContext";
 import Loading from "@/Loading";
 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
+import { Input } from "@/components/ui/input";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+
 export const RecruiterTable = () => {
   const { recruiterProfileDetails, FetchRecuiter, dataFetched, setDataFetched } = useContext(SponsorContext);
   const { role, responseSubrole } = useContext(AuthContext);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Fetch recruiter data when component mounts (only if not already fetched)
-  useEffect(() => {
-    if ((responseSubrole === "RECRUITER" || role === "ADMIN") && !dataFetched['recruiter']) {
-      FetchRecuiter()
-        .then(() => {
-          setDataFetched(prev => ({ ...prev, 'recruiter': true }));
-        })
-        .catch(err => setError(err.message))
-        .finally(() => setLoading(false));
-    } else if (recruiterProfileDetails && recruiterProfileDetails.length > 0) {
-      setLoading(false);
-    }
-  }, [responseSubrole, role, dataFetched, FetchRecuiter, setDataFetched, recruiterProfileDetails]);
+  // Filters
+  const [search, setSearch] = useState("");
+  const [genderFilter, setGenderFilter] = useState("all");
 
-  if (loading) {
-    return <Loading />;
+  // Ensure recruiterProfileDetails is always an array
+  const recruiterProfiles = recruiterProfileDetails || [];
+
+  // Fetch recruiter data safely
+ useEffect(() => {
+  let isMounted = true;
+  
+  // Only fetch if not already fetched
+  if ((responseSubrole === "RECRUITER" || role === "ADMIN") && !dataFetched?.recruiter) {
+    const fetchData = async () => {
+      try {
+        await FetchRecuiter();
+        if (isMounted) {
+          // Use functional update to avoid triggering effect again
+          setDataFetched(prev => ({ ...prev, recruiter: true }));
+        }
+      } catch (err) {
+        if (isMounted) setError(err.message);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+
+    fetchData();
+  } else {
+    // Already fetched, stop loading
+    setLoading(false);
   }
 
-  if (error) {
-    return <div className="error text-center">Error fetching data: {error}</div>;
-  }
+  return () => { isMounted = false; };
+  // Only run once or when role/subrole changes
+}, [responseSubrole, role]);
 
-  const sortedRecruiters = [...recruiterProfileDetails].sort((a, b) => {
-    const nameA = `${a.first_name} ${a.last_name}`.toLowerCase();
-    const nameB = `${b.first_name} ${b.last_name}`.toLowerCase();
-    return nameA.localeCompare(nameB);
-  });
+  // Memoized filtered recruiters
+  const filteredRecruiters = useMemo(() => {
+    return recruiterProfiles.filter((r) => {
+      const fullName = `${r.first_name} ${r.last_name}`.toLowerCase();
+      const matchesSearch =
+        fullName.includes(search.toLowerCase()) ||
+        (r.company_name?.toLowerCase().includes(search.toLowerCase()));
+      const matchesGender = genderFilter === "all" || r.gender === genderFilter;
+      return matchesSearch && matchesGender;
+    });
+  }, [recruiterProfiles, search, genderFilter]);
+
+  // Unique genders for filter
+  const genders = useMemo(() => {
+    return [...new Set(recruiterProfiles.map(r => r.gender))].filter(Boolean);
+  }, [recruiterProfiles]);
+
+  if (loading) return <Loading />;
+  if (error) return <div className="text-center text-red-500 py-10">Error fetching data: {error}</div>;
 
   return (
-    <div className="px-2 mt-20">
-      <h1 className="sponsornowHeading">Recruiters</h1>
-      <div className="table-wrapperS overflow-y-auto">
-        <table className="student-tableS">
-          <thead className="thead z-2 sticky top-0">
-            <tr>
-              <th className="text-nowrap ">Name</th>
-              <th className="text-nowrap">Company</th>
-              <th className="text-nowrap">Email</th>
-              <th className="text-nowrap">Gender</th>
-              <th className="text-nowrap">Mobile</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sortedRecruiters.length > 0 ? (
-              sortedRecruiters.map((profile) => (
-                <tr key={profile.id} className="tr">
-                  <td className="student-nameS text-nowrap capitalize">{profile.first_name} {profile.last_name}</td>
-                  <td className="text-nowrap capitalize">{profile.company_name}</td>
-                  <td className="text-nowrap">{profile.email}</td>
-                  <td className="text-nowrap">{profile.gender || "N/A"}</td>
-                  <td className="text-nowrap">{profile.mobile_no}</td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={5} className="text-center py-4">
-                  No Recruiters Found
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+    <div className="p-6 mt-16 space-y-6">
+      <h1 className="sponsornowHeading text-left">Recruiters</h1>
+
+      {/* Filters */}
+      <div className="flex flex-col md:flex-row gap-4 mb-4">
+        <Input
+          placeholder="Search by name or company..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="md:w-1/3"
+        />
+
+        <Select value={genderFilter} onValueChange={setGenderFilter}>
+          <SelectTrigger className="md:w-44">
+            <SelectValue placeholder="Gender" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Genders</SelectItem>
+            {genders.map((g) => (
+              <SelectItem key={g} value={g}>{g}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Table */}
+      <div className="rounded-lg bg-white shadow-sm overflow-auto">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Name</TableHead>
+              <TableHead>Company</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>Gender</TableHead>
+              <TableHead>Mobile</TableHead>
+            </TableRow>
+          </TableHeader>
+
+          <TableBody>
+  {filteredRecruiters.length > 0 ? (
+    filteredRecruiters
+      .sort((a, b) => {
+        const nameA = `${a.first_name} ${a.last_name}`.toLowerCase();
+        const nameB = `${b.first_name} ${b.last_name}`.toLowerCase();
+        return nameA.localeCompare(nameB);
+      })
+      .map((profile) => (
+        <TableRow key={`${profile.id}-${profile.email}`}>
+          <TableCell className="capitalize">{profile.first_name} {profile.last_name}</TableCell>
+          <TableCell className="capitalize">{profile.company_name}</TableCell>
+          <TableCell>{profile.email}</TableCell>
+          <TableCell>{profile.gender || "N/A"}</TableCell>
+          <TableCell>{profile.mobile_no}</TableCell>
+        </TableRow>
+      ))
+  ) : (
+    <TableRow>
+      <TableCell colSpan={5} className="text-center py-6">
+        No Recruiters Found
+      </TableCell>
+    </TableRow>
+  )}
+</TableBody>
+
+        </Table>
       </div>
     </div>
   );
 };
+
+export default RecruiterTable;

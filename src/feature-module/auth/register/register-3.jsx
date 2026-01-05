@@ -1,29 +1,19 @@
 import React, { useState, useEffect, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import { Input } from "@/components/ui/input";
+import { Eye, EyeOff, Info, X, Loader2, Check } from "lucide-react";
 import { all_routes } from "../../router/all_routes";
 import axios from "axios";
 import { AuthContext } from "../../../contexts/authContext";
-import ClipLoader from "react-spinners/ClipLoader";
-import BeatLoader from "react-spinners/BeatLoader";
-import { Tooltip } from "primereact/tooltip";
-import { Badge } from "primereact/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 
 const Register3 = () => {
-
-  const { userLoggedIN, accessToken, refreshToken, API_BASE_URL } = useContext(AuthContext);
+  const { userLoggedIN, accessToken, refreshToken, API_BASE_URL, RegisterUser, newSubrole, fetchNewSubrole } = useContext(AuthContext);
   const routes = all_routes;
   const navigate = useNavigate();
 
-  // CONTEXT API
-  const {
-    RegisterUser,
-    newSubrole,
-    fetchNewSubrole,
-    loading,
-    emailAlreadyCreated,
-  } = useContext(AuthContext);
-
-  // STATE MANAGEMENT
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -34,12 +24,11 @@ const Register3 = () => {
   const [profileImage, setProfileImage] = useState(null);
   const [idTypes, setIdType] = useState([]);
   const [identity, setIdentity] = useState("");
-  // const [proposerEmail, setProposerEmail] = useState("");
-  // const [proposerNumber, setProposerNumber] = useState("");
   const [selectedIdType, setSelectedIdType] = useState("");
   const [imagePreview, setImagePreview] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPasswordTooltip, setShowPasswordTooltip] = useState(false);
 
-  // Error states
   const [errorFirstName, setErrorFirstName] = useState("");
   const [errorLastName, setErrorLastName] = useState("");
   const [errorEmail, setErrorEmail] = useState("");
@@ -49,137 +38,135 @@ const Register3 = () => {
   const [mobilenumberError, setMobileNumberError] = useState("");
   const [userProfileError, setUserProfileError] = useState("");
   const [idTypeError, setSelectedIdTypeError] = useState("");
-  const [selectedIdTypeName, setselectedIdTypeName] = useState("");
-  const [SelectedSubroleId, setSelectedSubroleId] = useState("");
+  const [SelectedSubroleId, setSelectedSubroleId] = useState(""); // ID of selected subrole
+  const [SelectedSubroleName, setSelectedSubroleName] = useState(""); // Name of selected subrole
+
   const [idNumberError, setIdNumberError] = useState("");
-  // const [proposerEmailError, setProposerEmailError] = useState("");
-  // const [proposerMobileError, setproposerMobileError] = useState("");
   const [emailExistsError, setEmailExistsError] = useState("");
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [isloading, setisloading] = useState(false);
 
+  const validatePassword = (password) => /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(password);
+  const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const validateMobileNumber = (number) => /^[0-9]{10}$/.test(number);
 
+  // const handleSelectRole = (role) => {
+  //   setNewSelectedRole(role);
+  //   setErrorSelectedRole("");
+  //   setErrorSelectedSubsRole("");
+  //   if (role === "LEARNER") {
+  //     setSelectedSubrole("INTERVIEWEE");
+  //     setSelectedSubroleId(2);
+  //   } else {
+  //     setSelectedSubrole("Choose Your Subrole");
+  //   }
+  // };
 
-  const [passwordVisibility, setPasswordVisibility] = useState({
-    password: false,
-  });
-
-  const ID_TYPE_MAPPING = {
-    'PASSPORT': 2,
-    'VOTER_ID': 3,
-    'ADHAARCARD': 1
-  };
-
-
-  console.log(selectedIdType);
-
-  // Validation functions
-  const validatePassword = (password) => {
-    const strongPasswordRegex =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-    return strongPasswordRegex.test(password);
-  };
-
-  const validateEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
-
-  const validateMobileNumber = (number) => {
-    const mobileRegex = /^[0-9]{10}$/;
-    return mobileRegex.test(number);
-  };
-
-  const togglePasswordVisibility = () => {
-    setPasswordVisibility((prevState) => ({
-      ...prevState,
-      password: !prevState.password,
-    }));
-  };
-
-  const handleSelectRole = (role) => {
-    console.log(role);
-
-    setNewSelectedRole(role);
-    setErrorSelectedRole("");
-    setErrorSelectedSubsRole("");
-    if (role == "LEARNER") {
-      setSelectedSubrole("INTERVIEWEE");
-      setSelectedSubroleId(2);
-      setErrorSelectedSubsRole("");
-
-    }
-    else { setSelectedSubrole("Choose Your Subrole"); }
-    // setSelectedSubroleId("")
-  };
-
-  // Fetch ID types from API
   const fetchIdType = async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/idtypes/`);
-      if (response.status === 200) {
-        setIdType(response.data);
-      }
+      if (response.status === 200) setIdType(response.data);
     } catch (error) {
       console.error("Error fetching ID types:", error);
     }
   };
 
-  // Enhanced image upload handler
+
+  const handleSelectRole = (role) => {
+    setNewSelectedRole(role);
+    setErrorSelectedRole("");
+    setErrorSelectedSubsRole("");
+
+    // Reset subrole first
+    setSelectedSubroleId("");
+    setSelectedSubroleName("");
+
+    if (role === "LEARNER") {
+      // Prefill INTERVIEWEE if it exists
+      const learnerSubrole = newSubrole.find(
+        (s) => s.name?.toUpperCase() === "INTERVIEWEE"
+      );
+      if (learnerSubrole) {
+        setSelectedSubroleId(learnerSubrole.id.toString());
+        setSelectedSubroleName(learnerSubrole.name);
+      }
+    } else if (role === "ENABLER") {
+      // Optionally, prefill first available subrole
+      const enablerSubrole = newSubrole.find(
+        (s) =>
+          !["INTERVIEWEE", "STUDENT", "GUEST LECTURER", "MENTOR", "APPLICANT"].includes(
+            s.name?.toUpperCase()
+          )
+      );
+      if (enablerSubrole) {
+        setSelectedSubroleId(enablerSubrole.id.toString());
+        setSelectedSubroleName(enablerSubrole.name);
+      }
+    }
+  };
+
+
+
   const handleImageUpload = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    // Validate file type
     const validTypes = ['image/jpeg', 'image/png', 'image/jpg'];
     if (!validTypes.includes(file.type)) {
       setUserProfileError("Only JPG, JPEG, or PNG files are allowed");
       return;
     }
-
-    // Validate file size (max 2MB)
     if (file.size > 2 * 1024 * 1024) {
       setUserProfileError("Image size should be less than 2MB");
       return;
     }
-
-    // If validations pass, set the file to state and create preview
     setProfileImage(file);
     setUserProfileError("");
     setImagePreview(URL.createObjectURL(file));
-
   };
 
   const removeImage = () => {
     setProfileImage(null);
     setImagePreview("");
-    if (imagePreview) {
-      URL.revokeObjectURL(imagePreview);
-    }
+    if (imagePreview) URL.revokeObjectURL(imagePreview);
   };
-
-
 
   useEffect(() => {
     fetchNewSubrole();
     fetchIdType();
-
-    // Clean up object URLs when component unmounts
     return () => {
-      if (imagePreview) {
-        URL.revokeObjectURL(imagePreview);
-      }
+      if (imagePreview) URL.revokeObjectURL(imagePreview);
     };
   }, []);
 
+  // Ensure a sensible default subrole is selected once subroles are fetched
+  useEffect(() => {
+    if (!Array.isArray(newSubrole) || newSubrole.length === 0) return;
 
-
-  console.log(SelectedSubroleId);
+    // Reset when role changes
+    if (newSelectedRole === "LEARNER") {
+      const learnerSubrole = newSubrole.find(
+        (s) => s.name?.toUpperCase() === "INTERVIEWEE"
+      );
+      if (learnerSubrole) {
+        setSelectedSubroleId(learnerSubrole.id.toString());
+        setSelectedSubroleName(learnerSubrole.name);
+      }
+    } else if (newSelectedRole === "ENABLER") {
+      const enablerSubrole = newSubrole.find(
+        (s) =>
+          !["INTERVIEWEE", "STUDENT", "GUEST LECTURER", "MENTOR", "APPLICANT"].includes(
+            s.name?.toUpperCase()
+          )
+      );
+      // if (enablerSubrole) {
+      //   setSelectedSubroleId(enablerSubrole.id.toString());
+      //   setSelectedSubroleName(enablerSubrole.name);
+      // }
+    }
+  }, [newSubrole, newSelectedRole]);
 
   const onRegisterUser = async (e) => {
     e.preventDefault();
-
-    // Reset all errors
     setErrorFirstName("");
     setErrorLastName("");
     setErrorEmail("");
@@ -193,51 +180,21 @@ const Register3 = () => {
     setEmailExistsError("");
 
     let isValid = true;
-
-    // Validation logic...
-    if (!firstName.trim()) {
-      setErrorFirstName("First Name is Required");
-      isValid = false;
-    }
-    if (!lastName.trim()) {
-      setErrorLastName("Last Name is Required");
-      isValid = false;
-    }
-    if (!email.trim()) {
-      setErrorEmail("Email is Required");
-      isValid = false;
-    } else if (!validateEmail(email)) {
-      setErrorEmail("Invalid Email Format");
-      isValid = false;
-    }
-    if (!password) {
-      setErrorPassword("Password is Required");
-      isValid = false;
-    } else if (!validatePassword(password)) {
-      setErrorPassword(
-        "Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character"
-      );
-      isValid = false;
-    }
-    if (!newSelectedRole) {
-      setErrorSelectedRole("Select a Role");
-      isValid = false;
-    }
+    if (!firstName.trim()) { setErrorFirstName("First Name is Required"); isValid = false; }
+    if (!lastName.trim()) { setErrorLastName("Last Name is Required"); isValid = false; }
+    if (!email.trim()) { setErrorEmail("Email is Required"); isValid = false; }
+    else if (!validateEmail(email)) { setErrorEmail("Invalid Email Format"); isValid = false; }
+    if (!password) { setErrorPassword("Password is Required"); isValid = false; }
+    else if (!validatePassword(password)) { setErrorPassword("Password must be 8+ chars with uppercase, lowercase, number & special char"); isValid = false; }
+    if (!newSelectedRole) { setErrorSelectedRole("Select a Role"); isValid = false; }
     if (newSelectedRole === "LEARNER") {
-      if (!mobileNumber) {
-        setMobileNumberError("Mobile Number is Required");
-        isValid = false;
-      } else if (!validateMobileNumber(mobileNumber)) {
-        setMobileNumberError("Invalid Mobile Number");
-        isValid = false;
-      }
+      if (!mobileNumber) { setMobileNumberError("Mobile Number is Required"); isValid = false; }
+      else if (!validateMobileNumber(mobileNumber)) { setMobileNumberError("Invalid Mobile Number"); isValid = false; }
     }
-
     if (!isValid) return;
 
     try {
-      setisloading(true); // start loading only before API call
-
+      setisloading(true);
       const formData = new FormData();
       formData.append("first_name", firstName.trim());
       formData.append("last_name", lastName.trim());
@@ -257,477 +214,314 @@ const Register3 = () => {
       }
 
       const response = await RegisterUser(formData);
-
-      if (response && response.success) {
-        setSubmitSuccess(true);
-      } else if (response && response.error?.email) {
-        setEmailExistsError(response.error.email.join(", "));
-      }
+      if (response?.success) setSubmitSuccess(true);
+      else if (response?.error?.email) setEmailExistsError(response.error.email.join(", "));
     } catch (error) {
-      if (
-        error.response?.data?.email &&
-        error.response.data.email.some((msg) =>
-          msg.toLowerCase().includes("already exists")
-        )
-      ) {
-        setEmailExistsError(
-          "This email is already registered. Please use a different email."
-        );
+      if (error.response?.data?.email?.some((msg) => msg.toLowerCase().includes("already exists"))) {
+        setEmailExistsError("This email is already registered.");
       }
-
       if (error.response?.data?.user_profile) {
         setUserProfileError(error.response.data.user_profile.join(", "));
       }
     } finally {
-      setisloading(false); // stop loading regardless of success/error
+      setisloading(false);
     }
   };
 
+  const filteredSubroles = newSelectedRole === "LEARNER"
+    ? newSubrole.filter((s) => s.name?.toUpperCase() === "INTERVIEWEE")
+    : newSubrole.filter(
+      (s) =>
+        !["INTERVIEWEE", "STUDENT", "GUEST LECTURER", "MENTOR", "APPLICANT"].includes(
+          s.name?.toUpperCase()
+        )
+    );
 
-  // Filter subroles based on selected role
-  const filteredSubroles =
-    newSelectedRole === "LEARNER"
-      ? newSubrole.filter((s) =>
-        ["INTERVIEWEE",].includes(s.name?.toUpperCase())
-      )
-      : newSubrole.filter(
-        (s) => !["INTERVIEWEE", "STUDENT", "GUEST LECTURER", "MENTOR", "APPLICANT"].includes(s.name?.toUpperCase())
-      );
-
-
+  const isLoggedIn = userLoggedIN && accessToken && refreshToken;
 
   return (
-    <div className="card mx-4 mt-20">
-      {/* <div className="register mt-5 mx-2"> */}
-      <div className="card-header">
-        {/* <h2 className="text-5xl">Register</h2> */}
-        <h2 className="sponsornowHeading pt-2 text-4xl  mb-4 uppercase text-center max-w-[95vw] sm:max-w-[800px] mx-auto">
-          Register
-          <p className="text-sm pl-3">Please enter your details to register</p>
-        </h2>
-
-      </div><br />
-      <div className="p-3">
-        <form onSubmit={onRegisterUser}>
-          <div className="row">
-            <div className="col-xxl-6 col-xl-6 col-md-6 mb-3">
-              <label htmlFor="firstName" className="form-label">
-                First Name <span className="text-danger">*</span>
-              </label>
-              <input
-                id="firstName"
-                placeholder="Enter Your First Name"
-                type="text"
-                value={firstName}
-                onChange={(e) => {
-                  setFirstName(e.target.value);
-                  setErrorFirstName("");
-                }}
-                className="mb-0 text-sm"
-              />
-              {errorFirstName && (
-                <span className="text-danger text-sm">{errorFirstName}</span>
-              )}
-            </div>
-
-            <div className="col-xxl-6 col-xl-6 col-md-6 mb-3">
-              <label htmlFor="lastName" className="form-label">
-                Last Name <span className="text-danger">*</span>
-              </label>
-              <input
-                className="mb-0 text-sm"
-                id="lastName"
-                placeholder="Enter Your Last Name"
-                type="text"
-                value={lastName}
-                onChange={(e) => {
-                  setLastName(e.target.value);
-                  setErrorLastName("");
-                }}
-              />
-              {errorLastName && (
-                <span className="text-danger text-sm">{errorLastName}</span>
-              )}
-            </div>
-
-            <div className="col-xxl-6 col-xl-6 col-md-6 mb-3">
-              <label htmlFor="emailAddress" className="form-label">
-                Email Address <span className="text-danger">*</span>
-              </label>
-              <input
-                placeholder="Enter Your Email"
-                id="emailAddress"
-                type="email"
-                value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                  setErrorEmail("");
-                  setEmailExistsError("");
-                }}
-                className="mb-0 text-sm"
-              />
-              {errorEmail && <span className="text-danger text-sm">{errorEmail}</span>}
-              {emailExistsError && (
-                <span className="text-danger text-sm">{emailExistsError}</span>
-              )}
-            </div>
-
-            <div className="col-xxl-6 col-xl-6 col-md-6 posRel mb-3">
-              <label htmlFor="password" className="form-label">
-                Password <span className="text-danger">*</span>
-              </label>
-              <Tooltip target=".custom-target-icon" />
-
-              <i
-                className="custom-target-icon pi pi-info-circle p-text-secondary ms-5"
-                data-pr-tooltip="Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character"
-                data-pr-position="right"
-                data-pr-at="right+5 top"
-                data-pr-my="left center-2"
-                style={{ fontSize: "1rem", cursor: "pointer" }}
-              ></i>
-              <input
-                id="password"
-                placeholder="Enter Your Password"
-                type={passwordVisibility.password ? "text" : "password"}
-                value={password}
-                className="mb-0 text-sm"
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                  setErrorPassword("");
-                }}
-              />
-              <span
-                className={`ti toggle-passwordsSignup ${passwordVisibility.password ? "ti-eye" : "ti-eye-off"
-                  }`}
-                onClick={togglePasswordVisibility}
-              ></span>
-              {errorPassword && (
-                <span className="text-danger text-sm">{errorPassword}</span>
-              )}
-            </div>
-
-            <div className="col-xxl-6 col-xl-6 col-md-6  mb-3">
-
-              <label className="form-label" htmlFor="mobileNumber">
-                Mobile Number <span className="text-danger">*</span>
-              </label>
-              <input
-                className="mb-0 text-sm"
-                placeholder="Enter Your Number"
-                id="mobileNumber"
-                type="text"
-                value={mobileNumber}
-                onChange={(e) => {
-                  setMobileNumber(e.target.value);
-                  setMobileNumberError("");
-                }}
-              />
-              {mobilenumberError && (
-                <span className="text-danger text-sm">{mobilenumberError}</span>
-              )}
-            </div>
-
-            <div className="col-xxl-6 col-xl-6 col-md-6 mb-3">
-              <label className="form-label text-sm mb-1">
-                Select Role <span className="text-danger">*</span>
-              </label>
-
-              <div className="dropdown">
-                <button
-                  type="button"
-                  data-bs-toggle="dropdown"
-                  disabled={!userLoggedIN && !accessToken && !refreshToken}
-                  className="role-dropdown-btn"
-                >
-                  {newSelectedRole || "Select Role"}
-                  <span className="arrow">▾</span>
-                </button>
-
-                <ul className="dropdown-menu w-100 role-dropdown-menu">
-                  <li onClick={() => handleSelectRole("LEARNER")} className="dropdown-item text-sm">
-                    LEARNER
-                  </li>
-
-                  {userLoggedIN && accessToken && refreshToken && (
-                    <li onClick={() => handleSelectRole("ENABLER")} className="dropdown-item text-sm">
-                      ENABLER
-                    </li>
-                  )}
-                </ul>
-              </div>
-
-              {errorSelectedRole && (
-                <span className="text-danger text-sm">{errorSelectedRole}</span>
-              )}
-            </div>
-
-
-            <div
-              className={`col-xxl-6 col-xl-6 col-md-6 mb-3`
-              }
-            >
-              <label className="form-label" htmlFor="Roles">
-                Select Subrole <span className="text-danger">*</span>
-              </label>
-              <div className="dropdown">
-                <button
-                  className="btnDropdown form-control text-sm"
-                  type="button"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
-                >
-                  {selectedSubrole}
-                  <span className="arrow">▾</span>
-                </button>
-                {/* <ul className="dropdown-menu w-100">
-                  {newSubrole.length > 0 ? (
-                    newSubrole
-                      .map((subrole) => (
-                        <li
-                          className="dropdown-item c-pointer"
-                          key={subrole.id}
-                          onClick={() => {
-                            setSelectedSubrole(subrole.name);
-                            setSelectedSubroleId(subrole.id)
-                            setErrorSelectedSubsRole("");
-                          }}
-                        >
-                          {subrole.name}
-                        </li>
-                      ))
-                  ) : (
-                    <li className="dropdown-item dropdownLoader">
-                      Loading{" "}
-                      <BeatLoader
-                        size={5}
-                        speedMultiplier={0.5}
-                        loading={loading}
-                        className="loginLoader"
-                      />
-                    </li>
-                  )}
-                </ul> */}
-
-                <ul className="dropdown-menu w-100">
-                  {filteredSubroles.length > 0 ? (
-                    filteredSubroles.map((subrole) => (
-                      <li
-                        className="dropdown-item c-pointer text-sm"
-                        key={subrole.id}
-                        onClick={() => {
-                          setSelectedSubrole(subrole.name);
-                          setSelectedSubroleId(subrole.id);
-                          setErrorSelectedSubsRole("");
-                        }}
-                      >
-                        {subrole.name}
-                      </li>
-                    ))
-                  ) : (
-                    <li className="dropdown-item dropdownLoader">
-                      Loading{" "}
-                      <BeatLoader
-                        size={5}
-                        speedMultiplier={0.5}
-                        loading={loading}
-                        className="loginLoader"
-                      />
-                    </li>
-                  )}
-                </ul>
-
-              </div>
-              {errorSelectedSubRole && (
-                <span className="text-danger text-sm">{errorSelectedSubRole}</span>
-              )}
-            </div>
+    <div className="min-h-screen mt-6 sm:mt-12 py-4 sm:py-8 px-3 sm:px-4">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="w-full max-w-[95%] sm:max-w-xl md:max-w-2xl lg:max-w-3xl mx-auto"
+      >
+        {/* Form */}
+        <div className="bg-white rounded-xl shadow-sm border p-4 sm:p-5 md:p-6">
+          {/* Header */}
+          <div className="text-center mb-4 sm:mb-5">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">
+              Register
+            </h2>
+            <p className="text-muted-foreground text-sm sm:text-base mt-1 sm:mt-2">
+              Please enter your details to register
+            </p>
           </div>
 
-          <div
-            className={`row ${newSelectedRole === "ENABLER" ? "d-none" : "d-flex mt-4"
-              }`}
-          >
-            <div className="col-xxl-4 col-xl-4 col-md-4 mb-3">
-              <label className="form-label" htmlFor="user_profile">
-                User Profile Image <span className="text-danger"></span>
-              </label>
-              <input
-                id="user_profile"
-                type="file"
-                name="user_profile"
-                className="form-control mb-0"
-                accept="image/jpeg, image/png, image/jpg"
-                onChange={handleImageUpload}
-              />
-              {userProfileError && (
-                <span className="text-danger text-sm">{userProfileError}</span>
-              )}
-              {imagePreview && (
-                <div className="mt-2">
-                  <img
-                    src={imagePreview}
-                    alt="Preview"
-                    style={{ maxWidth: '100px', maxHeight: '100px', display: 'block' }}
-                    className="mb-2"
+          <form onSubmit={onRegisterUser} className="space-y-3 sm:space-y-4">
+            {/* Row 1: First Name & Last Name */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <div>
+                <Label className="text-sm">First Name <span className="text-red-500">*</span></Label>
+                <Input
+                  placeholder="First Name"
+                  value={firstName}
+                  onChange={(e) => { setFirstName(e.target.value); setErrorFirstName(""); }}
+                  className="mt-1"
+                />
+                {errorFirstName && <p className="text-xs text-red-500 mt-1">{errorFirstName}</p>}
+              </div>
+              <div>
+                <Label className="text-sm">Last Name <span className="text-red-500">*</span></Label>
+                <Input
+                  placeholder="Last Name"
+                  value={lastName}
+                  onChange={(e) => { setLastName(e.target.value); setErrorLastName(""); }}
+                  className="mt-1"
+                />
+                {errorLastName && <p className="text-xs text-red-500 mt-1">{errorLastName}</p>}
+              </div>
+            </div>
+
+            {/* Row 2: Email & Password */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <div>
+                <Label className="text-sm">Email <span className="text-red-500">*</span></Label>
+                <Input
+                  type="email"
+                  placeholder="Email"
+                  className="mt-1 mb-0"
+                  value={email}
+                  onChange={(e) => { setEmail(e.target.value); setErrorEmail(""); setEmailExistsError(""); }}
+                />
+                {(errorEmail || emailExistsError) && (
+                  <p className="text-xs text-red-500 mt-1">{errorEmail || emailExistsError}</p>
+                )}
+              </div>
+              <div>
+                <div className="flex items-center gap-1">
+                  <Label className="text-sm">Password <span className="text-red-500">*</span></Label>
+                  <div className="relative">
+                    <Info
+                      size={14}
+                      className="text-muted-foreground cursor-pointer"
+                      onMouseEnter={() => setShowPasswordTooltip(true)}
+                      onMouseLeave={() => setShowPasswordTooltip(false)}
+                      onClick={() => setShowPasswordTooltip(!showPasswordTooltip)}
+                    />
+                    {showPasswordTooltip && (
+                      <div className="absolute left-0 sm:left-5 top-6 sm:top-0 z-50 w-48 sm:w-56 p-2 bg-gray-900 text-white text-xs rounded shadow-lg">
+                        8+ chars with uppercase, lowercase, number & special character
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <div className="relative mt-1">
+                  <Input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => { setPassword(e.target.value); setErrorPassword(""); }}
+                    className="pr-9 mb-0"
                   />
                   <button
                     type="button"
-                    className="btn btn-sm btn-danger"
-                    onClick={removeImage}
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground"
                   >
-                    Remove Image
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
+                </div>
+                {errorPassword && <p className="text-xs text-red-500 mt-1">{errorPassword}</p>}
+              </div>
+            </div>
+
+            {/* Row 3: Mobile & Role */}
+            <div className={`grid gap-3 sm:gap-4 ${isLoggedIn ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1'}`}>
+              <div>
+                <Label className="text-sm">Mobile Number <span className="text-red-500">*</span></Label>
+                <Input
+                  type="number"
+                  className="mt-1 !appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                  placeholder="Mobile Number"
+                  value={mobileNumber}
+                  onChange={(e) => { setMobileNumber(e.target.value); setMobileNumberError(""); }}
+                />
+                {mobilenumberError && <p className="text-xs text-red-500 mt-1">{mobilenumberError}</p>}
+              </div>
+              {isLoggedIn && (
+                <div>
+                  <Label className="text-sm">Role <span className="text-red-500">*</span></Label>
+                  <Select value={newSelectedRole} onValueChange={handleSelectRole}>
+                    <SelectTrigger className="mt-1">
+                      <SelectValue placeholder="Select Role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="LEARNER">LEARNER</SelectItem>
+                      <SelectItem value="ENABLER">ENABLER</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {errorSelectedRole && <p className="text-xs text-red-500 mt-1">{errorSelectedRole}</p>}
                 </div>
               )}
             </div>
 
-            <div className="col-xxl-4 col-xl-4 col-md-4">
-              <label className="form-label">
-                ID Type <span className="text-danger"></span>
-              </label>
-              <div className="dropdown">
-                <button
-                  className="btnDropdown  form-control"
-                  type="button"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
-                >
-                  {selectedIdTypeName || "select Your IdType"}
-                  <span className="arrow">▾</span>
-                </button>
-                <ul className="dropdown-menu w-100">
-                  {idTypes.length > 0 ? (
-                    idTypes.map((idtype) => (
-                      <li
-                        key={idtype.id}
-                        onClick={() => {
-                          setselectedIdTypeName(idtype.idTypeName)
-                          setSelectedIdType(idtype.id);
-                          setSelectedIdTypeError("");
-                        }}
-                        className="dropdown-item c-pointer"
-                      >
-                        {idtype.idTypeName}
-                      </li>
-                    ))
-                  ) : (
-                    <li className="dropdown-item dropdownLoader">
-                      Loading{" "}
-                      <BeatLoader
-                        size={5}
-                        speedMultiplier={0.5}
-                        loading={loading}
-                        className="loginLoader"
-                      />
-                    </li>
-                  )}
-                </ul>
-              </div>
-              {idTypeError && (
-                <span className="text-danger text-sm">{idTypeError}</span>
-              )}
-            </div>
+            {/* Subrole */}
+            {isLoggedIn && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <div>
+                  <Label className="text-sm">Subrole <span className="text-red-500">*</span></Label>
+                  <Select
+                    value={SelectedSubroleId}
+                    onValueChange={(val) => {
+                      const selected = filteredSubroles.find((s) => s.id.toString() === val);
+                      setSelectedSubroleId(val);
+                      setSelectedSubroleName(selected?.name || "");
+                      setErrorSelectedSubsRole("");
+                    }}
+                  >
+                    <SelectTrigger className="mt-1">
+                      <SelectValue placeholder="Select Subrole">
+                        {SelectedSubroleName || null}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {filteredSubroles.length > 0 ? (
+                        filteredSubroles.map((subrole) => (
+                          <SelectItem key={subrole.id} value={subrole.id.toString()}>
+                            {subrole.name}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <div className="px-2 py-1 text-sm text-muted-foreground flex items-center gap-1">
+                          <Loader2 size={12} className="animate-spin" /> Loading...
+                        </div>
+                      )}
+                    </SelectContent>
+                  </Select>
 
-            <div className="col-xxl-4 col-xl-4 col-md-4  mb-3">
-              <label
-                className="form-label text-nowrap"
-                htmlFor="identityNumber"
+                  {errorSelectedSubRole && <p className="text-xs text-red-500 mt-1">{errorSelectedSubRole}</p>}
+                </div>
+
+              </div>
+            )}
+
+            {/* LEARNER Additional Fields */}
+            {newSelectedRole !== "ENABLER" && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                <div>
+                  <Label className="text-sm">Profile Image</Label>
+                  <Input
+                    type="file"
+                    accept="image/jpeg,image/png,image/jpg"
+                    onChange={handleImageUpload}
+                    className="mt-1 w-full text-sm file:text-xs cursor-pointer"
+                  />
+                  {userProfileError && <p className="text-xs text-red-500 mt-1">{userProfileError}</p>}
+                  {/* {imagePreview && (
+                    <div className="mt-2 flex items-center gap-2">
+                      <img src={imagePreview} alt="Preview" className="w-10 h-10 object-cover rounded border" />
+                      <button type="button" onClick={removeImage} className="text-red-500 text-xs flex items-center gap-0.5">
+                        <X size={12} /> Remove
+                      </button>
+                    </div>
+                  )} */}
+                </div>
+                <div>
+                  <Label className="text-sm">ID Type</Label>
+                  <Select
+                    value={selectedIdType}
+                    onValueChange={(val) => { setSelectedIdType(val); setSelectedIdTypeError(""); }}
+                  >
+                    <SelectTrigger className="mt-1">
+                      <SelectValue placeholder="Select ID Type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {idTypes.length > 0 ? (
+                        idTypes.map((idtype) => (
+                          <SelectItem key={idtype.id} value={idtype.id.toString()}>
+                            {idtype.idTypeName}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <div className="px-2 py-1 text-sm text-muted-foreground flex items-center gap-1">
+                          <Loader2 size={12} className="animate-spin" /> Loading...
+                        </div>
+                      )}
+                    </SelectContent>
+                  </Select>
+                  {idTypeError && <p className="text-xs text-red-500 mt-1">{idTypeError}</p>}
+                </div>
+                <div className="sm:col-span-2 lg:col-span-1">
+                  <Label className="text-sm">Identity Number</Label>
+                  <Input
+                    placeholder="ID Number"
+                    value={identity}
+                    onChange={(e) => { setIdentity(e.target.value); setIdNumberError(""); }}
+                    className="mt-1"
+                  />
+                  {idNumberError && <p className="text-xs text-red-500 mt-1">{idNumberError}</p>}
+                </div>
+              </div>
+            )}
+
+            {/* Submit Button */}
+            <div className="pt-2 sm:pt-3 flex justify-center">
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.97 }}
+                type="submit"
+                disabled={isloading}
+                className="w-1/2 h-10 sm:h-11 rounded-xl bg-primary text-white font-medium disabled:opacity-60 text-sm sm:text-base"
               >
-                Identity Number <span className="text-danger"></span>
-              </label>
-              <input
-                className="mb-0 text-base"
-                placeholder="Enter Your ID Number"
-                id="identityNumber"
-                type="text"
-                onChange={(e) => {
-                  setIdentity(e.target.value);
-                  setIdNumberError("");
-                }}
-                value={identity}
-              />
-              {idNumberError && (
-                <span className="text-danger text-sm">{idNumberError}</span>
-              )}
+                {isloading ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <Loader2 size={16} className="animate-spin" />
+                    Creating...
+                  </span>
+                ) : (
+                  "Create Account"
+                )}
+              </motion.button>
             </div>
-          </div>
-          <br></br>
-          <div className="row justify-content-center">
-            <div className="col-xxl-5 col-xl-5 col-md-5">
-              <div className="mb-3">
-                {/* <button
-                  type="submit"
-                  className="btn btn-primary w-100 loginBtn"
-                  disabled={loading}
-                >
-                  Create Account
-                </button> */}
-                <button
-                  type="submit"
-                  className="btn btn-primary w-40 loginBtn"
-                  disabled={isloading}
-                >
-                  {isloading ? (
-                    <i className="fas fa-spinner fa-spin me-2"></i>
-                  ) : (
-                    <>
-                      Create Account <i className="fa-solid fa-right-to-bracket ml-2"></i>
-                    </>
-                  )}
-                </button>
-
-
-
-              </div>
-              {/* <div className="text-center mb-4">
-                <h6 className="fw-normal text-dark mb-0 text-sm">
-                  Already have an account?
-                  <Link to={routes.login3} className="hover-a ms-2 text-[#63b3ed] text-sm">
-                    Login
-                  </Link>
-                </h6>
-              </div> */}
-            </div>
-          </div>
-        </form>
-      </div>
-
-      {submitSuccess && (
-        <div
-          className="modal fade show"
-          style={{ display: "block", background: "rgba(0,0,0,0.5)" }}
-        >
-          <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Register</h5>
-                <button
-                  type="button"
-                  className="btn-close"
-                  onClick={() => setSubmitSuccess(false)}
-                ></button>
-              </div>
-
-              <div className="modal-body">
-                <p> User successfully created!</p>
-              </div>
-
-              <div className="modal-footer">
-                <button
-                  type="button"
-                  className="btn btn-primary"
-                  onClick={() => setSubmitSuccess(false)}
-                  data-bs-dismiss="modal"
-                >
-                  Ok
-                </button>
-              </div>
-            </div>
-          </div>
+          </form>
         </div>
-      )}
-      {/* </div> */}
+      </motion.div>
+
+      {/* Success Modal */}
+      <AnimatePresence>
+        {submitSuccess && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-40 bg-black/40"
+              onClick={() => setSubmitSuccess(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="fixed inset-0 z-50 flex items-center justify-center px-4"
+            >
+              <div className="bg-white rounded-xl p-5 sm:p-6 w-full max-w-[280px] sm:max-w-xs shadow-xl text-center">
+                <div className="mx-auto mb-3 w-14 h-14 sm:w-16 sm:h-16 bg-green-100 rounded-full flex items-center justify-center">
+                  <Check className="text-green-600 w-7 h-7 sm:w-8 sm:h-8" />
+                </div>
+                <h3 className="text-base sm:text-lg font-bold mb-1">Success!</h3>
+                <p className="text-muted-foreground text-xs sm:text-sm mb-4">User successfully created!</p>
+                <button
+                  onClick={() => setSubmitSuccess(false)}
+                  className="w-full py-2 rounded-lg bg-primary text-white font-medium text-sm sm:text-base"
+                >
+                  OK
+                </button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

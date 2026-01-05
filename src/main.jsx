@@ -22,6 +22,8 @@ import "primereact/resources/primereact.min.css";
 import "primeicons/primeicons.css";
 import "primeflex/primeflex.css";
 import "./index.css";
+import { Toaster } from "sonner";
+
 
 const rootElement = document.getElementById("root");
 
@@ -36,6 +38,9 @@ ReactDOM.createRoot(rootElement).render(
         <AppProvider>
           <BrowserRouter basename={base_path}>
             <ALLRoutes />
+            <Toaster richColors toastOptions={{
+              style: { zIndex: 9999 },
+            }} position="top-center" />
           </BrowserRouter>
         </AppProvider>
       </NetworkProvider>

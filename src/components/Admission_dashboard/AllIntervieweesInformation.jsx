@@ -1,152 +1,163 @@
-import React, { useContext, useEffect, useState } from 'react';
-import axios from 'axios';
-import { baseURL } from '../../utils/axios';
-import { AuthContext } from '../../contexts/authContext';
-import Loading from '@/Loading';
+import React, { useContext, useEffect, useState, useMemo } from "react";
+import axios from "axios";
+import { AuthContext } from "../../contexts/authContext";
+import Loading from "@/Loading";
+
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const AllIntervieweesInformation = () => {
+  const { API_BASE_URL } = useContext(AuthContext);
+
   const [interviewees, setInterviewees] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeFilter, setActiveFilter] = useState('ALL');
-  const [accessToken, setAccessToken] = useState("");
-    const {API_BASE_URL} =useContext(AuthContext)
+  const [statusFilter, setStatusFilter] = useState("ALL");
+  const [search, setSearch] = useState("");
+
+  const token = localStorage.getItem("accessToken");
 
   useEffect(() => {
-    const token = localStorage.getItem("accessToken");
-    if (token) {
-      setAccessToken(token);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (accessToken) {
-      fetchData();
-    }
-  }, [activeFilter, accessToken]);
+    fetchData();
+  }, [statusFilter]);
 
   const fetchData = async () => {
     try {
       setLoading(true);
       let url = `${API_BASE_URL}/Learner/interviewee_student/`;
-      
-      if (activeFilter !== 'ALL') {
-        url += `?selected_status=${activeFilter}`;
+      if (statusFilter !== "ALL") {
+        url += `?selected_status=${statusFilter}`;
       }
-      
+
       const response = await axios.get(url, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          'Content-Type': 'application/json'
-        }
+        headers: { Authorization: `Bearer ${token}` },
       });
-      setInterviewees(response.data); 
-      setLoading(false);
-    } catch (error) {
-      console.error('Error fetching data:', error);
+
+      setInterviewees(response.data);
+    } catch (err) {
+      console.error("Error fetching interviewees", err);
+    } finally {
       setLoading(false);
     }
   };
 
-  const refreshAllData = () => {
-    setActiveFilter('ALL');
+  const filteredInterviewees = useMemo(() => {
+    return interviewees.filter((i) =>
+      `${i.name} ${i.email} ${i.mobile_no}`
+        .toLowerCase()
+        .includes(search.toLowerCase())
+    );
+  }, [interviewees, search]);
+
+  const statusBadge = (status) => {
+    if (status === "Y") return <Badge>Selected</Badge>;
+    if (status === "N") return <Badge variant="destructive">Rejected</Badge>;
+    return <Badge variant="outline">TBD</Badge>;
   };
 
-  if (loading) {
-    return (
-      <Loading/>
-    );
-  }
+  if (loading) return <Loading />;
 
   return (
-    <div className="interviewees-container-with-bg mt-16">
-      <h2 className="sponsornowHeading pt-2 text-4xl  mb-4 uppercase text-center max-w-[95vw] sm:max-w-[800px] mx-auto">
+    <div className="p-6 m-16 space-y-6">
+      <h2 className="text-2xl font-semibold text-left">
         Interviewees Information
       </h2>
-      <div className="interviewees-containerYY">
-        <div className="filter-buttonsYY">
-          <button 
-            className={`filter-btnYY ${activeFilter === 'ALL' ? 'active' : ''}`}
-            onClick={refreshAllData}
-          >
-            All
-          </button>
-          <button 
-            className={`filter-btnYY ${activeFilter === 'TBD' ? 'active' : ''}`}
-            onClick={() => setActiveFilter('TBD')}
-          >
-            TBD
-          </button>
-          <button 
-            className={`filter-btnYY ${activeFilter === 'Y' ? 'active' : ''}`}
-            onClick={() => setActiveFilter('Y')}
-          >
-            Selected
-          </button>
-          <button 
-            className={`filter-btnYY ${activeFilter === 'N' ? 'active' : ''}`}
-            onClick={() => setActiveFilter('N')}
-          >
-            Not Selected
-          </button>
-        </div>
 
-        {interviewees.length === 0 ? (
-          <div className="alert-message">
-            No interviewees found matching the selected filter.
-          </div>
-        ) : (
-          <>
-            <div className="table-wrapperS">
-              <table className="interviewees-tableYY">
-                <thead className='thead'>
-                  <tr>
-                    <th className=''>ID</th>
-                    <th className=''>Name</th>
-                    <th className=''>Email</th>
-                    <th className=''>Mobile</th>
-                    <th className=''>Subrole</th>
-                    <th className=''>Batch</th>
-                    <th className='text-nowrap'>Eng Comm</th>
-                    <th className=''>Background</th>
-                    <th className=''>Laptop</th>
-                    <th className=''>Profession</th>
-                    <th className=''>Status</th>
-                    <th className=''>Level</th>
-                    <th className=''>Source</th>
-                    <th className=''>Remarks</th>
-                    <th className='text-nowrap'>Interview By</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {interviewees.map((interviewee) => (
-                    <tr key={interviewee.id} className='tr'>
-                      <td>{interviewee.id}</td>
-                      <td className='text-nowrap capitalize'>{interviewee.name}</td>
-                      <td>{interviewee.email}</td>
-                      <td>{interviewee.mobile_no}</td>
-                      <td>{interviewee.subrole}</td>
-                      <td className='uppercase'>{interviewee.batch || 'N/A'}</td>
-                      <td>{interviewee.eng_comm_skills || 'N/A'}</td>
-                      <td>{interviewee.humble_background || 'N/A'}</td>
-                      <td>{interviewee.laptop || 'N/A'}</td>
-                      <td className='capitalize'>{interviewee.profession || 'N/A'}</td>
-                      <td>
-                        <span className={`status-badgeYY ${interviewee.selected_status === 'Y' ? 'selected' : 
-                                         interviewee.selected_status === 'N' ? 'rejected' : 'pending'}`}>
-                          {interviewee.selected_status || 'N/A'}
-                        </span>
-                      </td>
-                      <td>{interviewee.level || 'N/A'}</td>
-                      <td>{interviewee.source || 'N/A'}</td>
-                      <td>{interviewee.remarks || 'N/A'}</td>
-                      <td className='capitalize'>{interviewee.interview_by || 'N/A'}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </>
-        )}
+      {/* Filters */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <Tabs
+          value={statusFilter}
+          onValueChange={setStatusFilter}
+          className="w-full md:w-auto"
+        >
+          <TabsList>
+            <TabsTrigger value="ALL">All</TabsTrigger>
+            <TabsTrigger value="TBD">TBD</TabsTrigger>
+            <TabsTrigger value="Y">Selected</TabsTrigger>
+            <TabsTrigger value="N">Not Selected</TabsTrigger>
+          </TabsList>
+        </Tabs>
+
+        <Input
+          placeholder="Search name, email or mobile..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="md:w-80"
+        />
+      </div>
+
+      {/* Table */}
+      <div className="rounded-lg border bg-white shadow-sm overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>ID</TableHead>
+              <TableHead>Name</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>Mobile</TableHead>
+              <TableHead>Subrole</TableHead>
+              <TableHead>Batch</TableHead>
+              <TableHead>Eng Comm</TableHead>
+              <TableHead>Background</TableHead>
+              <TableHead>Laptop</TableHead>
+              <TableHead>Profession</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Level</TableHead>
+              <TableHead>Source</TableHead>
+              <TableHead>Remarks</TableHead>
+              <TableHead>Interview By</TableHead>
+            </TableRow>
+          </TableHeader>
+
+          <TableBody>
+            {filteredInterviewees.length ? (
+              filteredInterviewees.map((i) => (
+                <TableRow key={i.id}>
+                  <TableCell>{i.id}</TableCell>
+                  <TableCell className="capitalize font-medium text-nowrap">
+                    {i.name}
+                  </TableCell>
+                  <TableCell>{i.email}</TableCell>
+                  <TableCell>{i.mobile_no}</TableCell>
+                  <TableCell>{i.subrole || "N/A"}</TableCell>
+                  <TableCell className="uppercase">
+                    {i.batch || "N/A"}
+                  </TableCell>
+                  <TableCell>{i.eng_comm_skills || "N/A"}</TableCell>
+                  <TableCell>{i.humble_background || "N/A"}</TableCell>
+                  <TableCell>{i.laptop || "N/A"}</TableCell>
+                  <TableCell className="capitalize">
+                    {i.profession || "N/A"}
+                  </TableCell>
+                  <TableCell>{statusBadge(i.selected_status)}</TableCell>
+                  <TableCell>{i.level || "N/A"}</TableCell>
+                  <TableCell>{i.source || "N/A"}</TableCell>
+                  <TableCell className="max-w-xs truncate">
+                    {i.remarks || "N/A"}
+                  </TableCell>
+                  <TableCell className="capitalize">
+                    {i.interview_by || "N/A"}
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={15} className="text-center py-6">
+                  No interviewees found
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
       </div>
     </div>
   );

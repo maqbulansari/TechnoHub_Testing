@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { useForm } from "react-hook-form";
 import { AuthContext } from "../../contexts/authContext";
+import Loading from "@/Loading";
 
 const StudentsProfile = () => {
   const [student, setStudent] = useState(null);
@@ -78,10 +79,7 @@ const StudentsProfile = () => {
 
   if (!student) {
     return (
-      <div className="loading-minimal">
-        <div className="dot-flashing"></div>
-        <span className="ml-4">Loading ...</span>
-      </div>
+      <Loading />
     );
   }
 
