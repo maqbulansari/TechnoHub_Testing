@@ -115,7 +115,7 @@ export default function Header({ setVisible }) {
       if (payload?.data?.type === "notification") {
         // always refetch on each notification
         fetchNotificationCount();
-        toast("New notification", {
+        toast( {title: payload.notification?.title || "New notification"}, {
           description: payload?.notification?.body || "You have a new notification",
         });
 

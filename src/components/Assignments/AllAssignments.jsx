@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { AuthContext } from "../../contexts/authContext";
 
-import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,6 +22,12 @@ import {
     DialogTitle,
     DialogFooter,
 } from "@/components/ui/dialog";
+import {
+    Tabs,
+    TabsContent,
+    TabsList,
+    TabsTrigger,
+} from "@/components/ui/tabs";
 import Loading from "@/Loading";
 import { useNavigate, useParams } from "react-router-dom";
 import { FileText, Archive, ImageIcon, MessageCircle, Pen } from "lucide-react"
@@ -127,7 +133,7 @@ export const CreateAssignments = ({ onSuccess }) => {
             });
 
             setFormData({
-                title: "",  
+                title: "",
                 description: "",
                 due_date: today,
                 assignment_file: [],
@@ -299,15 +305,15 @@ export const AllAssignments = () => {
     const [filterStatus, setFilterStatus] = useState("all");
     const [openCreate, setOpenCreate] = useState(false);
 
+    // People tab states
+    const [people, setPeople] = useState(null);
+    const [loadingPeople, setLoadingPeople] = useState(false);
+
     const { batchId } = useParams();
-
-
-
-
-
 
     useEffect(() => {
         fetchAssignments();
+        fetchPeople();
     }, []);
 
     const fetchAssignments = async () => {
@@ -316,9 +322,6 @@ export const AllAssignments = () => {
             const res = await axios.get(`${API_BASE_URL}/assignments/?batch=${batchId}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
-            // const re = await axios.get(`${API_BASE_URL}/assignments/${batchId}`, {
-            //     headers: { Authorization: `Bearer ${token}` },
-            // });
 
             const updatedData = res.data.map((a) => ({
                 ...a,
@@ -330,6 +333,20 @@ export const AllAssignments = () => {
             console.error(err);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const fetchPeople = async () => {
+        setLoadingPeople(true);
+        try {
+            const res = await axios.get(`${API_BASE_URL}/batch-people-by-id/${batchId}/`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            setPeople(res.data);
+        } catch (err) {
+            console.error("Failed to fetch people:", err);
+        } finally {
+            setLoadingPeople(false);
         }
     };
 
@@ -348,10 +365,10 @@ export const AllAssignments = () => {
             acc[a.batch_name].push(a);
             return acc;
         }, {});
+
     // File type and icon helper
     const getFileTypeAndIcon = (url) => {
         if (typeof url !== "string") {
-            // fallback for unexpected cases
             return { type: "file", Icon: FileText, color: "text-gray-500" };
         }
 
@@ -371,10 +388,8 @@ export const AllAssignments = () => {
         return { type: ext, Icon: FaFileAlt, color: "text-gray-500" };
     };
 
-
     // Download helper
     const downloadFile = async (file) => {
-        // Handle single file, array, or object
         const files = Array.isArray(file)
             ? file
             : typeof file === "string"
@@ -387,7 +402,6 @@ export const AllAssignments = () => {
             if (!url) continue;
 
             try {
-                // Fetch the file as a blob
                 const response = await fetch(url, {
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem("accessToken") || ""}`
@@ -395,7 +409,6 @@ export const AllAssignments = () => {
                 });
                 const blob = await response.blob();
 
-                // Create a download link for the blob
                 const link = document.createElement("a");
                 const filename = url.split("/").pop();
                 link.href = window.URL.createObjectURL(blob);
@@ -405,7 +418,6 @@ export const AllAssignments = () => {
                 link.click();
                 document.body.removeChild(link);
 
-                // Release memory
                 window.URL.revokeObjectURL(link.href);
             } catch (err) {
                 console.error("Failed to download file:", err);
@@ -414,132 +426,214 @@ export const AllAssignments = () => {
         }
     };
 
-
-
     return (
         <div className="max-w-4xl mx-auto mt-20 space-y-6">
-            {/* Filters + Create Button */}
-            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-                <div className="flex gap-2 items-center">
+            <Tabs defaultValue="stream" className="w-full">
+                <TabsList>
+                    <TabsTrigger value="stream">Stream</TabsTrigger>
+                    <TabsTrigger value="people">People</TabsTrigger>
+                </TabsList>
 
-                    <Select value={filterStatus} onValueChange={setFilterStatus}>
-                        <SelectTrigger className="w-40">
-                            <SelectValue placeholder="All Status" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">All Status</SelectItem>
-                            <SelectItem value="Active">Active</SelectItem>
-                            <SelectItem value="Closed">Closed</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </div>
+                {/* Stream Tab */}
+                <TabsContent value="stream" className="space-y-6 mt-6">
+                    {/* Filters + Create Button */}
+                    <div className="flex justify-between items-center gap-4">
+                        <Select value={filterStatus} onValueChange={setFilterStatus}>
+                            <SelectTrigger className="w-40">
+                                <SelectValue placeholder="All Status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All Status</SelectItem>
+                                <SelectItem value="Active">Active</SelectItem>
+                                <SelectItem value="Closed">Closed</SelectItem>
+                            </SelectContent>
+                        </Select>
 
-                {/* Create Assignment Modal */}
-                <Dialog open={openCreate} onOpenChange={setOpenCreate}>
-                    <DialogTrigger asChild>
-                        <Button variant="outlinegray">   <Pen className="w-2  h-4" /> New Announcement</Button>
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-[600px]">
-                        <DialogHeader>
-                            <DialogTitle>Create   Announcement</DialogTitle>
-                        </DialogHeader>
-                        <CreateAssignments
-                            onSuccess={() => {
-                                fetchAssignments();
-                                setOpenCreate(false);
-                            }}
-                            batchId={null}
-                        />
-                    </DialogContent>
-                </Dialog>
-            </div>
-
-            {/* Assignment Feed */}
-            {Object.entries(groupedByBatch).map(([batchName, batchAssignments]) => (
-                <div key={batchName} className="space-y-4">
-                    <div className="bg-primary-400 rounded-xl p-4 mb-4 border">
-                        <h2 className="text-xl text-white font-semibold">
-                            {batchName}
-                        </h2>
-                        <p className="text-sm text-white/90">
-                            Assignments & resources
-                        </p>
+                        {/* Create Assignment Modal */}
+                        <Dialog open={openCreate} onOpenChange={setOpenCreate}>
+                            <DialogTrigger asChild>
+                                <Button variant="outlinegray">
+                                    <Pen className="w-2 h-4" /> New Announcement
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent className="sm:max-w-[600px]">
+                                <DialogHeader>
+                                    <DialogTitle>Create Announcement</DialogTitle>
+                                </DialogHeader>
+                                <CreateAssignments
+                                    onSuccess={() => {
+                                        fetchAssignments();
+                                        setOpenCreate(false);
+                                    }}
+                                    batchId={null}
+                                />
+                            </DialogContent>
+                        </Dialog>
                     </div>
 
-                    {batchAssignments.map((a) => (
-                        <Card key={a.id} className="transition rounded-md shadow-none">
-                            <CardHeader className="flex flex-col  md:flex-row justify-between pt-4 pb-3 items-start md:items-center gap-2 md:gap-4">
-                                <div className="flex flex-col md:flex-row items-start md:items-center gap-4 w-full">
-                                    <div>
-                                        <h3 className="text-lg font-semibold">{a.title}</h3>
-                                        <p className="text-xs text-black/50 leading-tight flex items-center gap-1">
-                                            <span>Posted by {a.trainer_name}</span>
-                                            <span className="opacity-60">•</span>
-                                            <span>
-                                                Due <strong className="font-medium">
-                                                    {new Date(a.due_date).toLocaleDateString()}
-                                                </strong>
-                                            </span>
-                                        </p>
+                    {/* Assignment Feed */}
+                    {Object.entries(groupedByBatch).map(([batchName, batchAssignments]) => (
+                        <div key={batchName} className="space-y-4">
+                            <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-[#1e88e5] via-[#42a5f5] to-[#90caf9] rounded-2xl">
+                                {/* Decorative elements */}
+                                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.15),transparent_50%)]" />
+                                <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-white/10 blur-2xl" />
+                                <div className="absolute -left-4 -bottom-4 h-24 w-24 rounded-full bg-white/5 blur-xl" />
 
+                                <div className="relative z-10 p-6 md:p-8">
+                                    <Badge className="mb-4 bg-white/20 text-white border-0 backdrop-blur-sm hover:bg-white/30 transition-colors">
+                                        Assignments & Resources
+                                    </Badge>
 
-                                    </div>
+                                    <h2 className="text-2xl md:text-3xl font-bold text-white tracking-tight mb-2">
+                                        {batchName}
+                                    </h2>
+
+                                    <p className="text-white/80 text-sm md:text-base max-w-md">
+                                        Overview of assignments and resources
+                                    </p>
                                 </div>
-                                <Badge variant={a.is_active ? "green" : "red"}>
-                                    {a.is_active ? "Active" : "Closed"}
-                                </Badge>
-                            </CardHeader>
-                            <CardContent className="space-y-2 pb-2">
+                            </Card>
 
+                            {batchAssignments.map((a) => (
+                                <Card key={a.id} className="transition rounded-md shadow-none">
+                                    <CardHeader className="flex flex-col md:flex-row justify-between pt-4 pb-3 items-start md:items-center gap-2 md:gap-4">
+                                        <div className="flex flex-col md:flex-row items-start md:items-center gap-4 w-full">
+                                            <div>
+                                                <h3 className="text-lg font-semibold">{a.title}</h3>
+                                                <p className="text-xs text-black/50 leading-tight flex items-center gap-1">
+                                                    <span>Posted by {a.trainer_name}</span>
+                                                    <span className="opacity-60">•</span>
+                                                    <span>
+                                                        Due <strong className="font-medium">
+                                                            {new Date(a.due_date).toLocaleDateString()}
+                                                        </strong>
+                                                    </span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                        {/* <Badge variant={a.is_active ? "green" : "red"}>
+                                            {a.is_active ? "Active" : "Closed"}
+                                        </Badge> */}
+                                    </CardHeader>
+                                    <CardContent className="space-y-2 pb-2">
+                                        <div className="flex flex-row gap-1">
+                                            {a.assignment_file?.map((fileUrl, idx) => {
+                                                const { type, Icon, color } = getFileTypeAndIcon(fileUrl);
 
-                                <div className="flex flex-row gap-1">
-                                    {a.assignment_file?.map((fileUrl, idx) => {
-                                        const { type, Icon, color } = getFileTypeAndIcon(fileUrl);
+                                                const fullFilename = fileUrl.split("/").pop();
+                                                const dotIndex = fullFilename.lastIndexOf(".");
+                                                const nameOnly = dotIndex !== -1 ? fullFilename.slice(0, dotIndex) : fullFilename;
+                                                const extOnly = dotIndex !== -1 ? fullFilename.slice(dotIndex) : "";
 
-                                        const fullFilename = fileUrl.split("/").pop();
-                                        const dotIndex = fullFilename.lastIndexOf(".");
-                                        const nameOnly = dotIndex !== -1 ? fullFilename.slice(0, dotIndex) : fullFilename;
-                                        const extOnly = dotIndex !== -1 ? fullFilename.slice(dotIndex) : "";
+                                                return (
+                                                    <Button
+                                                        key={idx}
+                                                        variant="outline"
+                                                        size="sm"
+                                                        onClick={() => downloadFile(fileUrl)}
+                                                        className="inline-flex items-center gap-1 px-2 py-1 shadow-md text-xs hover:bg-muted transition min-w-0"
+                                                    >
+                                                        <Icon className={`w-4 h-4 flex-shrink-0 ${color}`} />
+                                                        <span className="flex items-center gap-1 truncate max-w-[100px]">
+                                                            <span className="truncate">{nameOnly}</span>
+                                                            <span className="flex-shrink-0 text-muted-foreground">{extOnly}</span>
+                                                        </span>
+                                                    </Button>
+                                                );
+                                            })}
+                                        </div>
 
-                                        return (
+                                        {/* Read Comments Button */}
+                                        <div className="pt-3 border-t border-gray-200 flex justify-start">
                                             <Button
-                                                key={idx}
-                                                variant="outline"
                                                 size="sm"
-                                                onClick={() => downloadFile(fileUrl)}
-                                                className="inline-flex items-center gap-1 px-2 py-1 shadow-md text-xs hover:bg-muted transition min-w-0"
+                                                variant="outlin"
+                                                className="p-0"
+                                                onClick={() => navigate(`/AssignmentComments/${a.id}`)}
                                             >
-                                                <Icon className={`w-4 h-4 flex-shrink-0 ${color}`} />
-                                                <span className="flex items-center gap-1 truncate max-w-[100px]">
-                                                    <span className="truncate">{nameOnly}</span>
-                                                    <span className="flex-shrink-0 text-muted-foreground">{extOnly}</span>
-                                                </span>
+                                                <MessageCircle className="w-4 h-4" />
+                                                Read Comments
                                             </Button>
-                                        );
-                                    })}
-                                </div>
-
-
-
-                                {/* Read Comments Button */}
-                                <div className="pt-3 border-t border-gray-200 flex justify-start">
-                                    <Button
-                                        size="sm"
-                                        variant="outlin"
-                                        className="p-0"
-                                        onClick={() => navigate(`/AssignmentComments/${a.id}`)}
-                                    >
-                                        <MessageCircle className="w-4 h-4" />
-                                        Read Comments
-                                    </Button>
-                                </div>
-
-                            </CardContent>
-
-                        </Card>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            ))}
+                        </div>
                     ))}
-                </div>
-            ))}
+                </TabsContent>
+
+                {/* People Tab */}
+                <TabsContent value="people" className="mt-6">
+                    <div className="space-y-6">
+                        {loadingPeople ? (
+                            <Loading />
+                        ) : people ? (
+                            <div className="space-y-8">
+                                {/* Teachers Section */}
+                                <div>
+                                    <div className="flex items-center justify-between pb-3 border-b-2">
+                                        <h3 className="text-lg font-medium">Teachers</h3>
+                                        <span className="text-sm text-muted-foreground">
+                                            {people.teachers.length} teacher{people.teachers.length !== 1 ? 's' : ''}
+                                        </span>
+                                    </div>
+
+                                    <ul className="divide-y">
+                                        {people.teachers.map((t) => (
+                                            <li key={t.id} className="flex items-center gap-4 py-4">
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-sm font-medium flex items-center gap-2">
+                                                        {t.name}
+                                                        {t.its_you && (
+                                                            <span className="text-xs text-muted-foreground">(You)</span>
+                                                        )}
+                                                    </p>
+                                                    <p className="text-xs text-muted-foreground truncate">{t.email}</p>
+                                                </div>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+
+                                {/* Students Section */}
+                                <div>
+                                    <div className="flex items-center justify-between pb-3 border-b-2">
+                                        <h3 className="text-lg font-medium">Students</h3>
+                                        <span className="text-sm text-muted-foreground">
+                                            {people.students_count} student{people.students_count !== 1 ? 's' : ''}
+                                        </span>
+                                    </div>
+
+                                    {people.students.length === 0 ? (
+                                        <p className="text-sm text-muted-foreground py-6 text-center">
+                                            No students enrolled yet
+                                        </p>
+                                    ) : (
+                                        <ul className="divide-y">
+                                            {people.students.map((s) => (
+                                                <li key={s.id} className="flex items-center gap-4 py-4">
+                                                    <div className="flex-1 min-w-0">
+                                                        <p className="text-sm font-medium flex items-center gap-2">
+                                                            {s.name}
+                                                            {s.its_you && (
+                                                                <span className="text-xs text-muted-foreground">(You)</span>
+                                                            )}
+                                                        </p>
+                                                        <p className="text-xs text-muted-foreground truncate">{s.email}</p>
+                                                    </div>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    )}
+                                </div>
+                            </div>
+                        ) : (
+                            <p className="text-center text-muted-foreground py-6">No data found.</p>
+                        )}
+                    </div>
+                </TabsContent>
+            </Tabs>
         </div>
     );
 };
