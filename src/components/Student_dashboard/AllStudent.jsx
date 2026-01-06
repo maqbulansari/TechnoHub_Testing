@@ -83,9 +83,9 @@ const AllStudent = () => {
       <h2 className="text-2xl font-semibold">Students</h2>
 
       {/* Filters */}
-      <div className="flex flex-col md:flex-row gap-4">
+      <div className="flex flex-col md:flex-row gap-4 w-1/2">
         <Input
-          placeholder="Search by name or email..."
+          placeholder="name or email..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="md:w-1/3"
@@ -96,7 +96,7 @@ const AllStudent = () => {
             <SelectValue placeholder="Gender" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All</SelectItem>
+            <SelectItem value="all">Gender</SelectItem>
             <SelectItem value="Male">Male</SelectItem>
             <SelectItem value="Female">Female</SelectItem>
           </SelectContent>
@@ -107,7 +107,7 @@ const AllStudent = () => {
             <SelectValue placeholder="Batch" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All</SelectItem>
+            <SelectItem value="all">All Batches</SelectItem>
             {[...new Set(studentData.map((s) => s.batch))].map(
               (batch) =>
                 batch && (

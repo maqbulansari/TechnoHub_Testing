@@ -91,12 +91,12 @@ const StudentInformation = () => {
 
   return (
     <div className="p-6 mt-16 space-y-6">
-      <h2 className="text-2xl font-semibold text-center">
+      <h2 className="text-2xl font-semibold text-left">
         Student Information
       </h2>
 
       {/* Filters – NO border */}
-      <div className="flex flex-col md:flex-row gap-4">
+      <div className="flex flex-col md:flex-row gap-4 w-1/2">
         <Input
           placeholder="Search student name..."
           value={search}

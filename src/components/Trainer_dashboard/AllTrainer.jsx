@@ -89,9 +89,9 @@ const AllTrainer = () => {
       <h2 className="text-2xl font-semibold">Trainer Information</h2>
 
       {/* Filters */}
-      <div className="flex flex-col md:flex-row gap-4">
+      <div className="flex flex-col md:flex-row gap-4 w-1/2">
         <Input
-          placeholder="Search by name or email..."
+          placeholder="name or email..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="md:w-1/3"
@@ -102,7 +102,7 @@ const AllTrainer = () => {
             <SelectValue placeholder="Gender" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All</SelectItem>
+            <SelectItem value="all">All Gender</SelectItem>
             <SelectItem value="Male">Male</SelectItem>
             <SelectItem value="Female">Female</SelectItem>
           </SelectContent>
@@ -113,7 +113,7 @@ const AllTrainer = () => {
             <SelectValue placeholder="Technology" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All</SelectItem>
+            <SelectItem value="all">All Technologies</SelectItem>
             {allTechnologies.map((tech) => (
               <SelectItem key={tech} value={tech}>
                 {tech}
@@ -149,7 +149,7 @@ const AllTrainer = () => {
                     {trainer.job_title}
                   </TableCell>
                   <TableCell>{trainer.experience} yrs</TableCell>
-                  <TableCell className="flex flex-wrap gap-1">
+                  <TableCell className="flex flex-wrap gap-1 border-none">
                     {trainer.technologies?.length ? (
                       trainer.technologies.map((tech, idx) => (
                         <Badge key={idx} variant="outline">

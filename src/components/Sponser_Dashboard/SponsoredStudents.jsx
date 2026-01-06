@@ -77,7 +77,7 @@ import { Badge } from "@/components/ui/badge";
       <h2 className="text-2xl font-semibold">Sponsored Students</h2>
 
       {/* Filters */}
-      <div className="flex flex-col md:flex-row gap-4 mt-3">
+      <div className="flex flex-col md:flex-row gap-4 mt-3 w-1/2">
         <Input
           placeholder="Search by name..."
           value={search}

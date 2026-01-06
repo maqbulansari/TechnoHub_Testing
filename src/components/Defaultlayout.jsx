@@ -83,7 +83,7 @@ const Defaultlayout = () => {
         title: "Assessment Process",
         items: [{ path: "/AssessmentTable", label: "Assessment Candidate" }],
         icon: faCubes,
-        key: "assessment-process",
+        key: "trainer-assessment-process",
       },
     ],
     RECRUITER: {
@@ -136,7 +136,7 @@ const Defaultlayout = () => {
              { path: "/Admission_table", label: "Interview" },
             ],
         icon: faTicket,
-        key: "admission-process",
+        key: "alltrainer-admission-process",
       },
       {
         title: "Assessment Process",
@@ -144,7 +144,7 @@ const Defaultlayout = () => {
           role === "ADMIN"
           ?  [{ path: "/AssessmentSelectedStudent", label: "Assessment Candidate" }] :[{ path: "/AssessmentTable", label: "Assessment Candidate" }] ,
         icon: faCubes,
-        key: "assessment-process",
+        key: "alltrainer-assessment-process",
       },
       {
         title: "Batches Management",
@@ -152,7 +152,7 @@ const Defaultlayout = () => {
           role === "ADMIN"
           &&  [{ path: "/CreateBatches", label: "Create Batch" },{ path: "/AllBatches", label: "All Batchs" }] ,
         icon: faCubes,
-        key: "assessment-process",
+        key: "alltrainer-batches-management",
       },
     ],
     ALLSTUDENT: {
