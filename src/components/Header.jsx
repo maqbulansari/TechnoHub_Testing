@@ -115,7 +115,7 @@ export default function Header({ setVisible }) {
       if (payload?.data?.type === "notification") {
         // always refetch on each notification
         fetchNotificationCount();
-        toast("New notification", {
+        toast({ title: payload.notification?.title || "New notification" }, {
           description: payload?.notification?.body || "You have a new notification",
         });
 
@@ -178,7 +178,7 @@ export default function Header({ setVisible }) {
             {!isAuthenticated && isHome && (
               <nav className="hidden md:flex gap-8 text-sm text-text">
                 <a href="#trainers">Trainers</a>
-                <a href="#tech">Technologies</a>          
+                <a href="#tech">Technologies</a>
                 <a href="#gallery">Gallery</a>
                 <a href="#reads">Thursday Reads</a>
               </nav>

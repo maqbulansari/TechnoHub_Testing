@@ -5,8 +5,16 @@ import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { FileText, Archive, ImageIcon, MessageCircle } from "lucide-react";
+import { FileText, Archive, ImageIcon, MessageCircle, MoreVertical } from "lucide-react";
 import { FaFilePdf, FaFileWord, FaFileAlt } from "react-icons/fa";
+
+import {
+    DropdownMenu,
+    DropdownMenuTrigger,
+    DropdownMenuContent,
+    DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
+
 import {
     Dialog,
     DialogTrigger,
@@ -18,21 +26,33 @@ import {
 } from "@/components/ui/dialog";
 import Loading from "@/Loading";
 
+
 export const StudentAssignment = () => {
     const { API_BASE_URL, user } = useContext(AuthContext);
     const token = localStorage.getItem("accessToken");
 
     const [assignments, setAssignments] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [submissions, setSubmissions] = useState({}); // {assignmentId: [submissions]}
+    const [submissions, setSubmissions] = useState({});
     const [formData, setFormData] = useState({});
-    const [files, setFiles] = useState({}); // {assignmentId: [File, ...]}
+    const [files, setFiles] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showSubmissionForm, setShowSubmissionForm] = useState({});
     const [showSubmissions, setShowSubmissions] = useState({});
+    const [editingSubmission, setEditingSubmission] = useState(null);
+    const [removedFiles, setRemovedFiles] = useState([]);
+
+
+    const [confirmDelete, setConfirmDelete] = useState({
+        isOpen: false,
+        submissionId: null,
+        assignmentId: null,
+    });
 
     const [submitSuccess, setSubmitSuccess] = useState(false);
     const [modalMessage, setModalMessage] = useState("");
+    const [isSuccess, setIsSuccess] = useState(false);
+
 
 
     useEffect(() => {
@@ -45,6 +65,8 @@ export const StudentAssignment = () => {
             const res = await axios.get(`${API_BASE_URL}/assignments/`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
+          
+            
             const sortedAssignments = res.data.sort((a, b) => b.is_active - a.is_active);
             setAssignments(sortedAssignments);
         } catch (err) {
@@ -73,41 +95,152 @@ export const StudentAssignment = () => {
             [assignmentId]: prev[assignmentId].filter((_, idx) => idx !== indexToRemove),
         }));
     };
+    const handleEditSubmission = (assignmentId, sub) => {
+        setEditingSubmission(sub);
+
+        setShowSubmissionForm((prev) => ({
+            ...prev,
+            [assignmentId]: true,
+        }));
+
+        setFormData((prev) => ({
+            ...prev,
+            [assignmentId]: sub.text_answer || "",
+        }));
+
+        setFiles((prev) => ({
+            ...prev,
+            [assignmentId]: [], // new files only
+        }));
+
+        setRemovedFiles([]);
+    };
+
+
+    const validateSubmission = (assignmentId) => {
+        const text = formData[assignmentId] || "";
+        const uploadedFiles = files[assignmentId] || [];
+
+        // Example validation rules
+        if (!text && uploadedFiles.length === 0) {
+            setModalMessage("Please provide an answer or upload at least one file.");
+            setSubmitSuccess(true);
+            setIsSuccess(false);
+            return false;
+        }
+
+        // Optional: limit file types
+        const allowedTypes = ["pdf", "doc", "docx", "jpg", "png"];
+        const invalidFiles = uploadedFiles.filter(f => {
+            const ext = f.name.split(".").pop().toLowerCase();
+            return !allowedTypes.includes(ext);
+        });
+
+        if (invalidFiles.length > 0) {
+            setModalMessage("Some files have unsupported formats. Allowed: pdf, doc, docx, jpg, png.");
+            setSubmitSuccess(true);
+            setIsSuccess(false);
+            return false;
+        }
+
+        // Optional: limit file size (5MB max)
+        const maxSizeMB = 5;
+        const tooLargeFiles = uploadedFiles.filter(f => f.size > maxSizeMB * 1024 * 1024);
+        if (tooLargeFiles.length > 0) {
+            setModalMessage(`Some files exceed the maximum size of ${maxSizeMB}MB.`);
+            setSubmitSuccess(true);
+            setIsSuccess(false);
+            return false;
+        }
+
+        return true;
+    };
+
+
+    // Open confirmation modal
+    const handleConfirmDelete = (submissionId, assignmentId) => {
+        setConfirmDelete({ isOpen: true, submissionId, assignmentId });
+    };
+
+    // Called when user confirms deletion
+    const handleDeleteSubmission = async () => {
+        const { submissionId, assignmentId } = confirmDelete;
+
+        try {
+            await axios.delete(`${API_BASE_URL}/submissions/${submissionId}/`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            fetchSubmissions(assignmentId);
+        } catch (err) {
+            console.error("Delete failed", err);
+        } finally {
+            setConfirmDelete({ isOpen: false, submissionId: null, assignmentId: null });
+        }
+    };
+
 
     const handleSubmit = async (assignmentId) => {
+        if (!validateSubmission(assignmentId)) return;
+
         setIsSubmitting(true);
+
         try {
             const data = new FormData();
-            data.append("assignment", assignmentId);
             data.append("text_answer", formData[assignmentId] || "");
 
             if (files[assignmentId]) {
-                files[assignmentId].forEach((f) => data.append("submission_file", f));
+                files[assignmentId].forEach((f) =>
+                    data.append("submission_file", f)
+                );
             }
 
-            await axios.post(`${API_BASE_URL}/submissions/`, data, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "multipart/form-data",
-                },
-            });
+            if (editingSubmission) {
+                await axios.patch(
+                    `${API_BASE_URL}/submissions/${editingSubmission.id}/`,
+                    data,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                            "Content-Type": "multipart/form-data",
+                        },
+                    }
+                );
+                setModalMessage("Submission updated successfully!");
+            } else {
+                data.append("assignment", assignmentId);
 
-            setModalMessage("Submission successful!");
+                await axios.post(
+                    `${API_BASE_URL}/submissions/`,
+                    data,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                            "Content-Type": "multipart/form-data",
+                        },
+                    }
+                );
+                setModalMessage("Submission successful!");
+            }
+
+            setIsSuccess(true);
             setSubmitSuccess(true);
-
+            setEditingSubmission(null);
             setFormData((prev) => ({ ...prev, [assignmentId]: "" }));
             setFiles((prev) => ({ ...prev, [assignmentId]: [] }));
             setShowSubmissionForm((prev) => ({ ...prev, [assignmentId]: false }));
             fetchSubmissions(assignmentId);
+
         } catch (err) {
             console.error(err);
             setModalMessage("Failed to submit. Please try again.");
             setSubmitSuccess(true);
+            setIsSuccess(false);
         } finally {
             setIsSubmitting(false);
         }
-
     };
+
+
 
     const getFileTypeAndIcon = (url) => {
         const ext = url.split(".").pop()?.toLowerCase();
@@ -206,7 +339,7 @@ export const StudentAssignment = () => {
                                     </p>
                                 </div>
                             </div>
-                            <Badge variant={a.is_active ? "green" : "destructive"}>{a.is_active ? "Active" : "Closed"}</Badge>
+                            {/* <Badge variant={a.is_active ? "green" : "destructive"}>{a.is_active ? "Active" : "Closed"}</Badge> */}
                         </CardHeader>
 
                         <CardContent className="space-y-2 pb-4">
@@ -241,22 +374,47 @@ export const StudentAssignment = () => {
 
                             {/* Action Buttons */}
                             <div className="pt-3 border-t border-gray-200 flex justify-start gap-2">
+                                {/* Submit Assignment / Close Form */}
                                 {a.is_active && (
-                                    <Button size="sm" variant={isFormOpen ? "secondary" : "default"} onClick={() => toggleSubmissionForm(a.id)}>
+                                    <Button
+                                        size="sm"
+                                        variant={isFormOpen ? "secondary" : "default"}
+                                        onClick={() => {
+                                            // Close form should reset editing state
+                                            if (isFormOpen) {
+                                                setEditingSubmission(null);
+                                                setRemovedFiles([]);
+                                                setFiles((prev) => ({ ...prev, [a.id]: [] }));
+                                                setFormData((prev) => ({ ...prev, [a.id]: "" }));
+                                            }
+                                            toggleSubmissionForm(a.id);
+                                        }}
+                                    >
                                         {isFormOpen ? "Close Form" : "Submit Assignment"}
                                     </Button>
                                 )}
 
+                                {/* Toggle All Submissions */}
                                 <Button
                                     size="sm"
                                     className="p-2"
-                                    variant={isSubmissionsOpen ? "secondary" : "outlin"}
-                                    onClick={() => toggleSubmissions(a.id)}
+                                    variant={isSubmissionsOpen ? "secondary" : "outlinee"}
+                                    onClick={() => {
+                                        // If opening submissions, close form and reset edit mode
+                                        if (!isSubmissionsOpen) {
+                                            setEditingSubmission(null);
+                                            setRemovedFiles([]);
+                                            setFiles((prev) => ({ ...prev, [a.id]: [] }));
+                                            setFormData((prev) => ({ ...prev, [a.id]: "" }));
+                                        }
+                                        toggleSubmissions(a.id);
+                                    }}
                                 >
-                                    {isSubmissionsOpen ? "" : <MessageCircle className="w-4 h-4 mr-1" />}
+                                    {!isSubmissionsOpen && <MessageCircle className="w-4 h-4 mr-1" />}
                                     {isSubmissionsOpen ? "Hide Submissions" : "All Submissions"}
                                 </Button>
                             </div>
+
 
                             {/* Submission Form */}
                             {isFormOpen && a.is_active && (
@@ -276,21 +434,91 @@ export const StudentAssignment = () => {
                                         <input type="file" name="submission_file" multiple onChange={(e) => handleChange(e, a.id)} className="hidden" />
                                     </label>
 
-                                    {files[a.id]?.length > 0 &&
-                                        files[a.id].map((f, idx) => (
-                                            <div key={idx} className="flex justify-between items-center text-sm  mt-1">
-                                                <span>{f.name}</span>
-                                                <button type="button" onClick={() => removeFile(a.id, idx)}>✕</button>
+                                    {/* Existing Files (in edit mode) */}
+                                    {editingSubmission?.submission_file
+                                        ?.filter((f) => !removedFiles.includes(f.submission_file))
+                                        .length > 0 && (
+                                            <div className="mt-2 space-y-1">
+                                                <p className="text-xs font-medium text-gray-600">Existing Files</p>
+
+                                                {editingSubmission.submission_file
+                                                    .filter((f) => !removedFiles.includes(f.submission_file))
+                                                    .map((f, idx) => (
+                                                        <div
+                                                            key={idx}
+                                                            className="flex justify-between items-center text-sm bg-white border rounded px-2 py-1"
+                                                        >
+                                                            <span className="truncate max-w-[200px]">
+                                                                {f.submission_file.split("/").pop()}
+                                                            </span>
+
+                                                            <button
+                                                                type="button"
+                                                                onClick={() =>
+                                                                    setRemovedFiles((prev) => [
+                                                                        ...prev,
+                                                                        f.submission_file,
+                                                                    ])
+                                                                }
+                                                                className="text-red-500 text-xs hover:underline"
+                                                            >
+                                                                Remove
+                                                            </button>
+                                                        </div>
+                                                    ))}
                                             </div>
-                                        ))}
+                                        )}
+
+
+                                    {/* New Files */}
+                                    {files[a.id]?.length > 0 && (
+                                        <div className="mt-2 space-y-1">
+                                            <p className="text-xs font-medium text-gray-600">New Files</p>
+
+                                            {files[a.id].map((f, idx) => (
+                                                <div
+                                                    key={idx}
+                                                    className="flex justify-between items-center text-sm bg-white border rounded px-2 py-1"
+                                                >
+                                                    <span className="truncate max-w-[200px]">{f.name}</span>
+
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => removeFile(a.id, idx)}
+                                                        className="text-red-500 text-xs hover:underline"
+                                                    >
+                                                        Remove
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+
+
+
 
                                     <div className="flex justify-end gap-2 mt-3">
-                                        <Button size="sm" variant="outline" onClick={() => toggleSubmissionForm(a.id)}>
+                                        <Button
+                                            size="sm"
+                                            variant="outline"
+                                            onClick={() => {
+                                                // Reset everything for this assignment
+                                                setEditingSubmission(null);
+                                                setRemovedFiles([]);
+                                                setFiles((prev) => ({ ...prev, [a.id]: [] }));
+                                                setFormData((prev) => ({ ...prev, [a.id]: "" }));
+                                                toggleSubmissionForm(a.id);
+                                            }}
+                                        >
                                             Cancel
                                         </Button>
+
                                         <Button size="sm" onClick={() => handleSubmit(a.id)} disabled={isSubmitting}>
                                             {isSubmitting ? "Submitting..." : "Submit"}
                                         </Button>
+
+
+
                                     </div>
                                 </div>
                             )}
@@ -309,13 +537,49 @@ export const StudentAssignment = () => {
                                                     className="border rounded-md bg-white p-3 shadow-sm hover:shadow-md transition"
                                                 >
                                                     <div className="flex justify-between items-center mb-1">
-                                                        <p className="font-semibold text-sm text-gray-800">{sub.student_name}</p>
-                                                        {sub.is_late && (
-                                                            <Badge variant="destructive" className="text-xs px-2 py-0.5">
-                                                                Late
-                                                            </Badge>
+                                                        <div className="flex items-center gap-2">
+                                                            <p className="font-semibold text-sm text-gray-800">
+                                                                {sub.student_name}
+                                                            </p>
+
+                                                            {sub.is_late && (
+                                                                <Badge variant="destructive" className="text-xs px-2 py-0.5">
+                                                                    Late
+                                                                </Badge>
+                                                            )}
+                                                        </div>
+
+                                                        {/* 3-dot menu only for your own submission */}
+                                                        {sub.is_you && (
+                                                            <DropdownMenu>
+                                                                <DropdownMenuTrigger asChild>
+                                                                    <Button
+                                                                        variant="ghost"
+                                                                        size="icon"
+                                                                        className="h-8 w-1"
+                                                                    >
+                                                                        <MoreVertical className="h-4 w-4" />
+                                                                    </Button>
+                                                                </DropdownMenuTrigger>
+
+                                                                <DropdownMenuContent align="end">
+                                                                    <DropdownMenuItem
+                                                                        onClick={() => handleEditSubmission(a.id, sub)}
+                                                                    >
+                                                                        Edit
+                                                                    </DropdownMenuItem>
+
+                                                                    <DropdownMenuItem
+                                                                        onClick={() => handleConfirmDelete(sub.id, a.id)}
+                                                                    >
+                                                                        Delete
+                                                                    </DropdownMenuItem>
+
+                                                                </DropdownMenuContent>
+                                                            </DropdownMenu>
                                                         )}
                                                     </div>
+
 
                                                     {sub.text_answer && (
                                                         <p className="text-gray-700 text-sm mb-1">
@@ -386,7 +650,7 @@ export const StudentAssignment = () => {
                 <DialogContent className="sm:max-w-md p-0 gap-0 overflow-hidden [&>button]:hidden rounded-xl">
                     <DialogHeader className="px-5 pt-4 pb-4 space-y-1">
                         <DialogTitle className="text-xl pb-2 font-semibold">
-                            {modalMessage === "Submission successful!" ? "Success" : "Error"}
+                            {isSuccess ? "Success" : "Error"}
                         </DialogTitle>
                         <DialogDescription className="text-sm pb-2 text-muted-foreground leading-relaxed">
                             {modalMessage}
@@ -395,6 +659,26 @@ export const StudentAssignment = () => {
                     <DialogFooter className="px-3 pb-3 bg-muted/30">
                         <Button onClick={() => setSubmitSuccess(false)} className="w-full sm:w-auto">
                             Close
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+
+            <Dialog open={confirmDelete.isOpen} onOpenChange={(open) => setConfirmDelete(prev => ({ ...prev, isOpen: open }))}>
+                <DialogContent className="sm:max-w-md p-5 [&>button]:hidden rounded-xl">
+                    <DialogHeader>
+                        <DialogTitle>Confirm Delete</DialogTitle>
+                        <DialogDescription>
+                            Are you sure you want to delete this submission? This action cannot be undone.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter className="flex justify-end gap-2">
+                        <Button variant="outline" onClick={() => setConfirmDelete({ isOpen: false, submissionId: null, assignmentId: null })}>
+                            Cancel
+                        </Button>
+                        <Button variant="destructive" onClick={handleDeleteSubmission}>
+                            Delete
                         </Button>
                     </DialogFooter>
                 </DialogContent>
