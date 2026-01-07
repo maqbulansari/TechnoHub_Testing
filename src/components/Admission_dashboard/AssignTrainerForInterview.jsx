@@ -246,7 +246,7 @@ const AssignTrainerForInterview = () => {
               </SelectTrigger>
               <SelectContent>
                 {batches.map((batch) => (
-                  <SelectItem key={batch.batch_id} value={batch.batch_id.toString()}>
+                  <SelectItem key={batch.batch_id} value={batch.id.toString()}>
                     {batch.batch_name} - {batch.center}
                   </SelectItem>
                 ))}

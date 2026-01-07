@@ -53,15 +53,14 @@ export default function Header({ setVisible }) {
 
 
 
-  // DEBUG: log on every render to ensure this instance is the one you see
-  console.log("Header render, notificationCount:", notificationCount);
+
 
   // Stable fetch function + race-condition protection
   const fetchNotificationCount = useCallback(async () => {
     if (!isAuthenticated) return;
 
     const currentRequestId = ++requestIdRef.current;
-    console.log("fetchNotificationCount requestId:", currentRequestId);
+
 
     try {
       const accessToken = localStorage.getItem("accessToken");
@@ -73,20 +72,10 @@ export default function Header({ setVisible }) {
       );
 
       const unread = response.data?.unread ?? 0;
-      console.log(
-        "API returned unread:",
-        unread,
-        "for requestId:",
-        currentRequestId,
-        "latest requestIdRef:",
-        requestIdRef.current
-      );
 
       // Only update state if this is the latest request
       if (currentRequestId === requestIdRef.current) {
         setNotificationCount(unread);
-        console.log("unread", unread);
-
       } else {
         console.log(
           "Ignored stale response for requestId:",
@@ -97,6 +86,7 @@ export default function Header({ setVisible }) {
       console.error("Error fetching notification count:", error);
     }
   }, [API_BASE_URL, isAuthenticated]);
+
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -112,11 +102,11 @@ export default function Header({ setVisible }) {
       window.dispatchEvent(new Event("notification-received"));
 
 
-      if (payload?.data?.type === "notification") {
+      if (payload?.data) {
         // always refetch on each notification
         fetchNotificationCount();
-        toast({ title: payload.notification?.title || "New notification" }, {
-          description: payload?.notification?.body || "You have a new notification",
+        toast(payload?.data?.title || "New notification", {
+          description: payload?.data?.body || "You have a new notification",
         });
 
 
@@ -126,9 +116,9 @@ export default function Header({ setVisible }) {
     return () => unsubscribe?.();
   }, []);
 
-  useEffect(() => {
-    console.log("notificationCount changed:", notificationCount);
-  }, [notificationCount]);
+  // useEffect(() => {
+  //   console.log("notificationCount changed:", notificationCount);
+  // }, [notificationCount,API_BASE_URL]);
 
 
   const handleNavigate = () => async () => {
