@@ -1,107 +1,108 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useEffect, useState, useContext, useMemo } from "react";
 import axios from "axios";
 import { AuthContext } from "../../contexts/authContext";
 import Loading from "@/Loading";
 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
+
 const AssignBatch = () => {
-  const [selectedLearners, setSelectedLearners] = useState([]);
-  const [selectAll, setSelectAll] = useState(false);
-  const [showDialog, setShowDialog] = useState(false);
-  const [selectedBatch, setSelectedBatch] = useState("");
+  const { API_BASE_URL } = useContext(AuthContext);
+
   const [learners, setLearners] = useState([]);
   const [batches, setBatches] = useState([]);
+  const [selectedLearners, setSelectedLearners] = useState([]);
+  const [selectedBatch, setSelectedBatch] = useState("");
+  const [search, setSearch] = useState("");
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [openDialog, setOpenDialog] = useState(false);
 
-  const { API_BASE_URL } = useContext(AuthContext);
-  const [accessToken, setAccessToken] = useState(null);
+  const token = localStorage.getItem("accessToken");
 
-  // Get token from localStorage
+
   useEffect(() => {
-    const token = localStorage.getItem("accessToken");
-    if (token) {
-      setAccessToken(token);
-    } else {
-      setError("No access token found");
-      setLoading(false);
-    }
-  }, []);
+    const fetchData = async () => {
+      try {
+        const [learnersRes, batchesRes] = await Promise.all([
+          axios.get(`${API_BASE_URL}/Learner/selected_without_batch/`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          axios.get(`${API_BASE_URL}/batches/`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+        ]);
 
-  // Fetch batches
-  const fetchBatches = async () => {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/batches/`, {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
-      setBatches(response.data);
-    } catch (err) {
-      console.error("Error fetching batches:", err);
-      setError(err.response?.data?.detail || "Failed to fetch batches");
-    }
-  };
+        setLearners(learnersRes.data);
+        setBatches(batchesRes.data);
+      } catch (err) {
+        setError(err.response?.data?.detail || err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  // Fetch learners
-  const fetchLearners = async () => {
-    if (!accessToken) return;
-    try {
-      const response = await axios.get(`${API_BASE_URL}/Learner/selected_without_batch/`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-      });
-      setLearners(response.data);
-      setLoading(false);
-    } catch (err) {
-      setError(err.response?.data?.detail || err.message);
-      setLoading(false);
-    }
-  };
+    fetchData();
+  }, [API_BASE_URL, token]);
 
-  // Fetch data when accessToken is ready
-  useEffect(() => {
-    if (accessToken) {
-      fetchLearners();
-      fetchBatches();
-    }
-  }, [accessToken]);
 
-  const handleSelectLearner = (learnerId) => {
-    if (selectedLearners.includes(learnerId)) {
-      setSelectedLearners(selectedLearners.filter((id) => id !== learnerId));
-    } else {
-      setSelectedLearners([...selectedLearners, learnerId]);
-    }
-  };
 
-  const handleSelectAll = () => {
-    if (selectAll) {
+  const filteredLearners = useMemo(() => {
+    return learners.filter(
+      (l) =>
+        l.name.toLowerCase().includes(search.toLowerCase()) ||
+        l.email.toLowerCase().includes(search.toLowerCase())
+    );
+  }, [learners, search]);
+
+  const allSelected =
+    filteredLearners.length > 0 &&
+    filteredLearners.every((l) => selectedLearners.includes(l.id));
+
+
+
+  const toggleSelectAll = () => {
+    if (allSelected) {
       setSelectedLearners([]);
     } else {
-      setSelectedLearners(learners.map((learner) => learner.id));
+      setSelectedLearners(filteredLearners.map((l) => l.id));
     }
-    setSelectAll(!selectAll);
   };
 
-  const handleAssignBatchClick = () => setShowDialog(true);
-  const handleDialogClose = () => {
-    setShowDialog(false);
-    setSelectedBatch("");
+  const toggleLearner = (id) => {
+    setSelectedLearners((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+    );
   };
 
-  const handleBatchAssignConfirm = async () => {
-    if (!selectedBatch) {
-      alert("Please select a batch");
-      return;
-    }
-
-    if (!accessToken) {
-      alert("No authentication token available");
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
+  const handleAssignBatch = async () => {
+    if (!selectedBatch) return;
 
     try {
       await axios.post(
@@ -111,171 +112,151 @@ const AssignBatch = () => {
           batch_id: selectedBatch,
         },
         {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "Content-Type": "application/json",
-          },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
 
-      // Remove assigned learners from the list
-      setLearners(learners.filter((learner) => !selectedLearners.includes(learner.id)));
-
+      setLearners((prev) =>
+        prev.filter((l) => !selectedLearners.includes(l.id))
+      );
       setSelectedLearners([]);
-      setSelectAll(false);
       setSelectedBatch("");
-      setShowDialog(false);
+      setOpenDialog(false);
     } catch (err) {
-      // Display API error
       setError(err.response?.data?.detail || err.message);
-    } finally {
-      setLoading(false);
     }
   };
 
-  if (loading) {
+
+
+  if (loading) return <Loading />;
+
+  if (error)
     return (
-      <Loading/>
+      <div className="text-red-500 text-center py-10">
+        Error: {error}
+      </div>
     );
-  }
-  if (error) {
-    return (
-     <div className="assign-batch-container-with-bg mt-16">
-      <div className="assign-batch-container">
-        <div className="header-containerH d-flex justify-center w-100 ">
-          <h2 className="sponsornowHeading pt-2 text-4xl mb-4 uppercase text-center max-w-[95vw] sm:max-w-[800px] mx-auto">
-            Assign Batch to Students
-          </h2>
-        </div><div className="alert alert-danger text-center">{error}</div> </div>
-        </div>
-    );
-  }
 
   return (
-    <div className="assign-batch-container-with-bg mt-16">
-      <div className="assign-batch-container">
-        <div className="header-containerH d-flex justify-center w-100 ">
-          <h2 className="sponsornowHeading pt-2 text-4xl mb-4 uppercase text-center max-w-[95vw] sm:max-w-[800px] mx-auto">
-            Assign Batch to Students
-          </h2>
-        </div>
+    <div className="p-6 mt-16 space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-semibold">Assign Batch</h2>
 
-        {/* Display error if exists */}
-        {/* {error && <div className="alert alert-danger text-center">{error}</div>} */}
-
-        {learners.length === 0 ? (
-          <div className="alert alert-info pt-3 text-center">
-            All Students have been assigned to batches.
-          </div>
-        ) : (
-          <>
-            <div className="table-wrapperS">
-              <table className="student-tableS">
-                <thead className="thead">
-                  <tr>
-                    <th>
-                      <input type="checkbox" checked={selectAll} onChange={handleSelectAll} />
-                    </th>
-                    <th className="">Name</th>
-                    <th className="">Email</th>
-                    <th className="">Mobile</th>
-                    <th className="">Level</th>
-                    <th className="">Laptop</th>
-                    <th className="">Interview By</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {learners.map((learner) => (
-                    <tr key={learner.id} className="tr">
-                      <td>
-                        <input
-                          type="checkbox"
-                          checked={selectedLearners.includes(learner.id)}
-                          onChange={() => handleSelectLearner(learner.id)}
-                        />
-                      </td>
-                      <td className="capitalize">{learner.name}</td>
-                      <td>{learner.email}</td>
-                      <td>{learner.mobile_no}</td>
-                      <td>{learner.level}</td>
-                      <td>{learner.laptop === "Y" ? "Yes" : "No"}</td>
-                      <td className="capitalize">{learner.interview_by}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-
-              {/* Mobile view */}
-              <div className="d-md-none">
-                {learners.map((learner) => (
-                  <div
-                    key={learner.id}
-                    className={`mobile-learner-card ${selectedLearners.includes(learner.id) ? "selected" : ""}`}
-                    onClick={() => handleSelectLearner(learner.id)}
-                  >
-                    <div className="card-header">
-                      <input
-                        type="checkbox"
-                        checked={selectedLearners.includes(learner.id)}
-                        onChange={() => handleSelectLearner(learner.id)}
-                        onClick={(e) => e.stopPropagation()}
-                      />
-                      <span className="learner-name">{learner.name}</span>
-                    </div>
-                    <div className="card-details">
-                      <div><span>Email:</span> {learner.email}</div>
-                      <div><span>Mobile:</span> {learner.mobile_no}</div>
-                      <div><span>Level:</span> {learner.level}</div>
-                      <div><span>Laptop:</span> {learner.laptop === "Y" ? "Yes" : "No"}</div>
-                      <div><span>Interview By:</span> {learner.interview_by}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="action-buttonsA text-center">
-              <button
-                className="btn btn-primary"
-                onClick={handleAssignBatchClick}
-                disabled={selectedLearners.length === 0}
-              >
-                Assign Batch to Selected ({selectedLearners.length})
-              </button>
-            </div>
-          </>
-        )}
+        <Button
+          disabled={selectedLearners.length === 0}
+          onClick={() => setOpenDialog(true)}
+        >
+          Assign Batch ({selectedLearners.length})
+        </Button>
       </div>
 
-      {/* Dialog Box */}
-      {showDialog && (
-        <div className="dialog-overlayA">
-          <div className="dialog-boxA">
-            <h3>Assign Batch</h3>
-            <p>Select a batch for the selected learners:</p>
-            <select
-              className="form-selectA capitalize"
-              value={selectedBatch}
-              onChange={(e) => setSelectedBatch(e.target.value)}
-            >
-              <option value="">Select batch</option>
-              {batches.map((batch) => (
-                <option key={batch.id} value={batch.batch_id}>
-                  {batch.batch_name}
-                </option>
+      {/* Search */}
+      <Input
+        placeholder="Search name or email..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        className="max-w-sm"
+      />
+
+      {/* Table */}
+      <div className="rounded-lg border bg-white shadow-sm overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow>
+
+              <TableHead>Name</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>Mobile</TableHead>
+              {/* <TableHead>Level</TableHead> */}
+              <TableHead>Laptop</TableHead>
+              <TableHead>
+                <input
+                  type="checkbox"
+                  checked={allSelected}
+                  onChange={toggleSelectAll}
+                />
+
+
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+
+          <TableBody>
+            {filteredLearners.length ? (
+              filteredLearners.map((l) => (
+                <TableRow key={l.id}>
+
+                  <TableCell className="capitalize font-medium">
+                    {l.name}
+                  </TableCell>
+                  <TableCell>{l.email}</TableCell>
+                  <TableCell>{l.mobile_no}</TableCell>
+                  {/* <TableCell>
+                    <Badge variant="outline">{l.level}</Badge>
+                  </TableCell> */}
+                  <TableCell>
+                    <Badge>{l.laptop === "Y" ? "Yes" : "No"}</Badge>
+                  </TableCell>
+                  <TableCell>
+                    <input
+                      type="checkbox"
+                      checked={selectedLearners.includes(l.id)}
+                      onChange={() => toggleLearner(l.id)}
+                    />
+
+
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={6} className="text-center py-6">
+                  All students are assigned to batches
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      {/*Dialog*/}
+
+      <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+        <DialogContent className="sm:max-w-md rounded-xl">
+          <DialogHeader>
+            <DialogTitle>Assign Batch</DialogTitle>
+            <DialogDescription>
+              Select a batch for {selectedLearners.length} students
+            </DialogDescription>
+          </DialogHeader>
+
+          <Select value={selectedBatch} onValueChange={setSelectedBatch}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select batch" />
+            </SelectTrigger>
+            <SelectContent>
+              {batches.map((b) => (
+                <SelectItem key={b.id} value={b.batch_id}>
+                  {b.batch_name}
+                </SelectItem>
               ))}
-            </select>
-            <div className="dialog-actionsA">
-              <button className="btn btn-secondary" onClick={handleDialogClose}>
-                Cancel
-              </button>
-              <button className="btn btn-primary" onClick={handleBatchAssignConfirm} disabled={!selectedBatch}>
-                Confirm
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+            </SelectContent>
+          </Select>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOpenDialog(false)}>
+              Cancel
+            </Button>
+            <Button
+              disabled={!selectedBatch}
+              onClick={handleAssignBatch}
+            >
+              Confirm
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import { Provider } from "react-redux";
@@ -25,11 +25,15 @@ import "./index.css";
 import { Toaster } from "sonner";
 
 
+
+
 const rootElement = document.getElementById("root");
 
 if (!rootElement) {
   throw new Error("Root element not found");
 }
+// const token = window.localStorage.getItem("fcm_token")
+
 
 ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>

@@ -111,7 +111,7 @@ const AllStudent = () => {
             {[...new Set(studentData.map((s) => s.batch))].map(
               (batch) =>
                 batch && (
-                  <SelectItem key={batch} value={batch}>
+                  <SelectItem  key={batch} value={batch}>
                     {batch}
                   </SelectItem>
                 )
@@ -146,7 +146,7 @@ const AllStudent = () => {
                     <Badge variant="outline">{student.gender}</Badge>
                   </TableCell>
                   <TableCell>
-                    <Badge className="uppercase">
+                    <Badge className="uppercase text-nowrap">
                       {student.batch || "N/A"}
                     </Badge>
                   </TableCell>

@@ -131,7 +131,7 @@ const AdmissionTable = () => {
                   <TableCell>{row.mobile_no || "N/A"}</TableCell>
                   <TableCell>
                     {row.interview_by ? (
-                      <Badge>{row.interview_by}</Badge>
+                      <Badge className="text-nowrap">{row.interview_by}</Badge>
                     ) : (
                       <Badge variant="outline">Not Assigned</Badge>
                     )}
@@ -139,6 +139,7 @@ const AdmissionTable = () => {
                   <TableCell className="text-right">
                     {!row.interview_by ? (
                       <Button
+                      variant="outline"
                         size="sm"
                         onClick={() => handleSelectInterviewer(row)}
                       >

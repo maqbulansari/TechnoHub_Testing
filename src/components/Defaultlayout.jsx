@@ -186,7 +186,7 @@ const Defaultlayout = () => {
       <div className="menu-section">
         <div className="menu-heading">
           <div className="px-2">
-            <FontAwesomeIcon icon={icon} />
+            {/* <FontAwesomeIcon icon={icon} /> */}
           </div>
           <span className="menu-title capitalize">{title}</span>
         </div>
@@ -198,8 +198,8 @@ const Defaultlayout = () => {
               className="menu-item capitalize"
               onClick={handleMenuItemClick}
             >
-              <FontAwesomeIcon icon={faChevronRight} className="menu-item-arrow" />
-              <span className="capitalize">{item.label}</span>
+              {/* <FontAwesomeIcon icon={faChevronRight} className="menu-item-arrow" /> */}
+              <span className="capitalize text-sm ml-2">{item.label}</span>
             </Link>
           ))}
         </div>

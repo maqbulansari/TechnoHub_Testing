@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext, useEffect } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { authRoutes, publicRoutes } from "./router.link";
 import { Student } from "./student_routes";
@@ -50,10 +50,32 @@ import AllAssignments from "@/components/Assignments/AllAssignments";
 import { StudentAssignment } from "@/components/Assignments/StudentAssignment";
 import AssignmentComments from "@/components/Assignments/AssignmentComments";
 import Notifications from "@/components/Notifications";
+import { getFCMToken } from "@/firebase/notificationsHelper";
+import { AuthContext } from "@/contexts/authContext";
+import axios from "axios";
 
 
 const ALLRoutes = () => {
     const routes = all_routes;
+
+ const { API_BASE_URL, } = useContext(AuthContext);
+useEffect(() => {
+  getFCMToken().then((token) => {
+    if (token) {
+      axios.post(
+        `${API_BASE_URL}/notifications/save-token/`,
+        { token },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+          },
+        }
+      );
+    }
+  });
+}, []);
+
+
     return (<Routes>
       {/* Public routes */}
       <Route path="/" element={<Defaultlayout />}>
@@ -104,6 +126,7 @@ const ALLRoutes = () => {
           <Route path="/StudentAssignment" element={<StudentAssignment />}/>
           <Route path="/AssignmentComments/:assignmentId" element={<AssignmentComments />}/>
           <Route path="/Notifications" element={<Notifications />}/>
+         
           
 
 

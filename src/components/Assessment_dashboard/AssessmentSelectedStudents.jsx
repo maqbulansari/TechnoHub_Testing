@@ -166,7 +166,7 @@ const AssessmentSelectedStudents = () => {
 
                   {role === "ADMIN" && (
                     <TableCell>
-                      <Checkbox checked={row.admin_selected} disabled />
+                      <input type="checkbox" checked={row.admin_selected} disabled />
                     </TableCell>
                   )}
 
