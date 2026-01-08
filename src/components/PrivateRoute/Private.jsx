@@ -14,7 +14,7 @@ export const ProtectedRoute = ({ children = null }) => {
   }
 
   if (!accessToken) {
-    return <Navigate to="/login-3" replace />;
+    return <Navigate to="/" replace />;
   }
 
   return children ? children : <Outlet />;
