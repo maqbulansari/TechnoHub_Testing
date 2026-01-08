@@ -23,6 +23,7 @@ import "primeicons/primeicons.css";
 import "primeflex/primeflex.css";
 import "./index.css";
 import { Toaster } from "sonner";
+import { NotificationProvider } from "./contexts/NotificationContext";
 
 
 
@@ -41,10 +42,11 @@ ReactDOM.createRoot(rootElement).render(
       <NetworkProvider>
         <AppProvider>
           <BrowserRouter basename={base_path}>
+          <NotificationProvider>
             <ALLRoutes />
             <Toaster richColors toastOptions={{
               style: { zIndex: 9999 },
-            }} position="top-center" />
+            }} position="top-center" /> </NotificationProvider>
           </BrowserRouter>
         </AppProvider>
       </NetworkProvider>
