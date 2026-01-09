@@ -31,9 +31,9 @@ const AuthProvider = ({ children }) => {
 
 
   // const API_BASE_URL = "http://72.61.173.6:8086/auth/";//main
-  const API_BASE_URL = "https://api.lgstechnohub.in/auth";//Deployed main vps
+  // const API_BASE_URL = "https://api.lgstechnohub.in/auth";//Deployed main vps
   // const API_BASE_URL = "https://technohub.pythonanywhere.com/auth";//main
-  // const API_BASE_URL = "https://9gqxjbjg-8000.inc1.devtunnels.ms/auth";//tahur  
+  const API_BASE_URL = "https://9gqxjbjg-8000.inc1.devtunnels.ms/auth";//tahur  
   // const API_BASE_URL = "https://187gwsw1-8000.inc1.devtunnels.ms/auth";//farha
   // const API_BASE_URL = "https://958cp4w5-8000.inc1.devtunnels.ms/auth";//Saba
 
