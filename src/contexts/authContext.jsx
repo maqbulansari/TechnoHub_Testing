@@ -1,5 +1,7 @@
 import axios from "axios";
 import { createContext, useEffect, useState } from "react";
+import { deleteToken } from "firebase/messaging";
+import { messaging } from "@/firebase/firebase";
 
 export const AuthContext = createContext();
 
@@ -27,10 +29,11 @@ const AuthProvider = ({ children }) => {
 
 
 
+
   // const API_BASE_URL = "http://72.61.173.6:8086/auth/";//main
-  const API_BASE_URL = "https://api.lgstechnohub.in/auth";//Deployed main vps
+  // const API_BASE_URL = "https://api.lgstechnohub.in/auth";//Deployed main vps
   // const API_BASE_URL = "https://technohub.pythonanywhere.com/auth";//main
-  // const API_BASE_URL = "https://9gqxjbjg-8000.inc1.devtunnels.ms/auth";//tahur  
+  const API_BASE_URL = "https://9gqxjbjg-8000.inc1.devtunnels.ms/auth";//tahur  
   // const API_BASE_URL = "https://187gwsw1-8000.inc1.devtunnels.ms/auth";//farha
   // const API_BASE_URL = "https://958cp4w5-8000.inc1.devtunnels.ms/auth";//Saba
 
@@ -57,50 +60,57 @@ const AuthProvider = ({ children }) => {
   }, []);
 
   // Set up Axios interceptors
-  useEffect(() => {
-    const requestInterceptor = axios.interceptors.request.use(
-      config => {
-        if (accessToken) {
-          config.headers.Authorization = `Bearer ${accessToken}`;
+useEffect(() => {
+  const requestInterceptor = axios.interceptors.request.use(
+    config => {
+      if (!config.headers.Authorization) {
+        const token = localStorage.getItem("accessToken");
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
         }
-        return config;
-      },
-      error => Promise.reject(error)
-    );
+      }
+      return config;
+    },
+    error => Promise.reject(error)
+  );
 
-    const responseInterceptor = axios.interceptors.response.use(
-      response => response,
-      async error => {
-        const originalRequest = error.config;
-        const isTokenExpired =
-          error.response?.status === 401 &&
-          error.response?.data?.code === "token_not_valid";
+  const responseInterceptor = axios.interceptors.response.use(
+    response => response,
+    async error => {
+      const originalRequest = error.config;
 
-        if (isTokenExpired && !originalRequest._retry) {
-          originalRequest._retry = true;
 
-          try {
-            const newToken = await GenerateNewAccessToken();
-
-            axios.defaults.headers.common.Authorization = `Bearer ${newToken}`;
-            originalRequest.headers.Authorization = `Bearer ${newToken}`;
-
-            return axios(originalRequest);
-          } catch (err) {
-            LogoutUser();
-            return Promise.reject(err);
-          }
-        }
-
+      if (originalRequest.url.includes("/login/refresh/")) {
         return Promise.reject(error);
       }
-    );
 
-    return () => {
-      axios.interceptors.request.eject(requestInterceptor);
-      axios.interceptors.response.eject(responseInterceptor);
-    };
-  }, [accessToken, refreshToken]);
+      if (
+        error.response?.status === 401 &&
+        error.response?.data?.code === "token_not_valid" &&
+        !originalRequest._retry
+      ) {
+        originalRequest._retry = true;
+
+        try {
+          const newToken = await GenerateNewAccessToken();
+          originalRequest.headers.Authorization = `Bearer ${newToken}`;
+          return axios(originalRequest);
+        } catch (err) {
+          LogoutUser();
+          return Promise.reject(err);
+        }
+      }
+
+      return Promise.reject(error);
+    }
+  );
+
+  return () => {
+    axios.interceptors.request.eject(requestInterceptor);
+    axios.interceptors.response.eject(responseInterceptor);
+  };
+}, []);
+
 
 
   // Lazy fetch functions - only called when explicitly needed
@@ -232,7 +242,7 @@ const AuthProvider = ({ children }) => {
       setAccessToken(response.data.access);
       setRefreshToken(response.data.refresh);
       setUserID(response.data.user_id);
-      setResponseSubrole(response.data.subrole);    
+      setResponseSubrole(response.data.subrole);
       setRole(response.data.role);
       localStorage.setItem("accessToken", response.data.access);
       localStorage.setItem("refreshToken", response.data.refresh);
@@ -294,54 +304,73 @@ const AuthProvider = ({ children }) => {
     }
   };
 
+
   const LogoutUser = async () => {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-    localStorage.removeItem("userID");
-    localStorage.removeItem("role");
-    localStorage.removeItem("subrole");
-    localStorage.removeItem("first_name");
-    localStorage.removeItem("last_name");
-    localStorage.removeItem("fcm_token");
-    setUserLoggedIN(false);
-    setAccessToken(null);
-    setRefreshToken(null);
-    setUserID(null);
-    setRole(null);
-    setResponseSubrole(null);
-    setUser(null);
+    const fcmToken = localStorage.getItem("fcm_token");
+    const refreshToken = localStorage.getItem("refreshToken");
+
+    try {
+
+      if (fcmToken) {
+        await axios.post("/notifications/unregister/", {
+          token: fcmToken,
+        });
+
+
+        await deleteToken(messaging);
+      }
+
+      if (refreshToken) {
+        await axios.post(`${API_BASE_URL}/logout/`, {
+          refresh_token: refreshToken,
+        });
+      }
+
+    } catch (err) {
+      console.error("Logout failed:", err);
+    } finally {
+
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      localStorage.removeItem("userID");
+      localStorage.removeItem("role");
+      localStorage.removeItem("subrole");
+      localStorage.removeItem("first_name");
+      localStorage.removeItem("last_name");
+      localStorage.removeItem("fcm_token");
+      window.location.href = "/";
+    }
   };
+  const refreshAxios = axios.create();
+
   const GenerateNewAccessToken = async () => {
-    if (!refreshToken) {
+    const refresh = localStorage.getItem("refreshToken");
+
+    if (!refresh) {
       LogoutUser();
-      throw new Error("No refresh token available");
+      throw new Error("No refresh token");
     }
 
     try {
-      const response = await axios.post(`${API_BASE_URL}/login/refresh/`, {
-        refresh: refreshToken
-      });
+      const response = await refreshAxios.post(
+        `${API_BASE_URL}/login/refresh/`,
+        { refresh }
+      );
 
-      if (response.data.access) {
-        const newAccessToken = response.data.access;
+      const newAccessToken = response.data.access;
 
-        // Update local state
-        setAccessToken(newAccessToken);
-        // Persist
-        localStorage.setItem("accessToken", newAccessToken);
-        // Update global axios header immediately
-        axios.defaults.headers.common["Authorization"] = `Bearer ${newAccessToken}`;
+      setAccessToken(newAccessToken);
+      localStorage.setItem("accessToken", newAccessToken);
 
-        return newAccessToken;
-      }
+      axios.defaults.headers.common.Authorization = `Bearer ${newAccessToken}`;
 
-      throw new Error("Invalid refresh response");
+      return newAccessToken;
     } catch (error) {
-      console.error("Token refresh failed:", error);
       LogoutUser();
       throw error;
     }
   };
+
 
 
   // Fetch user data when accessToken or userID changes (only if not already fetched)

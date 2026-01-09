@@ -1,6 +1,8 @@
 import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { AuthContext } from "../../contexts/authContext";
+import { EditAssignmentDialog } from "./EditAssignmentDialog";
+
 
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -28,9 +30,15 @@ import {
     TabsList,
     TabsTrigger,
 } from "@/components/ui/tabs";
+import {
+    DropdownMenu,
+    DropdownMenuTrigger,
+    DropdownMenuContent,
+    DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
 import Loading from "@/Loading";
 import { useNavigate, useParams } from "react-router-dom";
-import { FileText, Archive, ImageIcon, MessageCircle, Pen } from "lucide-react"
+import { FileText, Archive, ImageIcon, MessageCircle, Pen, MoreVertical } from "lucide-react"
 import { FaFilePdf, FaFileWord, FaFileAlt } from "react-icons/fa"
 
 
@@ -296,14 +304,17 @@ export const AllAssignments = () => {
     const token = localStorage.getItem("accessToken");
     const navigate = useNavigate();
     const [assignments, setAssignments] = useState([]);
-    const [editingId, setEditingId] = useState(null);
-    const [formData, setFormData] = useState({});
-    const [imageFile, setImageFile] = useState(null);
     const [loading, setLoading] = useState(true);
 
     const [filterBatch, setFilterBatch] = useState("all");
     const [filterStatus, setFilterStatus] = useState("all");
     const [openCreate, setOpenCreate] = useState(false);
+
+
+    const [editingAssignment, setEditingAssignment] = useState(null);
+    const [deleteId, setDeleteId] = useState(null);
+
+
 
     // People tab states
     const [people, setPeople] = useState(null);
@@ -426,6 +437,19 @@ export const AllAssignments = () => {
         }
     };
 
+    const handleDelete = async () => {
+        try {
+            await axios.delete(
+                `${API_BASE_URL}/assignments/${deleteId}/`,
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            setDeleteId(null);
+            fetchAssignments();
+        } catch (err) {
+            console.error("Delete failed", err);
+        }
+    };
+
     return (
         <div className="max-w-4xl mx-auto mt-20 space-y-6">
             <Tabs defaultValue="stream" className="w-full">
@@ -497,6 +521,8 @@ export const AllAssignments = () => {
 
                             {batchAssignments.map((a) => (
                                 <Card key={a.id} className="transition rounded-md shadow-none">
+
+
                                     <CardHeader className="flex flex-col md:flex-row justify-between pt-4 pb-3 items-start md:items-center gap-2 md:gap-4">
                                         <div className="flex flex-col md:flex-row items-start md:items-center gap-4 w-full">
                                             <div>
@@ -515,6 +541,33 @@ export const AllAssignments = () => {
                                         {/* <Badge variant={a.is_active ? "green" : "red"}>
                                             {a.is_active ? "Active" : "Closed"}
                                         </Badge> */}
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="h-8 w-1"
+                                                >
+                                                    <MoreVertical className="h-4 w-4" />
+                                                </Button>
+                                            </DropdownMenuTrigger>
+
+                                            <DropdownMenuContent align="end">
+                                                <DropdownMenuItem
+
+                                                    onClick={() => setEditingAssignment(a)}
+                                                >
+                                                    Edit
+                                                </DropdownMenuItem>
+
+                                                <DropdownMenuItem
+                                                    onClick={() => setDeleteId(a.id)}
+                                                >
+                                                    Delete
+                                                </DropdownMenuItem>
+
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
                                     </CardHeader>
                                     <CardContent className="space-y-2 pb-2">
                                         <div className="flex flex-row gap-1">
@@ -562,6 +615,37 @@ export const AllAssignments = () => {
                         </div>
                     ))}
                 </TabsContent>
+
+                {editingAssignment && (
+                    <EditAssignmentDialog
+                        open={!!editingAssignment}
+                        assignment={editingAssignment}
+                        onOpenChange={() => setEditingAssignment(null)}
+                        onUpdated={fetchAssignments}
+                    />
+                )}
+
+
+                <Dialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
+                    <DialogContent className="sm:max-w-md">
+                        <DialogHeader>
+                            <DialogTitle>Delete Assignment</DialogTitle>
+                            <DialogDescription>
+                                This action cannot be undone.
+                            </DialogDescription>
+                        </DialogHeader>
+
+                        <DialogFooter className="flex justify-end gap-2">
+                            <Button variant="ghost" onClick={() => setDeleteId(null)}>
+                                Cancel
+                            </Button>
+                            <Button variant="destructive" onClick={handleDelete}>
+                                Delete
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+
 
                 {/* People Tab */}
                 <TabsContent value="people" className="mt-6">
