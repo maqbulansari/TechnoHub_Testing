@@ -1475,6 +1475,66 @@ input[type="file"]::file-selector-button {
   margin-bottom: 1rem;
 }
 
+
+/* Sidebar user header */
+.sidebar-user-header {
+  padding: 0px 16px;
+  
+}
+
+/* Layout */
+.user-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Avatar */
+.user-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #2196f3;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Meta */
+.user-meta {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.welcome-text {
+  font-size: 11px;
+  color: #6b7280;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.user-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.user-role {
+  margin-top: 4px;
+  font-size: 11px;
+  color: #2563eb;
+  background: #eff6ff;
+  padding: 2px 8px;
+  border-radius: 999px;
+  width: fit-content;
+  text-transform: capitalize;
+}
+
+
 /* Header container */
 .header-containerH {
   display: flex;
@@ -3855,80 +3915,117 @@ input[type="password"]::-ms-clear {
 }
 
 /* ===== Sidebar Header ===== */
+/* HEADER */
 .sidebar-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 30px 20px;
-  display: flex;
-  align-items: center;
-  gap: 15px;
+  padding: 16px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f9fafb;
 }
 
-.avatar-container {
-  position: relative;
+.user-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .user-avatar {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.25);
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: #2196f3;
+  color: white;
+  font-weight: 600;
+  font-size: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 24px;
-  font-weight: 700;
-  color: #fff;
-  backdrop-filter: blur(10px);
-  border: 3px solid rgba(255, 255, 255, 0.3);
 }
 
-.avatar-ring {
-  position: absolute;
-  top: -5px;
-  left: -5px;
-  right: -5px;
-  bottom: -5px;
-  border-radius: 50%;
-  border: 2px dashed rgba(255, 255, 255, 0.4);
-  animation: spin 10s linear infinite;
-}
-
-@keyframes spin {
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-.user-info {
+.user-meta {
   display: flex;
   flex-direction: column;
 }
 
 .welcome-text {
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.8);
+  font-size: 11px;
+  color: #6b7280;
   text-transform: uppercase;
-  letter-spacing: 1px;
 }
 
 .user-name {
-  font-size: 18px;
+  font-size: 14px;
   font-weight: 600;
-  color: #fff;
-  text-transform: capitalize;
-  margin: 3px 0;
+  color: #111827;
 }
 
-.user-role-badge {
-  display: inline-block;
-  padding: 3px 10px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 20px;
-  font-size: 10px;
-  color: #fff;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+.user-role {
+  margin-top: 4px;
+  font-size: 11px;
+  color: #2196f3;
+  background: #eff6ff;
+  padding: 2px 8px;
+  border-radius: 999px;
   width: fit-content;
+}
+
+/* MENU */
+.sidebar-menu {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 8px;
+}
+
+/* SECTION SPACING */
+.menu-section {
+  margin-bottom: 16px;
+}
+
+.menu-heading {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+  margin: 12px 8px 6px;
+}
+
+.menu-item {
+  display: block;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #374151;
+  text-decoration: none;
+}
+
+.menu-item:hover {
+  background: #f1f5f9;
+}
+
+/* CREATE ENABLER */
+.create-enabler {
+  display: block;
+  margin: 12px 8px;
+  color: #2563eb;
+  font-weight: 500;
+}
+
+/* FOOTER */
+.sidebar-footer {
+  padding: 12px 16px;
+  border-top: 1px solid #e5e7eb;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.logout {
+  color: #dc2626;
+  cursor: pointer;
+}
+
+.change-password {
+  color: #2563eb;
+  cursor: pointer;
 }
 
 /* ===== Sidebar Content ===== */
@@ -4081,7 +4178,7 @@ input[type="password"]::-ms-clear {
   align-items: center;
   padding: 12px 10px;
   margin-top: auto;
-  border-top: 1px solid black;
+  border-top: 1px solid rgba(0, 0, 0, 0.293);
   position: absolute;
   bottom: 0;
   left: 0;
@@ -4191,6 +4288,8 @@ input[type="password"]::-ms-clear {
     font-size: 18px;
   }
 }
+
+
 
 /* Small laptops and desktops (769px to 1024px) */
 @media screen and (min-width: 769px) and (max-width: 1024px) {

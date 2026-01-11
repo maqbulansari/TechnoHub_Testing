@@ -1,142 +1,83 @@
 import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
-import { SponsorContext } from "../../contexts/dashboard/sponsorDashboardContext";
+import { useForm } from "react-hook-form";
 import { AuthContext } from "../../contexts/authContext";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import Loading from "@/Loading";
+import { Badge } from "../ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { SponsorContext } from "../../contexts/dashboard/sponsorDashboardContext";
 
-const Sponsor_Profile = () => {
-  const { sponsorProfileDetails, FetchSponsor, dataFetched, setDataFetched } = useContext(SponsorContext);
-  const { API_BASE_URL, role, responseSubrole } = useContext(AuthContext);
+const SponsorProfile = () => {
+  const { sponsorProfileDetails, FetchSponsor } = useContext(SponsorContext);
+  const { API_BASE_URL } = useContext(AuthContext);
+
+  const [sponsor, setSponsor] = useState(null);
+  const [editMode, setEditMode] = useState(false);
+  const [image, setImage] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [imageError, setImageError] = useState("");
+
+  const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm();
+
   const accessToken = localStorage.getItem("accessToken");
 
-  // Fetch sponsor data when component mounts (only if not already fetched)
+  // Fetch sponsor data
   useEffect(() => {
-    if ((responseSubrole === "SPONSOR" || role === "ADMIN") && !dataFetched['sponsor']) {
-      FetchSponsor().then(() => {
-        setDataFetched(prev => ({ ...prev, 'sponsor': true }));
-      });
-    }
-  }, [responseSubrole, role, dataFetched, FetchSponsor, setDataFetched]);
+    const fetchData = async () => {
+      if (!accessToken) return;
 
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [companyName, setCompanyName] = useState("");
-  const [gender, setGender] = useState("");
-  const [contributionType, setContributionType] = useState("");
-  const [contributionValue, setContributionValue] = useState("");
+      try {
+        await FetchSponsor();
+        if (sponsorProfileDetails?.length) {
+          const profile = sponsorProfileDetails[0];
+          setSponsor(profile);
+          reset(profile);
+        }
+      } catch (err) {
+        console.error("Failed to fetch sponsor:", err);
+      }
+    };
 
-  const [isEditing, setIsEditing] = useState(false);
-  const [disabled, setDisabled] = useState(true);
+    fetchData();
+  }, [sponsorProfileDetails, FetchSponsor, reset, accessToken]);
 
-  const [userProfileError, setUserProfileError] = useState("");
-  const [profileImage, setProfileImage] = useState(null);
-  const [imagePreview, setImagePreview] = useState("");
-  const [existingProfileImage, setExistingProfileImage] = useState("");
-  const [loading, setLoading] = useState(false);
+  const onSubmit = async (data) => {
+    if (!sponsor) return;
 
-  const [submitSuccess, setSubmitSuccess] = useState(false);
-  const [errors, setErrors] = useState({}); // field-level errors
-
-  // Populate initial data
-  useEffect(() => {
-    if (sponsorProfileDetails?.length) {
-      const profile = sponsorProfileDetails[0];
-      setFirstName(profile.first_name || "");
-      setLastName(profile.last_name || "");
-      setEmail(profile.email || "");
-      setPhoneNumber(profile.mobile_no || "");
-      setCompanyName(profile.company_name || "");
-      setGender(profile.gender || "");
-      setExistingProfileImage(profile.user_profile || "");
-      setContributionType(profile.contribution_type || "");
-      setContributionValue(profile.contribution_value || "");
-    }
-  }, [sponsorProfileDetails]);
-
-  const toggleDisabled = () => setDisabled(!disabled);
-
-  // Image upload with validation
-  const handleImageUpload = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const validTypes = ["image/jpeg", "image/png", "image/jpg"];
-    if (!validTypes.includes(file.type)) {
-      setUserProfileError("Only JPG, JPEG, or PNG files are allowed");
-      return;
-    }
-
-    if (file.size > 2 * 1024 * 1024) {
-      setUserProfileError("Image size should be less than 2MB");
-      return;
-    }
-
-    setProfileImage(file);
-    setUserProfileError("");
-    setImagePreview(URL.createObjectURL(file));
-  };
-
-  const removeImage = () => {
-    setProfileImage(null);
-    setImagePreview("");
-    URL.revokeObjectURL(imagePreview);
-  };
-
-  // Field validation function
-  const validateFields = () => {
-    const newErrors = {};
-
-    if (!firstName.trim()) newErrors.firstName = "First name is required";
-    if (!lastName.trim()) newErrors.lastName = "Last name is required";
-    if (!email.trim()) newErrors.email = "Email is required";
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
-      newErrors.email = "Invalid email format";
-    if (!phoneNumber.trim()) newErrors.phoneNumber = "Phone number is required";
-    else if (!/^\d{10,15}$/.test(phoneNumber))
-      newErrors.phoneNumber = "Phone number should be 10-15 digits";
-    if (!companyName.trim()) newErrors.companyName = "Company name is required";
-    if (!gender) newErrors.gender = "Please select gender";
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSponsorUpdate = async () => {
-    if (!validateFields()) return;
-
-    if (profileImage && profileImage.size > 2 * 1024 * 1024) {
-      setUserProfileError("Profile image size should be less than 2MB.");
-      return;
+    // Image validation
+    if (image) {
+      const validTypes = ["image/jpeg", "image/png", "image/jpg"];
+      if (!validTypes.includes(image.type)) {
+        setImageError("Only JPG, JPEG, or PNG files are allowed");
+        return;
+      }
+      if (image.size > 2 * 1024 * 1024) {
+        setImageError("Image size should be less than 2MB");
+        return;
+      }
     }
 
     setLoading(true);
+    const formData = new FormData();
+
+    Object.entries(data).forEach(([key, value]) => formData.append(key, value));
+    formData.append("id", sponsor.id);
+    if (image) formData.append("user_profile", image);
 
     try {
-      const currentProfile = sponsorProfileDetails[0];
-      const formData = new FormData();
-
-      formData.append("id", currentProfile.id);
-      formData.append("first_name", firstName);
-      formData.append("last_name", lastName);
-      formData.append("email", email);
-      formData.append("mobile_no", phoneNumber);
-      formData.append("company_name", companyName);
-      formData.append("gender", gender);
-      formData.append("contribution_type", contributionType);
-      formData.append("contribution_value", contributionValue);
-
-      // Optional fallback fields
-      formData.append("id_type", currentProfile.id_type || "");
-      formData.append("identity", currentProfile.identity || "");
-      formData.append("qualification", currentProfile.qualification || "");
-      formData.append("address", currentProfile.address || "");
-      formData.append("date_of_birth", currentProfile.date_of_birth || "");
-
-      if (profileImage) {
-        formData.append("user_profile", profileImage);
-      }
-
       const response = await axios.put(
         `${API_BASE_URL}/sponsors/Sponser_update/`,
         formData,
@@ -148,287 +89,203 @@ const Sponsor_Profile = () => {
         }
       );
 
-      if (response.status === 200) {
-        setIsEditing(false);
-        setDisabled(true);
-        setProfileImage(null);
-        setImagePreview("");
-        setExistingProfileImage(response.data.user_profile || "");
-        setSubmitSuccess(true);
-      }
-    } catch (error) {
-      const errMsg =
-        error.response?.data?.message || "Failed to update profile. Check your connection.";
-      alert(errMsg); // simple alert for backend errors
+      setSponsor({ ...sponsor, ...data, user_profile: response.data.user_profile || sponsor.user_profile });
+      reset({ ...sponsor, ...data, user_profile: response.data.user_profile || sponsor.user_profile });
+      setImage(null);
+      setEditMode(false);
+      setSubmitSuccess(true);
+    } catch (err) {
+      console.error("Error updating sponsor profile:", err);
+      alert("Failed to update profile");
     } finally {
       setLoading(false);
     }
   };
 
+  if (!sponsor) return <Loading />;
+
   return (
-    <div className="container mt-16">
-      <div className="card shadow-sm border-0 p-3">
-        <div className="row">
-          <div className="col-xxl-12 col-xl-12 col-md-12 mb-3 text-center">
-            <div className=" me-4 bg-blue-300 rounded-4 p-2">
-              <center>
-                {imagePreview || existingProfileImage ? (
-                  <img
-                    src={
-                      imagePreview
-                        ? imagePreview
-                        : `${API_BASE_URL}${existingProfileImage}`
-                    }
-                    className="profileImg mb-2"
-                    alt="Profile"
-                    style={{
-                      width: "150px",
-                      height: "150px",
-                      objectFit: "cover",
-                      borderRadius: "50%",
-                    }}
-                  />
-                ) : (
-                  <div
-                    className="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center mb-2"
-                    style={{
-                      width: "150px",
-                      height: "150px",
-                      fontSize: "60px",
-                      fontWeight: "bold",
-                      textTransform: "uppercase",
-                    }}
-                  >
-                    {firstName?.charAt(0) || "S"}
-                  </div>
-                )}
-              </center>
+    <div className="max-w-4xl mx-auto mt-20 px-4">
+      <Card className="overflow-hidden shadow-none rounded-2xl border border-slate-200">
+        <CardHeader className="flex flex-col md:flex-row items-center gap-4 bg-blue-50 p-4">
+          {/* Avatar */}
+          <Avatar className="w-32 h-32">
+            {sponsor.user_profile ? (
+              <AvatarImage src={`${API_BASE_URL}${sponsor.user_profile}`} alt="Profile" />
+            ) : (
+              <AvatarFallback className="bg-primary text-white text-4xl font-bold">
+                {sponsor.first_name?.charAt(0)}
+              </AvatarFallback>
+            )}
+          </Avatar>
 
-            </div>
-            {sponsorProfileDetails.map((items, idx) => (
-              <div className="profileView pt-2" key={idx}>
-                <h4 className="mb-1 text-dark text-capitalize">
-                  {items.first_name} {items.last_name}
-                </h4>
-                <div className="text-muted small mb-2">{items.email}</div>
-              </div>
-            ))}
+          {/* Name & Email */}
+          <div className="flex-1 text-center md:text-left space-y-1">
+            <h2 className="text-2xl font-semibold text-slate-900 capitalize">
+              {sponsor.first_name} {sponsor.last_name}
+            </h2>
+            <p className="text-sm text-slate-500">{sponsor.email}</p>
+            <Badge variant="outline">
+              Company: {sponsor.company_name || "N/A"}
+            </Badge>
           </div>
-          <hr />
 
+          {/* Edit Button */}
+          {!editMode && (
+            <Button className="mt-4 md:mt-0" onClick={() => setEditMode(true)}>
+              Edit Profile
+            </Button>
+          )}
+        </CardHeader>
 
-
-          {/* Form Fields */}
-          <div className="row">
-            {/* First Name */}
-            <div className="col-xxl-6 col-xl-6 col-md-6 mb-3">
-              <label htmlFor="firstName" className="form-label">
-                First Name
-              </label>
-              <input
-                type="text"
-                disabled={!isEditing}
-                id="firstName"
-                className={`form-control ${errors.firstName ? "is-invalid" : ""}`}
-                onChange={(e) => setFirstName(e.target.value)}
-                value={firstName}
-              />
-              {errors.firstName && (
-                <div className="invalid-feedback">{errors.firstName}</div>
-              )}
-            </div>
-
-            {/* Last Name */}
-            <div className="col-xxl-6 col-xl-6 col-md-6 mb-3">
-              <label htmlFor="lastName" className="form-label">
-                Last Name
-              </label>
-              <input
-                type="text"
-                disabled={!isEditing}
-                id="lastName"
-                className={`form-control ${errors.lastName ? "is-invalid" : ""}`}
-                onChange={(e) => setLastName(e.target.value)}
-                value={lastName}
-              />
-              {errors.lastName && (
-                <div className="invalid-feedback">{errors.lastName}</div>
-              )}
-            </div>
-
-            {/* Profile Image */}
-            <div className="col-xxl-6 col-xl-6 col-md-6 mb-3">
-              <label className="form-label" htmlFor="user_profile">
-                User Profile Image
-              </label>
-              <input
-                disabled={!isEditing}
-                id="user_profile"
-                type="file"
-                name="user_profile"
-                className="form-control mb-0"
-                accept="image/jpeg, image/png, image/jpg"
-                onChange={handleImageUpload}
-              />
-              {userProfileError && (
-                <span className="text-danger">{userProfileError}</span>
-              )}
-              {imagePreview && (
-                <div className="mt-2">
-                  <img
-                    src={imagePreview}
-                    alt="Preview"
-                    style={{ maxWidth: "100px", maxHeight: "100px", display: "block" }}
-                    className="mb-2"
-                  />
-                  <button
-                    type="button"
-                    className="btn btn-sm btn-danger"
-                    onClick={removeImage}
-                  >
-                    Remove Image
-                  </button>
+        <CardContent className="p-6">
+          {editMode ? (
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label>First Name</Label>
+                  <Input {...register("first_name", { required: "First name required" })} />
+                  {errors.first_name && <p className="text-red-500 text-sm">{errors.first_name.message}</p>}
                 </div>
-              )}
-            </div>
-
-            {/* Email */}
-            <div className="col-xxl-6 col-xl-6 col-md-6 mb-3">
-              <label htmlFor="email" className="form-label">
-                Email
-              </label>
-              <input
-                type="text"
-                disabled={!isEditing}
-                id="email"
-                className={`form-control ${errors.email ? "is-invalid" : ""}`}
-                onChange={(e) => setEmail(e.target.value)}
-                value={email}
-              />
-              {errors.email && <div className="invalid-feedback">{errors.email}</div>}
-            </div>
-
-            {/* Phone Number */}
-            <div className="col-xxl-6 col-xl-6 col-md-6 mb-3">
-              <label htmlFor="phoneNumber" className="form-label">
-                Phone Number
-              </label>
-              <input
-                type="text"
-                disabled={!isEditing}
-                id="phoneNumber"
-                className={`form-control ${errors.phoneNumber ? "is-invalid" : ""}`}
-                onChange={(e) => setPhoneNumber(e.target.value)}
-                value={phoneNumber}
-              />
-              {errors.phoneNumber && (
-                <div className="invalid-feedback">{errors.phoneNumber}</div>
-              )}
-            </div>
-
-            {/* Company Name */}
-            <div className="col-xxl-6 col-xl-6 col-md-6 mb-3">
-              <label htmlFor="companyName" className="form-label">
-                Company Name
-              </label>
-              <input
-                type="text"
-                disabled={!isEditing}
-                id="companyName"
-                className={`form-control ${errors.companyName ? "is-invalid" : ""}`}
-                onChange={(e) => setCompanyName(e.target.value)}
-                value={companyName}
-              />
-              {errors.companyName && (
-                <div className="invalid-feedback">{errors.companyName}</div>
-              )}
-            </div>
-
-            {/* Gender */}
-            <div className="col-xxl-6 col-xl-6 col-md-6 mb-3">
-              <label className="form-label" htmlFor="Gender">
-                Select Gender
-              </label>
-              <div className="dropdown">
-                <button
-                  className={`btnDropdown dropdown-toggle form-control ${errors.gender ? "is-invalid" : ""}`}
-                  type="button"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
-                  disabled={!isEditing}
-                >
-                  {gender || "Select Gender"}
-                </button>
-                <ul className="dropdown-menu w-100">
-                  <li className="dropdown-item c-pointer" onClick={() => setGender("Male")}>
-                    Male
-                  </li>
-                  <li className="dropdown-item c-pointer" onClick={() => setGender("Female")}>
-                    Female
-                  </li>
-                  <li className="dropdown-item c-pointer" onClick={() => setGender("Other")}>
-                    Other
-                  </li>
-                </ul>
-                {errors.gender && (
-                  <div className="invalid-feedback d-block">{errors.gender}</div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Submit Button */}
-          <div className="w-full text-end">
-            <button
-              className="btn btn-primary"
-              onClick={() => {
-                setIsEditing(!isEditing);
-                toggleDisabled();
-              }}
-            >
-              {isEditing ? "Save" : "Edit Profile"}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Success Modal */}
-      {submitSuccess && (
-        <div
-          className="modal fade show"
-          style={{ display: "block", background: "rgba(0,0,0,0.5)" }}
-        >
-          <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Profile Updated</h5>
-                <button
-                  type="button"
-                  className="btn-close"
-                  onClick={() => setSubmitSuccess(false)}
-                ></button>
+                <div>
+                  <Label>Last Name</Label>
+                  <Input {...register("last_name", { required: "Last name required" })} />
+                  {errors.last_name && <p className="text-red-500 text-sm">{errors.last_name.message}</p>}
+                </div>
               </div>
 
-              <div className="modal-body">
-                <p>Your profile has been updated successfully!</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label>Email</Label>
+                  <Input type="email" {...register("email", { required: "Email required" })} />
+                  {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
+                </div>
+                <div>
+                  <Label>Mobile Number</Label>
+                  <Input type="text" {...register("mobile_no", { required: "Mobile number required" })} />
+                  {errors.mobile_no && <p className="text-red-500 text-sm">{errors.mobile_no.message}</p>}
+                </div>
               </div>
 
-              <div className="modal-footer">
-                <button
-                  type="button"
-                  className="btn btn-primary"
-                  onClick={() => setSubmitSuccess(false)}
-                  data-bs-dismiss="modal"
-                >
-                  OK
-                </button>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label>Gender</Label>
+                  <Select {...register("gender", { required: "Gender required" })}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select Gender" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Female">Female</SelectItem>
+                      <SelectItem value="Male">Male</SelectItem>
+                      <SelectItem value="Other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {errors.gender && <p className="text-red-500 text-sm mt-1">{errors.gender.message}</p>}
+                </div>
+                <div>
+                  <Label>Contribution Type</Label>
+                  <Input {...register("contribution_type")} />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label>Contribution Value</Label>
+                  <Input type="number" {...register("contribution_value")} />
+                </div>
+
+                <div>
+                <Label>Company Name</Label>
+                <Input {...register("company_name")} />
+              </div>
+              </div>
+              <div>
+                  <Label>Profile Image</Label>
+                  <div className="flex items-center gap-4">
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      id="profileImage"
+                      onChange={(e) => setImage(e.target.files?.[0] || null)}
+                    />
+                    <label htmlFor="profileImage">
+                      <Button variant="outline" asChild>
+                        <span>{image ? image.name : "Choose file"}</span>
+                      </Button>
+                    </label>
+                    {imageError && <p className="text-red-500 text-sm">{imageError}</p>}
+                  </div>
+                </div>
+
+              
+
+              <div className="flex justify-end gap-2">
+                <Button variant="outline" onClick={() => { reset(sponsor); setEditMode(false); setImage(null); setImageError(""); }}>
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={loading}>
+                  {loading ? "Saving..." : "Save Changes"}
+                </Button>
+              </div>
+            </form>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <p className="text-sm text-slate-500">First Name</p>
+                <p className="font-medium text-slate-900 capitalize">{sponsor.first_name || "N/A"}</p>
+              </div>
+              <div>
+                <p className="text-sm text-slate-500">Last Name</p>
+                <p className="font-medium text-slate-900 capitalize">{sponsor.last_name || "N/A"}</p>
+              </div>
+              <div>
+                <p className="text-sm text-slate-500">Email</p>
+                <p className="font-medium text-slate-900">{sponsor.email || "N/A"}</p>
+              </div>
+              <div>
+                <p className="text-sm text-slate-500">Mobile</p>
+                <p className="font-medium text-slate-900">{sponsor.mobile_no || "N/A"}</p>
+              </div>
+              <div>
+                <p className="text-sm text-slate-500">Gender</p>
+                <p className="font-medium text-slate-900">{sponsor.gender || "N/A"}</p>
+              </div>
+              <div>
+                <p className="text-sm text-slate-500">Contribution Type</p>
+                <p className="font-medium text-slate-900">{sponsor.contribution_type || "N/A"}</p>
+              </div>
+              <div>
+                <p className="text-sm text-slate-500">Contribution Value</p>
+                <p className="font-medium text-slate-900">{sponsor.contribution_value || "N/A"}</p>
+              </div>
+              <div>
+                <p className="text-sm text-slate-500">Company Name</p>
+                <p className="font-medium text-slate-900">{sponsor.company_name || "N/A"}</p>
               </div>
             </div>
-          </div>
-        </div>
-      )}
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Success Dialog */}
+      <Dialog open={submitSuccess} onOpenChange={setSubmitSuccess}>
+        <DialogContent className="sm:max-w-md p-0 gap-0 overflow-hidden [&>button]:hidden rounded-xl">
+          <DialogHeader className="px-5 pt-4 pb-4 space-y-1">
+            <DialogTitle className="text-xl pb-2 font-semibold">Success</DialogTitle>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Profile updated successfully!
+            </p>
+          </DialogHeader>
+          <DialogFooter className="px-3 pb-3 bg-muted/30">
+            <Button className="w-full sm:w-auto" onClick={() => setSubmitSuccess(false)}>
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
 
-export default Sponsor_Profile;
+export default SponsorProfile;
