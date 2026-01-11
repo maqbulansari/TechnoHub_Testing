@@ -1,368 +1,343 @@
-import React, { useEffect,useContext, useState } from "react";
+import { useContext, useEffect, useState, useMemo } from "react";
 import { SponsorContext } from "../../contexts/dashboard/sponsorDashboardContext";
-import bgSponser from "../../assets/images/sponserDashboard/bgSponser.png";
-import axios from "axios";
 import { AuthContext } from "../../contexts/authContext";
+import bgSponser from "../../assets/images/sponserDashboard/bgSponser.png";
+
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import Loading from "@/Loading";
 
 export const RecruitmentDashboard = () => {
-  const { API_BASE_URL,loginSuccess, setLoginSuccess, role, responseSubrole } = useContext(AuthContext);
-  const [showModal, setShowModal] = useState(false);
-  const { readyForRecruitment, GET_READY_FOR_RECRUITMENT, FetchRecuiter, dataFetched, setDataFetched } = useContext(SponsorContext);
+  const { API_BASE_URL, role, responseSubrole } = useContext(AuthContext);
+  const {
+    readyForRecruitment,
+    GET_READY_FOR_RECRUITMENT,
+    FetchRecuiter,
+    dataFetched,
+    setDataFetched,
+  } = useContext(SponsorContext);
+
+  const accessToken = localStorage.getItem("accessToken");
+
+
   const [searchStudent, setSearchStudent] = useState("");
-  const [technology, setTechnology] = useState("Select Technology");
+  const [technology, setTechnology] = useState("");
   const [studentCount, setStudentCount] = useState("");
   const [availableStudent, setAvailableStudent] = useState(null);
   const [remarks, setRemarks] = useState("");
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false)
-  const accessToken = localStorage.getItem('accessToken');
 
-  // Fetch recruiter data when component mounts (only if not already fetched)
+  const [loading, setLoading] = useState(false);
+  const [openRecruitModal, setOpenRecruitModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+
+
+
+
   useEffect(() => {
-    if ((responseSubrole === "RECRUITER" || role === "ADMIN") && !dataFetched['recruiter']) {
-      Promise.all([
-        GET_READY_FOR_RECRUITMENT(),
-        FetchRecuiter()
-      ]).then(() => {
-        setDataFetched(prev => ({ ...prev, 'recruiter': true }));
+    if (
+      (responseSubrole === "RECRUITER" || role === "ADMIN") &&
+      !dataFetched["recruiter"]
+    ) {
+      Promise.all([GET_READY_FOR_RECRUITMENT(), FetchRecuiter()]).then(() => {
+        setDataFetched((prev) => ({ ...prev, recruiter: true }));
       });
     }
-  }, [responseSubrole, role, dataFetched, GET_READY_FOR_RECRUITMENT, FetchRecuiter, setDataFetched]);
+  }, [
+    responseSubrole,
+    role,
+    dataFetched,
+    GET_READY_FOR_RECRUITMENT,
+    FetchRecuiter,
+    setDataFetched,
+  ]);
+  const isTechnologyValid =
+    technology && technology !== "Select Technology";
 
-   useEffect(() => {
-    if (loginSuccess) {
-      setShowModal(true);
-  
-      const timeout = setTimeout(() => {
-        setShowModal(false);
-        setLoginSuccess(false);
-      }, 2000);
-  
-      return () => clearTimeout(timeout);
-    }
-  }, [loginSuccess]);
+  const isStudentCountValid =
+    studentCount &&
+    Number(studentCount) > 0 &&
+    availableStudent !== null &&
+    Number(studentCount) <= availableStudent;
 
+  const isFormValid = isTechnologyValid && isStudentCountValid && !error;
 
-  const handleSponsorClick = () => {
-    const studentsSection = document.getElementById("studentsSection");
-    if (studentsSection) {
-      studentsSection.scrollIntoView({ behavior: "smooth" });
-    }
-  };
 
   const handleStudentCountChange = (e) => {
     const value = e.target.value;
+
     if (!/^\d*$/.test(value)) {
-      setError("Please enter a valid number.");
+      setError("Only numbers are allowed");
       return;
     }
-    if (availableStudent !== null && parseInt(value) > availableStudent) {
-      setError(`Number of students cannot exceed ${availableStudent}.`);
+
+    const num = Number(value);
+
+    if (availableStudent === null) {
+      setError("Please select a technology first");
+      setStudentCount(value);
       return;
     }
+
+    if (num === 0) {
+      setError("Student count must be greater than 0");
+      setStudentCount(value);
+      return;
+    }
+
+    if (num > availableStudent) {
+      setError(`Cannot exceed ${availableStudent} students`);
+      setStudentCount(value);
+      return;
+    }
+
     setError("");
     setStudentCount(value);
   };
 
+  const handleRecruitStudent = async () => {
+    if (!isFormValid) return;
 
+    setLoading(true);
 
-  const handleRecruitStudent = async (e) => {
-    setLoading(true)
-    e.preventDefault();
-    if (error) return;
-  
-    const payload = {
-      technologies: [technology],
-      num_students: parseInt(studentCount),
-      remarks: remarks,
-    };
-  
     try {
-      const response = await axios.post(
+      const payload = {
+        technologies: [technology],
+        num_students: Number(studentCount),
+        remarks,
+      };
+
+      const response = await fetch(
         `${API_BASE_URL}/recruiter/select_students/`,
-        JSON.stringify(payload),
         {
+          method: "POST",
           headers: {
             "Content-Type": "application/json",
-            'Authorization': `Bearer ${accessToken}`
+            Authorization: `Bearer ${accessToken}`,
           },
+          body: JSON.stringify(payload),
         }
       );
-  
-      if (response.status === 200) {
-        alert("Students recruited successfully!");
-        setTechnology("Select Technology");
-        setStudentCount("");
-        setRemarks("");
-        setAvailableStudent(null);
+
+      if (!response.ok) {
+        throw new Error("Recruitment failed");
       }
-    } catch (error) {
-      console.error("Recruitment error:", error);
+
+      // RESET FORM
+      setTechnology("Select Technology");
+      setStudentCount("");
+      setRemarks("");
+      setAvailableStudent(null);
+      setError("");
+      setOpenRecruitModal(false);
+      setShowSuccessModal(true);
+    } catch (err) {
+      console.error(err);
       setError("Failed to recruit students. Please try again.");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   };
 
+
+  const filteredStudents = useMemo(() => {
+    return readyForRecruitment.filter((s) =>
+      s.technology.toLowerCase().includes(searchStudent.toLowerCase())
+    );
+  }, [readyForRecruitment, searchStudent]);
+
+
+  if (!dataFetched["recruiter"]) {
+    return <Loading />;
+  }
+
   return (
-    <div className="mt-16">
-    <div className="row studentDashboardContainer mx-0">
-      <div className="col-xxl-12 col-xl-12 col-md-12 bgSponserDashobard">
-        <div className="innerContainerSponsor">
-          <img src={bgSponser} className="sponserImgDashboard" />
-          <div className="p-3">
-            <h1>Ready for Recruitment</h1>
-            <p>
-              Discover top talent skilled in cutting-edge technologies. Connect
-              with students who are ready to contribute to your team and bring
-              fresh perspectives to your projects.
-            </p>
-            <button className="sponserButton" onClick={handleSponsorClick}>
-              EXPLORE STUDENTS
-            </button>
+    <div className="min-h-screen bg-muted/10 mt-20 pb-40">
+      <div className="max-w-7xl mx-auto px-6 space-y-10">
+
+        {/* HERO */}
+        <Card className="relative overflow-hidden shadow-none border bg-gradient-to-r from-[#2196f3] via-[#64b5f6] to-[#a2d6fc] rounded-xl">
+          <CardHeader className="p-6 md:p-12 flex flex-col md:flex-row justify-between gap-6">
+            <div className="text-white max-w-lg space-y-3">
+              <CardTitle className="text-4xl font-bold">
+                Ready for Recruitment
+              </CardTitle>
+              <CardDescription className="text-white/80">
+                Discover skilled students and recruit talent aligned with your
+                technology needs.
+              </CardDescription>
+            </div>
+            <img
+              src={bgSponser}
+              alt="Recruitment"
+              className="w-64 h-64 object-contain rounded-xl"
+            />
+          </CardHeader>
+        </Card>
+
+        {/* SEARCH */}
+        <Input
+          placeholder="Search Technology"
+          value={searchStudent}
+          onChange={(e) => setSearchStudent(e.target.value)}
+          className="w-64"
+        />
+
+        {/* TABLE */}
+        <Card className="shadow-none">
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Technology</TableHead>
+                  <TableHead className="text-center">
+                    Available Students
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredStudents.length ? (
+                  filteredStudents.map((tech, idx) => (
+                    <TableRow key={idx}>
+                      <TableCell>{tech.technology}</TableCell>
+                      <TableCell className="text-center">
+                        {tech.student_count}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={2} className="text-center py-6">
+                      No Students Found
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+
+        {/* ACTION BAR */}
+        <div className="fixed bottom-0 inset-x-0 bg-white border-t">
+          <div className="max-w-7xl mx-auto px-6 py-4 flex justify-center">
+            <Button className="w-1/3" onClick={() => setOpenRecruitModal(true)}>
+              Recruit Students
+            </Button>
           </div>
         </div>
-      </div>
-      <div className="col-xxl-12 col-xl-12 col-md-12">
-        <div className="row g-2 sponsorHeader d-none">
-          <div className="col-xxl-3 col-xl-3 col-xl-3 d-none">
-            <div className="search-container">
-              <input
-                type="text"
-                placeholder="Search Student"
-                className="search-input mb-0"
-                value={searchStudent}
-                onChange={(e) => setSearchStudent(e.target.value)}
-              />
-              <i className="fas fa-search search-icon"></i>
-            </div>
-          </div>
-          <div className="col-xxl-3 col-xl-3 col-xl-3 ms-auto">
-            <div className="dropdown w-100 mb-0">
-              <button
-                className="btnDropdown dropdown-toggle form-control"
-                type="button"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
+
+        {/* RECRUIT MODAL */}
+        <Dialog open={openRecruitModal} onOpenChange={setOpenRecruitModal}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Recruit Students</DialogTitle>
+            </DialogHeader>
+
+            <div className="space-y-4">
+              <Select
+                value={technology}
+                onValueChange={(value) => {
+                  setTechnology(value);
+                  const tech = readyForRecruitment.find(t => t.technology === value);
+                  setAvailableStudent(tech?.student_count ?? 0);
+                }}
               >
-                {technology}
-              </button>
-              <ul className="dropdown-menu w-100">
-                {readyForRecruitment.map((tech, index) => (
-                  <li
-                    className="dropdown-item c-pointer"
-                    key={index}
-                    onClick={() => setTechnology(tech.technology)}
-                  >
-                    {tech.technology}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </div><br/>
-        <h1 className="sponsornowHeading" id="studentsSection">
-          Students
-        </h1>
-        <div className="table-wrapperS">
-          <table className="student-tableS">
-            <thead className="thead">
-              <tr>
-                <th className="text-nowrap text-white">Technology</th>
-                <th className="text-nowrap text-white">Student Count</th>
-              </tr>
-            </thead>
-            <tbody>
-              {readyForRecruitment.length > 0 ? (
-                readyForRecruitment.map((tech, index) => (
-                  <tr key={index} className="tr">
-                    <td className="text-nowrap">{tech.technology}</td>
-                    <td className="text-nowrap">{tech.student_count}</td>
-                  </tr>
-                ))
-              ) : (
-                <tr className="text-center p-3 w-100">
-                  <td colSpan={4}>No Students Found</td>
-                </tr>
-              )}
-            </tbody>
-            <tfoot>
-              <tr className="fixedTableBottom">
-                <td className="text-end" colSpan={4}>
-                  <center>
-                  <button
-                    type="button"
-                    className="btn btn-primary text-nowrap w-40"
-                    data-bs-toggle="modal"
-                    data-bs-target="#recruitStudentsModal"
-                  >
-                    Recruit Students
-                  </button></center>
-                </td>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
-      </div>
-      <div
-        className="modal fade"
-        id="recruitStudentsModal"
-        tabIndex="-1"
-        aria-labelledby="recruitStudentsModalLabel"
-        aria-hidden="true"
-      >
-        <div className="modal-dialog modal-dialog-centered">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h5 className="modal-title" id="recruitStudentsModalLabel">
-                Recruit Students
-              </h5>
-              <button
-                type="button"
-                className="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-              ></button>
-            </div>
-            <div className="modal-body">
-              <div className="row">
-                <div className="col-xxl-12 col-xl-12 col-md-12 mb-2">
-                  <label>
-                    Select Technology <span className="text-danger">*</span>
-                  </label>
-                  <div className="dropdown w-100 mb-0">
-                    <button
-                      className="btnDropdown dropdown-toggle form-control"
-                      aria-required
-                      type="button"
-                      data-bs-toggle="dropdown"
-                      aria-expanded="false"
-                      
+                <SelectTrigger>
+                  <SelectValue placeholder="Select Technology" />
+                </SelectTrigger>
+
+                <SelectContent>
+                  {readyForRecruitment.map((tech, idx) => (
+                    <SelectItem
+                      key={idx}
+                      value={tech.technology}
+                      disabled={tech.student_count === 0}
                     >
-                      {technology}
-                    </button>
-                    <ul className="dropdown-menu w-100">
-                      {readyForRecruitment.map((tech, index) => (
-                        <li
-                          className="dropdown-item c-pointer"
-                          key={index}
-                          onClick={() => {
-                            setTechnology(tech.technology);
-                            setAvailableStudent(tech.student_count);
-                          }}
-                        >
-                          {tech.technology}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-                <div className="col-xxl-12 col-xl-12 col-md-12 mb-2">
-                  <label>Available Students</label>
-                  <input
-                    type="text"
-                    disabled
-                    className="mb-0 fieldDisabled"
-                    value={availableStudent}
-                  />
-                </div>
-                <div className="col-xxl-12 col-xl-12 col-md-12 mb-2">
-                  <label htmlFor="noOfStudents">
-                    Number of Students <span className="text-danger">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    id="noOfStudents"
-                    placeholder="Enter Number Of Students"
-                    required
-                    value={studentCount}
-                    onChange={handleStudentCountChange}
-                    className="mb-0"
-                  />
-                  {error && <span className="text-danger">{error}</span>}
-                </div>
-                <div className="col-xxl-12 col-xl-12 col-md-12 mb-2">
-                  <label htmlFor="remarks">Add Remarks(Optional)</label>
-                  <textarea
-                    id="remarks"
-                    rows="4"
-                    cols="50"
-                    placeholder="Enter your remarks here..."
-                    className="form-control"
-                    value={remarks}
-                    onChange={(e) => setRemarks(e.target.value)}
-                  ></textarea>
-                </div>
-              </div>
+                      {tech.technology} ({tech.student_count})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+
+              <Input disabled value={availableStudent ?? ""} placeholder="Available students" />
+
+              <Input
+                placeholder="Number of students"
+                value={studentCount}
+                onChange={handleStudentCountChange}
+              />
+
+              {error && <p className="text-sm text-red-500">{error}</p>}
+
+              <Input
+                placeholder="Remarks (Optional)"
+                value={remarks}
+                onChange={(e) => setRemarks(e.target.value)}
+              />
             </div>
-            <div className="modal-footer">
-              {/* <button
-                type="button"
-                className="btn btn-primary"
-                data-bs-dismiss="modal"
-                disabled={!!error}
+
+            <DialogFooter>
+              <Button
+                className="w-full"
+                disabled={!isFormValid || loading}
                 onClick={handleRecruitStudent}
               >
-                Confirm Recruitment
-              </button> */}
-              
-               <button
-              className="btn btn-primary w-full"
-              disabled={!!error}
-              onClick={handleRecruitStudent}
-            >
-              {loading ? (
-                <>
-                  <span
-                    className="fas fa-spinner fa-spin me-2"
-                  ></span>
-                  
-                </>
-              ) : (
-                "Confirm Recruitment"
-              )}
-            </button>
-            
-            </div>
-          </div>
-        </div>
+                {loading ? "Submitting..." : "Confirm Recruitment"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* SUCCESS MODAL */}
+        <Dialog open={showSuccessModal} onOpenChange={setShowSuccessModal}>
+          <DialogContent className="sm:max-w-sm">
+            <DialogHeader>
+              <DialogTitle className="text-green-600">
+                Recruitment Successful
+              </DialogTitle>
+            </DialogHeader>
+            <p className="text-sm text-muted-foreground">
+              Students have been recruited successfully.
+            </p>
+            <DialogFooter>
+              <Button className="w-full" onClick={() => setShowSuccessModal(false)}>
+                Continue
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
       </div>
     </div>
-     {showModal && (
-  <div
-    className="modal fade show"
-    style={{ display: "block", background: "rgba(0,0,0,0.5)" }}
-  >
-    <div className="modal-dialog modal-dialog-centered">
-      <div className="modal-content">
-        <div className="modal-header">
-          <h5 className="modal-title">Welcome</h5>
-          <button
-            type="button"
-            className="btn-close"
-            onClick={() => setShowModal(false)}
-          ></button>
-        </div>
-
-        <div className="modal-body">
-          <p>Login successful!</p>
-        </div>
-
-        <div className="modal-footer">
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={() => setShowModal(false)}
-            data-bs-dismiss="modal"
-          >
-            Continue
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-)}
-</div>
   );
 };
-

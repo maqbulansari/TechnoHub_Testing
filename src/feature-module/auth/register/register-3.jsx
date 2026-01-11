@@ -476,7 +476,7 @@ const Register3 = () => {
               >
                 {isloading ? (
                   <span className="flex items-center justify-center gap-2">
-                    <Loader2 size={16} className="animate-spin" />
+                    {/* <Loader2 size={16} className="animate-spin" /> */}
                     Creating...
                   </span>
                 ) : (

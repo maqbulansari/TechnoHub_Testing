@@ -7,36 +7,165 @@ import {
   faChalkboardUser,
   faTicket,
   faCubes,
-  faChevronRight,
 } from "@fortawesome/free-solid-svg-icons";
 import { Sidebar } from "primereact/sidebar";
 import { all_routes } from "../feature-module/router/all_routes";
 import { AuthContext } from "../contexts/authContext";
 import { useNetworkCheck } from "../contexts/NetworkContext";
 import { Offline } from "./Offline/Offline";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "./ui/dialog";
+import { Button } from "./ui/button";
+
+// MENU CONFIGURATION FUNCTION
+const menuItems = (role) => ({
+  STUDENT: [
+    {
+      title: "Student Dashboard",
+      key: "student-dashboard",
+      icon: faSchool,
+      items: [
+        { path: "/Students_profile", label: "Profile" },
+        { path: "/Students_batches", label: "Batch" },
+        { path: "/Admission_table", label: "Interview" },
+        // { path: "/StudentAssignment", label: "Assignment" },
+      ],
+    },
+  ],
+  TRAINER: [
+    {
+      title: "Trainer Dashboard",
+      key: "trainer-dashboard",
+      icon: faChalkboardUser,
+      items: [
+        { path: "/Trainer_profile", label: "Profile" },
+        { path: "/Trainer_batch", label: "Batch" },
+      ],
+    },
+    {
+      title: "Admission Process",
+      key: "admission-process",
+      icon: faTicket,
+      items: [{ path: "/Admission_table", label: "Interview" }],
+    },
+    {
+      title: "Assessment Process",
+      key: "trainer-assessment-process",
+      icon: faCubes,
+      items: [{ path: "/AssessmentTable", label: "Assessment Candidate" }],
+    },
+  ],
+  RECRUITER: [
+    {
+      title: "Recruitment",
+      key: "recruiter-dashboard",
+      icon: faChalkboardUser,
+      items:
+        role === "ADMIN"
+          ? [{ path: "/RecuriterTable", label: "Recruiter" }]
+          : [
+            { path: "/Recruitment_Profile", label: "Profile" },
+            { path: "/ReadyToRecruitDashboard", label: "Dashboard" },
+          ],
+    },
+  ],
+  SPONSOR: [
+    {
+      title: "Sponsor",
+      key: "sponsor-dashboard",
+      icon: faCubes,
+      items:
+        role === "ADMIN"
+          ? [
+            { path: "/Sponsor_Table", label: "Sponsors" },
+            { path: "/Sponsored_Students", label: "Sponsored Students" },
+          ]
+          : [
+            { path: "/Sponsor_Profile", label: "Profile" },
+            { path: "/Students_SponserDashboard", label: "Dashboard" },
+          ],
+    },
+  ],
+  ADMIN: [
+    {
+      title: "Assessment Process",
+      key: "admin-assessment-process",
+      icon: faCubes,
+      items: [{ path: "/AssessmentTable", label: "Assessment Candidate" }],
+    },
+  ],
+  ALLTRAINER: [
+    {
+      title: "Trainer Dashboard",
+      key: "alltrainer-dashboard",
+      icon: faChalkboardUser,
+      items: [
+        { path: "/AllTrainer", label: "Trainers" },
+        { path: "/AssignBatchForTrainer", label: "Assign Trainer Batch" },
+      ],
+    },
+    {
+      title: "Admission Process",
+      key: "alltrainer-admission-process",
+      icon: faTicket,
+      items:
+        role === "ADMIN"
+          ? [
+            { path: "/Admission_table", label: "Interview" },
+            { path: "/AssignTrainerForInterview", label: "Assign Trainer Interview" },
+            { path: "/SelectedTrainerForInterview", label: "Selected Trainer" },
+          ]
+          : [{ path: "/Admission_table", label: "Interview" }],
+    },
+    {
+      title: "Assessment Process",
+      key: "alltrainer-assessment-process",
+      icon: faCubes,
+      items:
+        role === "ADMIN"
+          ? [{ path: "/AssessmentSelectedStudent", label: "Assessment Candidate" }]
+          : [{ path: "/AssessmentTable", label: "Assessment Candidate" }],
+    },
+    {
+      title: "Batches Management",
+      key: "alltrainer-batches-management",
+      icon: faCubes,
+      items:
+        role === "ADMIN"
+          ? [
+            { path: "/CreateBatches", label: "Create Batch" },
+            { path: "/AllBatches", label: "All Batches" },
+          ]
+          : [],
+    },
+  ],
+  ALLSTUDENT: [
+    {
+      title: "Student Dashboard",
+      key: "allstudent-dashboard",
+      icon: faSchool,
+      items: [{ path: "/AllStudent", label: "Students" }],
+    },
+  ],
+});
 
 const Defaultlayout = () => {
-  const routes = all_routes;
   const navigate = useNavigate();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const { user, userLoggedIN, LogoutUser } = useContext(AuthContext);
   const { isOnline } = useNetworkCheck();
   const [visible, setVisible] = useState(false);
   const [role, setRole] = useState("");
   const [subrole, setSubrole] = useState("");
+  const [logoutDialog, setLogoutDialog] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-  
 
   // Handle window resize
   useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
-
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  // Get role/subrole from localStorage
   useEffect(() => {
     const userRole = localStorage.getItem("role");
     const userSubrole = localStorage.getItem("subrole");
@@ -44,129 +173,7 @@ const Defaultlayout = () => {
     setSubrole(userSubrole || "");
   }, [userLoggedIN]);
 
-  // Close sidebar on route change for mobile
-  useEffect(() => {
-    if (isMobile) {
-      setVisible(false);
-    }
-  }, [navigate, isMobile]);
-
-  const menuItems = {
-    STUDENT: {
-      title: "Student Dashboard",
-      items: [
-        { path: "/Students_profile", label: "Profile" },
-        { path: "/Students_batches", label: "Batch" },
-        { path: "/Admission_table", label: "Interview" },
-        { path: "/StudentAssignment", label: "Assignment" },
-      ],  
-      icon: faSchool,
-      key: "student-dashboard",
-    },
-    TRAINER: [
-      {
-        title: "Trainer Dashboard",
-        items: [
-          { path: "/Trainer_profile", label: "Profile" },
-          { path: "/Trainer_batch", label: "Batch" },
-        ],
-        icon: faChalkboardUser,
-        key: "trainer-dashboard",
-      },
-      {
-        title: "Admission Process",
-        items: [{ path: "/Admission_table", label: "Interview" }],
-        icon: faTicket,
-        key: "admission-process",
-      },
-      {
-        title: "Assessment Process",
-        items: [{ path: "/AssessmentTable", label: "Assessment Candidate" }],
-        icon: faCubes,
-        key: "trainer-assessment-process",
-      },
-    ],
-    RECRUITER: {
-      title: "Recruitment",
-      items:
-        role === "ADMIN"
-          ? [{ path: "/RecuriterTable", label: "Recruiter" }]
-          : [
-              { path: "/Recruitment_Profile", label: "Profile" },
-              { path: "/ReadyToRecruitDashboard", label: "Dashboard" },
-            ],
-      icon: faChalkboardUser,
-      key: "recruiter-dashboard",
-    },
-    SPONSOR: {
-      title: "Sponsor",
-      items:
-        role === "ADMIN"
-          ? [{ path: "/Sponsor_Table", label: "Sponsors" },{ path: "/Sponsored_Students", label: "Sponsored Students" }]
-          : [
-              { path: "/Sponsor_Profile", label: "Profile" },
-              { path: "/Students_SponserDashboard", label: "Dashboard" },
-            ],
-      icon: faCubes,
-      key: "sponsor-dashboard",
-    },
-    ADMIN: {
-      title: "Assessment Process",
-      items: [{ path: "/AssessmentTable", label: "Assessment Candidate" }],
-      icon: faCubes,
-      key: "admin-assessment-process",
-    },
-    ALLTRAINER: [
-      {
-        title: "Trainer Dashboard",
-        items: [
-          { path: "/AllTrainer", label: "Trainers" },
-          { path: "/AssignBatchForTrainer", label: "Assign Trainer Batch" },
-        ],
-        icon: faChalkboardUser,
-        key: "AllTrainer-dashboard",
-      },
-      {
-        title: "Admission Process",
-
-        items:
-        role === "ADMIN"
-          ? [{ path: "/Admission_table", label: "Interview" },{ path: "/AssignTrainerForInterview", label: "Assign Trainer Interview" },{ path: "/SelectedTrainerForInterview", label: "Selected Trainer" }]
-          : [
-             { path: "/Admission_table", label: "Interview" },
-            ],
-        icon: faTicket,
-        key: "alltrainer-admission-process",
-      },
-      {
-        title: "Assessment Process",
-        items:
-          role === "ADMIN"
-          ?  [{ path: "/AssessmentSelectedStudent", label: "Assessment Candidate" }] :[{ path: "/AssessmentTable", label: "Assessment Candidate" }] ,
-        icon: faCubes,
-        key: "alltrainer-assessment-process",
-      },
-      {
-        title: "Batches Management",
-        items:
-          role === "ADMIN"
-          &&  [{ path: "/CreateBatches", label: "Create Batch" },{ path: "/AllBatches", label: "All Batchs" }] ,
-        icon: faCubes,
-        key: "alltrainer-batches-management",
-      },
-    ],
-    ALLSTUDENT: {
-      title: "Student Dashboard",
-      items: [{ path: "/AllStudent", label: "Students" }],
-      icon: faSchool,
-      key: "All-student-dashboard",
-    },
-  };
-
-  const toggleSidebar = useCallback(() => {
-    setIsSidebarOpen((prev) => !prev);
-  }, []);
-
+  const toggleSidebar = useCallback(() => setVisible((prev) => !prev), []);
   const handleLogout = useCallback(() => {
     setVisible(false);
     setRole("");
@@ -174,128 +181,53 @@ const Defaultlayout = () => {
     LogoutUser();
     navigate("/");
   }, [LogoutUser, navigate]);
+  const handleMenuItemClick = useCallback(() => setVisible(false), []);
 
-  const handleMenuItemClick = useCallback(() => {
-    setVisible(false);
-  }, []);
-  
-
-  // MenuSection Component (replaces Dropdown)
-  const MenuSection = ({ title, items, icon }) => {    
-    return (
-      <div className="menu-section">
-        <div className="menu-heading">
-          <div className="px-2">
-            {/* <FontAwesomeIcon icon={icon} /> */}
-          </div>
-          <span className="menu-title capitalize">{title}</span>
-        </div>
-        <div className="pl-3">
-          {items.map((item, index) => (                 
-            <Link
-              key={index}
-              to={item.path}
-              className="menu-item capitalize"
-              onClick={handleMenuItemClick}
-            >
-              {/* <FontAwesomeIcon icon={faChevronRight} className="menu-item-arrow" /> */}
-              <span className="capitalize text-sm ml-2">{item.label}</span>
-            </Link>
-          ))}
-        </div>
-      </div>
-    );
-  };
-
-  const renderMenuItems = () => {
-    if (!subrole) return null;
-
-    // If role is ADMIN, show all dropdowns
+  // Get menus for current role
+  const getMenusForRole = () => {
+    if (!role || !subrole) return [];
+    const allMenus = menuItems(role);
     if (role === "ADMIN") {
-      return (
-        <>
-          {/* Student Section */}
-          <MenuSection
-            key={menuItems.ALLSTUDENT.key}
-            title={menuItems.ALLSTUDENT.title}
-            items={menuItems.ALLSTUDENT.items}
-            icon={menuItems.ALLSTUDENT.icon}
-          />
-
-          {/* Trainer Sections */}
-          {menuItems.ALLTRAINER.map((item) => (
-            <MenuSection
-              key={item.key}
-              title={item.title}
-              items={item.items}
-              icon={item.icon}
-            />
-          ))}
-
-          <MenuSection
-            key={menuItems.RECRUITER.key}
-            title={menuItems.RECRUITER.title}
-            items={menuItems.RECRUITER.items}
-            icon={menuItems.RECRUITER.icon}
-          />
-
-          <MenuSection
-            key={menuItems.SPONSOR.key}
-            title={menuItems.SPONSOR.title}
-            items={menuItems.SPONSOR.items}
-            icon={menuItems.SPONSOR.icon}
-          />
-        </>
-      );
+      return [
+        ...allMenus.ALLSTUDENT,
+        ...allMenus.ALLTRAINER,
+        ...allMenus.RECRUITER,
+        ...allMenus.SPONSOR,
+      ];
     }
-
-    // For non-ADMIN roles, show only their specific section
-    switch (subrole) {
-      case "STUDENT":
-        return (
-          <MenuSection
-            key={menuItems.STUDENT.key}
-            title={menuItems.STUDENT.title}
-            items={menuItems.STUDENT.items}
-            icon={menuItems.STUDENT.icon}
-          />
-        );
-      case "TRAINER":
-        return menuItems.TRAINER.map((item) => (
-          <MenuSection
-            key={item.key}
-            title={item.title}
-            items={item.items}
-            icon={item.icon}
-          />
-        ));
-      case "RECRUITER":
-        return (
-          <MenuSection
-            key={menuItems.RECRUITER.key}
-            title={menuItems.RECRUITER.title}
-            items={menuItems.RECRUITER.items}
-            icon={menuItems.RECRUITER.icon}
-          />
-        );
-      case "SPONSOR":
-        return (
-          <MenuSection
-            key={menuItems.SPONSOR.key}
-            title={menuItems.SPONSOR.title}
-            items={menuItems.SPONSOR.items}
-            icon={menuItems.SPONSOR.icon}
-          />
-        );
-      default:
-        return null;
-    }
+    return allMenus[subrole] || [];
   };
 
-  // Get sidebar position based on screen size
-  const getSidebarPosition = () => {
-    return isMobile ? "left" : "left";
-  };
+  // MenuSection Component
+  const MenuSection = ({ title, items, icon }) => (
+    <div className="menu-section">
+      <div className="menu-heading flex items-center px-2">
+        {icon && <FontAwesomeIcon icon={icon} className="mr-2" />}
+        <span className="menu-title text-gray-900 capitalize">{title}</span>
+      </div>
+      <div className="pl-2">
+        {items.map((item, idx) => (
+          <Link
+            key={idx}
+            to={item.path}
+            className="menu-item text-gray-700 capitalize"
+            onClick={handleMenuItemClick}
+          >
+            <span className="ml-2 text-sm">{item.label}</span>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+
+  const renderMenuItems = () => getMenusForRole().map((section) => (
+    <MenuSection
+      key={section.key}
+      title={section.title}
+      items={section.items}
+      icon={section.icon}
+    />
+  ));
 
   return (
     <>
@@ -305,83 +237,85 @@ const Defaultlayout = () => {
             className="posRel sidebarBg"
             visible={visible}
             onHide={() => setVisible(false)}
-            position={getSidebarPosition()}
+            position="left"
             blockScroll={isMobile}
-            showCloseIcon={true}
-            dismissable={true}
-            closeOnEscape={true}
+            showCloseIcon
+            dismissable
+            closeOnEscape
             header={
-              <div className="d-flex align-items-center">
-                <span className="text_avatar_48 text-nowrap">
-                  {userLoggedIN && user && user.first_name.charAt(0)}
-                </span>
-                <div className="sidebarHeaderContainer">
-                  <span className="sidebarRole text-black">WELCOME</span>
-                  <span className="sidebarName capitalize text-black">
-                    {userLoggedIN &&
-                      user &&
-                      `${user.first_name} ${user.last_name}`}
-                  </span>
+              <div className="sidebar-user-header">
+                <div className="user-row">
+                  {/* Avatar */}
+                  <div className="user-avatar">
+                    {userLoggedIN && user ? user.first_name.charAt(0) : "U"}
+                  </div>
+
+                  {/* Info */}
+                  <div className="user-meta">
+                    <span className="welcome-text">Welcome</span>
+
+                    <span className="user-name">
+                      {userLoggedIN && user
+                        ? `${user.first_name} ${user.last_name}`
+                        : "User"}
+                    </span>
+
+                    {subrole == "undefined" ? (
+                      <span className="user-role">Admin</span>
+                    ) : (<span className="user-role">{subrole}</span>)}
+                  </div>
                 </div>
               </div>
             }
+
+
           >
-            <div className="sidebar-content-wrapper bg-white" style={{ 
-              paddingBottom: '60px',
-              // overflowX: 'auto',
-              // height: '100%',
-            }}>
+            <div className="sidebar-content-wrapper bg-white" style={{ paddingBottom: '60px' }}>
               {renderMenuItems()}
 
               {role === "ADMIN" && (
-                <Link 
-                  to={routes.register3} 
-                  className="dropdownBtn ml-2 "
+                <Link
+                  to={all_routes.register3}
+                  className="dropdownBtn ml-"
                   onClick={handleMenuItemClick}
                 >
-                  <i className="pi pi-plus me-2  text-black font-bold"></i>
-                  <span className="menu-title capitalize  text-blue-500">Create Enabler</span>
+                  <i className="pi pi-plus me-2 text-gray-700 font-bold"></i>
+                  <span className=" capitalize text-sm text-[#2196f3]">Create Enabler</span>
                 </Link>
               )}
             </div>
 
-              <div className="bg-white">
-            <div className="authFuncCont">
-              {userLoggedIN && (
-                <>
-                  <div className="me-2">
-                    <i
-                      className="pi pi-sign-out ml-3 "
-                      style={{ fontSize: "1.5rem", color: "#dc3545", cursor: 'pointer' }}
-                      onClick={() => setVisible(false)}
-                      data-bs-target="#logoutModal"
-                       data-bs-toggle="modal"
-                    ></i>
+            <div className="bg-white">
+              <div className="authFuncCont">
+                {userLoggedIN && (
+                  <div className="px-2" >
+                    <div className="flex items-center justify-between gap-2">
+                      {/* Logout */}
+                      <button
+                        className="flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg transition-colors"
+
+                        onClick={() => { setVisible(false), setLogoutDialog(true) }}
+                      >
+                        <i className="pi pi-sign-out text-red-500" ></i>
+                        <span className="text- font-medium text-red-600">Logout</span>
+                      </button>
+                      {/* Change Password */}
+                      {/* <button
+                        className="flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg  transition-colors"
+                        onClick={() => {
+                          setVisible(false);
+                          navigate(all_routes.changePassword);
+                        }}
+                      >
+                        <i className="pi pi-lock text-[#2196f3]" style={{ fontSize: "0.9rem" }}></i>
+                        <span className="text-xs font-medium text-nowrap text-[#2196f3]">Change Password</span>
+                      </button> */}
+
+
+                    </div>
                   </div>
-                  <div className="d-flex flex-column">
-                    <span
-                      className="menu-title capitalize text-red-500"
-                      style={{ cursor: 'pointer' }}
-                      data-bs-toggle="modal"
-                      data-bs-target="#logoutModal"
-                      onClick={() => setVisible(false)}
-                    >
-                      Logout
-                    </span>
-                    <span
-                      className="menu-title capitalize text-blue-500"
-                      style={{ cursor: 'pointer' }}
-                      onClick={() => {
-                        setVisible(false);
-                        navigate(`${routes.changePassword}`);
-                      }}
-                    >
-                      Change Password
-                    </span>
-                  </div>
-                </>
-              )}
-            </div>
+                )}
+              </div>
             </div>
           </Sidebar>
 
@@ -394,47 +328,45 @@ const Defaultlayout = () => {
             </div>
           </div>
 
-    {/* Logout Modal */}
-          <div
-            className="modal fade"
-            id="logoutModal"
-            aria-labelledby="logoutModalLabel"
-            aria-hidden="true"
-          >
-            <div className="modal-dialog modal-dialog-centered">
-              <div className="modal-content">
-                <div className="modal-body">
-                  <h3 className="text-center mb-4 mt-2">
-                    Are you sure you want to logout?
-                  </h3>
-                
-                  <div className="row">
-                    <div className="col-xxl-6 col-xl-6 col-md-6">
-                      <button
-                        type="button"
-                        className="btn btn-light w-100"
-                        data-bs-dismiss="modal"
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                    <br />
-                    <br />
-                    <div className="col-xxl-6 col-xl-6 col-md-6">
-                      <button
-                        type="button"
-                        className="btn btn-primary w-100"
-                        onClick={handleLogout}
-                        data-bs-dismiss="modal"
-                      >
-                        Logout <i className="fa-solid fa-right-from-bracket ml-2"></i>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+
+          {/* Logout Dialog Modal */}
+          <Dialog open={logoutDialog} onOpenChange={setLogoutDialog}>
+            <DialogContent className="sm:max-w-md p-0 gap-0 overflow-hidden [&>button]:hidden rounded-xl">
+
+              {/* Header */}
+              <DialogHeader className="px-5 pt-4 pb-4 space-y-1">
+                <DialogTitle className="text-xl pb-2 font-semibold ">
+                  Confirm Logout
+                </DialogTitle>
+                <DialogDescription className="text-sm pb-2 text-muted-foreground leading-relaxed">
+                  Are you sure you want to logout?
+                </DialogDescription>
+              </DialogHeader>
+
+              {/* Footer Buttons */}
+              <DialogFooter className="px-5 pb-5 flex gap-3 justify-end bg-muted/10">
+                <Button
+                  variant="ghost"
+                  className="flex-1 sm:flex-none border-1"
+                  onClick={() => setLogoutDialog(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant=""
+                  className="flex-1 sm:flex-none"
+                  onClick={() => {
+                    setLogoutDialog(false);
+                    handleLogout();
+                  }}
+                >
+                  Logout
+                </Button>
+              </DialogFooter>
+
+            </DialogContent>
+          </Dialog>
+
         </>
       ) : (
         <Offline />
