@@ -41,6 +41,7 @@ const AssignTrainerForInterview = () => {
   const {
     register,
     setValue,
+    setError,
     clearErrors,
     formState: { errors },
   } = useForm();
@@ -100,19 +101,28 @@ const AssignTrainerForInterview = () => {
   const handleSubmitForm = async (e) => {
     e.preventDefault();
 
-    const newErrors = {};
-    if (!roleType) newErrors.roleType = "Role is required";
-    if (selectedUsers.length === 0)
-      newErrors.user_ids = `${roleType === "trainer" ? "Trainer(s)" : "Student(s)"} is required`;
-    if (!batchId) newErrors.batchId = "Batch is required";
+    let hasError = false;
 
-    if (Object.keys(newErrors).length > 0) {
-      // setErrors manually
-      Object.entries(newErrors).forEach(([key, val]) =>
-        setValue(key, val)
-      );
-      return;
+    if (!roleType) {
+      setError("roleType", { message: "Role is required" });
+      hasError = true;
     }
+
+    if (selectedUsers.length === 0) {
+      setError("user_ids", {
+        message: `${
+          roleType === "trainer" ? "Trainer(s)" : "Student(s)"
+        } is required`,
+      });
+      hasError = true;
+    }
+
+    if (!batchId) {
+      setError("batchId", { message: "Batch is required" });
+      hasError = true;
+    }
+
+    if (hasError) return;
 
     setSubmitting(true);
     try {
@@ -136,7 +146,9 @@ const AssignTrainerForInterview = () => {
       setSearchTerm("");
     } catch (err) {
       setModalTitle("Error");
-      setModalMessage(err.response?.data?.message || "Failed to assign interview");
+      setModalMessage(
+        err.response?.data?.message || "Failed to assign interview"
+      );
       setModalOpen(true);
     } finally {
       setSubmitting(false);
@@ -156,7 +168,14 @@ const AssignTrainerForInterview = () => {
             <label className="block text-gray-900 font-medium mb-1">
               Select Role <span className="text-red-500">*</span>
             </label>
-            <Select value={roleType} onValueChange={setRoleType} disabled={submitting}>
+            <Select
+              value={roleType}
+              onValueChange={(val) => {
+                setRoleType(val);
+                clearErrors("roleType");
+              }}
+              disabled={submitting}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Choose role" />
               </SelectTrigger>
@@ -165,8 +184,11 @@ const AssignTrainerForInterview = () => {
                 <SelectItem value="student">Student</SelectItem>
               </SelectContent>
             </Select>
+            <input type="hidden" {...register("roleType")} value={roleType} />
             {errors.roleType && (
-              <p className="text-red-500 text-sm mt-1">{errors.roleType}</p>
+              <p className="text-red-500 text-sm mt-1">
+                {errors.roleType.message}
+              </p>
             )}
           </div>
 
@@ -182,7 +204,9 @@ const AssignTrainerForInterview = () => {
                   <Button variant="outline" className="w-full justify-between">
                     {selectedUsers.length > 0
                       ? `${selectedUsers.length} selected`
-                      : `Select ${roleType === "trainer" ? "Trainer(s)" : "Student(s)"}`}
+                      : `Select ${
+                          roleType === "trainer" ? "Trainer(s)" : "Student(s)"
+                        }`}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="p-0 w-[300px]">
@@ -195,11 +219,16 @@ const AssignTrainerForInterview = () => {
                       className="w-full px-2 py-1 border rounded focus:outline-none"
                     />
                   </div>
-                  <ScrollArea className="max-h-60">
+
+                  <ScrollArea className="h-60">
                     {loadingUsers ? (
-                      <p className="text-center text-gray-500 py-2">Loading...</p>
+                      <p className="text-center text-gray-500 py-2">
+                        Loading...
+                      </p>
                     ) : filteredUsers.length === 0 ? (
-                      <p className="text-center text-gray-500 py-2">No users found</p>
+                      <p className="text-center text-gray-500 py-2">
+                        No users found
+                      </p>
                     ) : (
                       filteredUsers.map((user) => (
                         <label
@@ -216,7 +245,9 @@ const AssignTrainerForInterview = () => {
                             <span className="text-sm font-medium text-gray-700">
                               {user.first_name} {user.last_name}
                             </span>
-                            <span className="text-xs text-gray-500">{user.email}</span>
+                            <span className="text-xs text-gray-500">
+                              {user.email}
+                            </span>
                           </div>
                         </label>
                       ))
@@ -224,9 +255,12 @@ const AssignTrainerForInterview = () => {
                   </ScrollArea>
                 </PopoverContent>
               </Popover>
+
               <input type="hidden" {...register("user_ids")} />
               {errors.user_ids && (
-                <p className="text-red-500 text-sm mt-1">{errors.user_ids}</p>
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.user_ids.message}
+                </p>
               )}
             </div>
           )}
@@ -238,7 +272,10 @@ const AssignTrainerForInterview = () => {
             </label>
             <Select
               value={batchId}
-              onValueChange={setBatchId}
+              onValueChange={(val) => {
+                setBatchId(val);
+                clearErrors("batchId");
+              }}
               disabled={submitting}
             >
               <SelectTrigger>
@@ -246,14 +283,20 @@ const AssignTrainerForInterview = () => {
               </SelectTrigger>
               <SelectContent>
                 {batches.map((batch) => (
-                  <SelectItem key={batch.batch_id} value={batch.id.toString()}>
+                  <SelectItem
+                    key={batch.batch_id}
+                    value={batch.id.toString()}
+                  >
                     {batch.batch_name} - {batch.center}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
+            <input type="hidden" {...register("batchId")} value={batchId} />
             {errors.batchId && (
-              <p className="text-red-500 text-sm mt-1">{errors.batchId}</p>
+              <p className="text-red-500 text-sm mt-1">
+                {errors.batchId.message}
+              </p>
             )}
           </div>
 

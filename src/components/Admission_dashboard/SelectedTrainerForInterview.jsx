@@ -200,9 +200,9 @@ const SelectedTrainerForInterview = () => {
 
       {/* Delete Dialog */}
       <Dialog open={!!rowToDelete} onOpenChange={() => setRowToDelete(null)}>
-        <DialogContent className="pt-4 pb-3 px-6 sm:w-[400px]">
+        <DialogContent className="pt-4 pb-3 px-6 sm:w-[400px] [&>button]:hidden">
           <DialogHeader>
-            <DialogTitle>Delete Interview Schedule</DialogTitle>
+            <DialogTitle>Delete</DialogTitle>
           </DialogHeader>
 
           <p>

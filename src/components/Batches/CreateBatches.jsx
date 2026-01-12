@@ -317,7 +317,7 @@ export const CreateBatches = () => {
                                         onChange={(e) => setTechSearchTerm(e.target.value)}
                                     />
                                 </div>
-                                <ScrollArea className="max-h-60">
+                                 <ScrollArea className="h-60">
                                     {filteredTechnologies.map((tech) => (
                                         <label
                                             key={tech.id}
@@ -375,7 +375,7 @@ export const CreateBatches = () => {
                                         onChange={(e) => setTrainerSearchTerm(e.target.value)}
                                     />
                                 </div>
-                                <ScrollArea className="max-h-60">
+                              <ScrollArea className="h-60">
                                     {filteredTrainers.map((trainer) => (
                                         <label
                                             key={trainer.id}

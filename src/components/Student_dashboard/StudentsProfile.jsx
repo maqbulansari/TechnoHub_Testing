@@ -75,6 +75,9 @@ const StudentsProfile = () => {
     }
   };
 
+
+  console.log(student);
+  
   if (!student) return <Loading />;
 
   return (

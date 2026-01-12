@@ -203,12 +203,12 @@ const InterviewCandidate = () => {
         {/* English Communication */}
         <div>
           <Label>
-            English Communication <span className="text-red-500">*</span>
+             Communication <span className="text-red-500">*</span>
           </Label>
           <Controller
             name="eng_comm_skills"
             control={control}
-            rules={{ required: "English communication rating is required" }}
+            rules={{ required: " communication rating is required" }}
             render={({ field }) => (
               <Select value={field.value} onValueChange={field.onChange}>
                 <SelectTrigger>
