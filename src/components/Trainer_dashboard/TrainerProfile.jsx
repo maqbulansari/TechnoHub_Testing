@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { AuthContext } from "../../contexts/authContext";
 import Loading from "@/Loading";
 
@@ -9,7 +9,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 
@@ -19,57 +25,97 @@ const TrainerProfile = () => {
   const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [errorModalOpen, setErrorModalOpen] = useState(false);
+  const [apiErrors, setApiErrors] = useState({});
+
   const { API_BASE_URL } = useContext(AuthContext);
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    control,
+    formState: { errors },
+  } = useForm();
 
-  // Fetch trainer data
+  // ✅ normalize ONLY null → "" (no field changes)
+  const normalizeTrainer = (data) => ({
+    ...data,
+    gender: data.gender ?? "",
+    qualification: data.qualification ?? "",
+    address: data.address ?? "",
+    date_of_birth: data.date_of_birth ?? "",
+    mobile_no: data.mobile_no ?? "",
+    job_title: data.job_title ?? "",
+  });
+
+  // Fetch trainer
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
     if (!token) return;
 
     const fetchTrainer = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/trainers/`, {
+        const res = await axios.get(`${API_BASE_URL}/trainers/`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        const trainerData = response.data[0];
-        setTrainer(trainerData);
-        reset(trainerData);
+
+        const normalized = normalizeTrainer(res.data[0]);
+        setTrainer(normalized);
+        reset(normalized);
       } catch (err) {
-        console.error("Error fetching trainer data:", err);
+        console.error("Fetch trainer error:", err);
       }
     };
 
     fetchTrainer();
   }, [API_BASE_URL, reset]);
 
+  // Submit
   const onSubmit = async (data) => {
     if (!trainer) return;
+
     setLoading(true);
+    setApiErrors({});
     const token = localStorage.getItem("accessToken");
     const formData = new FormData();
 
+    // append only valid values (prevents id_type error)
     Object.entries(data).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) formData.append(key, value);
+      if (value !== "" && value !== null && value !== undefined) {
+        formData.append(key, value);
+      }
     });
 
-    if (image) formData.append("user_profile", image);
+    // append image ONLY if real file
+    if (image instanceof File) {
+      formData.append("user_profile", image);
+    }
 
     try {
-      await axios.put(`${API_BASE_URL}/trainers/${trainer.id}/`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      await axios.put(
+        `${API_BASE_URL}/trainers/${trainer.id}/`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
       setTrainer({ ...trainer, ...data });
       reset({ ...trainer, ...data });
       setEditMode(false);
+      setImage(null);
       setSubmitSuccess(true);
+
     } catch (err) {
-      console.error("Error updating profile:", err.response?.data || err);
-      alert("Failed to update profile");
+      if (err.response?.data) {
+        setApiErrors(err.response.data);
+      } else {
+        setApiErrors({ general: ["Something went wrong."] });
+      }
+      setErrorModalOpen(true);
     } finally {
       setLoading(false);
     }
@@ -81,10 +127,9 @@ const TrainerProfile = () => {
     <div className="max-w-4xl mx-auto mt-20 px-4">
       <Card className="overflow-hidden shadow-none rounded-2xl border border-slate-200">
         <CardHeader className="flex flex-col md:flex-row items-center gap-4 bg-blue-50 p-4">
-          {/* Avatar */}
           <Avatar className="w-32 h-32">
             {trainer.user_profile ? (
-              <AvatarImage src={`${API_BASE_URL}${trainer.user_profile}`} alt="Profile" />
+              <AvatarImage src={`${API_BASE_URL}${trainer.user_profile}`} />
             ) : (
               <AvatarFallback className="bg-primary text-white text-4xl font-bold">
                 {trainer.first_name?.charAt(0)}
@@ -92,17 +137,18 @@ const TrainerProfile = () => {
             )}
           </Avatar>
 
-          {/* Name & Job Title */}
           <div className="flex-1 text-center md:text-left space-y-1">
-            <h2 className="text-2xl font-semibold text-slate-900 capitalize">
+            <h2 className="text-2xl font-semibold capitalize">
               {trainer.first_name} {trainer.last_name}
             </h2>
-            <p className="text-sm text-slate-500">{trainer.job_title || "N/A"}</p>
+            <p className="text-sm text-slate-500">
+              {trainer.job_title || "N/A"}
+            </p>
             <Badge variant="outline">Trainer</Badge>
           </div>
 
           {!editMode && (
-            <Button className="mt-4 md:mt-0" onClick={() => setEditMode(true)}>
+            <Button onClick={() => setEditMode(true)}>
               Edit Profile
             </Button>
           )}
@@ -112,80 +158,95 @@ const TrainerProfile = () => {
           {editMode ? (
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
                 <div>
                   <Label>First Name</Label>
-                  <Input {...register("first_name", { required: "First name is required" })} />
-                  {errors.first_name && <p className="text-red-500 text-sm">{errors.first_name.message}</p>}
+                  <Input {...register("first_name", { required: true })} />
                 </div>
+
                 <div>
                   <Label>Last Name</Label>
-                  <Input {...register("last_name", { required: "Last name is required" })} />
-                  {errors.last_name && <p className="text-red-500 text-sm">{errors.last_name.message}</p>}
+                  <Input {...register("last_name", { required: true })} />
                 </div>
 
                 <div>
                   <Label>Job Title</Label>
-                  <Input {...register("job_title", { required: "Job title is required" })} />
-                  {errors.job_title && <p className="text-red-500 text-sm">{errors.job_title.message}</p>}
+                  <Input {...register("job_title", { required: true })} />
                 </div>
+
                 <div>
                   <Label>Email</Label>
-                  <Input type="email" {...register("email", { required: "Email is required" })} />
-                  {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
+                  <Input type="email" {...register("email")} />
                 </div>
 
                 <div>
                   <Label>Mobile No</Label>
-                  <Input {...register("mobile_no", { required: "Mobile number is required" })} />
-                  {errors.mobile_no && <p className="text-red-500 text-sm">{errors.mobile_no.message}</p>}
+                  <Input {...register("mobile_no")} />
                 </div>
+
                 <div>
                   <Label>Gender</Label>
-                  <Select {...register("gender", { required: "Gender is required" })}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select Gender" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Male">Male</SelectItem>
-                      <SelectItem value="Female">Female</SelectItem>
-                      <SelectItem value="Other">Other</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {errors.gender && <p className="text-red-500 text-sm">{errors.gender.message}</p>}
+                  <Controller
+                    name="gender"
+                    control={control}
+                    rules={{ required: "Gender is required" }}
+                    render={({ field }) => (
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select Gender" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Male">Male</SelectItem>
+                          <SelectItem value="Female">Female</SelectItem>
+                          <SelectItem value="Other">Other</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
                 </div>
 
                 <div>
                   <Label>Qualification</Label>
-                  <Input {...register("qualification", { required: "Qualification is required" })} />
-                  {errors.qualification && <p className="text-red-500 text-sm">{errors.qualification.message}</p>}
+                  <Input {...register("qualification")} />
                 </div>
+
                 <div>
                   <Label>Date of Birth</Label>
-                  <Input type="date" {...register("date_of_birth", { required: "DOB required" })} max={new Date().toISOString().split("T")[0]} />
-                  {errors.date_of_birth && <p className="text-red-500 text-sm">{errors.date_of_birth.message}</p>}
+                  <Input type="date" {...register("date_of_birth")} />
                 </div>
 
                 <div className="col-span-2">
                   <Label>Address</Label>
-                  <textarea {...register("address", { required: "Address required" })} className="w-full rounded-md border border-slate-300 p-2" rows={2}></textarea>
-                  {errors.address && <p className="text-red-500 text-sm">{errors.address.message}</p>}
+                  <textarea
+                    {...register("address")}
+                    className="w-full rounded-md border border-slate-300 p-2"
+                    rows={2}
+                  />
                 </div>
 
                 <div className="col-span-2">
                   <Label>Profile Image</Label>
-                  <div className="flex items-center gap-4">
-                    <Input type="file" className="hidden" id="trainerProfileImage" accept="image/*" onChange={(e) => setImage(e.target.files?.[0] || null)} />
-                    <label htmlFor="trainerProfileImage">
-                      <Button variant="outline" asChild>
-                        <span>{image ? image.name : "Choose file"}</span>
-                      </Button>
-                    </label>
-                  </div>
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) =>
+                      setImage(e.target.files?.[0] || null)
+                    }
+                  />
                 </div>
+
               </div>
 
               <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => { reset(trainer); setEditMode(false); setImage(null); }}>
+                <Button
+                  variant="outline"
+                  type="button"
+                  onClick={() => {
+                    reset(trainer);
+                    setEditMode(false);
+                    setImage(null);
+                  }}
+                >
                   Cancel
                 </Button>
                 <Button type="submit" disabled={loading}>
@@ -195,58 +256,54 @@ const TrainerProfile = () => {
             </form>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm text-slate-500">First Name</p>
-                <p className="font-medium text-slate-900 capitalize">{trainer.first_name || "N/A"}</p>
-              </div>
-              <div>
-                <p className="text-sm text-slate-500">Last Name</p>
-                <p className="font-medium text-slate-900 capitalize">{trainer.last_name || "N/A"}</p>
-              </div>
-              <div>
-                <p className="text-sm text-slate-500">Job Title</p>
-                <p className="font-medium text-slate-900">{trainer.job_title || "N/A"}</p>
-              </div>
-              <div>
-                <p className="text-sm text-slate-500">Email</p>
-                <p className="font-medium text-slate-900">{trainer.email || "N/A"}</p>
-              </div>
-              <div>
-                <p className="text-sm text-slate-500">Mobile</p>
-                <p className="font-medium text-slate-900">{trainer.mobile_no || "N/A"}</p>
-              </div>
-              <div>
-                <p className="text-sm text-slate-500">Gender</p>
-                <p className="font-medium text-slate-900">{trainer.gender || "N/A"}</p>
-              </div>
-              <div>
-                <p className="text-sm text-slate-500">Qualification</p>
-                <p className="font-medium text-slate-900 capitalize">{trainer.qualification || "N/A"}</p>
-              </div>
-              <div>
-                <p className="text-sm text-slate-500">Date of Birth</p>
-                <p className="font-medium text-slate-900">{trainer.date_of_birth || "N/A"}</p>
-              </div>
+              <Info label="First Name" value={trainer.first_name} />
+              <Info label="Last Name" value={trainer.last_name} />
+              <Info label="Job Title" value={trainer.job_title} />
+              <Info label="Email" value={trainer.email} />
+              <Info label="Mobile" value={trainer.mobile_no} />
+              <Info label="Gender" value={trainer.gender} />
+              <Info label="Qualification" value={trainer.qualification} />
+              <Info label="Date of Birth" value={trainer.date_of_birth} />
               <div className="col-span-2">
-                <p className="text-sm text-slate-500">Address</p>
-                <p className="font-medium text-slate-900 capitalize">{trainer.address || "N/A"}</p>
+                <Info label="Address" value={trainer.address} />
               </div>
             </div>
           )}
         </CardContent>
       </Card>
 
-      {/* Success Dialog */}
+      {/* SUCCESS MODAL */}
       <Dialog open={submitSuccess} onOpenChange={setSubmitSuccess}>
-        <DialogContent className="sm:max-w-md p-0 gap-0 overflow-hidden [&>button]:hidden rounded-xl">
-          <DialogHeader className="px-5 pt-4 pb-4 space-y-1">
-            <DialogTitle className="text-xl pb-2 font-semibold">Success</DialogTitle>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              Profile updated successfully!
-            </p>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Success</DialogTitle>
           </DialogHeader>
-          <DialogFooter className="px-3 pb-3 bg-muted/30">
-            <Button className="w-full sm:w-auto" onClick={() => setSubmitSuccess(false)}>
+          <p>Profile updated successfully!</p>
+          <DialogFooter>
+            <Button onClick={() => setSubmitSuccess(false)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* ERROR MODAL */}
+      <Dialog open={errorModalOpen} onOpenChange={setErrorModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="">
+              Update Failed
+            </DialogTitle>
+          </DialogHeader>
+
+          {Object.entries(apiErrors).map(([field, messages]) =>
+            messages.map((msg, i) => (
+              <p key={i} className="text-sm">
+                 {msg}
+              </p>
+            ))
+          )}
+
+          <DialogFooter>
+            <Button onClick={() => setErrorModalOpen(false)}>
               Close
             </Button>
           </DialogFooter>
@@ -255,5 +312,12 @@ const TrainerProfile = () => {
     </div>
   );
 };
+
+const Info = ({ label, value }) => (
+  <div>
+    <p className="text-sm text-slate-500">{label}</p>
+    <p className="font-medium capitalize">{value || "N/A"}</p>
+  </div>
+);
 
 export default TrainerProfile;

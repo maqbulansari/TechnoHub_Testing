@@ -110,7 +110,7 @@ const AdmissionTable = () => {
       />
 
       {/* Table */}
-      <div className="rounded-lg border bg-white shadow-sm overflow-hidden">
+      <div className="rounded-lg border max-h-[70vh] bg-white shadow-sm overflow-auto">
         <Table>
           <TableHeader>
             <TableRow>

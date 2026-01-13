@@ -44,11 +44,11 @@ const StudentsBatches = () => {
 
   if (!batch) {
     return (
-      <div className="mt-10 px-4">
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
-          <p className="text-red-600 font-semibold text-lg">No batch data available</p>
-          <p className="text-red-500 text-sm mt-1">
-            Please check your connection or contact support.
+      <div className="mt-20 px-4">
+        <div className=" border border-200 rounded-lg p-4 text-center">
+          <p className=" font-semibold text-lg">No batch data available</p>
+          <p className=" text-sm mt-1">
+            Please contact support.
           </p>
         </div>
       </div>
