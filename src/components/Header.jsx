@@ -128,7 +128,7 @@ const { count ,fetchCount} = useContext(NotificationContext);
               <nav className="hidden md:flex gap-8 text-sm text-text">
                 <a href="#trainers">Trainers</a>
                 <a href="#tech">Technologies</a>
-                <a href="#gallery">Gallery</a>
+                <a href="#gallery">Galleryyy</a>
                 <a href="#reads">Thursday Reads</a>
               </nav>
             )}
