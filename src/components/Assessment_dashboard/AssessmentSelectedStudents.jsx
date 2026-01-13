@@ -105,7 +105,7 @@ const AssessmentSelectedStudents = () => {
       </div>
 
       {/* Table */}
-      <div className="rounded-lg border bg-white shadow-sm overflow-hidden">
+      <div className="rounded-lg border bg-white shadow-sm overflow-auto max-h-[70vh]">
         <Table>
           <TableHeader>
             <TableRow>

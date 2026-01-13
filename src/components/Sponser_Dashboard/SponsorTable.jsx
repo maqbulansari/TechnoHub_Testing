@@ -101,7 +101,7 @@ useEffect(() => {
       </div>
 
       {/* Table */}
-      <div className="rounded-lg bg-white shadow-sm overflow-auto">
+      <div className="rounded-lg bg-white shadow-sm max-h-[70vh] overflow-auto">
         <Table>
           <TableHeader>
             <TableRow>
