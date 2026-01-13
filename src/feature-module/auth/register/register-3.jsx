@@ -165,6 +165,37 @@ const Register3 = () => {
     }
   }, [newSubrole, newSelectedRole]);
 
+
+  const resetForm = () => {
+  setFirstName("");
+  setLastName("");
+  setEmail("");
+  setPassword("");
+  setNewSelectedRole("LEARNER");
+  setSelectedSubrole("INTERVIEWEE");
+  setSelectedSubroleId("");
+  setSelectedSubroleName("");
+  setMobileNumber("");
+  setProfileImage(null);
+  setImagePreview("");
+  setIdentity("");
+  setSelectedIdType("");
+
+  // Clear all errors
+  setErrorFirstName("");
+  setErrorLastName("");
+  setErrorEmail("");
+  setErrorPassword("");
+  setErrorSelectedRole("");
+  setErrorSelectedSubsRole("");
+  setMobileNumberError("");
+  setUserProfileError("");
+  setSelectedIdTypeError("");
+  setIdNumberError("");
+  setEmailExistsError("");
+};
+
+
   const onRegisterUser = async (e) => {
     e.preventDefault();
     setErrorFirstName("");
@@ -214,7 +245,7 @@ const Register3 = () => {
       }
 
       const response = await RegisterUser(formData);
-      if (response?.success) setSubmitSuccess(true);
+      if (response?.success) setSubmitSuccess(true), resetForm();
       else if (response?.error?.email) setEmailExistsError(response.error.email.join(", "));
     } catch (error) {
       if (error.response?.data?.email?.some((msg) => msg.toLowerCase().includes("already exists"))) {

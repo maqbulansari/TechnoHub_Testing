@@ -143,12 +143,18 @@ const AssignBatch = () => {
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-semibold">Assign Batch</h2>
 
-        <Button
+        
+         {/* ACTION BAR */}
+        <div className="fixed bottom-0 inset-x-0 bg-white border-t">
+          <div className="max-w-7xl mx-auto px-6 py-4 flex justify-center">
+          <Button
           disabled={selectedLearners.length === 0}
           onClick={() => setOpenDialog(true)}
         >
           Assign Batch ({selectedLearners.length})
         </Button>
+          </div>
+        </div>
       </div>
 
       {/* Search */}

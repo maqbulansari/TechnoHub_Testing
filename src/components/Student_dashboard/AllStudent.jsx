@@ -121,14 +121,14 @@ const AllStudent = () => {
       </div>
 
       {/* Table */}
-      <div className="rounded-lg border bg-white shadow-sm overflow-hidden">
+      <div className="rounded-lg border max-h-[70vh] bg-white shadow-sm overflow-auto">
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead>Name</TableHead>
+            <TableRow >
+              <TableHead >Name</TableHead>
               <TableHead>Email</TableHead>
-              <TableHead>Mobile</TableHead>
-              <TableHead>Gender</TableHead>
+              <TableHead >Mobile</TableHead>
+              <TableHead >Gender</TableHead>
               <TableHead>Batch</TableHead>
             </TableRow>
           </TableHeader>
@@ -137,7 +137,7 @@ const AllStudent = () => {
             {filteredStudents.length > 0 ? (
               filteredStudents.map((student) => (
                 <TableRow key={student.id || student.email}>
-                  <TableCell className="font-medium capitalize">
+                  <TableCell className="font-medium capitalize ">
                     {student.name}
                   </TableCell>
                   <TableCell>{student.email}</TableCell>

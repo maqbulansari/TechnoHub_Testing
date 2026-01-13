@@ -72,7 +72,10 @@ export const EditBatch = () => {
                     center: batch.center || "",
                 });
 
-                const techIds = (batch.technoLogies || []).map(t => typeof t === "object" ? t.id : t);
+                const techIds = (batch.technologies || []).map(t =>
+                    typeof t === "object" ? t.id : t
+                );
+
                 const trainerIds = (batch.trainer || []).map(t => typeof t === "object" ? t.id : t);
 
                 setSelectedTechs(techIds);
@@ -226,7 +229,8 @@ export const EditBatch = () => {
                                     <div className="p-2 border-b">
                                         <Input placeholder="Search technologies..." value={techSearchTerm} onChange={(e) => setTechSearchTerm(e.target.value)} />
                                     </div>
-                                    <ScrollArea className="max-h-60">
+                                    <ScrollArea className="h-60">
+
                                         {filteredTechnologies.map(t => (
                                             <label key={t.id} className="flex items-center px-3 py-2 cursor-pointer hover:bg-gray-50">
                                                 <input type="checkbox" className="mr-2 w-4 h-4 rounded" checked={selectedTechs.includes(t.id)} onChange={() => handleTechChange(t.id)} />
@@ -256,7 +260,10 @@ export const EditBatch = () => {
                                     <div className="p-2 border-b">
                                         <Input placeholder="Search trainers..." value={trainerSearchTerm} onChange={(e) => setTrainerSearchTerm(e.target.value)} />
                                     </div>
-                                    <ScrollArea className="max-h-60">
+                                    <ScrollArea className="h-60">
+
+
+
                                         {filteredTrainers.map(tr => (
                                             <label key={tr.id} className="flex items-center px-3 py-2 cursor-pointer hover:bg-gray-50">
                                                 <input type="checkbox" className="mr-2 w-4 h-4 rounded" checked={selectedTrainers.includes(tr.id)} onChange={() => handleTrainerChange(tr.id)} />
@@ -297,7 +304,7 @@ export const EditBatch = () => {
                         <DialogFooter className="px-3 pb-3 bg-muted/30">
                             <Button onClick={() => {
                                 setSubmitModalOpen(false);
-                                if(modalMessage === "Batch updated successfully!") navigate("/batches");
+                                if (modalMessage === "Batch updated successfully!") navigate("/batches");
                             }} className="w-full sm:w-auto">Close</Button>
                         </DialogFooter>
                     </DialogContent>
