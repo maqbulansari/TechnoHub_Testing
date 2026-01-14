@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { AuthContext } from "../../contexts/authContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,10 +17,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { SponsorContext } from "../../contexts/dashboard/sponsorDashboardContext";
 
 const SponsorProfile = () => {
-  const { sponsorProfileDetails, FetchSponsor } = useContext(SponsorContext);
   const { API_BASE_URL } = useContext(AuthContext);
 
   const [sponsor, setSponsor] = useState(null);
@@ -30,7 +28,7 @@ const SponsorProfile = () => {
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [imageError, setImageError] = useState("");
 
-  const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm();
+  const { register, handleSubmit, reset, setValue, control, formState: { errors } } = useForm();
 
   const accessToken = localStorage.getItem("accessToken");
 
@@ -40,9 +38,14 @@ const SponsorProfile = () => {
       if (!accessToken) return;
 
       try {
-        await FetchSponsor();
-        if (sponsorProfileDetails?.length) {
-          const profile = sponsorProfileDetails[0];
+        const response = await axios.get(`${API_BASE_URL}/sponsors/`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+
+        if (response.status === 200 && response.data?.length) {
+          const profile = response.data[0];
           setSponsor(profile);
           reset(profile);
         }
@@ -52,12 +55,11 @@ const SponsorProfile = () => {
     };
 
     fetchData();
-  }, [sponsorProfileDetails, FetchSponsor, reset, accessToken]);
+  }, [reset, accessToken, API_BASE_URL]);
 
   const onSubmit = async (data) => {
     if (!sponsor) return;
 
-    // Image validation
     if (image) {
       const validTypes = ["image/jpeg", "image/png", "image/jpg"];
       if (!validTypes.includes(image.type)) {
@@ -73,9 +75,15 @@ const SponsorProfile = () => {
     setLoading(true);
     const formData = new FormData();
 
-    Object.entries(data).forEach(([key, value]) => formData.append(key, value));
-    formData.append("id", sponsor.id);
-    if (image) formData.append("user_profile", image);
+    // Only append fields with non-empty values
+    Object.entries(data).forEach(([key, value]) => {
+      if (value !== null && value !== undefined && value !== "") {
+        formData.append(key, value);
+      }
+    });
+
+    formData.append("id", sponsor.id); // always send ID
+    if (image) formData.append("user_profile", image); // only if image selected
 
     try {
       const response = await axios.put(
@@ -101,6 +109,7 @@ const SponsorProfile = () => {
       setLoading(false);
     }
   };
+
 
   if (!sponsor) return <Loading />;
 
@@ -170,16 +179,23 @@ const SponsorProfile = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label>Gender</Label>
-                  <Select {...register("gender", { required: "Gender required" })}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select Gender" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Female">Female</SelectItem>
-                      <SelectItem value="Male">Male</SelectItem>
-                      <SelectItem value="Other">Other</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Controller
+                    name="gender"
+                    control={control}
+                    rules={{ required: "Gender required" }}
+                    render={({ field }) => (
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select Gender" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Female">Female</SelectItem>
+                          <SelectItem value="Male">Male</SelectItem>
+                          <SelectItem value="Other">Other</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
                   {errors.gender && <p className="text-red-500 text-sm mt-1">{errors.gender.message}</p>}
                 </div>
                 <div>
@@ -195,30 +211,29 @@ const SponsorProfile = () => {
                 </div>
 
                 <div>
-                <Label>Company Name</Label>
-                <Input {...register("company_name")} />
-              </div>
-              </div>
-              <div>
-                  <Label>Profile Image</Label>
-                  <div className="flex items-center gap-4">
-                    <Input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      id="profileImage"
-                      onChange={(e) => setImage(e.target.files?.[0] || null)}
-                    />
-                    <label htmlFor="profileImage">
-                      <Button variant="outline" asChild>
-                        <span>{image ? image.name : "Choose file"}</span>
-                      </Button>
-                    </label>
-                    {imageError && <p className="text-red-500 text-sm">{imageError}</p>}
-                  </div>
+                  <Label>Company Name</Label>
+                  <Input {...register("company_name")} />
                 </div>
+              </div>
 
-              
+              <div>
+                <Label>Profile Image</Label>
+                <div className="flex items-center gap-4">
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    id="profileImage"
+                    onChange={(e) => setImage(e.target.files?.[0] || null)}
+                  />
+                  <label htmlFor="profileImage">
+                    <Button variant="outline" asChild>
+                      <span>{image ? image.name : "Choose file"}</span>
+                    </Button>
+                  </label>
+                  {imageError && <p className="text-red-500 text-sm">{imageError}</p>}
+                </div>
+              </div>
 
               <div className="flex justify-end gap-2">
                 <Button variant="outline" onClick={() => { reset(sponsor); setEditMode(false); setImage(null); setImageError(""); }}>

@@ -26,6 +26,8 @@ const AdmissionTable = () => {
     useContext(AuthContext);
 
   const trainerName = `${user?.first_name || ""} ${user?.last_name || ""}`.trim();
+  console.log(user);
+  
 
   useEffect(() => {
     if (fetchTrainers) fetchTrainers();

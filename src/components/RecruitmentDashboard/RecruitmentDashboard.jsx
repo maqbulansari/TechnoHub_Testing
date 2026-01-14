@@ -320,9 +320,9 @@ export const RecruitmentDashboard = () => {
 
         {/* SUCCESS MODAL */}
         <Dialog open={showSuccessModal} onOpenChange={setShowSuccessModal}>
-          <DialogContent className="sm:max-w-sm">
+          <DialogContent className="sm:max-w-sm [&>button]:hidden">
             <DialogHeader>
-              <DialogTitle className="text-green-600">
+              <DialogTitle className="">
                 Recruitment Successful
               </DialogTitle>
             </DialogHeader>

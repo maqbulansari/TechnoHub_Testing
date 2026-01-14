@@ -238,7 +238,7 @@ const RecruitmentProfile = () => {
 
       {/* SUCCESS MODAL */}
       <Dialog open={submitSuccess} onOpenChange={setSubmitSuccess}>
-        <DialogContent>
+        <DialogContent className="p-4">
           <DialogHeader>
             <DialogTitle>Success</DialogTitle>
           </DialogHeader>
@@ -251,7 +251,7 @@ const RecruitmentProfile = () => {
 
       {/* ERROR MODAL */}
       <Dialog open={errorModalOpen} onOpenChange={setErrorModalOpen}>
-        <DialogContent>
+        <DialogContent >
           <DialogHeader>
             <DialogTitle className="text-red-600">
               Update Failed

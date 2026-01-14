@@ -61,6 +61,10 @@ export const EditBatch = () => {
 
                 const batch = batchRes.data;
 
+                const statusObj = statusRes.data.find(
+                    s => s.name === batch.status
+                );
+
                 reset({
                     batch_name: batch.batch_name || "",
                     start_date: batch.start_date || "",
@@ -68,15 +72,24 @@ export const EditBatch = () => {
                     capacity: batch.capacity || "",
                     time_slot: batch.time_slot || "",
                     fee: batch.fee || "",
-                    status_id: batch.status_id?.toString() || "",
+                    status_id: statusObj ? statusObj.id.toString() : "",
                     center: batch.center || "",
                 });
+
 
                 const techIds = (batch.technologies || []).map(t =>
                     typeof t === "object" ? t.id : t
                 );
 
-                const trainerIds = (batch.trainer || []).map(t => typeof t === "object" ? t.id : t);
+                const trainerIds = (batch.trainer || [])
+                    .map(name => {
+                        const found = trainerRes.data.find(
+                            tr => `${tr.first_name} ${tr.last_name}` === name
+                        );
+                        return found?.id;
+                    })
+                    .filter(Boolean);
+
 
                 setSelectedTechs(techIds);
                 setSelectedTrainers(trainerIds);
