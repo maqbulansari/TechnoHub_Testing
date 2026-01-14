@@ -38,7 +38,7 @@ const TrainerProfile = () => {
     formState: { errors },
   } = useForm();
 
-  // ✅ normalize ONLY null → "" (no field changes)
+
   const normalizeTrainer = (data) => ({
     ...data,
     gender: data.gender ?? "",
@@ -82,10 +82,16 @@ const TrainerProfile = () => {
 
     // append only valid values (prevents id_type error)
     Object.entries(data).forEach(([key, value]) => {
-      if (value !== "" && value !== null && value !== undefined) {
+      if (
+        value !== "" &&
+        value !== null &&
+        value !== undefined &&
+        key !== "technologies" 
+      ) {
         formData.append(key, value);
       }
     });
+
 
     // append image ONLY if real file
     if (image instanceof File) {
@@ -273,10 +279,10 @@ const TrainerProfile = () => {
       </Card>
 
       {/* SUCCESS MODAL */}
-      <Dialog open={submitSuccess} onOpenChange={setSubmitSuccess}>
-        <DialogContent>
+      <Dialog open={submitSuccess}  onOpenChange={setSubmitSuccess}>
+        <DialogContent className=" p-4  overflow-hidden [&>button]:hidden rounded-xl">
           <DialogHeader>
-            <DialogTitle>Success</DialogTitle>
+            <DialogTitle  >Success</DialogTitle>
           </DialogHeader>
           <p>Profile updated successfully!</p>
           <DialogFooter>
@@ -297,7 +303,7 @@ const TrainerProfile = () => {
           {Object.entries(apiErrors).map(([field, messages]) =>
             messages.map((msg, i) => (
               <p key={i} className="text-sm">
-                 {msg}
+                {msg}
               </p>
             ))
           )}

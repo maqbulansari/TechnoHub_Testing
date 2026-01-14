@@ -31,7 +31,7 @@ const StudentsProfile = () => {
   const [loading, setLoading] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [errorModalOpen, setErrorModalOpen] = useState(false);
-const [apiErrors, setApiErrors] = useState({});
+  const [apiErrors, setApiErrors] = useState({});
 
   const { API_BASE_URL } = useContext(AuthContext);
 
@@ -75,55 +75,59 @@ const [apiErrors, setApiErrors] = useState({});
     fetchStudent();
   }, [API_BASE_URL, reset]);
 
-const onSubmit = async (data) => {
-  if (!student) return;
+  const onSubmit = async (data) => {
+    if (!student) return;
 
-  setLoading(true);
-  setApiErrors({});
-  const token = localStorage.getItem("accessToken");
-  const formData = new FormData();
+    setLoading(true);
+    setApiErrors({});
+    const token = localStorage.getItem("accessToken");
 
-  // append only valid values (prevents id_type error)
-  Object.entries(data).forEach(([key, value]) => {
-    if (value !== "" && value !== null && value !== undefined) {
-      formData.append(key, value);
-    }
-  });
+    const formData = new FormData();
 
-  // append image ONLY if file exists
-  if (image instanceof File) {
-    formData.append("user_profile", image);
-  }
+  
+    delete data.user_profile;
 
-  try {
-    await axios.put(
-      `${API_BASE_URL}/Students/${student.id}/`,
-      formData,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        
-        },
+    // append only non-empty values
+    Object.entries(data).forEach(([key, value]) => {
+      if (value !== "" && value !== null && value !== undefined) {
+        formData.append(key, value);
       }
-    );
+    });
 
-    setStudent({ ...student, ...data });
-    reset({ ...student, ...data });
-    setEditMode(false);
-    setImage(null);
-    setSubmitSuccess(true);
-
-  } catch (err) {
-    if (err.response?.data) {
-      setApiErrors(err.response.data);
-    } else {
-      setApiErrors({ general: ["Something went wrong."] });
+ 
+    if (image instanceof File) {
+      formData.append("user_profile", image);
     }
-    setErrorModalOpen(true);
-  } finally {
-    setLoading(false);
-  }
-};
+
+    try {
+      await axios.put(
+        `${API_BASE_URL}/Students/${student.id}/`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            // ❗ do NOT manually set Content-Type
+          },
+        }
+      );
+
+      setStudent({ ...student, ...data });
+      reset({ ...student, ...data });
+      setEditMode(false);
+      setImage(null);
+      setSubmitSuccess(true);
+
+    } catch (err) {
+      if (err.response?.data) {
+        setApiErrors(err.response.data);
+      } else {
+        setApiErrors({ general: ["Something went wrong."] });
+      }
+      setErrorModalOpen(true);
+    } finally {
+      setLoading(false);
+    }
+  };
 
 
   if (!student) return <Loading />;
@@ -343,37 +347,34 @@ const onSubmit = async (data) => {
 
 
       <Dialog open={errorModalOpen} onOpenChange={setErrorModalOpen}>
-  <DialogContent className="sm:max-w-md p-0 gap-0 overflow-hidden [&>button]:hidden rounded-xl">
-    <DialogHeader className="px-5 pt-4 pb-4 space-y-1">
-      <DialogTitle className="text-xl font-semibold text-red-600">
-        Update Failed
-      </DialogTitle>
-      <p className="text-sm text-muted-foreground">
-        Please fix the following:
-      </p>
-    </DialogHeader>
+        <DialogContent className="sm:max-w-md p-0 gap-0 overflow-hidden [&>button]:hidden rounded-xl">
+          <DialogHeader className="px-5 pt-4 pb-4 space-y-1">
+            <DialogTitle className="text-xl font-semibold">
+              Update Failed
+            </DialogTitle>
+          </DialogHeader>
 
-    <div className="px-5 pb-4 space-y-2">
-      {Object.entries(apiErrors).map(([field, messages]) =>
-        messages.map((msg, idx) => (
-          <p key={`${field}-${idx}`} className="text-sm text-red-500">
-            • {field === "id_type"
-              ? "Please select a valid ID type."
-              : field === "user_profile"
-              ? "Please upload a valid image file."
-              : msg}
-          </p>
-        ))
-      )}
-    </div>
+          <div className="px-5 pb-4 space-y-2">
+            {Object.entries(apiErrors).map(([field, messages]) =>
+              messages.map((msg, idx) => (
+                <p key={`${field}-${idx}`} className="text-sm ">
+                  {field === "id_type"
+                    ? "Please select a valid ID type."
+                    : field === "user_profile"
+                      ? "Please upload a valid image file."
+                      : msg}
+                </p>
+              ))
+            )}
+          </div>
 
-    <DialogFooter className="px-3 pb-3 bg-muted/30">
-      <Button onClick={() => setErrorModalOpen(false)}>
-        Close
-      </Button>
-    </DialogFooter>
-  </DialogContent>
-</Dialog>
+          <DialogFooter className="px-3 pb-3 bg-muted/30">
+            <Button onClick={() => setErrorModalOpen(false)}>
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
     </div>
   );

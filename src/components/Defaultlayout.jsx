@@ -150,7 +150,7 @@ const menuItems = (role) => ({
 
 const Defaultlayout = () => {
   const navigate = useNavigate();
-  const { user, userLoggedIN, LogoutUser } = useContext(AuthContext);
+  const { user, userLoggedIN, LogoutUser, API_BASE_URL } = useContext(AuthContext);
   const { isOnline } = useNetworkCheck();
   const [visible, setVisible] = useState(false);
   const [role, setRole] = useState("");
@@ -229,6 +229,13 @@ const Defaultlayout = () => {
     />
   ));
 
+
+  const profileImage = user?.user_profile
+    ? user.user_profile.replace(/^http:\/\/localhost:8000/, API_BASE_URL)
+    : null;
+
+
+
   return (
     <>
       {isOnline ? (
@@ -246,9 +253,26 @@ const Defaultlayout = () => {
               <div className="sidebar-user-header">
                 <div className="user-row">
                   {/* Avatar */}
-                  <div className="user-avatar">
-                    {userLoggedIN && user ? user.first_name.charAt(0) : "U"}
+                  <div className="user-avatar-wrapper">
+                    {userLoggedIN && profileImage ? (
+                      // If user has a profile image, show it
+                      <img
+                        src={profileImage}
+                        alt="Profile"
+                        className="w-11 h-11 rounded-lg object-cover"
+                      />
+                    ) : (
+                      // If no profile image, use the styled fallback div
+                      <div className="user-avatar">
+                        {userLoggedIN && user
+                          ? user.first_name?.charAt(0).toUpperCase()
+                          : "U"}
+                      </div>
+                    )}
                   </div>
+
+
+
 
                   {/* Info */}
                   <div className="user-meta">

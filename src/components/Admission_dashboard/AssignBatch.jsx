@@ -43,6 +43,8 @@ const AssignBatch = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
+  const [permissionDenied, setPermissionDenied] = useState(false);
+
 
   const token = localStorage.getItem("accessToken");
 
@@ -61,9 +63,16 @@ const AssignBatch = () => {
 
         setLearners(learnersRes.data);
         setBatches(batchesRes.data);
-      } catch (err) {
-        setError(err.response?.data?.detail || err.message);
-      } finally {
+      }
+      catch (err) {
+        if (err.response?.status === 403) {
+          setPermissionDenied(true);
+        } else {
+          setError(err.response?.data?.detail || err.message);
+        }
+      }
+
+      finally {
         setLoading(false);
       }
     };
@@ -122,9 +131,15 @@ const AssignBatch = () => {
       setSelectedLearners([]);
       setSelectedBatch("");
       setOpenDialog(false);
-    } catch (err) {
-      setError(err.response?.data?.detail || err.message);
     }
+    catch (err) {
+      if (err.response?.status === 403) {
+        setError("You do not have permission to assign batches.");
+      } else {
+        setError(err.response?.data?.detail || err.message);
+      }
+    }
+
   };
 
 
@@ -137,22 +152,37 @@ const AssignBatch = () => {
         Error: {error}
       </div>
     );
+    if (permissionDenied) {
+  return (
+    <div className="flex items-center justify-center min-h-[60vh]">
+      <div className="text-center space-y-3">
+        <h2 className="text-xl font-semibol">
+          Access Denied
+        </h2>
+        <p className="text-gray-600">
+          You do not have permission to view or assign batches.
+        </p>
+      </div>
+    </div>
+  );
+}
+
 
   return (
     <div className="p-6 mt-16 space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-semibold">Assign Batch</h2>
 
-        
-         {/* ACTION BAR */}
+
+        {/* ACTION BAR */}
         <div className="fixed bottom-0 inset-x-0 bg-white border-t">
           <div className="max-w-7xl mx-auto px-6 py-4 flex justify-center">
-          <Button
-          disabled={selectedLearners.length === 0}
-          onClick={() => setOpenDialog(true)}
-        >
-          Assign Batch ({selectedLearners.length})
-        </Button>
+            <Button
+              disabled={selectedLearners.length === 0}
+              onClick={() => setOpenDialog(true)}
+            >
+              Assign Batch ({selectedLearners.length})
+            </Button>
           </div>
         </div>
       </div>
