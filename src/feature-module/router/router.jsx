@@ -53,6 +53,7 @@ import Notifications from "@/components/Notifications";
 import { getFCMToken } from "@/firebase/notificationsHelper";
 import { AuthContext } from "@/contexts/authContext";
 import axios from "axios";
+import { TermAndConditions } from "@/components/Landing_Page/TermAndConditions";
 
 
 
@@ -99,6 +100,7 @@ const ALLRoutes = () => {
       <Route path={routes.register} element={<Register />} />
       <Route path={routes.forgotPassword} element={<ForgotPassword />} />
       <Route path={routes.resetPassword} element={<ResetPassword />} />
+       <Route path="/terms" element={<TermAndConditions />} />
     </Route>
 
     <Route element={<ProtectedRoute />}>
