@@ -29,6 +29,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Trash2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const SelectedTrainerForInterview = () => {
   const { API_BASE_URL } = useContext(AuthContext);
@@ -42,6 +43,9 @@ const SelectedTrainerForInterview = () => {
   const [rowToDelete, setRowToDelete] = useState(null);
 
   const token = localStorage.getItem("accessToken");
+
+  const navigate = useNavigate();
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -102,9 +106,12 @@ const SelectedTrainerForInterview = () => {
 
   return (
     <div className="p-6 mt-16 space-y-6">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
       <h2 className="text-2xl font-semibold">
         Selected Trainer For Interview
-      </h2>
+      </h2><Button variant="outline" onClick={() => navigate("/AssignTrainerForInterview")}>
+                Assign Trainer Interview
+              </Button></div>
 
       {/* Filters Card */}
       <div className="flex flex-col md:flex-row gap-4">

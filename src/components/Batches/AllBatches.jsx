@@ -88,7 +88,11 @@ export const AllBatches = () => {
 
   return (
     <div className="p-6 mt-16 space-y-6">
-      <h2 className="text-2xl font-semibold text-left">Batch Information</h2>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <h2 className="text-2xl font-semibold text-left">Batch Information</h2>
+        <Button variant="" onClick={() => navigate("/CreateBatches")}>
+          Create Batch
+        </Button></div>
 
       {/* Filters */}
       <div className="flex flex-col md:flex-row gap-4 w-1/2">

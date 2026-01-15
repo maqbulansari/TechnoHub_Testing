@@ -14,12 +14,16 @@ const Register3 = () => {
   const routes = all_routes;
   const navigate = useNavigate();
 
+  // Compute isLoggedIn early so it can be used in useEffects
+  const isLoggedIn = userLoggedIN && accessToken && refreshToken;
+
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [newSelectedRole, setNewSelectedRole] = useState("LEARNER");
-  const [selectedSubrole, setSelectedSubrole] = useState("INTERVIEWEE");
+  // Initialize as empty - will be set by useEffect based on login status
+  const [newSelectedRole, setNewSelectedRole] = useState("");
+  const [selectedSubrole, setSelectedSubrole] = useState("");
   const [mobileNumber, setMobileNumber] = useState("");
   const [profileImage, setProfileImage] = useState(null);
   const [idTypes, setIdType] = useState([]);
@@ -38,8 +42,8 @@ const Register3 = () => {
   const [mobilenumberError, setMobileNumberError] = useState("");
   const [userProfileError, setUserProfileError] = useState("");
   const [idTypeError, setSelectedIdTypeError] = useState("");
-  const [SelectedSubroleId, setSelectedSubroleId] = useState(""); // ID of selected subrole
-  const [SelectedSubroleName, setSelectedSubroleName] = useState(""); // Name of selected subrole
+  const [SelectedSubroleId, setSelectedSubroleId] = useState("");
+  const [SelectedSubroleName, setSelectedSubroleName] = useState("");
 
   const [idNumberError, setIdNumberError] = useState("");
   const [emailExistsError, setEmailExistsError] = useState("");
@@ -50,18 +54,6 @@ const Register3 = () => {
   const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   const validateMobileNumber = (number) => /^[0-9]{10}$/.test(number);
 
-  // const handleSelectRole = (role) => {
-  //   setNewSelectedRole(role);
-  //   setErrorSelectedRole("");
-  //   setErrorSelectedSubsRole("");
-  //   if (role === "LEARNER") {
-  //     setSelectedSubrole("INTERVIEWEE");
-  //     setSelectedSubroleId(2);
-  //   } else {
-  //     setSelectedSubrole("Choose Your Subrole");
-  //   }
-  // };
-
   const fetchIdType = async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/idtypes/`);
@@ -70,7 +62,6 @@ const Register3 = () => {
       console.error("Error fetching ID types:", error);
     }
   };
-
 
   const handleSelectRole = (role) => {
     setNewSelectedRole(role);
@@ -81,31 +72,30 @@ const Register3 = () => {
     setSelectedSubroleId("");
     setSelectedSubroleName("");
 
-    if (role === "LEARNER") {
-      // Prefill INTERVIEWEE if it exists
-      const learnerSubrole = newSubrole.find(
-        (s) => s.name?.toUpperCase() === "INTERVIEWEE"
-      );
-      if (learnerSubrole) {
-        setSelectedSubroleId(learnerSubrole.id.toString());
-        setSelectedSubroleName(learnerSubrole.name);
-      }
-    } else if (role === "ENABLER") {
-      // Optionally, prefill first available subrole
-      const enablerSubrole = newSubrole.find(
-        (s) =>
-          !["INTERVIEWEE", "STUDENT", "GUEST LECTURER", "MENTOR", "APPLICANT"].includes(
-            s.name?.toUpperCase()
-          )
-      );
-      if (enablerSubrole) {
-        setSelectedSubroleId(enablerSubrole.id.toString());
-        setSelectedSubroleName(enablerSubrole.name);
+    // Only auto-fill subrole when NOT logged in
+    if (!isLoggedIn) {
+      if (role === "LEARNER") {
+        const learnerSubrole = newSubrole.find(
+          (s) => s.name?.toUpperCase() === "INTERVIEWEE"
+        );
+        if (learnerSubrole) {
+          setSelectedSubroleId(learnerSubrole.id.toString());
+          setSelectedSubroleName(learnerSubrole.name);
+        }
+      } else if (role === "ENABLER") {
+        const enablerSubrole = newSubrole.find(
+          (s) =>
+            !["INTERVIEWEE", "STUDENT", "GUEST LECTURER", "MENTOR", "APPLICANT"].includes(
+              s.name?.toUpperCase()
+            )
+        );
+        if (enablerSubrole) {
+          setSelectedSubroleId(enablerSubrole.id.toString());
+          setSelectedSubroleName(enablerSubrole.name);
+        }
       }
     }
   };
-
-
 
   const handleImageUpload = (e) => {
     const file = e.target.files?.[0];
@@ -138,11 +128,28 @@ const Register3 = () => {
     };
   }, []);
 
-  // Ensure a sensible default subrole is selected once subroles are fetched
+  // Set initial values based on login status
+  useEffect(() => {
+    if (!isLoggedIn) {
+      // When NOT logged in, auto-select defaults
+      setNewSelectedRole("LEARNER");
+      setSelectedSubrole("INTERVIEWEE");
+    } else {
+      // When logged in, keep empty (no auto-selection)
+      setNewSelectedRole("");
+      setSelectedSubrole("");
+      setSelectedSubroleId("");
+      setSelectedSubroleName("");
+    }
+  }, [isLoggedIn]);
+
+  // Handle subrole auto-selection when subroles are fetched (only when NOT logged in)
   useEffect(() => {
     if (!Array.isArray(newSubrole) || newSubrole.length === 0) return;
 
-    // Reset when role changes
+    // Only auto-select when NOT logged in
+    if (isLoggedIn) return;
+
     if (newSelectedRole === "LEARNER") {
       const learnerSubrole = newSubrole.find(
         (s) => s.name?.toUpperCase() === "INTERVIEWEE"
@@ -158,43 +165,55 @@ const Register3 = () => {
             s.name?.toUpperCase()
           )
       );
-      // if (enablerSubrole) {
-      //   setSelectedSubroleId(enablerSubrole.id.toString());
-      //   setSelectedSubroleName(enablerSubrole.name);
-      // }
+      if (enablerSubrole) {
+        setSelectedSubroleId(enablerSubrole.id.toString());
+        setSelectedSubroleName(enablerSubrole.name);
+      }
     }
-  }, [newSubrole, newSelectedRole]);
-
+  }, [newSubrole, newSelectedRole, isLoggedIn]);
 
   const resetForm = () => {
-  setFirstName("");
-  setLastName("");
-  setEmail("");
-  setPassword("");
-  setNewSelectedRole("LEARNER");
-  setSelectedSubrole("INTERVIEWEE");
-  setSelectedSubroleId("");
-  setSelectedSubroleName("");
-  setMobileNumber("");
-  setProfileImage(null);
-  setImagePreview("");
-  setIdentity("");
-  setSelectedIdType("");
+    setFirstName("");
+    setLastName("");
+    setEmail("");
+    setPassword("");
+    // Reset based on login status
+    if (isLoggedIn) {
+      setNewSelectedRole("");
+      setSelectedSubrole("");
+      setSelectedSubroleId("");
+      setSelectedSubroleName("");
+    } else {
+      setNewSelectedRole("LEARNER");
+      setSelectedSubrole("INTERVIEWEE");
+      // Re-find and set the subrole ID for INTERVIEWEE
+      const learnerSubrole = newSubrole.find(
+        (s) => s.name?.toUpperCase() === "INTERVIEWEE"
+      );
+      if (learnerSubrole) {
+        setSelectedSubroleId(learnerSubrole.id.toString());
+        setSelectedSubroleName(learnerSubrole.name);
+      }
+    }
+    setMobileNumber("");
+    setProfileImage(null);
+    setImagePreview("");
+    setIdentity("");
+    setSelectedIdType("");
 
-  // Clear all errors
-  setErrorFirstName("");
-  setErrorLastName("");
-  setErrorEmail("");
-  setErrorPassword("");
-  setErrorSelectedRole("");
-  setErrorSelectedSubsRole("");
-  setMobileNumberError("");
-  setUserProfileError("");
-  setSelectedIdTypeError("");
-  setIdNumberError("");
-  setEmailExistsError("");
-};
-
+    // Clear all errors
+    setErrorFirstName("");
+    setErrorLastName("");
+    setErrorEmail("");
+    setErrorPassword("");
+    setErrorSelectedRole("");
+    setErrorSelectedSubsRole("");
+    setMobileNumberError("");
+    setUserProfileError("");
+    setSelectedIdTypeError("");
+    setIdNumberError("");
+    setEmailExistsError("");
+  };
 
   const onRegisterUser = async (e) => {
     e.preventDefault();
@@ -217,8 +236,23 @@ const Register3 = () => {
     else if (!validateEmail(email)) { setErrorEmail("Invalid Email Format"); isValid = false; }
     if (!password) { setErrorPassword("Password is Required"); isValid = false; }
     else if (!validatePassword(password)) { setErrorPassword("Password must be 8+ chars with uppercase, lowercase, number & special char"); isValid = false; }
-    if (!newSelectedRole) { setErrorSelectedRole("Select a Role"); isValid = false; }
-    if (newSelectedRole === "LEARNER") {
+    
+    // Role validation - only required when logged in (when selector is visible)
+    if (isLoggedIn && !newSelectedRole) { 
+      setErrorSelectedRole("Select a Role"); 
+      isValid = false; 
+    }
+    
+    // Subrole validation - only required when logged in
+    if (isLoggedIn && !SelectedSubroleId) { 
+      setErrorSelectedSubsRole("Select a Subrole"); 
+      isValid = false; 
+    }
+    
+    // For non-logged in users, use default LEARNER role
+    const roleToUse = isLoggedIn ? newSelectedRole : "LEARNER";
+    
+    if (roleToUse === "LEARNER") {
       if (!mobileNumber) { setMobileNumberError("Mobile Number is Required"); isValid = false; }
       else if (!validateMobileNumber(mobileNumber)) { setMobileNumberError("Invalid Mobile Number"); isValid = false; }
     }
@@ -233,13 +267,13 @@ const Register3 = () => {
       formData.append("password", password);
       formData.append("mobile_no", mobileNumber);
 
-      if (newSelectedRole === "LEARNER") {
+      if (roleToUse === "LEARNER") {
         formData.append("role", "2");
         formData.append("id_type", selectedIdType);
         formData.append("identity", identity.trim());
         formData.append("subrole", SelectedSubroleId);
         if (profileImage) formData.append("user_profile", profileImage);
-      } else if (newSelectedRole === "ENABLER") {
+      } else if (roleToUse === "ENABLER") {
         formData.append("role", "3");
         formData.append("subrole", SelectedSubroleId);
       }
@@ -261,14 +295,17 @@ const Register3 = () => {
 
   const filteredSubroles = newSelectedRole === "LEARNER"
     ? newSubrole.filter((s) => s.name?.toUpperCase() === "INTERVIEWEE")
-    : newSubrole.filter(
-      (s) =>
-        !["INTERVIEWEE", "STUDENT", "GUEST LECTURER", "MENTOR", "APPLICANT"].includes(
-          s.name?.toUpperCase()
-        )
-    );
+    : newSelectedRole === "ENABLER"
+    ? newSubrole.filter(
+        (s) =>
+          !["INTERVIEWEE", "STUDENT", "GUEST LECTURER", "MENTOR", "APPLICANT"].includes(
+            s.name?.toUpperCase()
+          )
+      )
+    : []; // Empty array when no role is selected
 
-  const isLoggedIn = userLoggedIN && accessToken && refreshToken;
+  // Use roleToUse for conditional rendering of LEARNER fields
+  const currentRole = isLoggedIn ? newSelectedRole : "LEARNER";
 
   return (
     <div className="min-h-screen mt-6 sm:mt-12 py-4 sm:py-8 px-3 sm:px-4">
@@ -397,8 +434,8 @@ const Register3 = () => {
               )}
             </div>
 
-            {/* Subrole */}
-            {isLoggedIn && (
+            {/* Subrole - only show when logged in AND role is selected */}
+            {isLoggedIn && newSelectedRole && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
                   <Label className="text-sm">Subrole <span className="text-red-500">*</span></Label>
@@ -430,15 +467,13 @@ const Register3 = () => {
                       )}
                     </SelectContent>
                   </Select>
-
                   {errorSelectedSubRole && <p className="text-xs text-red-500 mt-1">{errorSelectedSubRole}</p>}
                 </div>
-
               </div>
             )}
 
-            {/* LEARNER Additional Fields */}
-            {newSelectedRole !== "ENABLER" && (
+            {/* LEARNER Additional Fields - show when role is LEARNER or when not logged in (default LEARNER) */}
+            {currentRole !== "ENABLER" && (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                 <div>
                   <Label className="text-sm">Profile Image</Label>
@@ -449,14 +484,6 @@ const Register3 = () => {
                     className="mt-1 w-full text-sm file:text-xs cursor-pointer"
                   />
                   {userProfileError && <p className="text-xs text-red-500 mt-1">{userProfileError}</p>}
-                  {/* {imagePreview && (
-                    <div className="mt-2 flex items-center gap-2">
-                      <img src={imagePreview} alt="Preview" className="w-10 h-10 object-cover rounded border" />
-                      <button type="button" onClick={removeImage} className="text-red-500 text-xs flex items-center gap-0.5">
-                        <X size={12} /> Remove
-                      </button>
-                    </div>
-                  )} */}
                 </div>
                 <div>
                   <Label className="text-sm">ID Type</Label>
@@ -507,7 +534,6 @@ const Register3 = () => {
               >
                 {isloading ? (
                   <span className="flex items-center justify-center gap-2">
-                    {/* <Loader2 size={16} className="animate-spin" /> */}
                     Creating...
                   </span>
                 ) : (

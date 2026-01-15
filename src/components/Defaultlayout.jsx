@@ -100,7 +100,7 @@ const menuItems = (role) => ({
       icon: faChalkboardUser,
       items: [
         { path: "/AllTrainer", label: "Trainers" },
-        { path: "/AssignBatchForTrainer", label: "Assign Trainer Batch" },
+        // { path: "/AssignBatchForTrainer", label: "Assign Trainer Batch" },
       ],
     },
     {
@@ -111,7 +111,7 @@ const menuItems = (role) => ({
         role === "ADMIN"
           ? [
             { path: "/Admission_table", label: "Interview" },
-            { path: "/AssignTrainerForInterview", label: "Assign Trainer Interview" },
+            // { path: "/AssignTrainerForInterview", label: "Assign Trainer Interview" },
             { path: "/SelectedTrainerForInterview", label: "Selected Trainer" },
           ]
           : [{ path: "/Admission_table", label: "Interview" }],
@@ -132,7 +132,7 @@ const menuItems = (role) => ({
       items:
         role === "ADMIN"
           ? [
-            { path: "/CreateBatches", label: "Create Batch" },
+            // { path: "/CreateBatches", label: "Create Batch" },
             { path: "/AllBatches", label: "All Batches" },
           ]
           : [],
@@ -304,7 +304,7 @@ const Defaultlayout = () => {
                   onClick={handleMenuItemClick}
                 >
                   <i className="pi pi-plus me-2 text-gray-700 font-bold"></i>
-                  <span className=" capitalize text-sm text-[#2196f3]">Create Enabler</span>
+                  <span className=" capitalize text-sm text-[#2196f3]">Create User</span>
                 </Link>
               )}
             </div>
