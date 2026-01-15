@@ -150,7 +150,7 @@ const AdmissionTable = () => {
                     ) : (
                       <Button
                         size="sm"
-                        variant="secondary"
+                        variant=""
                         onClick={() => handleEdit(row)}
                       >
                         Update

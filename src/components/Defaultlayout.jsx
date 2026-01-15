@@ -253,23 +253,25 @@ const Defaultlayout = () => {
               <div className="sidebar-user-header">
                 <div className="user-row">
                   {/* Avatar */}
-                  <div className="user-avatar-wrapper">
-                    {userLoggedIN && profileImage ? (
-                      // If user has a profile image, show it
-                      <img
-                        src={profileImage}
-                        alt="Profile"
-                        className="w-11 h-11 rounded-lg object-cover"
-                      />
-                    ) : (
-                      // If no profile image, use the styled fallback div
-                      <div className="user-avatar">
-                        {userLoggedIN && user
-                          ? user.first_name?.charAt(0).toUpperCase()
-                          : "U"}
-                      </div>
-                    )}
-                  </div>
+                <div className="user-avatar-wrapper">
+  {userLoggedIN && profileImage ? (
+    // If user has a profile image, show it
+    <div className="w-11 h-11 min-w-[2.75rem] min-h-[2.75rem] rounded-lg overflow-hidden flex-shrink-0">
+      <img
+        src={profileImage}
+        alt="Profile"
+        className="w-full h-full object-cover object-center"
+      />
+    </div>
+  ) : (
+    // If no profile image, use the styled fallback div
+    <div className="user-avatar">
+      {userLoggedIN && user
+        ? user.first_name?.charAt(0).toUpperCase()
+        : "U"}
+    </div>
+  )}
+</div>
 
 
 

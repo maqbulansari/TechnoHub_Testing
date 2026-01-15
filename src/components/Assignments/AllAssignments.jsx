@@ -55,6 +55,8 @@ export const CreateAssignments = ({ onSuccess }) => {
 
     const today = new Date().toISOString().split("T")[0];
 
+    const navigate = useNavigate();
+
     const [formData, setFormData] = useState({
         title: "",
         description: "",
@@ -288,7 +290,15 @@ export const CreateAssignments = ({ onSuccess }) => {
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter className="px-3 pb-3 bg-muted/30">
-                        <Button onClick={() => setSubmitSuccess(false)} className="w-full sm:w-auto">
+                        <Button
+                            onClick={() => {
+                                setSubmitSuccess(false);
+                                if (modalMessage === "Announcement created successfully!") {
+                                    navigate(0); // Refreshes the current route
+                                }
+                            }}
+                            className="w-full sm:w-auto"
+                        >
                             Close
                         </Button>
                     </DialogFooter>
@@ -498,7 +508,7 @@ export const AllAssignments = () => {
                     {/* Assignment Feed */}
                     {Object.entries(groupedByBatch).map(([batchName, batchAssignments]) => (
                         <div key={batchName} className="space-y-4">
-                            <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-[#1e88e5] via-[#42a5f5] to-[#90caf9] rounded-2xl">
+                            <Card className="relative overflow-hidden  border-0 bg-gradient-to-br from-[#1e88e5] via-[#42a5f5] to-[#90caf9] rounded-2xl">
                                 {/* Decorative elements */}
                                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.15),transparent_50%)]" />
                                 <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-white/10 blur-2xl" />

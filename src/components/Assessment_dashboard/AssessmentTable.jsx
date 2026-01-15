@@ -168,7 +168,7 @@ const AssessmentTable = () => {
                     ) : (
                       <Button
                         size="sm"
-                        variant="secondary"
+                        variant="outline"
                         onClick={() => handleUpdate(row)}
                       >
                         Update
