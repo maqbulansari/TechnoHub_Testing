@@ -149,7 +149,7 @@ export const CreateAssignments = ({ onSuccess }) => {
                 assignment_file: [],
             });
 
-            setModalMessage("Announcement created successfully!");
+            setModalMessage("Assignments created successfully!");
             setSubmitSuccess(true);
 
         } catch (err) {
@@ -283,7 +283,7 @@ export const CreateAssignments = ({ onSuccess }) => {
                 <DialogContent className="sm:max-w-md p-0 gap-0 overflow-hidden [&>button]:hidden rounded-xl">
                     <DialogHeader className="px-5 pt-4 pb-4 space-y-1">
                         <DialogTitle className="text-xl pb-2 font-semibold">
-                            {modalMessage === "Announcement created successfully!" ? "Success" : "Error"}
+                            {modalMessage === "Assignments created successfully!" ? "Success" : "Error"}
                         </DialogTitle>
                         <DialogDescription className="text-sm pb-2 text-muted-foreground leading-relaxed">
                             {modalMessage}
@@ -293,7 +293,7 @@ export const CreateAssignments = ({ onSuccess }) => {
                         <Button
                             onClick={() => {
                                 setSubmitSuccess(false);
-                                if (modalMessage === "Announcement created successfully!") {
+                                if (modalMessage === "Assignments created successfully!") {
                                     navigate(0); // Refreshes the current route
                                 }
                             }}
@@ -457,22 +457,32 @@ export const AllAssignments = () => {
             fetchAssignments();
         } catch (err) {
             console.error("Delete failed", err);
-        }
+        }   
     };
 
     return (
         <div className="max-w-4xl mx-auto mt-20 space-y-6">
             <Tabs defaultValue="stream" className="w-full">
-                <TabsList>
-                    <TabsTrigger value="stream">Stream</TabsTrigger>
-                    <TabsTrigger value="people">People</TabsTrigger>
+                <TabsList className="bg-muted/50 p-1 rounded-full gap-1">
+                    <TabsTrigger
+                        value="stream"
+                        className="rounded-full px-6 py-2 text-sm font-medium transition-all data-[state=active]:bg-white data-[state=active]:shadow-sm"
+                    >
+                        Stream
+                    </TabsTrigger>
+                    <TabsTrigger
+                        value="people"
+                        className="rounded-full px-6 py-2 text-sm font-medium transition-all data-[state=active]:bg-white data-[state=active]:shadow-sm"
+                    >
+                        People
+                    </TabsTrigger>
                 </TabsList>
 
                 {/* Stream Tab */}
                 <TabsContent value="stream" className="space-y-6 mt-6">
                     {/* Filters + Create Button */}
-                    <div className="flex justify-between items-center gap-4">
-                        <Select value={filterStatus} onValueChange={setFilterStatus}>
+                    <div className="flex justify-end items-center gap-4">
+                        {/* <Select value={filterStatus} onValueChange={setFilterStatus}>
                             <SelectTrigger className="w-40">
                                 <SelectValue placeholder="All Status" />
                             </SelectTrigger>
@@ -481,7 +491,7 @@ export const AllAssignments = () => {
                                 <SelectItem value="Active">Active</SelectItem>
                                 <SelectItem value="Closed">Closed</SelectItem>
                             </SelectContent>
-                        </Select>
+                        </Select> */}
 
                         {/* Create Assignment Modal */}
                         <Dialog open={openCreate} onOpenChange={setOpenCreate}>
