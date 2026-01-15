@@ -20,6 +20,8 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { useNavigate } from "react-router-dom";
+import { Button } from "../ui/button";
 
 const AllTrainer = () => {
   const { API_BASE_URL } = useContext(AuthContext);
@@ -32,6 +34,9 @@ const AllTrainer = () => {
   const [techFilter, setTechFilter] = useState("all");
 
   const token = localStorage.getItem("accessToken");
+
+  const navigate = useNavigate();
+
 
   const fetchAllTrainer = async () => {
     try {
@@ -86,7 +91,10 @@ const AllTrainer = () => {
 
   return (
     <div className="p-6 mt-16 space-y-6">
-      <h2 className="text-2xl font-semibold">Trainer Information</h2>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <h2 className="text-2xl font-semibold">Trainer Information</h2>  <Button variant="outline" onClick={() => navigate("/AssignBatchForTrainer")}>
+          Assign Trainer Batch
+        </Button> </div>
 
       {/* Filters */}
       <div className="flex flex-col md:flex-row gap-4 w-1/2">
