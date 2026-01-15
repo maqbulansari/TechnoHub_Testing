@@ -236,22 +236,22 @@ const Register3 = () => {
     else if (!validateEmail(email)) { setErrorEmail("Invalid Email Format"); isValid = false; }
     if (!password) { setErrorPassword("Password is Required"); isValid = false; }
     else if (!validatePassword(password)) { setErrorPassword("Password must be 8+ chars with uppercase, lowercase, number & special char"); isValid = false; }
-    
+
     // Role validation - only required when logged in (when selector is visible)
-    if (isLoggedIn && !newSelectedRole) { 
-      setErrorSelectedRole("Select a Role"); 
-      isValid = false; 
+    if (isLoggedIn && !newSelectedRole) {
+      setErrorSelectedRole("Select a Role");
+      isValid = false;
     }
-    
+
     // Subrole validation - only required when logged in
-    if (isLoggedIn && !SelectedSubroleId) { 
-      setErrorSelectedSubsRole("Select a Subrole"); 
-      isValid = false; 
+    if (isLoggedIn && !SelectedSubroleId) {
+      setErrorSelectedSubsRole("Select a Subrole");
+      isValid = false;
     }
-    
+
     // For non-logged in users, use default LEARNER role
     const roleToUse = isLoggedIn ? newSelectedRole : "LEARNER";
-    
+
     if (roleToUse === "LEARNER") {
       if (!mobileNumber) { setMobileNumberError("Mobile Number is Required"); isValid = false; }
       else if (!validateMobileNumber(mobileNumber)) { setMobileNumberError("Invalid Mobile Number"); isValid = false; }
@@ -296,13 +296,13 @@ const Register3 = () => {
   const filteredSubroles = newSelectedRole === "LEARNER"
     ? newSubrole.filter((s) => s.name?.toUpperCase() === "INTERVIEWEE")
     : newSelectedRole === "ENABLER"
-    ? newSubrole.filter(
+      ? newSubrole.filter(
         (s) =>
           !["INTERVIEWEE", "STUDENT", "GUEST LECTURER", "MENTOR", "APPLICANT"].includes(
             s.name?.toUpperCase()
           )
       )
-    : []; // Empty array when no role is selected
+      : []; // Empty array when no role is selected
 
   // Use roleToUse for conditional rendering of LEARNER fields
   const currentRole = isLoggedIn ? newSelectedRole : "LEARNER";
@@ -409,11 +409,16 @@ const Register3 = () => {
               <div>
                 <Label className="text-sm">Mobile Number <span className="text-red-500">*</span></Label>
                 <Input
-                  type="number"
-                  className="mt-1 !appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                  type="tel"
+                  maxLength={10}
+                  className="mt-1 !appearance-none"
                   placeholder="Mobile Number"
                   value={mobileNumber}
-                  onChange={(e) => { setMobileNumber(e.target.value); setMobileNumberError(""); }}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/\D/g, '');
+                    setMobileNumber(value);
+                    setMobileNumberError("");
+                  }}
                 />
                 {mobilenumberError && <p className="text-xs text-red-500 mt-1">{mobilenumberError}</p>}
               </div>
