@@ -57,6 +57,7 @@ export const ThursdayReads = () => (
         </div>
 
         <motion.a
+        onClick={()=>Navigate("/Bookhub")}
           whileHover={{ x: 4 }}
           transition={{ duration: 0.25, ease: "easeOut" }}
           className="inline-block mt-6 text-primary font-semibold cursor-pointer"

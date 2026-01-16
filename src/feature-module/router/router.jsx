@@ -54,6 +54,7 @@ import { getFCMToken } from "@/firebase/notificationsHelper";
 import { AuthContext } from "@/contexts/authContext";
 import axios from "axios";
 import { TermAndConditions } from "@/components/Landing_Page/TermAndConditions";
+import { BookhubHome } from "@/components/BookHub/BookhubHome";
 
 
 
@@ -101,6 +102,7 @@ const ALLRoutes = () => {
       <Route path={routes.forgotPassword} element={<ForgotPassword />} />
       <Route path={routes.resetPassword} element={<ResetPassword />} />
        <Route path="/terms" element={<TermAndConditions />} />
+       <Route path="/Bookhub" element={<BookhubHome />} />
     </Route>
 
     <Route element={<ProtectedRoute />}>
