@@ -19,8 +19,8 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 
-const TrainerProfile = () => {
-  const [trainer, setTrainer] = useState(null);
+export const AdminProfile = () => {
+  const [admin, setAdmin] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -38,64 +38,74 @@ const TrainerProfile = () => {
     formState: { errors },
   } = useForm();
 
-
-  const normalizeTrainer = (data) => ({
+  const normalizeAdmin = (data) => ({
     ...data,
     gender: data.gender ?? "",
     qualification: data.qualification ?? "",
     address: data.address ?? "",
     date_of_birth: data.date_of_birth ?? "",
     mobile_no: data.mobile_no ?? "",
-    job_title: data.job_title ?? "",
+    identity: data.identity ?? "",
   });
 
-  // Fetch trainer
+ 
+  const getProfileImageUrl = (profilePath) => {
+    if (!profilePath) return null;
+    
+ 
+    if (profilePath.startsWith("http://localhost:8000")) {
+      return profilePath.replace("http://localhost:8000", API_BASE_URL);
+    }
+    
+ 
+    if (profilePath.startsWith("http://") || profilePath.startsWith("https://")) {
+      return profilePath;
+    }
+    
+    return `${API_BASE_URL}${profilePath}`;
+  };
+
+  // Fetch admin
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
     if (!token) return;
 
-    const fetchTrainer = async () => {
+    const fetchAdmin = async () => {
       try {
-        const res = await axios.get(`${API_BASE_URL}/trainers/`, {
+        const res = await axios.get(`${API_BASE_URL}/User/1`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        const re = await axios.get(`${API_BASE_URL}/trainer-dashboard/`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-console.log(re);
 
-        const normalized = normalizeTrainer(res.data[0]);
-        setTrainer(normalized);
+        const normalized = normalizeAdmin(res.data);
+        setAdmin(normalized);
         reset(normalized);
       } catch (err) {
-        console.error("Fetch trainer error:", err);
+        console.error("Fetch admin error:", err);
       }
     };
 
-    fetchTrainer();
+    fetchAdmin();
   }, [API_BASE_URL, reset]);
 
-  // Submit
+
   const onSubmit = async (data) => {
-    if (!trainer) return;
+    if (!admin) return;
 
     setLoading(true);
     setApiErrors({});
     const token = localStorage.getItem("accessToken");
     const formData = new FormData();
 
-    // append only valid values (prevents id_type error)
+    // append only valid values
     Object.entries(data).forEach(([key, value]) => {
       if (
         value !== "" &&
         value !== null &&
-        value !== undefined &&
-        key !== "technologies" 
+        value !== undefined
       ) {
         formData.append(key, value);
       }
     });
-
 
     // append image ONLY if real file
     if (image instanceof File) {
@@ -104,7 +114,7 @@ console.log(re);
 
     try {
       await axios.put(
-        `${API_BASE_URL}/trainers/${trainer.id}/`,
+        `${API_BASE_URL}/User/${admin.id}/`,
         formData,
         {
           headers: {
@@ -113,8 +123,8 @@ console.log(re);
         }
       );
 
-      setTrainer({ ...trainer, ...data });
-      reset({ ...trainer, ...data });
+      setAdmin({ ...admin, ...data });
+      reset({ ...admin, ...data });
       setEditMode(false);
       setImage(null);
       setSubmitSuccess(true);
@@ -131,30 +141,34 @@ console.log(re);
     }
   };
 
-  if (!trainer) return <Loading />;
+  if (!admin) return <Loading />;
+
+  // ✅ Get the correct profile image URL
+  const profileImage = getProfileImageUrl(admin.user_profile);
 
   return (
     <div className="max-w-4xl mx-auto mt-20 px-4">
       <Card className="overflow-hidden shadow-none rounded-2xl border border-slate-200">
         <CardHeader className="flex flex-col md:flex-row items-center gap-4 bg-blue-50 p-4">
           <Avatar className="w-32 h-32">
-            {trainer.user_profile ? (
-              <AvatarImage src={`${API_BASE_URL}${trainer.user_profile}`} />
+            {/* ✅ FIXED: Use profileImage variable */}
+            {profileImage ? (
+              <AvatarImage src={profileImage} />
             ) : (
               <AvatarFallback className="bg-primary text-white text-4xl font-bold">
-                {trainer.first_name?.charAt(0)}
+                {admin.first_name?.charAt(0)}
               </AvatarFallback>
             )}
           </Avatar>
 
           <div className="flex-1 text-center md:text-left space-y-1">
             <h2 className="text-2xl font-semibold capitalize">
-              {trainer.first_name} {trainer.last_name}
+              {admin.first_name} {admin.last_name}
             </h2>
             <p className="text-sm text-slate-500">
-              {trainer.job_title || "N/A"}
+              {admin.email || "N/A"}
             </p>
-            <Badge variant="outline">Trainer</Badge>
+            <Badge variant="outline">Admin</Badge>
           </div>
 
           {!editMode && (
@@ -177,11 +191,6 @@ console.log(re);
                 <div>
                   <Label>Last Name</Label>
                   <Input {...register("last_name", { required: true })} />
-                </div>
-
-                <div>
-                  <Label>Job Title</Label>
-                  <Input {...register("job_title", { required: true })} />
                 </div>
 
                 <div>
@@ -213,6 +222,11 @@ console.log(re);
                       </Select>
                     )}
                   />
+                </div>
+
+                <div>
+                  <Label>Identity</Label>
+                  <Input {...register("identity")} />
                 </div>
 
                 <div>
@@ -252,7 +266,7 @@ console.log(re);
                   variant="outline"
                   type="button"
                   onClick={() => {
-                    reset(trainer);
+                    reset(admin);
                     setEditMode(false);
                     setImage(null);
                   }}
@@ -266,16 +280,16 @@ console.log(re);
             </form>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Info label="First Name" value={trainer.first_name} />
-              <Info label="Last Name" value={trainer.last_name} />
-              <Info label="Job Title" value={trainer.job_title} />
-              <Info label="Email" value={trainer.email} />
-              <Info label="Mobile" value={trainer.mobile_no} />
-              <Info label="Gender" value={trainer.gender} />
-              <Info label="Qualification" value={trainer.qualification} />
-              <Info label="Date of Birth" value={trainer.date_of_birth} />
+              <Info label="First Name" value={admin.first_name} />
+              <Info label="Last Name" value={admin.last_name} />
+              <Info label="Email" value={admin.email} />
+              <Info label="Mobile" value={admin.mobile_no} />
+              <Info label="Gender" value={admin.gender} />
+              <Info label="Identity" value={admin.identity} />
+              <Info label="Qualification" value={admin.qualification} />
+              <Info label="Date of Birth" value={admin.date_of_birth} />
               <div className="col-span-2">
-                <Info label="Address" value={trainer.address} />
+                <Info label="Address" value={admin.address} />
               </div>
             </div>
           )}
@@ -283,10 +297,10 @@ console.log(re);
       </Card>
 
       {/* SUCCESS MODAL */}
-      <Dialog open={submitSuccess}  onOpenChange={setSubmitSuccess}>
-        <DialogContent className=" p-4  overflow-hidden [&>button]:hidden rounded-xl">
+      <Dialog open={submitSuccess} onOpenChange={setSubmitSuccess}>
+        <DialogContent className="p-4 overflow-hidden [&>button]:hidden rounded-xl">
           <DialogHeader>
-            <DialogTitle  >Success</DialogTitle>
+            <DialogTitle>Success</DialogTitle>
           </DialogHeader>
           <p>Profile updated successfully!</p>
           <DialogFooter>
@@ -330,4 +344,4 @@ const Info = ({ label, value }) => (
   </div>
 );
 
-export default TrainerProfile;
+export default AdminProfile;

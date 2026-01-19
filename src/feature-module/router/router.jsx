@@ -55,6 +55,8 @@ import { AuthContext } from "@/contexts/authContext";
 import axios from "axios";
 import { TermAndConditions } from "@/components/Landing_Page/TermAndConditions";
 import { BookhubHome } from "@/components/BookHub/BookhubHome";
+import AdminDashboard from "@/components/AdminDashboard/AdminDashboard";
+import { AdminProfile } from "@/components/AdminDashboard/AdminProfile";
 
 
 
@@ -101,14 +103,18 @@ const ALLRoutes = () => {
       <Route path={routes.register} element={<Register />} />
       <Route path={routes.forgotPassword} element={<ForgotPassword />} />
       <Route path={routes.resetPassword} element={<ResetPassword />} />
-       <Route path="/terms" element={<TermAndConditions />} />
-       <Route path="/Bookhub" element={<BookhubHome />} />
+      <Route path="/terms" element={<TermAndConditions />} />
+      <Route path="/Bookhub" element={<BookhubHome />} />
     </Route>
+
+    {/* Public routes */}
+    <Route path="/Bookhub" element={<Defaultlayout />}>
+      <Route path="Home" element={<BookhubHome />} />
+    </Route>     
 
     <Route element={<ProtectedRoute />}>
       <Route path="/" element={<Defaultlayout />}>
         <Route path={routes.changePassword} element={<ChangePassword />} />
-
         <Route path="/Students_SponserDashboard" element={<Students_SponserDashboard />} />
         <Route path="/Interviewee" element={<Interviewee />} />
         <Route path="/ReadyToRecruitDashboard" element={<RecruitmentDashboard />} />
@@ -144,6 +150,8 @@ const ALLRoutes = () => {
         <Route path="/StudentAssignment" element={<StudentAssignment />} />
         <Route path="/AssignmentComments/:assignmentId" element={<AssignmentComments />} />
         <Route path="/Notifications" element={<Notifications />} />
+        <Route path="/adminDashboard" element={<AdminDashboard />} />
+        <Route path="/Admin_Profile" element={<AdminProfile />} />
       </Route>
 
     </Route>

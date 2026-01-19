@@ -38,13 +38,31 @@ const RecruitmentProfile = () => {
     formState: { errors },
   } = useForm();
 
-  // ✅ normalize null → ""
+
   const normalizeRecruiter = (data) => ({
     ...data,
     gender: data.gender ?? "",
     company_name: data.company_name ?? "",
     mobile_no: data.mobile_no ?? "",
   });
+
+
+
+  const test = async()=>{
+     const re = await axios.get(
+        `${API_BASE_URL}/recruiter-dashboard/`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+      console.log(re);
+  }
+
+useEffect(()=>{
+  test()
+},[])
 
   // Fetch recruiter
   useEffect(() => {
@@ -55,6 +73,7 @@ const RecruitmentProfile = () => {
       FetchRecuiter().then(() =>
         setDataFetched((prev) => ({ ...prev, recruiter: true }))
       );
+      
     }
   }, [responseSubrole, role, dataFetched, FetchRecuiter, setDataFetched]);
 
@@ -98,6 +117,8 @@ const RecruitmentProfile = () => {
           },
         }
       );
+    
+      
 
       reset(response.data);
       setEditMode(false);

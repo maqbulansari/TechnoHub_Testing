@@ -42,6 +42,14 @@ const AllStudent = () => {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
+        const re = await axios.get(
+          `${API_BASE_URL}/admin-dashboard/`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        console.log(re);
+        
         setStudentData(response.data);
       } catch (err) {
         setError(err.message);

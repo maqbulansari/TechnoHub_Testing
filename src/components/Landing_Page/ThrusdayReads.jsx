@@ -1,6 +1,10 @@
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
-export const ThursdayReads = () => (
+export const ThursdayReads = () => {
+  const Navigate = useNavigate()
+  
+  return(
   <div className="max-w-6xl mx-auto px-6">
     <motion.div
       initial={{ opacity: 0, y: 32 }}
@@ -57,7 +61,7 @@ export const ThursdayReads = () => (
         </div>
 
         <motion.a
-        onClick={()=>Navigate("/Bookhub")}
+        onClick={()=>Navigate("/Bookhub/Home")}
           whileHover={{ x: 4 }}
           transition={{ duration: 0.25, ease: "easeOut" }}
           className="inline-block mt-6 text-primary font-semibold cursor-pointer"
@@ -67,4 +71,4 @@ export const ThursdayReads = () => (
       </div>
     </motion.div>
   </div>
-);
+);}
