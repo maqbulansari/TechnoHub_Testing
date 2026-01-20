@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   Card,
   CardContent,
@@ -31,6 +31,9 @@ import {
   Library,
   Sparkles
 } from 'lucide-react'
+import { AuthContext } from '@/contexts/authContext'
+import { useContext } from 'react'
+import axios from 'axios'
 
 const monthlySchedule = [
   {
@@ -223,36 +226,42 @@ const bookSummaries = {
 
 const currentBook = monthlySchedule.find(m => m.is_current)?.books[0]
 
+
+
+
+
+
+
 export const BookhubHome = () => {
   const [activeTab, setActiveTab] = useState("upcoming")
   const [selectedBook, setSelectedBook] = useState(null)
+  const { API_BASE_URL } = useContext(AuthContext);
+
+
+    useEffect(() => {
+    const fetchStudentData = async () => {
+      const token = localStorage.getItem("accessToken");
+      try {
+      
+        const re = await axios.get(
+          `${API_BASE_URL}/bookhub/books/`,
+          
+        );
+        console.log(re);
+        
+       
+      } catch (err) {
+       console.log(err);
+       
+      } 
+    };
+
+    fetchStudentData();
+  }, [API_BASE_URL]);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-      <header className="sticky top-0 z-50 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 shadow-sm">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="p-2 bg-primary rounded-lg">
-                <BookOpen className="h-6 w-6 text-primary-foreground" />
-              </div>
-              <h1 className="text-2xl font-bold text-primary">
-                BookHub
-              </h1>
-            </div>
-            <div className="flex items-center gap-3">
-              <Button variant="outline" size="sm" className="hidden sm:flex gap-2">
-                <Calendar className="h-4 w-4" />
-                Schedule
-              </Button>
-              <Button size="sm" className="gap-2">
-                <Sparkles className="h-4 w-4" />
-                Join Club
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
+  
 
       <main className="container mx-auto px-4 py-8 space-y-10">
         
@@ -552,65 +561,7 @@ export const BookhubHome = () => {
             </TabsContent>
           </Tabs>
         </section>
-
-        <section className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent rounded-2xl p-8">
-          <div className="text-center max-w-2xl mx-auto mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-              Join Our Reading Community
-            </h2>
-            <p className="text-muted-foreground">
-              Connect with fellow book lovers, participate in discussions, and expand your reading horizons
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Card className="text-center p-6 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
-              <Library className="h-8 w-8 text-primary mx-auto mb-2" />
-              <div className="text-3xl font-bold text-primary">
-                {discussedBooks.length + upcomingBooks.length}
-              </div>
-              <p className="text-sm text-muted-foreground mt-1">Total Books</p>
-            </Card>
-            <Card className="text-center p-6 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
-              <CheckCircle2 className="h-8 w-8 text-green-500 mx-auto mb-2" />
-              <div className="text-3xl font-bold text-primary">
-                {discussedBooks.length}
-              </div>
-              <p className="text-sm text-muted-foreground mt-1">Books Discussed</p>
-            </Card>
-            <Card className="text-center p-6 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
-              <Clock className="h-8 w-8 text-amber-500 mx-auto mb-2" />
-              <div className="text-3xl font-bold text-primary">
-                {upcomingBooks.length}
-              </div>
-              <p className="text-sm text-muted-foreground mt-1">Upcoming</p>
-            </Card>
-            <Card className="text-center p-6 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
-              <Users className="h-8 w-8 text-blue-500 mx-auto mb-2" />
-              <div className="text-3xl font-bold text-primary">
-                150+
-              </div>
-              <p className="text-sm text-muted-foreground mt-1">Members</p>
-            </Card>
-          </div>
-        </section>
       </main>
-
-      <footer className="bg-gray-900 text-white py-8 mt-12">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <div className="p-2 bg-primary rounded-lg">
-                <BookOpen className="h-5 w-5 text-primary-foreground" />
-              </div>
-              <span className="text-xl font-bold">BookHub</span>
-            </div>
-            <p className="text-gray-400 text-sm">
-              © 2024 BookHub. Building a community of readers. 📚
-            </p>
-          </div>
-        </div>
-      </footer>
     </div>
   )
 }

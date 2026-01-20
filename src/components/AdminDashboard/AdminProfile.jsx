@@ -48,20 +48,20 @@ export const AdminProfile = () => {
     identity: data.identity ?? "",
   });
 
- 
+
   const getProfileImageUrl = (profilePath) => {
     if (!profilePath) return null;
-    
- 
+
+
     if (profilePath.startsWith("http://localhost:8000")) {
       return profilePath.replace("http://localhost:8000", API_BASE_URL);
     }
-    
- 
+
+
     if (profilePath.startsWith("http://") || profilePath.startsWith("https://")) {
       return profilePath;
     }
-    
+
     return `${API_BASE_URL}${profilePath}`;
   };
 
@@ -87,6 +87,21 @@ export const AdminProfile = () => {
     fetchAdmin();
   }, [API_BASE_URL, reset]);
 
+  const EXCLUDED_FIELDS = [
+    "password",
+    "groups",
+    "user_permissions",
+    "user_profile",
+    "id",
+    "last_login",
+    "date_joined",
+    "is_superuser",
+    "is_staff",
+    "is_active",
+    "role",
+    "id_type",
+  ];
+
 
   const onSubmit = async (data) => {
     if (!admin) return;
@@ -94,11 +109,13 @@ export const AdminProfile = () => {
     setLoading(true);
     setApiErrors({});
     const token = localStorage.getItem("accessToken");
+
     const formData = new FormData();
 
-    // append only valid values
+    //  Append ONLY allowed fields
     Object.entries(data).forEach(([key, value]) => {
       if (
+        !EXCLUDED_FIELDS.includes(key) &&
         value !== "" &&
         value !== null &&
         value !== undefined
@@ -107,18 +124,19 @@ export const AdminProfile = () => {
       }
     });
 
-    // append image ONLY if real file
-    if (image instanceof File) {
+    // Append profile image ONLY if file is selected
+    if (image && image instanceof File) {
       formData.append("user_profile", image);
     }
 
     try {
-      await axios.put(
+      await axios.patch(
         `${API_BASE_URL}/User/${admin.id}/`,
         formData,
         {
           headers: {
             Authorization: `Bearer ${token}`,
+
           },
         }
       );
@@ -128,22 +146,19 @@ export const AdminProfile = () => {
       setEditMode(false);
       setImage(null);
       setSubmitSuccess(true);
-
     } catch (err) {
-      if (err.response?.data) {
-        setApiErrors(err.response.data);
-      } else {
-        setApiErrors({ general: ["Something went wrong."] });
-      }
+      setApiErrors(err.response?.data || { general: ["Something went wrong"] });
       setErrorModalOpen(true);
     } finally {
       setLoading(false);
     }
   };
 
+
+
   if (!admin) return <Loading />;
 
-  // ✅ Get the correct profile image URL
+  //  Get the correct profile image URL
   const profileImage = getProfileImageUrl(admin.user_profile);
 
   return (
@@ -151,7 +166,7 @@ export const AdminProfile = () => {
       <Card className="overflow-hidden shadow-none rounded-2xl border border-slate-200">
         <CardHeader className="flex flex-col md:flex-row items-center gap-4 bg-blue-50 p-4">
           <Avatar className="w-32 h-32">
-            {/* ✅ FIXED: Use profileImage variable */}
+            {/* FIXED: Use profileImage variable */}
             {profileImage ? (
               <AvatarImage src={profileImage} />
             ) : (
