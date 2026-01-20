@@ -62,6 +62,11 @@ const StudentsProfile = () => {
         const response = await axios.get(`${API_BASE_URL}/Students/`, {
           headers: { Authorization: `Bearer ${token}` },
         });
+        const re = await axios.get(`${API_BASE_URL}/student-dashboard/`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        console.log(re);
+        
 
         const normalizedData = normalizeStudent(response.data);
 
@@ -106,7 +111,6 @@ const StudentsProfile = () => {
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            // ❗ do NOT manually set Content-Type
           },
         }
       );

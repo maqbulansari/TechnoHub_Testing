@@ -7,6 +7,7 @@ import {
   faChalkboardUser,
   faTicket,
   faCubes,
+  faUserShield
 } from "@fortawesome/free-solid-svg-icons";
 import { Sidebar } from "primereact/sidebar";
 import { all_routes } from "../feature-module/router/all_routes";
@@ -18,6 +19,17 @@ import { Button } from "./ui/button";
 
 // MENU CONFIGURATION FUNCTION
 const menuItems = (role) => ({
+    ADMIN_DASHBOARD: [
+    {
+      title: "Admin Dashboard",
+      key: "admin-dashboard",
+      icon: faUserShield, // or faGauge, faTachometerAlt
+      items: [
+        { path: "/Admin_Profile", label: "Profile" },
+        { path: "/adminDashboard", label: "Dashboard" },
+      ],
+    },
+  ],
   STUDENT: [
     {
       title: "Student Dashboard",
@@ -184,19 +196,22 @@ const Defaultlayout = () => {
   const handleMenuItemClick = useCallback(() => setVisible(false), []);
 
   // Get menus for current role
-  const getMenusForRole = () => {
-    if (!role || !subrole) return [];
-    const allMenus = menuItems(role);
-    if (role === "ADMIN") {
-      return [
-        ...allMenus.ALLSTUDENT,
-        ...allMenus.ALLTRAINER,
-        ...allMenus.RECRUITER,
-        ...allMenus.SPONSOR,
-      ];
-    }
-    return allMenus[subrole] || [];
-  };
+// Get menus for current role
+const getMenusForRole = () => {
+  if (!role || !subrole) return [];
+  const allMenus = menuItems(role);
+  
+  if (role === "ADMIN") {
+    return [
+      ...allMenus.ADMIN_DASHBOARD,  
+      ...allMenus.ALLSTUDENT,
+      ...allMenus.ALLTRAINER,
+      ...allMenus.RECRUITER,
+      ...allMenus.SPONSOR,
+    ];
+  }
+  return allMenus[subrole] || [];
+};
 
   // MenuSection Component
   const MenuSection = ({ title, items, icon }) => (
@@ -253,25 +268,25 @@ const Defaultlayout = () => {
               <div className="sidebar-user-header">
                 <div className="user-row">
                   {/* Avatar */}
-                <div className="user-avatar-wrapper">
-  {userLoggedIN && profileImage ? (
-    // If user has a profile image, show it
-    <div className="w-11 h-11 min-w-[2.75rem] min-h-[2.75rem] rounded-lg overflow-hidden flex-shrink-0">
-      <img
-        src={profileImage}
-        alt="Profile"
-        className="w-full h-full object-cover object-center"
-      />
-    </div>
-  ) : (
-    // If no profile image, use the styled fallback div
-    <div className="user-avatar">
-      {userLoggedIN && user
-        ? user.first_name?.charAt(0).toUpperCase()
-        : "U"}
-    </div>
-  )}
-</div>
+                  <div className="user-avatar-wrapper">
+                    {userLoggedIN && profileImage ? (
+                      // If user has a profile image, show it
+                      <div className="w-11 h-11 min-w-[2.75rem] min-h-[2.75rem] rounded-lg overflow-hidden flex-shrink-0">
+                        <img
+                          src={profileImage}
+                          alt="Profile"
+                          className="w-full h-full object-cover object-center"
+                        />
+                      </div>
+                    ) : (
+                      // If no profile image, use the styled fallback div
+                      <div className="user-avatar">
+                        {userLoggedIN && user
+                          ? user.first_name?.charAt(0).toUpperCase()
+                          : "U"}
+                      </div>
+                    )}
+                  </div>
 
 
 
