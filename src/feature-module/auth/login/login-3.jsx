@@ -65,7 +65,7 @@ const handleLogin = async (e) => {
 
  
     if (subrole === "SPONSOR") navigate("/Students_SponserDashboard");
-    else if (subrole === "STUDENT") navigate("/Students_profile");
+    else if (subrole === "STUDENT") navigate("/Students_batches");
     else if (subrole === "TRAINER") navigate("/Trainer_batch");
     else if (subrole === "RECRUITER") navigate("/ReadyToRecruitDashboard");
     else if (subrole === "INTERVIEWEE") navigate("/Interviewee");

@@ -7,7 +7,8 @@ import {
   faChalkboardUser,
   faTicket,
   faCubes,
-  faUserShield
+  faUserShield, faClipboardCheck,
+  faLayerGroup, faHandshake
 } from "@fortawesome/free-solid-svg-icons";
 import { Sidebar } from "primereact/sidebar";
 import { all_routes } from "../feature-module/router/all_routes";
@@ -84,7 +85,7 @@ const menuItems = (role) => ({
     {
       title: "Sponsor",
       key: "sponsor-dashboard",
-      icon: faCubes,
+      icon:  faHandshake,
       items:
         role === "ADMIN"
           ? [
@@ -131,7 +132,7 @@ const menuItems = (role) => ({
     {
       title: "Assessment Process",
       key: "alltrainer-assessment-process",
-      icon: faCubes,
+      icon: faClipboardCheck,
       items:
         role === "ADMIN"
           ? [{ path: "/AssessmentSelectedStudent", label: "Assessment Candidate" }]
@@ -140,7 +141,7 @@ const menuItems = (role) => ({
     {
       title: "Batches Management",
       key: "alltrainer-batches-management",
-      icon: faCubes,
+      icon: faLayerGroup,
       items:
         role === "ADMIN"
           ? [

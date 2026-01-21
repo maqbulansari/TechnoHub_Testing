@@ -98,7 +98,7 @@ export const BookhubHome = () => {
 
     try {
       setLoadingSummary(true)
-      const response = await axios.get(`${API_BASE_URL}/bookhub/books/${bookId}/summary/`)
+      const response = await axios.get(`${API_BASE_URL}/bookhub/books/summary/${bookId}/   `)
       setBookSummaries(prev => ({
         ...prev,
         [bookId]: response.data
