@@ -212,39 +212,39 @@ export const Students_SponserDashboard = () => {
       <div className="max-w-7xl mx-auto px-6 space-y-10">
         <>
 
-        {/* HERO SECTION */}
-<Card className="relative overflow-hidden shadow-none border border-border/40 bg-gradient-to-r from-[#2196f3] via-[#64b5f6] to-[#a2d6fc] rounded-xl">
-  {/* Decorative radial gradient overlay */}
-  <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.08),transparent_60%)]" />
+          {/* HERO SECTION */}
+          <Card className="relative overflow-hidden shadow-none border border-border/40 bg-gradient-to-r from-[#2196f3] via-[#64b5f6] to-[#a2d6fc] rounded-xl">
+            {/* Decorative radial gradient overlay */}
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.08),transparent_60%)]" />
 
-  <CardHeader className="relative z-10 p-6 md:p-12 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-    {/* Left Section: Title and Description */}
-    <div className="space-y-4 text-white max-w-lg">
-      <Badge className="bg-white/20 text-white text-nowrap border-0 backdrop-blur px-2 py-1">
-        <GraduationCap className="h-4 w-4 mr-1" />
-        Sponsor Dashboard
-      </Badge>
+            <CardHeader className="relative z-10 p-6 md:p-12 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+              {/* Left Section: Title and Description */}
+              <div className="space-y-4 text-white max-w-lg">
+                <Badge className="bg-white/20 text-white text-nowrap border-0 backdrop-blur px-2 py-1">
+                  <GraduationCap className="h-4 w-4 mr-1" />
+                  Sponsor Dashboard
+                </Badge>
 
-      <CardTitle className="text-3xl md:text-4xl font-bold tracking-tight">
-        Empower Students
-      </CardTitle>
+                <CardTitle className="text-3xl md:text-4xl font-bold tracking-tight">
+                  Empower Students
+                </CardTitle>
 
-      <CardDescription className="text-white/80 leading-relaxed">
-        View available students, manage sponsorships, and track progress. Your contribution shapes their future.
-      </CardDescription>
+                <CardDescription className="text-white/80 leading-relaxed">
+                  View available students, manage sponsorships, and track progress. Your contribution shapes their future.
+                </CardDescription>
 
-    
-    </div>
 
-   {/* Right Section: Illustration / Image */}
-<img
-  src={bgSponser} // replace with your relevant hero image
-  alt="Sponsor Dashboard"
-  className="rounded-xl w-64 h-64 md:w-94 md:h-94 object-contain"
-/>
+              </div>
 
-  </CardHeader>
-</Card>
+              {/* Right Section: Illustration / Image */}
+              <img
+                src={bgSponser} // replace with your relevant hero image
+                alt="Sponsor Dashboard"
+                className="rounded-xl w-44 h-44 md:w-94 md:h-94 object-contain"
+              />
+
+            </CardHeader>
+          </Card>
 
           {/* STATS CARDS */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

@@ -199,7 +199,7 @@ export const RecruitmentDashboard = () => {
             <img
               src={bgSponser}
               alt="Recruitment"
-              className="w-64 h-64 object-contain rounded-xl"
+              className="w-32 h-32 object-contain rounded-xl"
             />
           </CardHeader>
         </Card>
