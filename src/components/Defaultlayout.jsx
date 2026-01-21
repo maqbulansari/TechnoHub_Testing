@@ -19,7 +19,7 @@ import { Button } from "./ui/button";
 
 // MENU CONFIGURATION FUNCTION
 const menuItems = (role) => ({
-    ADMIN_DASHBOARD: [
+  ADMIN_DASHBOARD: [
     {
       title: "Admin Dashboard",
       key: "admin-dashboard",
@@ -196,22 +196,22 @@ const Defaultlayout = () => {
   const handleMenuItemClick = useCallback(() => setVisible(false), []);
 
   // Get menus for current role
-// Get menus for current role
-const getMenusForRole = () => {
-  if (!role || !subrole) return [];
-  const allMenus = menuItems(role);
-  
-  if (role === "ADMIN") {
-    return [
-      ...allMenus.ADMIN_DASHBOARD,  
-      ...allMenus.ALLSTUDENT,
-      ...allMenus.ALLTRAINER,
-      ...allMenus.RECRUITER,
-      ...allMenus.SPONSOR,
-    ];
-  }
-  return allMenus[subrole] || [];
-};
+
+  const getMenusForRole = () => {
+    if (!role || !subrole) return [];
+    const allMenus = menuItems(role);
+
+    if (role === "ADMIN") {
+      return [
+        ...allMenus.ADMIN_DASHBOARD,
+        ...allMenus.ALLSTUDENT,
+        ...allMenus.ALLTRAINER,
+        ...allMenus.RECRUITER,
+        ...allMenus.SPONSOR,
+      ];
+    }
+    return allMenus[subrole] || [];
+  };
 
   // MenuSection Component
   const MenuSection = ({ title, items, icon }) => (

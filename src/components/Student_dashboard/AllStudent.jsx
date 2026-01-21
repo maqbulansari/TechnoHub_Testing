@@ -43,7 +43,7 @@ const AllStudent = () => {
           }
         );
         const re = await axios.get(
-          `${API_BASE_URL}/admin-dashboard/`,
+          `${API_BASE_URL}/bookhub/books/`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }

@@ -31,51 +31,72 @@ export default function LoginModal({ open, onClose, onForgot }) {
   const validateEmail = (value) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setLoginError("");
-    setEmailError("");
-    setPasswordError("");
+const handleLogin = async (e) => {
+  e.preventDefault();
+  setLoginError("");
+  setEmailError("");
+  setPasswordError("");
 
-    let valid = true;
+  let valid = true;
 
-    if (!email) {
-      setEmailError("Email is required");
-      valid = false;
-    } else if (!validateEmail(email)) {
-      setEmailError("Enter a valid email");
-      valid = false;
-    }
+  if (!email) {
+    setEmailError("Email is required");
+    valid = false;
+  } else if (!validateEmail(email)) {
+    setEmailError("Enter a valid email");
+    valid = false;
+  }
 
-    if (!password) {
-      setPasswordError("Password is required");
-      valid = false;
-    }
+  if (!password) {
+    setPasswordError("Password is required");
+    valid = false;
+  }
 
-    if (!valid) return;
+  if (!valid) return;
 
-    try {
-      setLoading(true);
-      await LoginUser({ email, password });
-      setLoginSuccess(true);
-    } finally {
-      setLoading(false);
-    }
-  };
+  try {
+    setLoading(true);
+
+  
+    const { subrole, role } = await LoginUser({ email, password });
+
+    setLoginSuccess(true); 
+    onClose(); 
+
+ 
+    if (subrole === "SPONSOR") navigate("/Students_SponserDashboard");
+    else if (subrole === "STUDENT") navigate("/Students_profile");
+    else if (subrole === "TRAINER") navigate("/Trainer_batch");
+    else if (subrole === "RECRUITER") navigate("/ReadyToRecruitDashboard");
+    else if (subrole === "INTERVIEWEE") navigate("/Interviewee");
+    else if (role === "ADMIN") navigate("/adminDashboard");
+    else navigate("/");
+
+  } catch (err) {
+    console.log("Login failed");
+  } finally {
+    setLoading(false);
+  }
+};
+
+console.log(userLoggedIN);
 
   useEffect(() => {
+ 
     if (!userLoggedIN) return;
 
     onClose();
-
+ 
     if (responseSubrole === "SPONSOR") navigate("/Students_SponserDashboard");
     else if (responseSubrole === "STUDENT") navigate("/Students_profile");
     else if (responseSubrole === "TRAINER") navigate("/Trainer_batch");
     else if (responseSubrole === "RECRUITER") navigate("/ReadyToRecruitDashboard");
     else if (responseSubrole === "INTERVIEWEE") navigate("/Interviewee");
-    else if (role === "ADMIN") navigate("/");
+    else if (role === "ADMIN") navigate("/adminDashboard");
     else navigate("/");
   }, [userLoggedIN]);
+
+
 
   return (
     <AnimatePresence>

@@ -3,6 +3,7 @@ import { createContext, useEffect, useState } from "react";
 import { deleteToken } from "firebase/messaging";
 import { messaging } from "@/firebase/firebase";
 
+
 export const AuthContext = createContext();
 
 const AuthProvider = ({ children }) => {
@@ -29,12 +30,11 @@ const AuthProvider = ({ children }) => {
 
 
 
-
   // const API_BASE_URL = "http://72.61.173.6:8086/auth/";//main
   const API_BASE_URL = "https://api.lgstechnohub.in/auth";//Deployed main vps
   // const API_BASE_URL = "https://technohub.pythonanywhere.com/auth";//main
   // const API_BASE_URL = "https://9gqxjbjg-8000.inc1.devtunnels.ms/auth";//tahur  
-  // const API_BASE_URL = "https://187gwsw1-8000.inc1.devtunnels.ms/auth";//farha
+//   const API_BASE_URL = "https://xbzp7968-7000.inc1.devtunnels.ms/auth";//farha
   // const API_BASE_URL = "https://958cp4w5-8000.inc1.devtunnels.ms/auth";//Saba
 
 
@@ -60,56 +60,56 @@ const AuthProvider = ({ children }) => {
   }, []);
 
   // Set up Axios interceptors
-useEffect(() => {
-  const requestInterceptor = axios.interceptors.request.use(
-    config => {
-      if (!config.headers.Authorization) {
-        const token = localStorage.getItem("accessToken");
-        if (token) {
-          config.headers.Authorization = `Bearer ${token}`;
+  useEffect(() => {
+    const requestInterceptor = axios.interceptors.request.use(
+      config => {
+        if (!config.headers.Authorization) {
+          const token = localStorage.getItem("accessToken");
+          if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+          }
         }
-      }
-      return config;
-    },
-    error => Promise.reject(error)
-  );
+        return config;
+      },
+      error => Promise.reject(error)
+    );
 
-  const responseInterceptor = axios.interceptors.response.use(
-    response => response,
-    async error => {
-      const originalRequest = error.config;
+    const responseInterceptor = axios.interceptors.response.use(
+      response => response,
+      async error => {
+        const originalRequest = error.config;
 
 
-      if (originalRequest.url.includes("/login/refresh/")) {
+        if (originalRequest.url.includes("/login/refresh/")) {
+          return Promise.reject(error);
+        }
+
+        if (
+          error.response?.status === 401 &&
+          error.response?.data?.code === "token_not_valid" &&
+          !originalRequest._retry
+        ) {
+          originalRequest._retry = true;
+
+          try {
+            const newToken = await GenerateNewAccessToken();
+            originalRequest.headers.Authorization = `Bearer ${newToken}`;
+            return axios(originalRequest);
+          } catch (err) {
+            LogoutUser();
+            return Promise.reject(err);
+          }
+        }
+
         return Promise.reject(error);
       }
+    );
 
-      if (
-        error.response?.status === 401 &&
-        error.response?.data?.code === "token_not_valid" &&
-        !originalRequest._retry
-      ) {
-        originalRequest._retry = true;
-
-        try {
-          const newToken = await GenerateNewAccessToken();
-          originalRequest.headers.Authorization = `Bearer ${newToken}`;
-          return axios(originalRequest);
-        } catch (err) {
-          LogoutUser();
-          return Promise.reject(err);
-        }
-      }
-
-      return Promise.reject(error);
-    }
-  );
-
-  return () => {
-    axios.interceptors.request.eject(requestInterceptor);
-    axios.interceptors.response.eject(responseInterceptor);
-  };
-}, []);
+    return () => {
+      axios.interceptors.request.eject(requestInterceptor);
+      axios.interceptors.response.eject(responseInterceptor);
+    };
+  }, []);
 
 
 
@@ -231,42 +231,54 @@ useEffect(() => {
       setLoading(false);
     }
   };
-  const LoginUser = async (userData) => {
-    setLoginError("");
-    setLoading(true);
-    try {
-      const response = await axios.post(`${API_BASE_URL}/login/`, userData, {
-        headers: { "Content-Type": "application/json" },
-      });
+const LoginUser = async (userData) => {
+  setLoginError("");
+  setLoading(true);
 
-      setAccessToken(response.data.access);
-      setRefreshToken(response.data.refresh);
-      setUserID(response.data.user_id);
-      setResponseSubrole(response.data.subrole);
-      setRole(response.data.role);
-      localStorage.setItem("accessToken", response.data.access);
-      localStorage.setItem("refreshToken", response.data.refresh);
-      localStorage.setItem("userID", response.data.user_id);
-      localStorage.setItem("role", response.data.role);
-      localStorage.setItem("subrole", response.data.subrole);
+  try {
+    const response = await axios.post(`${API_BASE_URL}/login/`, userData, {
+      headers: { "Content-Type": "application/json" },
+    });
 
-      if (response.status === 200) {
-        setUserLoggedIN(true);
-        return response.data;
-      }
-    } catch (error) {
-      const errorMessage =
-        error.response?.data?.error ||
-        error.response?.data?.non_field_errors?.[0] ||
-        "Login failed. Please try again.";
+    if (response.status === 200) {
+      const { access, refresh, user_id, subrole, role } = response.data;
 
-      setLoginError(errorMessage);
-      console.error("Login Error:", error.response?.data);
-      throw error;
-    } finally {
-      setLoading(false);
+      // Update context state
+      setAccessToken(access);
+      setRefreshToken(refresh);
+      setUserID(user_id);
+      setResponseSubrole(subrole);
+      setRole(role);
+      setUserLoggedIN(true);
+
+      // Save tokens locally
+      localStorage.setItem("accessToken", access);
+      localStorage.setItem("refreshToken", refresh);
+      localStorage.setItem("userID", user_id);
+      localStorage.setItem("role", role);
+      localStorage.setItem("subrole", subrole);
+
+      // Return info for navigation
+      return { subrole, role };
     }
-  };
+  } catch (error) {
+    const errorMessage =
+      error.response?.data?.error ||
+      error.response?.data?.non_field_errors?.[0] ||
+      "Login failed. Please try again.";
+
+    setLoginError(errorMessage);
+    console.error("Login Error:", error.response?.data);
+    throw error;
+  } finally {
+    setLoading(false);
+  }
+};
+
+  useEffect(() => {
+    console.log("AuthContext effect:", userLoggedIN);
+  }, [userLoggedIN]);
+
 
   const GetUser = async () => {
     if (!accessToken) return;
