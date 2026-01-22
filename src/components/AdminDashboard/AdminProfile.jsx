@@ -210,7 +210,7 @@ export const AdminProfile = () => {
 
                 <div>
                   <Label>Email</Label>
-                  <Input type="email" {...register("email")} />
+                  <Input  type="email" {...register("email")} />
                 </div>
 
                 <div>
@@ -297,7 +297,7 @@ export const AdminProfile = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Info label="First Name" value={admin.first_name} />
               <Info label="Last Name" value={admin.last_name} />
-              <Info label="Email" value={admin.email} />
+              <Info  label="Email" value={admin.email} />
               <Info label="Mobile" value={admin.mobile_no} />
               <Info label="Gender" value={admin.gender} />
               <Info label="Identity" value={admin.identity} />
@@ -355,7 +355,7 @@ export const AdminProfile = () => {
 const Info = ({ label, value }) => (
   <div>
     <p className="text-sm text-slate-500">{label}</p>
-    <p className="font-medium capitalize">{value || "N/A"}</p>
+    <p className="font-medium ">{value || "N/A"}</p>
   </div>
 );
 
