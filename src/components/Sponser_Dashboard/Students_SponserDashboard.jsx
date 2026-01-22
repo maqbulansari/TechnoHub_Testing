@@ -365,7 +365,7 @@ export const Students_SponserDashboard = () => {
       <Dialog open={showModal} onOpenChange={setShowModal}>
         <DialogContent className="sm:max-w-md p-0 gap-0 overflow-hidden rounded-xl">
           <DialogHeader className="px-5 pt-4 pb-4 space-y-1">
-            <DialogTitle className="text-xl pb-2 font-semibold">Notification</DialogTitle>
+            <DialogTitle className="text-xl pb-2 font-semibold">Success</DialogTitle>
             <p className="text-sm pb-2 text-muted-foreground leading-relaxed">{modalMessage}</p>
           </DialogHeader>
           <DialogFooter className="px-3 pb-3 bg-muted/30">
