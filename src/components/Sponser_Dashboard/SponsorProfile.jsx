@@ -43,6 +43,11 @@ const SponsorProfile = () => {
             Authorization: `Bearer ${accessToken}`,
           },
         });
+        const re = await axios.get(`${API_BASE_URL}/sponsor-dashboard/`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
 
         if (response.status === 200 && response.data?.length) {
           const profile = response.data[0];

@@ -123,7 +123,7 @@ const AssessmentSelectedStudents = () => {
                 <TableRow key={student.student_id}>
                   <TableCell className="capitalize font-medium">{student.student_name}</TableCell>
 
-                  <TableCell className="flex flex-wrap gap-1">
+                  <TableCell className="flex border-none flex-wrap gap-1">
                     {student.trainers?.length ? (
                       student.trainers.map((trainer) => (
                         <Badge key={trainer.trainer_id} variant="outline">

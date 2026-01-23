@@ -77,7 +77,7 @@ export const BookhubHome = () => {
         setLoading(true)
         setError(null)
         const response = await axios.get(`${API_BASE_URL}/bookhub/books/`)
-        const re = await axios.get(`${API_BASE_URL}/bookhub/chapters/`)
+        const re = await axios.get(`${API_BASE_URL}/bookhub/summaries/?book=${2}`)
         console.log(re);
         
         setBooks(response.data)
