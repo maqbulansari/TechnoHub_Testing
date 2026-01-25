@@ -28,7 +28,8 @@ export const AdminProfile = () => {
   const [errorModalOpen, setErrorModalOpen] = useState(false);
   const [apiErrors, setApiErrors] = useState({});
 
-  const { API_BASE_URL } = useContext(AuthContext);
+  const { API_BASE_URL,user } = useContext(AuthContext);
+
 
   const {
     register,
@@ -72,7 +73,7 @@ export const AdminProfile = () => {
 
     const fetchAdmin = async () => {
       try {
-        const res = await axios.get(`${API_BASE_URL}/User/1`, {
+        const res = await axios.get(`${API_BASE_URL}/User/${user.id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 

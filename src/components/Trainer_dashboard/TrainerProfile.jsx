@@ -23,6 +23,7 @@ const TrainerProfile = () => {
   const [trainer, setTrainer] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [image, setImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
   const [loading, setLoading] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [errorModalOpen, setErrorModalOpen] = useState(false);
@@ -37,7 +38,6 @@ const TrainerProfile = () => {
     control,
     formState: { errors },
   } = useForm();
-
 
   const normalizeTrainer = (data) => ({
     ...data,
@@ -59,10 +59,6 @@ const TrainerProfile = () => {
         const res = await axios.get(`${API_BASE_URL}/trainers/`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        const re = await axios.get(`${API_BASE_URL}/trainer-dashboard/`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-console.log(re);
 
         const normalized = normalizeTrainer(res.data[0]);
         setTrainer(normalized);
@@ -75,6 +71,29 @@ console.log(re);
     fetchTrainer();
   }, [API_BASE_URL, reset]);
 
+  // Handle image change with preview
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImage(file);
+      // Create preview URL
+      const previewUrl = URL.createObjectURL(file);
+      setImagePreview(previewUrl);
+    } else {
+      setImage(null);
+      setImagePreview(null);
+    }
+  };
+
+  // Cleanup preview URL on unmount
+  useEffect(() => {
+    return () => {
+      if (imagePreview) {
+        URL.revokeObjectURL(imagePreview);
+      }
+    };
+  }, [imagePreview]);
+
   // Submit
   const onSubmit = async (data) => {
     if (!trainer) return;
@@ -84,26 +103,36 @@ console.log(re);
     const token = localStorage.getItem("accessToken");
     const formData = new FormData();
 
-    // append only valid values (prevents id_type error)
+    // Fields to exclude from FormData
+    const excludeFields = [
+      "technologies",
+      "user_profile", // Don't send existing user_profile path
+      "id",
+      "user",
+      "batches",
+      "created_at",
+      "updated_at",
+    ];
+
+    // Append only valid values
     Object.entries(data).forEach(([key, value]) => {
       if (
         value !== "" &&
         value !== null &&
         value !== undefined &&
-        key !== "technologies" 
+        !excludeFields.includes(key)
       ) {
         formData.append(key, value);
       }
     });
 
-
-    // append image ONLY if real file
+    // Append image ONLY if it's a new File
     if (image instanceof File) {
       formData.append("user_profile", image);
     }
 
     try {
-      await axios.put(
+      const res = await axios.put(
         `${API_BASE_URL}/trainers/${trainer.id}/`,
         formData,
         {
@@ -113,10 +142,13 @@ console.log(re);
         }
       );
 
-      setTrainer({ ...trainer, ...data });
-      reset({ ...trainer, ...data });
+      // Update trainer with response data
+      const updatedTrainer = normalizeTrainer(res.data);
+      setTrainer(updatedTrainer);
+      reset(updatedTrainer);
       setEditMode(false);
       setImage(null);
+      setImagePreview(null);
       setSubmitSuccess(true);
 
     } catch (err) {
@@ -131,6 +163,14 @@ console.log(re);
     }
   };
 
+  // Cancel edit
+  const handleCancel = () => {
+    reset(trainer);
+    setEditMode(false);
+    setImage(null);
+    setImagePreview(null);
+  };
+
   if (!trainer) return <Loading />;
 
   return (
@@ -138,7 +178,9 @@ console.log(re);
       <Card className="overflow-hidden shadow-none rounded-2xl border border-slate-200">
         <CardHeader className="flex flex-col md:flex-row items-center gap-4 bg-blue-50 p-4">
           <Avatar className="w-32 h-32">
-            {trainer.user_profile ? (
+            {imagePreview ? (
+              <AvatarImage src={imagePreview} />
+            ) : trainer.user_profile ? (
               <AvatarImage src={`${API_BASE_URL}${trainer.user_profile}`} />
             ) : (
               <AvatarFallback className="bg-primary text-white text-4xl font-bold">
@@ -169,40 +211,102 @@ console.log(re);
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
+                {/* First Name */}
                 <div>
-                  <Label>First Name</Label>
-                  <Input {...register("first_name", { required: true })} />
+                  <Label>First Name <span className="text-red-500">*</span></Label>
+                  <Input
+                    {...register("first_name", {
+                      required: "First name is required",
+                      minLength: {
+                        value: 2,
+                        message: "First name must be at least 2 characters"
+                      }
+                    })}
+                    className={errors.first_name ? "border-red-500" : ""}
+                  />
+                  {errors.first_name && (
+                    <p className="text-red-500 text-xs mt-1">{errors.first_name.message}</p>
+                  )}
                 </div>
 
+                {/* Last Name */}
                 <div>
-                  <Label>Last Name</Label>
-                  <Input {...register("last_name", { required: true })} />
+                  <Label>Last Name <span className="text-red-500">*</span></Label>
+                  <Input
+                    {...register("last_name", {
+                      required: "Last name is required",
+                      minLength: {
+                        value: 2,
+                        message: "Last name must be at least 2 characters"
+                      }
+                    })}
+                    className={errors.last_name ? "border-red-500" : ""}
+                  />
+                  {errors.last_name && (
+                    <p className="text-red-500 text-xs mt-1">{errors.last_name.message}</p>
+                  )}
                 </div>
 
+                {/* Job Title */}
                 <div>
-                  <Label>Job Title</Label>
-                  <Input {...register("job_title", { required: true })} />
+                  <Label>Job Title <span className="text-red-500">*</span></Label>
+                  <Input
+                    {...register("job_title", {
+                      required: "Job title is required"
+                    })}
+                    className={errors.job_title ? "border-red-500" : ""}
+                  />
+                  {errors.job_title && (
+                    <p className="text-red-500 text-xs mt-1">{errors.job_title.message}</p>
+                  )}
                 </div>
 
+                {/* Email */}
                 <div>
-                  <Label>Email</Label>
-                  <Input type="email" {...register("email")} />
+                  <Label>Email <span className="text-red-500">*</span></Label>
+                  <Input
+                    type="email"
+                    {...register("email", {
+                      required: "Email is required",
+                      pattern: {
+                        value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                        message: "Invalid email address"
+                      }
+                    })}
+                    className={errors.email ? "border-red-500" : ""}
+                  />
+                  {errors.email && (
+                    <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>
+                  )}
                 </div>
 
+                {/* Mobile No */}
                 <div>
                   <Label>Mobile No</Label>
-                  <Input {...register("mobile_no")} />
+                  <Input
+                    {...register("mobile_no", {
+                      pattern: {
+                        value: /^[0-9]{10,15}$/,
+                        message: "Please enter a valid mobile number (10-15 digits)"
+                      }
+                    })}
+                    className={errors.mobile_no ? "border-red-500" : ""}
+                  />
+                  {errors.mobile_no && (
+                    <p className="text-red-500 text-xs mt-1">{errors.mobile_no.message}</p>
+                  )}
                 </div>
 
+                {/* Gender */}
                 <div>
-                  <Label>Gender</Label>
+                  <Label>Gender <span className="text-red-500">*</span></Label>
                   <Controller
                     name="gender"
                     control={control}
                     rules={{ required: "Gender is required" }}
                     render={({ field }) => (
                       <Select value={field.value} onValueChange={field.onChange}>
-                        <SelectTrigger>
+                        <SelectTrigger className={errors.gender ? "border-red-500" : ""}>
                           <SelectValue placeholder="Select Gender" />
                         </SelectTrigger>
                         <SelectContent>
@@ -213,36 +317,84 @@ console.log(re);
                       </Select>
                     )}
                   />
+                  {errors.gender && (
+                    <p className="text-red-500 text-xs mt-1">{errors.gender.message}</p>
+                  )}
                 </div>
 
+                {/* Qualification */}
                 <div>
                   <Label>Qualification</Label>
                   <Input {...register("qualification")} />
                 </div>
 
+                {/* Date of Birth */}
                 <div>
                   <Label>Date of Birth</Label>
-                  <Input type="date" {...register("date_of_birth")} />
+                  <Input
+                    type="date"
+                    {...register("date_of_birth", {
+                      validate: (value) => {
+                        if (!value) return true; // Optional field
+                        const selectedDate = new Date(value);
+                        const today = new Date();
+                        if (selectedDate > today) {
+                          return "Date of birth cannot be in the future";
+                        }
+                        return true;
+                      }
+                    })}
+                    className={errors.date_of_birth ? "border-red-500" : ""}
+                  />
+                  {errors.date_of_birth && (
+                    <p className="text-red-500 text-xs mt-1">{errors.date_of_birth.message}</p>
+                  )}
                 </div>
 
+                {/* Address */}
                 <div className="col-span-2">
                   <Label>Address</Label>
                   <textarea
-                    {...register("address")}
-                    className="w-full rounded-md border border-slate-300 p-2"
+                    {...register("address", {
+                      maxLength: {
+                        value: 500,
+                        message: "Address cannot exceed 500 characters"
+                      }
+                    })}
+                    className={`w-full rounded-md border p-2 ${errors.address ? "border-red-500" : "border-slate-300"
+                      }`}
                     rows={2}
                   />
+                  {errors.address && (
+                    <p className="text-red-500 text-xs mt-1">{errors.address.message}</p>
+                  )}
                 </div>
 
+                {/* Profile Image */}
                 <div className="col-span-2">
                   <Label>Profile Image</Label>
                   <Input
                     type="file"
                     accept="image/*"
-                    onChange={(e) =>
-                      setImage(e.target.files?.[0] || null)
-                    }
+                    onChange={handleImageChange}
                   />
+                  {image && (
+                    <div className="mt-2 flex items-center gap-2">
+                      <span className="text-sm text-slate-600">Selected: {image.name}</span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="text-red-500 h-6 px-2"
+                        onClick={() => {
+                          setImage(null);
+                          setImagePreview(null);
+                        }}
+                      >
+                        Remove
+                      </Button>
+                    </div>
+                  )}
                 </div>
 
               </div>
@@ -251,11 +403,7 @@ console.log(re);
                 <Button
                   variant="outline"
                   type="button"
-                  onClick={() => {
-                    reset(trainer);
-                    setEditMode(false);
-                    setImage(null);
-                  }}
+                  onClick={handleCancel}
                 >
                   Cancel
                 </Button>
@@ -283,10 +431,10 @@ console.log(re);
       </Card>
 
       {/* SUCCESS MODAL */}
-      <Dialog open={submitSuccess}  onOpenChange={setSubmitSuccess}>
-        <DialogContent className=" p-4  overflow-hidden [&>button]:hidden rounded-xl">
+      <Dialog open={submitSuccess} onOpenChange={setSubmitSuccess}>
+        <DialogContent className="p-4 overflow-hidden [&>button]:hidden rounded-xl">
           <DialogHeader>
-            <DialogTitle  >Success</DialogTitle>
+            <DialogTitle>Success</DialogTitle>
           </DialogHeader>
           <p>Profile updated successfully!</p>
           <DialogFooter>
@@ -299,18 +447,26 @@ console.log(re);
       <Dialog open={errorModalOpen} onOpenChange={setErrorModalOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle className="">
+            <DialogTitle className="text-red-600">
               Update Failed
             </DialogTitle>
           </DialogHeader>
 
-          {Object.entries(apiErrors).map(([field, messages]) =>
-            messages.map((msg, i) => (
-              <p key={i} className="text-sm">
-                {msg}
-              </p>
-            ))
-          )}
+          <div className="space-y-2">
+            {Object.entries(apiErrors).map(([field, messages]) => (
+              <div key={field}>
+                {Array.isArray(messages) ? (
+                  messages.map((msg, i) => (
+                    <p key={i} className="text-sm text-red-600">
+                      <span className="font-medium capitalize">{field.replace(/_/g, ' ')}:</span> {msg}
+                    </p>
+                  ))
+                ) : (
+                  <p className="text-sm text-red-600">{messages}</p>
+                )}
+              </div>
+            ))}
+          </div>
 
           <DialogFooter>
             <Button onClick={() => setErrorModalOpen(false)}>

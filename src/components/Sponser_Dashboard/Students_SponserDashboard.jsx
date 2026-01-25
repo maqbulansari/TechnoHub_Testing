@@ -238,10 +238,11 @@ export const Students_SponserDashboard = () => {
 
               {/* Right Section: Illustration / Image */}
               <img
-                src={bgSponser} // replace with your relevant hero image
+                src={bgSponser}
                 alt="Sponsor Dashboard"
-                className="rounded-xl w-44 h-44 md:w-94 md:h-94 object-contain"
+                className="hidden md:block rounded-xl w-44 h-44 object-contain"
               />
+
 
             </CardHeader>
           </Card>
@@ -314,6 +315,7 @@ export const Students_SponserDashboard = () => {
                   <TableRow>
                     <TableHead>Student Name</TableHead>
                     <TableHead>Batch</TableHead>
+                    <TableHead>Amount</TableHead>
                     <TableHead className="text-center">Select</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -323,6 +325,7 @@ export const Students_SponserDashboard = () => {
                       <TableRow key={student.student_id} className="hover:bg-muted/50 transition">
                         <TableCell className="capitalize">{student.student_name}</TableCell>
                         <TableCell>{student.batch_name} {student.batch_id}</TableCell>
+                        <TableCell>{student.fee}</TableCell>
                         <TableCell className="text-center">
                           <input
                             type="checkbox"
