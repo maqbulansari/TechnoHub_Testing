@@ -42,13 +42,15 @@ const AllStudent = () => {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
-        const re = await axios.get(
-          `${API_BASE_URL}/bookhub/books/`,
+        const res = await axios.get(
+          `${API_BASE_URL}/bookhub/admin/access/`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
-        console.log(re);
+        console.log(res);
+        
+        
         
         setStudentData(response.data);
       } catch (err) {

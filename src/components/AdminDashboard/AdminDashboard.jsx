@@ -230,7 +230,7 @@ const AdminDashboard = () => {
 
   // Summary Card Component
   const SummaryCard = ({ title, value, icon: Icon, trend }) => (
-    <Card className="shadow-none transition-all duration-300 border-border">
+    <Card className="shadow-sm transition-all duration-300 border-border">
       <CardContent className="p-6">
         <div className="flex items-center justify-between">
           <div className="space-y-1">
@@ -400,7 +400,7 @@ const AdminDashboard = () => {
         {/* Recruitment & Sponsorship Summary - Side by Side */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Recruitment Summary */}
-          <Card className="shadow-none transition-all duration-300">
+          <Card className="shadow-sm transition-all duration-300">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <div>
@@ -453,7 +453,7 @@ const AdminDashboard = () => {
           </Card>
 
           {/* Sponsorship Summary */}
-          <Card className="shadow-none transition-all duration-300">
+          <Card className="shadow-sm transition-all duration-300">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <div>
@@ -514,7 +514,7 @@ const AdminDashboard = () => {
         {/* Batch Strength & Assessment Summary - Side by Side */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Batch Strength Chart */}
-          <Card className="shadow-none transition-all duration-300">
+          <Card className="shadow-sm transition-all duration-300">
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
@@ -603,7 +603,7 @@ const AdminDashboard = () => {
 
 
           {/* Assessment Summary */}
-          <Card className="shadow-none transition-all duration-300">
+          <Card className="shadow-sm transition-all duration-300">
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
@@ -678,7 +678,7 @@ const AdminDashboard = () => {
         {/* Technology Distribution, Gender & Admission Summary */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Technology Student Count */}
-          <Card className="lg:col-span-2 shadow-none transition-all duration-300">
+          <Card className="lg:col-span-2 shadow-sm transition-all duration-300">
             <CardHeader>
               <CardTitle className="text-lg font-semibold">Technology Distribution</CardTitle>
               <CardDescription>Students enrolled per technology</CardDescription>
@@ -724,7 +724,7 @@ const AdminDashboard = () => {
           {/* Gender Distribution & Admission */}
           <div className="space-y-6">
             {/* Gender Distribution */}
-            <Card className="shadow-none transition-all duration-300">
+            <Card className="shadow-sm transition-all duration-300">
               <CardHeader className="pb-2">
                 <CardTitle className="text-lg font-semibold">Gender Distribution</CardTitle>
                 <CardDescription>Student demographics</CardDescription>
@@ -777,7 +777,7 @@ const AdminDashboard = () => {
             </Card>
 
             {/* Admission Summary */}
-            <Card className="shadow-none transition-all duration-300">
+            <Card className="shadow-sm transition-all duration-300">
               <CardHeader className="pb-2">
                 <CardTitle className="text-lg font-semibold">Admission Summary</CardTitle>
                 <CardDescription>Application status</CardDescription>

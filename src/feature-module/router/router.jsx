@@ -57,6 +57,9 @@ import { TermAndConditions } from "@/components/Landing_Page/TermAndConditions";
 import { BookhubHome } from "@/components/BookHub/BookhubHome";
 import AdminDashboard from "@/components/AdminDashboard/AdminDashboard";
 import { AdminProfile } from "@/components/AdminDashboard/AdminProfile";
+import AdminAccessManager from "@/components/BookHub/AdminAccessManager";
+import BookDetail from "@/components/BookHub/BookDetail";
+import CreateBook from "@/components/BookHub/CreateBook";
 
 
 
@@ -152,6 +155,9 @@ const ALLRoutes = () => {
         <Route path="/Notifications" element={<Notifications />} />
         <Route path="/adminDashboard" element={<AdminDashboard />} />
         <Route path="/Admin_Profile" element={<AdminProfile />} />
+        <Route path="/AdminAccessManager" element={<AdminAccessManager />} />
+         <Route path="/bookhub/book/:bookId" element={<BookDetail />} />
+         <Route path="/bookhub/CreateBook" element={<CreateBook />} />
       </Route>
 
     </Route>

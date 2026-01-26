@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   Card,
   CardContent,
@@ -12,14 +13,6 @@ import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
-import {
   BookOpen,
   Calendar,
   Clock,
@@ -28,47 +21,343 @@ import {
   CheckCircle2,
   CalendarDays,
   Loader2,
-  AlertCircle
+  AlertCircle,
+  Eye,
+  MessageCircle
 } from 'lucide-react'
 import { AuthContext } from '@/contexts/authContext'
 import axios from 'axios'
 import Loading from '@/Loading'
 
 // Default placeholder image for books without covers
-const DEFAULT_BOOK_COVER = "/placeholder-book.png" // or use a URL to a default image
+const DEFAULT_BOOK_COVER = "/placeholder-book.png"
+
+
+const BookCard = ({ book, getBookCoverUrl, onClick, variant = "upcoming" }) => {
+  const isDiscussed = variant === "discussed"
+  
+  return (
+    <Card
+      className="group overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer"
+      onClick={onClick}
+    >
+      {/* Image Container */}
+      <div className="relative h-64 overflow-hidden bg-gray-100 dark:bg-gray-800">
+        <img
+          src={getBookCoverUrl(book.cover_image)}
+          alt={book.title}
+          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+          onError={(e) => {
+            e.target.onerror = null
+            e.target.src = DEFAULT_BOOK_COVER
+          }}
+        />
+
+        {/* Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+
+        {/* Top Badges */}
+        <div className="absolute top-2.5 left-2.5 right-2.5 flex justify-between items-start">
+          <Badge 
+            className={`text-white text-[10px] px-2 py-0.5 font-medium ${
+              isDiscussed ? 'bg-green-500' : 'bg-amber-500'
+            }`}
+          >
+            {isDiscussed && <CheckCircle2 className="h-2.5 w-2.5 mr-1" />}
+            {isDiscussed ? 'Discussed' : 'Upcoming'}
+          </Badge>
+          <Badge className="bg-white/90 text-gray-700 text-[10px] px-2 py-0.5 font-medium">
+            {book.discussion_month} {book.discussion_year}
+          </Badge>
+        </div>
+
+        {/* Bottom Badges */}
+        <div className="absolute bottom-2.5 left-2.5 right-2.5 flex gap-1.5">
+          {book.total_chapters && (
+            <Badge className="bg-black/60 text-white text-[10px] px-2 py-0.5 backdrop-blur-sm">
+              {book.total_chapters} chapters
+            </Badge>
+          )}
+          {book.has_summary && (
+            <Badge className="bg-primary/80 text-white text-[10px] px-2 py-0.5 backdrop-blur-sm">
+              Summary
+            </Badge>
+          )}
+          {book.comment_count > 0 && (
+            <Badge className="bg-blue-500/80 text-white text-[10px] px-2 py-0.5 backdrop-blur-sm gap-1">
+              <MessageCircle className="h-2.5 w-2.5" />
+              {book.comment_count}
+            </Badge>
+          )}
+        </div>
+
+        {/* Hover Overlay */}
+        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+          <Button size="sm" className="gap-2 shadow-lg">
+            <Eye className="h-4 w-4" />
+            View Details
+          </Button>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="p-4">
+        {/* Title */}
+        <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm leading-snug line-clamp-1 mb-0.5 group-hover:text-primary transition-colors">
+          {book.title}
+        </h3>
+
+        {/* Author */}
+        <p className="text-xs text-muted-foreground mb-2">
+          by {book.author}
+        </p>
+
+        {/* Description */}
+        <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2 mb-3">
+          {book.short_desc}
+        </p>
+
+        {/* Action Button */}
+        <Button
+          variant="outline"
+          size="sm"
+          className="w-full h-8 text-xs gap-1.5 group-hover:bg-[#2196F3] group-hover:text-white transition-colors"
+          onClick={(e) => {
+            e.stopPropagation()
+            onClick()
+          }}
+        >
+          <BookOpen className="h-3.5 w-3.5" />
+          {isDiscussed ? 'Read Summary' : 'View Book'}
+        </Button>
+      </div>
+    </Card>
+  )
+}
+
+
+const ScheduleCard = ({ schedule, getBookCoverUrl, onClick }) => {
+  const book = schedule.books[0]
+  
+  return (
+    <Card
+      className={`relative overflow-hidden h-64 transition-all hover:shadow-xl hover:scale-[1.02] cursor-pointer group ${
+        schedule.is_current ? 'ring-2 ring-primary ring-offset-2' : ''
+      }`}
+      onClick={onClick}
+    >
+      {/* Background Image */}
+      {book && (
+        <div
+          className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
+          style={{
+            backgroundImage: `url(${getBookCoverUrl(book.cover_image)})`
+          }}
+        />
+      )}
+
+      {/* Gradient Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/20" />
+
+      {/* Current Badge */}
+      {schedule.is_current && (
+        <div className="absolute top-3 right-3 z-10">
+          <Badge className="bg-primary text-primary-foreground text-xs shadow-lg">
+            <Clock className="h-3 w-3 mr-1" />
+            Current
+          </Badge>
+        </div>
+      )}
+
+      {/* Discussed Badge */}
+      {book?.is_discussed && (
+        <div className="absolute top-3 left-3 z-10">
+          <Badge className="bg-green-500 text-white text-xs shadow-lg">
+            <CheckCircle2 className="h-3 w-3 mr-1" />
+            Done
+          </Badge>
+        </div>
+      )}
+
+      {/* Content */}
+      <div className="absolute inset-0 flex flex-col justify-end p-4 z-10">
+        {book && (
+          <div className="space-y-2">
+            {/* Month & Year */}
+            <div className="flex items-center gap-2">
+              <CalendarDays className="h-4 w-4 text-white/70" />
+              <span className="text-white/70 text-sm font-medium">
+                {schedule.month} {schedule.year}
+              </span>
+            </div>
+
+            {/* Book Title */}
+            <h3 className="font-bold text-white text-lg leading-tight line-clamp-2">
+              {book.title}
+            </h3>
+
+            {/* Author */}
+            <p className="text-white/80 text-sm">
+              by {book.author}
+            </p>
+
+            {/* Chapters info */}
+            {book.total_chapters && (
+              <div className="flex items-center gap-1 text-white/60 text-xs">
+                <BookOpen className="h-3 w-3" />
+                {book.total_chapters} chapters
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </Card>
+  )
+}
+
+
+const EmptyState = ({ icon: Icon, title, description }) => (
+  <div className="text-center py-16">
+    <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
+      <Icon className="h-8 w-8 text-muted-foreground" />
+    </div>
+    <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">
+      {title}
+    </h3>
+    <p className="text-sm text-muted-foreground">
+      {description}
+    </p>
+  </div>
+)
+
+
+const AccessRequestCard = ({ accessState, requestReason, setRequestReason, onSubmit, loading }) => (
+  <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950 px-4">
+    <Card className="max-w-lg w-full">
+      <CardHeader className="pb-4">
+        <div className="flex items-center gap-3 mb-2">
+          <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+            <BookOpen className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <CardTitle className="text-lg">Request BookHub Access</CardTitle>
+            <CardDescription>
+              Join our reading community
+            </CardDescription>
+          </div>
+        </div>
+      </CardHeader>
+
+      <CardContent className="space-y-4 pb-4">
+        {accessState.status === "pending" ? (
+          <div className="flex items-center gap-3 rounded-lg border border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-900/20 px-4 py-3">
+            <Clock className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0" />
+            <div className="space-y-0.5">
+              <p className="text-sm font-medium text-amber-700 dark:text-amber-300">
+                Request under review
+              </p>
+              <p className="text-xs text-amber-700/80 dark:text-amber-300/70 leading-relaxed">
+                Your access request has been submitted and is currently pending approval.
+              </p>
+            </div>
+          </div>
+        ) : accessState.status === "rejected" ? (
+          <div className="flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20 px-4 py-3">
+            <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 shrink-0" />
+            <div className="space-y-0.5">
+              <p className="text-sm font-medium text-red-700 dark:text-red-300">
+                Request was not approved
+              </p>
+              <p className="text-xs text-red-700/80 dark:text-red-300/70 leading-relaxed">
+                Please contact support if you believe this was a mistake.
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            <label className="text-sm font-medium">
+              Reason for access
+            </label>
+            <textarea
+              className="w-full min-h-[100px] rounded-lg border border-input bg-background px-3 py-2.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none"
+              placeholder="Example: I want to join monthly book discussions and read summaries"
+              value={requestReason}
+              onChange={(e) => setRequestReason(e.target.value)}
+            />
+            <p className="text-xs text-muted-foreground">
+              Please provide a brief reason for requesting access to BookHub.
+            </p>
+          </div>
+        )}
+      </CardContent>
+
+      <CardFooter className="pt-2">
+        {accessState.status === "not_requested" && (
+          <Button
+            className="w-full gap-2"
+            onClick={onSubmit}
+            disabled={loading || !requestReason.trim()}
+          >
+            {loading ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Submitting...
+              </>
+            ) : (
+              <>
+                <BookOpen className="h-4 w-4" />
+                Submit Request
+              </>
+            )}
+          </Button>
+        )}
+      </CardFooter>
+    </Card>
+  </div>
+)
+
 
 export const BookhubHome = () => {
+  const navigate = useNavigate()
+  
   const [activeTab, setActiveTab] = useState("upcoming")
-  const [selectedBook, setSelectedBook] = useState(null)
   const [books, setBooks] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [bookSummaries, setBookSummaries] = useState({})
-  const [loadingSummary, setLoadingSummary] = useState(false)
+  const [accessState, setAccessState] = useState(null)
+  const [requestReason, setRequestReason] = useState("")
+  const [requestLoading, setRequestLoading] = useState(false)
 
   const { API_BASE_URL } = useContext(AuthContext)
 
+  // Helper function to get auth headers
+  const getAuthHeader = () => ({
+    headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` }
+  })
+
   // Helper function to get proper image URL
   const getBookCoverUrl = (coverPath) => {
-    if (!coverPath) return DEFAULT_BOOK_COVER;
+    if (!coverPath) return DEFAULT_BOOK_COVER
 
-    // Replace localhost:8000 or localhost:7000 with API_BASE_URL
     if (coverPath.startsWith("http://localhost:8000")) {
-      return coverPath.replace("http://localhost:8000", API_BASE_URL);
+      return coverPath.replace("http://localhost:8000", API_BASE_URL)
     }
 
     if (coverPath.startsWith("http://localhost:7000")) {
-      return coverPath.replace("http://localhost:7000", API_BASE_URL);
+      return coverPath.replace("http://localhost:7000", API_BASE_URL)
     }
 
-    // If it's already a full URL (external), return as is
     if (coverPath.startsWith("http://") || coverPath.startsWith("https://")) {
-      return coverPath;
+      return coverPath
     }
 
-    // If it's a relative path, prepend API_BASE_URL
-    return `${API_BASE_URL}${coverPath.startsWith('/') ? '' : '/'}${coverPath}`;
-  };
+    return `${API_BASE_URL}${coverPath.startsWith('/') ? '' : '/'}${coverPath}`
+  }
+
+  // Navigate to book detail
+  const navigateToBook = (bookId) => {
+    navigate(`/bookhub/book/${bookId}`)
+  }
 
   // Fetch all books
   useEffect(() => {
@@ -76,13 +365,24 @@ export const BookhubHome = () => {
       try {
         setLoading(true)
         setError(null)
-        const response = await axios.get(`${API_BASE_URL}/bookhub/books/`)
-        const re = await axios.get(`${API_BASE_URL}/bookhub/summaries/?book=${2}`)
-        console.log(re);
-        
+
+        const response = await axios.get(
+          `${API_BASE_URL}/bookhub/books/`,
+          getAuthHeader()
+        )
         setBooks(response.data)
+
       } catch (err) {
-        console.error(err)
+        const data = err?.response?.data
+
+        if (data?.error === "access_denied") {
+          setAccessState({
+            status: data.status || "not_requested",
+            hasRequested: data.has_requested === "True"
+          })
+          return
+        }
+
         setError('Failed to load books. Please try again.')
       } finally {
         setLoading(false)
@@ -92,22 +392,28 @@ export const BookhubHome = () => {
     fetchBooks()
   }, [API_BASE_URL])
 
-  // Fetch summary for a specific book
-  const fetchBookSummary = async (bookId) => {
-    if (bookSummaries[bookId]) return // Already fetched
+  // Handle access request
+  const handleRequestAccess = async () => {
+    if (!requestReason.trim()) return
 
     try {
-      setLoadingSummary(true)
-      const response = await axios.get(`${API_BASE_URL}/bookhub/books/summary/${bookId}/   `)
-      setBookSummaries(prev => ({
-        ...prev,
-        [bookId]: response.data
-      }))
-      
+      setRequestLoading(true)
+
+      await axios.post(
+        `${API_BASE_URL}/bookhub/access/request/`,
+        { reason: requestReason },
+        getAuthHeader()
+      )
+
+      setAccessState({
+        status: "pending",
+        hasRequested: true
+      })
     } catch (err) {
-      console.error('Failed to fetch summary:', err)
+      console.error(err)
+      alert("Failed to submit access request.")
     } finally {
-      setLoadingSummary(false)
+      setRequestLoading(false)
     }
   }
 
@@ -120,7 +426,7 @@ export const BookhubHome = () => {
   const monthOrder = ['January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December']
 
-  // Derive current book (current month's book or first upcoming)
+  // Derive current book
   const currentBook = books.find(book =>
     book.discussion_month === currentMonth &&
     book.discussion_year === currentYear &&
@@ -172,11 +478,11 @@ export const BookhubHome = () => {
     return monthOrder.indexOf(a.month) - monthOrder.indexOf(b.month)
   })
 
+
+
   // Loading state
   if (loading) {
-    return (
-      <Loading />
-    )
+    return <Loading />
   }
 
   // Error state
@@ -194,18 +500,33 @@ export const BookhubHome = () => {
     )
   }
 
+  // Access request state
+  if (accessState) {
+    return (
+      <AccessRequestCard
+        accessState={accessState}
+        requestReason={requestReason}
+        setRequestReason={setRequestReason}
+        onSubmit={handleRequestAccess}
+        loading={requestLoading}
+      />
+    )
+  }
+
   // Empty state
   if (books.length === 0) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <BookOpen className="h-12 w-12 text-muted-foreground mx-auto" />
-          <p className="text-muted-foreground">No books available yet.</p>
-        </div>
+        <EmptyState
+          icon={BookOpen}
+          title="No Books Available"
+          description="No books available yet. Check back later!"
+        />
       </div>
     )
   }
 
+ 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       <main className="container mx-auto px-4 py-8 space-y-10">
@@ -224,18 +545,21 @@ export const BookhubHome = () => {
               </span>
             </div>
 
-            <Card className="overflow-hidden border border-border shadow-sm hover:shadow-md transition-shadow">
+            <Card 
+              className="overflow-hidden border border-border shadow-sm hover:shadow-md transition-shadow cursor-pointer group"
+              onClick={() => navigateToBook(currentBook.id)}
+            >
               <div className="flex flex-col sm:flex-row">
                 {/* Book Cover */}
                 <div className="sm:w-44 md:w-52 bg-gradient-to-br from-muted/50 to-muted/30 p-4 sm:p-5 flex items-center justify-center">
-                  <div className="relative group">
+                  <div className="relative">
                     <img
                       src={getBookCoverUrl(currentBook.cover_image)}
                       alt={currentBook.title}
-                      className="w-32 h-48 sm:w-36 sm:h-52 object-cover rounded-md shadow-lg group-hover:shadow-xl transition-all duration-300"
+                      className="w-32 h-48 sm:w-36 sm:h-52 object-cover rounded-md shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-[1.02]"
                       onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = DEFAULT_BOOK_COVER;
+                        e.target.onerror = null
+                        e.target.src = DEFAULT_BOOK_COVER
                       }}
                     />
                     {/* Subtle glow effect */}
@@ -248,7 +572,7 @@ export const BookhubHome = () => {
                   <div className="space-y-3">
                     {/* Title & Author */}
                     <div>
-                      <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 leading-tight">
+                      <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 leading-tight group-hover:text-primary transition-colors">
                         {currentBook.title}
                       </h2>
                       <p className="text-sm text-muted-foreground mt-1">
@@ -275,10 +599,11 @@ export const BookhubHome = () => {
                       )}
                       <Badge
                         variant="secondary"
-                        className={`text-xs text-nowrap px-2 py-0.5 gap-1 ${currentBook.is_discussed
-                          ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                          : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
-                          }`}
+                        className={`text-xs text-nowrap px-2 py-0.5 gap-1 ${
+                          currentBook.is_discussed
+                            ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                            : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+                        }`}
                       >
                         {currentBook.is_discussed ? (
                           <>
@@ -297,11 +622,23 @@ export const BookhubHome = () => {
 
                   {/* Action Buttons */}
                   <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-border">
-                    <Button size="sm" className="gap-1.5 h-9 px-4 text-sm">
+                    <Button 
+                      size="sm" 
+                      className="gap-1.5 h-9 px-4 text-sm"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        navigateToBook(currentBook.id)
+                      }}
+                    >
                       <BookOpen className="h-4 w-4" />
-                      Start Reading
+                      View Book
                     </Button>
-                    <Button variant="outline" size="sm" className="gap-1.5 h-9 px-4 text-sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="gap-1.5 h-9 px-4 text-sm"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <Calendar className="h-4 w-4" />
                       Add to Calendar
                     </Button>
@@ -318,7 +655,7 @@ export const BookhubHome = () => {
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
                 <Calendar className="h-6 w-6 text-primary" />
-                <h2 className="text-2xl px-4 text-nowrap  font-bold text-gray-900 dark:text-gray-100">
+                <h2 className="text-2xl text-nowrap font-bold text-gray-900 dark:text-gray-100">
                   Monthly Schedule
                 </h2>
               </div>
@@ -329,79 +666,12 @@ export const BookhubHome = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {monthlySchedule.slice(0, 4).map((schedule) => (
-                <Card
+                <ScheduleCard
                   key={`${schedule.month}-${schedule.year}`}
-                  className={`relative overflow-hidden h-64 transition-all hover:shadow-xl hover:scale-[1.02] cursor-pointer group ${schedule.is_current
-                    ? 'ring-2 ring-primary ring-offset-2'
-                    : ''
-                    }`}
-                >
-                  {/* Background Image */}
-                  {schedule.books[0] && (
-                    <div
-                      className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
-                      style={{
-                        backgroundImage: `url(${getBookCoverUrl(schedule.books[0].cover_image)})`
-                      }}
-                    />
-                  )}
-
-                  {/* Gradient Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/20" />
-
-                  {/* Current Badge */}
-                  {schedule.is_current && (
-                    <div className="absolute top-3 right-3 z-10">
-                      <Badge className="bg-primary text-primary-foreground text-xs shadow-lg">
-                        <Clock className="h-3 w-3 mr-1" />
-                        Current
-                      </Badge>
-                    </div>
-                  )}
-
-                  {/* Discussed Badge */}
-                  {schedule.books[0]?.is_discussed && (
-                    <div className="absolute top-3 left-3 z-10">
-                      <Badge className="bg-green-500 text-white text-xs shadow-lg">
-                        <CheckCircle2 className="h-3 w-3 mr-1" />
-                        Done
-                      </Badge>
-                    </div>
-                  )}
-
-                  {/* Content */}
-                  <div className="absolute inset-0 flex flex-col justify-end p-4 z-10">
-                    {schedule.books.map(book => (
-                      <div key={book.id} className="space-y-2">
-                        {/* Month & Year */}
-                        <div className="flex items-center gap-2">
-                          <CalendarDays className="h-4 w-4 text-white/70" />
-                          <span className="text-white/70 text-sm font-medium">
-                            {schedule.month} {schedule.year}
-                          </span>
-                        </div>
-
-                        {/* Book Title */}
-                        <h3 className="font-bold text-white text-lg leading-tight line-clamp-2">
-                          {book.title}
-                        </h3>
-
-                        {/* Author */}
-                        <p className="text-white/80 text-sm">
-                          by {book.author}
-                        </p>
-
-                        {/* Chapters info if available */}
-                        {book.total_chapters && (
-                          <div className="flex items-center gap-1 text-white/60 text-xs">
-                            <BookOpen className="h-3 w-3" />
-                            {book.total_chapters} chapters
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </Card>
+                  schedule={schedule}
+                  getBookCoverUrl={getBookCoverUrl}
+                  onClick={() => schedule.books[0] && navigateToBook(schedule.books[0].id)}
+                />
               ))}
             </div>
           </section>
@@ -424,87 +694,21 @@ export const BookhubHome = () => {
             {/* Upcoming Books Tab */}
             <TabsContent value="upcoming">
               {upcomingBooks.length === 0 ? (
-                <div className="text-center py-16">
-                  <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
-                    <Clock className="h-8 w-8 text-muted-foreground" />
-                  </div>
-                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">
-                    No Upcoming Books
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    Check back later for new books.
-                  </p>
-                </div>
+                <EmptyState
+                  icon={Clock}
+                  title="No Upcoming Books"
+                  description="Check back later for new books."
+                />
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                   {upcomingBooks.map((book) => (
-                    <Card
+                    <BookCard
                       key={book.id}
-                      className="group overflow-hidden hover:shadow-lg transition-all duration-300"
-                    >
-                      {/* Image Container - Reduced Height */}
-                      <div className="relative h-64 overflow-hidden bg-gray-100 dark:bg-gray-800">
-                        <img
-                          src={getBookCoverUrl(book.cover_image)}
-                          alt={book.title}
-                          className="max-h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                          onError={(e) => {
-                            e.target.onerror = null;
-                            e.target.src = DEFAULT_BOOK_COVER;
-                          }}
-                        />
-
-                        {/* Overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-
-                        {/* Badges */}
-                        <div className="absolute top-2.5 left-2.5 right-2.5 flex justify-between items-start">
-                          <Badge className="bg-amber-500 text-white text-[10px] px-2 py-0.5 font-medium">
-                            Upcoming
-                          </Badge>
-                          <Badge className="bg-white/90 text-gray-700 text-[10px] px-2 py-0.5 font-medium">
-                            {book.discussion_month}
-                          </Badge>
-                        </div>
-
-                        {/* Chapters Badge */}
-                        {book.total_chapters && (
-                          <div className="absolute bottom-2.5 left-2.5">
-                            <Badge className="bg-black/60 text-white text-[10px] px-2 py-0.5 backdrop-blur-sm">
-                              {book.total_chapters} chapters
-                            </Badge>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Content - Better Spacing */}
-                      <div className="p-4">
-                        {/* Title */}
-                        <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm leading-snug line-clamp-1 mb-0.5">
-                          {book.title}
-                        </h3>
-
-                        {/* Author */}
-                        <p className="text-xs text-muted-foreground mb-2">
-                          {book.author}
-                        </p>
-
-                        {/* Description */}
-                        <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2 mb-3">
-                          {book.short_desc}
-                        </p>
-
-                        {/* Button */}
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="w-full h-8 text-xs gap-1.5"
-                        >
-                          <Calendar className="h-3.5 w-3.5" />
-                          Add to Calendar
-                        </Button>
-                      </div>
-                    </Card>
+                      book={book}
+                      getBookCoverUrl={getBookCoverUrl}
+                      onClick={() => navigateToBook(book.id)}
+                      variant="upcoming"
+                    />
                   ))}
                 </div>
               )}
@@ -513,173 +717,21 @@ export const BookhubHome = () => {
             {/* Discussed Books Tab */}
             <TabsContent value="discussed">
               {discussedBooks.length === 0 ? (
-                <div className="text-center py-16">
-                  <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
-                    <BookMarked className="h-8 w-8 text-muted-foreground" />
-                  </div>
-                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">
-                    No Discussed Books
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    Discussed books will appear here.
-                  </p>
-                </div>
+                <EmptyState
+                  icon={BookMarked}
+                  title="No Discussed Books"
+                  description="Discussed books will appear here."
+                />
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                   {discussedBooks.map((book) => (
-                    <Card
+                    <BookCard
                       key={book.id}
-                      className="group overflow-hidden hover:shadow-lg transition-all duration-300"
-                    >
-                      {/* Image Container - Reduced Height */}
-                      <div className="relative h-64 overflow-hidden bg-gray-100 dark:bg-gray-800">
-                        <img
-                          src={getBookCoverUrl(book.cover_image)}
-                          alt={book.title}
-                           className="max-h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                          onError={(e) => {
-                            e.target.onerror = null;
-                            e.target.src = DEFAULT_BOOK_COVER;
-                          }}
-                        />
-
-                        {/* Overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-
-                        {/* Badges */}
-                        <div className="absolute top-2.5 left-2.5 right-2.5 flex justify-between items-start">
-                          <Badge className="bg-green-500 text-white text-[10px] px-2 py-0.5 font-medium">
-                            <CheckCircle2 className="h-2.5 w-2.5 mr-1" />
-                            Discussed
-                          </Badge>
-                          <Badge className="bg-white/90 text-gray-700 text-[10px] px-2 py-0.5 font-medium">
-                            {book.discussion_month}
-                          </Badge>
-                        </div>
-
-                        {/* Bottom Badges */}
-                        <div className="absolute bottom-2.5 left-2.5 right-2.5 flex gap-1.5">
-                          {book.total_chapters && (
-                            <Badge className="bg-black/60 text-white text-[10px] px-2 py-0.5 backdrop-blur-sm">
-                              {book.total_chapters} chapters
-                            </Badge>
-                          )}
-                          {book.has_summary && (
-                            <Badge className="bg-primary/80 text-white text-[10px] px-2 py-0.5 backdrop-blur-sm">
-                              Summary
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Content - Better Spacing */}
-                      <div className="p-4">
-                        {/* Title */}
-                        <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm leading-snug line-clamp-1 mb-0.5">
-                          {book.title}
-                        </h3>
-
-                        {/* Author */}
-                        <p className="text-xs text-muted-foreground mb-2">
-                          {book.author}
-                        </p>
-
-                        {/* Description */}
-                        <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2 mb-3">
-                          {book.short_desc}
-                        </p>
-
-                        {/* Button */}
-                        {book.has_summary ? (
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="w-full h-8 text-xs gap-1.5 hover:bg-primary hover:text-white"
-                                onClick={() => {
-                                  setSelectedBook(book)
-                                  fetchBookSummary(book.id)
-                                }}
-                              >
-                                <BookOpen className="h-3.5 w-3.5" />
-                                Read Summary
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent className="max-w-lg max-h-[80vh] overflow-hidden flex flex-col p-0">
-                              {/* Dialog Header with Image */}
-                              <div className="relative h-32 overflow-hidden bg-gray-100 dark:bg-gray-800 flex-shrink-0">
-                                <img
-                                  src={getBookCoverUrl(book.cover_image)}
-                                  alt={book.title}
-                                  className="w-full h-full object-cover"
-                                  onError={(e) => {
-                                    e.target.onerror = null;
-                                    e.target.src = DEFAULT_BOOK_COVER;
-                                  }}
-                                />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-
-                                {/* Content on Image */}
-                                <div className="absolute bottom-0 left-0 right-0 p-4">
-                                  <div className="flex gap-2 mb-2">
-                                    <Badge className="bg-green-500 text-white text-[10px]">
-                                      <CheckCircle2 className="h-2.5 w-2.5 mr-1" />
-                                      Discussed
-                                    </Badge>
-                                    <Badge className="bg-white/20 text-white text-[10px] backdrop-blur-sm">
-                                      {book.discussion_month} {book.discussion_year}
-                                    </Badge>
-                                  </div>
-                                  <h2 className="text-white font-bold text-lg leading-tight line-clamp-1">
-                                    {book.title}
-                                  </h2>
-                                  <p className="text-white/80 text-sm">
-                                    by {book.author}
-                                  </p>
-                                </div>
-                              </div>
-
-                              {/* Summary Content */}
-                              <div className="flex-1 overflow-y-auto p-4">
-                                <div className="flex items-center gap-2 mb-3">
-                                  <BookMarked className="h-4 w-4 text-primary" />
-                                  <h4 className="font-semibold text-sm">Book Summary</h4>
-                                </div>
-
-                                {loadingSummary ? (
-                                  <div className="flex items-center justify-center py-8 gap-2">
-                                    <Loader2 className="h-5 w-5 animate-spin text-primary" />
-                                    <span className="text-sm text-muted-foreground">Loading...</span>
-                                  </div>
-                                ) : bookSummaries[book.id] ? (
-                                  <p className="text-sm text-muted-foreground leading-relaxed">
-                                    {bookSummaries[book.id].full_summary}
-                                  </p>
-                                ) : (
-                                  <div className="text-center py-8">
-                                    <AlertCircle className="h-6 w-6 text-muted-foreground mx-auto mb-2" />
-                                    <p className="text-sm text-muted-foreground">
-                                      Summary not available.
-                                    </p>
-                                  </div>
-                                )}
-                              </div>
-                            </DialogContent>
-                          </Dialog>
-                        ) : (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="w-full h-8 text-xs gap-1.5 opacity-50"
-                            disabled
-                          >
-                            <BookOpen className="h-3.5 w-3.5" />
-                            No Summary
-                          </Button>
-                        )}
-                      </div>
-                    </Card>
+                      book={book}
+                      getBookCoverUrl={getBookCoverUrl}
+                      onClick={() => navigateToBook(book.id)}
+                      variant="discussed"
+                    />
                   ))}
                 </div>
               )}
