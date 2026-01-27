@@ -67,7 +67,7 @@ import {
 import { AuthContext } from '@/contexts/authContext'
 import axios from 'axios'
 import Loading from '@/Loading'
-import BookComments from '@/components/bookhub/BookComments'
+import BookComments from './BookComments'
 import { toast } from 'sonner'
 
 const DEFAULT_BOOK_COVER = "/placeholder-book.png"
