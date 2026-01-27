@@ -79,7 +79,7 @@ const handleLogin = async (e) => {
   }
 };
 
-console.log(userLoggedIN);
+
 
   useEffect(() => {
  
