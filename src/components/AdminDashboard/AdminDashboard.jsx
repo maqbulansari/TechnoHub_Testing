@@ -533,7 +533,7 @@ const AdminDashboard = () => {
 
             <CardContent>
               <div className="h-72 flex justify-start">
-                <div className="w-full ">
+                <div className="w-full h-80 ">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart
                       data={batchStrengthData}
@@ -581,6 +581,7 @@ const AdminDashboard = () => {
                           <Cell
                             key={index}
                             fill={[
+                              "#2196F3",
                               "#2196F3",
                               "#2196F3",
                               "#2196F3",
@@ -684,7 +685,7 @@ const AdminDashboard = () => {
               <CardDescription>Students enrolled per technology</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="h-64">
+              <div className="h-[620px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={technologyData}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-border" />
@@ -696,7 +697,7 @@ const AdminDashboard = () => {
                       height={60}
                       className="text-muted-foreground"
                     />
-                    <YAxis className="text-muted-foreground" />
+                    <YAxis height={100} className="text-muted-foreground" />
                     <Tooltip content={<CustomTooltip />} />
                     <Bar dataKey="students" radius={[4, 4, 0, 0]}>
                       {technologyData.map((_, index) => (

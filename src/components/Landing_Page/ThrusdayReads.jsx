@@ -28,7 +28,7 @@ export const ThursdayReads = () => {
       {/* Content */}
       <div>
         <p className="text-primary font-semibold text-sm">
-          Thursday Reads · Current Book
+          Al Meezan · Current Book
         </p>
 
         <h3 className="text-3xl font-bold mt-2 mb-4 text-dark">
