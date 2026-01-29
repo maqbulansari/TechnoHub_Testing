@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Download, CheckCircle } from "lucide-react";
+import { Download, CheckCircle, Loader2, AlertCircle } from "lucide-react";
 
 const courses = [
   {
@@ -11,7 +11,8 @@ const courses = [
     description:
       "Industry-ready program covering Python, SQL, Django, React and Data Analytics with real-world projects.",
     logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg",
-    syllabusPdf: "/syllabus/python-react-fullstack.pdf",
+    syllabusPdf: "/syllabus/pythonreactsyllabus.pdf",
+    fileName: "Python-React-FullStack-Syllabus.pdf",
     highlights: [
       "Live Industry Projects",
       "Job-Oriented Curriculum",
@@ -48,7 +49,8 @@ const courses = [
     description:
       "Comprehensive AI & ML program covering Machine Learning, Deep Learning and Generative AI.",
     logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tensorflow/tensorflow-original.svg",
-    syllabusPdf: "/syllabus/ai-ml.pdf",
+    syllabusPdf: "/syllabus/aimlsyllabus.pdf",
+    fileName: "AI-ML-Syllabus.pdf",
     highlights: [
       "Hands-on ML & DL Projects",
       "Generative AI & LLMs",
@@ -74,7 +76,8 @@ const courses = [
     description:
       "Complete MERN stack course covering MongoDB, Express, React and Node.js.",
     logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg",
-    syllabusPdf: "/syllabus/mern.pdf",
+    syllabusPdf: "/syllabus/mernsyllabus.pdf",
+    fileName: "MERN-FullStack-Syllabus.pdf",
     highlights: [
       "Full Stack Projects",
       "REST APIs & JWT",
@@ -100,7 +103,8 @@ const courses = [
     description:
       "Enterprise-level Java full stack development using Spring Boot and SQL.",
     logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg",
-    syllabusPdf: "/syllabus/java-fullstack.pdf",
+    syllabusPdf: "/syllabus/javasyllabus.pdf",
+    fileName: "Java-FullStack-Syllabus.pdf",
     highlights: [
       "Spring Boot & Hibernate",
       "Enterprise Projects",
@@ -121,6 +125,45 @@ const courses = [
 ];
 
 const Courses = () => {
+  const [downloading, setDownloading] = useState(null);
+  const [error, setError] = useState(null);
+
+  const handleDownload = async (pdfUrl, fileName, courseId) => {
+    setDownloading(courseId);
+    setError(null);
+
+    try {
+      const response = await fetch(pdfUrl);
+
+      if (!response.ok) {
+        throw new Error("PDF file not found");
+      }
+
+      const blob = await response.blob();
+
+      // Create download link
+      const blobUrl = window.URL.createObjectURL(
+        new Blob([blob], { type: "application/pdf" })
+      );
+
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.setAttribute("download", fileName);
+      document.body.appendChild(link);
+      link.click();
+
+      // Cleanup
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (err) {
+      console.error("Download failed:", err);
+      setError(courseId);
+      alert("Download failed. Please try again.");
+    } finally {
+      setDownloading(null);
+    }
+  };
+
   return (
     <section className="bg-slate-50 pt-24 pb-24">
       <div className="max-w-5xl mx-auto px-6">
@@ -138,10 +181,7 @@ const Courses = () => {
         {/* Courses – one by one */}
         <div className="space-y-20 pt-0 mt-0">
           {courses.map((course) => (
-            <Card
-              key={course.id}
-              className="rounded-2xl border bg-white"
-            >
+            <Card key={course.id} className="rounded-2xl border bg-white">
               <CardContent className="p-10">
                 {/* Header */}
                 <div className="flex items-start gap-6">
@@ -197,7 +237,6 @@ const Courses = () => {
                 </div>
 
                 {/* Modules */}
-
                 <div className="mt-2">
                   <h3 className="text-[16px] font-semibold text-slate-900 mb-4">
                     Course Modules
@@ -205,19 +244,13 @@ const Courses = () => {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-10">
                     {course.modules.map((mod, i) => (
-                      <div
-                        key={i}
-                        className="pl-4 border-l border-slate-200"
-                      >
-                        {/* MODULE TITLE */}
-                        <div className="flex  items-center gap-2 mb-3">
-                        
+                      <div key={i} className="pl-4 border-l border-slate-200">
+                        <div className="flex items-center gap-2 mb-3">
                           <h4 className="text-[14px] mr-2 font-medium text-slate-800 whitespace-nowrap">
                             {mod.module}
                           </h4>
                         </div>
 
-                        {/* TOPICS */}
                         <ul className="ml-6 space-y-2 text-[14px] text-slate-600 leading-[1.6]">
                           {mod.topics.map((topic, j) => (
                             <li
@@ -231,21 +264,39 @@ const Courses = () => {
                         </ul>
                       </div>
                     ))}
-
                   </div>
                 </div>
 
-
                 {/* CTA */}
                 <div className="mt-12">
-                  <a
-                    href={course.syllabusPdf}
-                    download
-                    className="inline-flex items-center gap-2 text-[14px] font-medium text-blue-600 hover:underline whitespace-nowrap"
+                  <button
+                    onClick={() =>
+                      handleDownload(
+                        course.syllabusPdf,
+                        course.fileName,
+                        course.id
+                      )
+                    }
+                    disabled={downloading === course.id}
+                    className="inline-flex items-center gap-2 text-[14px] font-medium text-blue-600 hover:underline whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <Download className="w-4 h-4" />
-                    Download Full Syllabus
-                  </a>
+                    {downloading === course.id ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Downloading...
+                      </>
+                    ) : error === course.id ? (
+                      <>
+                        <AlertCircle className="w-4 h-4 text-red-500" />
+                        <span className="text-red-500">Retry Download</span>
+                      </>
+                    ) : (
+                      <>
+                        <Download className="w-4 h-4" />
+                        Download Full Syllabus
+                      </>
+                    )}
+                  </button>
                 </div>
               </CardContent>
             </Card>
