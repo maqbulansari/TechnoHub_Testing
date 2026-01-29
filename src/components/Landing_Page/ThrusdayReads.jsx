@@ -40,7 +40,7 @@ export const ThursdayReads = () => {
           </div>
 
           <div>
-            <div className="bg-light rounded-lg p-4 mb-3">
+            <div className="bg-light rounded-lg p-4 mb-2">
               <p
                 dir="rtl"
                 className="text-dark text-base leading-loose text-center"
