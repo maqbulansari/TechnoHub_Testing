@@ -91,10 +91,10 @@ export const Landing_page = () => {
       <Section>
         <div id="trainers" className="scroll-mt-[90px]">
           <SectionHeading
-            title="Meet Our Expert"
+            title="Meet Our Expert Trainers"
             subtitle="Learn from industry leaders."
           >
-            <AnimatedWord words={["Trainers", "Developers"]} />
+            {/* <AnimatedWord words={["Trainers", "Trainers"]} /> */}
           </SectionHeading>
 
           <Testimonials />
