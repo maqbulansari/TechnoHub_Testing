@@ -23,8 +23,11 @@ const courses = [
         module: "Python Programming",
         topics: [
           "Core Python & OOP",
-          "File Handling & Exception Handling",
-          "Regex, Decorators, Generators",
+          "File Handling ",
+          "Exception Handling",
+          "Regex",
+          "Decorators",
+          "Generators",
         ],
       },
       {
@@ -160,10 +163,10 @@ const Courses = () => {
                     {/* Meta */}
                     <div className="flex flex-wrap gap-6 mt-4 text-[13px] text-slate-700">
                       <span className="whitespace-nowrap">
-                        ⏱ {course.duration}
+                        {course.duration}
                       </span>
                       <span className="whitespace-nowrap">
-                        🎓 {course.level}
+                         {course.level}
                       </span>
                     </div>
                   </div>

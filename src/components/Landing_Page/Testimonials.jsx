@@ -1,14 +1,15 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import image1 from "../../assets/images/trainers/trainer1.jpg";
-import image2 from "../../assets/images/trainers/trainer2.jpg";
-import image3 from "../../assets/images/trainers/trainer3.jpg";
-import image4 from "../../assets/images/trainers/trainer4.jpg";
+import image1 from "../../assets/images/trainers/Trainer1.jpg";
+import image2 from "../../assets/images/trainers/Trainer2.jpg";
+import image3 from "../../assets/images/trainers/Trainer3.jpg";
+import image4 from "../../assets/images/trainers/Trainer4.jpg";
+import image5 from "../../assets/images/trainers/Trainer5.jpg";
 
 const team = [
   {
     name: "Toseef Ali",
-    role: "Backend Developer & Co-Trainer",
+    role: "Co-Trainer",
     description: "Backend expert with focus on databases and APIs.",
     image: image2,
     qualification: "BCA 2nd Year",
@@ -74,9 +75,9 @@ const team = [
   },
   {
     name: "Imad Baig",
-    role: "Frontend Developer & Trainer",
+    role: " Python Full Stack &Frontend Trainer",
     description: "Focused on modern UI, UX, and frontend performance.",
-    image: "https://cdn-icons-png.flaticon.com/512/3567/3567769.png",
+  image: image5,
     qualification: "BCA 1st Year",
     batchesTaken: 2,
     studentsTrained: 18,

@@ -15,12 +15,14 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
+  DialogOverlay,
 } from "@/components/ui/dialog";
+
 import { Button } from "@/components/ui/button";
 
 export default function Hero() {
   const navigate = useNavigate();
-  const images = [image1, image2, image3, image4, image5];
+  const images = [image5, image1, image2, image3, image4];
   const [current, setCurrent] = useState(0);
   const [openCenters, setOpenCenters] = useState(false);
 
@@ -102,6 +104,8 @@ export default function Hero() {
       </section>
 
       <Dialog open={openCenters} onOpenChange={setOpenCenters}>
+       <div className="bg-black bg-opacity-50" >
+
   <DialogContent
     className="
       w-[95%] sm:w-[80%] md:w-[60%] lg:w-[45%] xl:w-[40%]
@@ -111,6 +115,7 @@ export default function Hero() {
       overflow-hidden
       flex flex-col
       bg-white
+      [&>button]:hidden
     "
   >
     {/* Header */}
@@ -189,6 +194,7 @@ export default function Hero() {
       </Button>
     </div>
   </DialogContent>
+  </div>
 </Dialog>
 
     </>
