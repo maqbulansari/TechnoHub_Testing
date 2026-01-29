@@ -7,7 +7,7 @@ import image3 from "../../assets/images/carousel/carousel7.jpg";
 import image4 from "../../assets/images/carousel/carousel9.jpg";
 import image5 from "../../assets/images/carousel/carousel17.jpeg";
 import { useNavigate } from "react-router-dom";
-import { MapPin } from "lucide-react";
+import { ChevronRight, MapPin, Phone } from "lucide-react";
 
 import {
   Dialog,
@@ -43,7 +43,7 @@ export default function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7 }}
           >
-            <h1 className="text-[32px] sm:text-[42px] lg:text-[52px] font-extrabold text-text leading-snug">
+            <h1 className="text-[32px] sm:text-[42px] lg:text-[52px] leading-tight font-extrabold text-text">
               A Community of <br className="hidden sm:block" />
               <span className="text-primary">Learners & Enablers</span>
             </h1>
@@ -52,12 +52,13 @@ export default function Hero() {
             <p className="mt-4 max-w-lg text-muted text-base sm:text-md leading-relaxed">
               Educationists, technologists, and industry leaders using
               technology to elevate and integrate Muslims globally.
-            </p>
-
-            <p className="mt-3 max-w-lg text-muted text-sm sm:text-base">
               Building ethical and competent young Muslims who learn technology
               deeply and use it to uplift others.
             </p>
+
+            {/* <p className="mt-3 max-w-lg text-muted text-sm sm:text-base">
+             
+            </p> */}
 
             <p className="mt-4 max-w-lg text-sm italic text-muted-foreground">
               لَمْ تَرَ كَيْفَ ضَرَبَ ٱللَّهُ مَثَلًۭا كَلِمَةًۭ طَيِّبَةًۭ كَشَجَرَةٍۢ
@@ -100,69 +101,122 @@ export default function Hero() {
         </div>
       </section>
 
-      {/* Centers Modal */}
       <Dialog open={openCenters} onOpenChange={setOpenCenters}>
         <DialogContent
           className="
-            w-[90%] 
-            sm:w-[70%] 
-            md:w-[50%] 
-            lg:w-[35%] 
-            max-h-[80vh] 
-            rounded-2xl 
-            p-4 
-            overflow-hidden
-          "
-          backdropClassName="bg-transparent"
+      w-[95%]
+      sm:w-[85%]
+      md:w-[65%]
+      lg:w-[45%]
+      xl:w-[38%]
+      max-w-xl
+      max-h-[85vh]
+      rounded-2xl
+      p-0
+      mt-4
+      overflow-hidden
+      shadow-xl
+    "
         >
-          <div className="flex flex-col h-auto">
+          <div className="flex flex-col h-full">
 
             {/* Header */}
-            <DialogHeader className="px-4 pt-6 pb-2 text-center border-b">
+            <DialogHeader className="px-6 pt-6 pb-4 text-center border-b">
               <DialogTitle className="text-xl sm:text-2xl font-bold">
                 Our Training Centers
               </DialogTitle>
-              <DialogDescription className="text-sm mt-1 text-muted-foreground">
+              <DialogDescription className="text-sm mt-2 max-w-sm mx-auto">
                 Choose the nearest center and start learning with us.
               </DialogDescription>
             </DialogHeader>
 
-            {/* Scrollable Content */}
-            <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
-              {[
-                { name: "AllSaints", address: "Airport Road, Bhopal" },
-                { name: "LGS", address: "VIP Road, Bhopal" },
-                { name: "Mecaps", address: "Near Moti Masjid, Bhopal" },
-              ].map((center, index) => (
-                <div
-                  key={index}
-                  className="flex items-start gap-3 p-4 rounded-lg border hover:shadow-md transition"
-                >
-                  <MapPin className="text-primary mt-1" size={20} />
-                  <div>
-                    <h3 className="font-semibold text-sm sm:text-base">
-                      {center.name}
-                    </h3>
-                    <p className="text-xs sm:text-sm text-muted-foreground">
-                      {center.address}
-                    </p>
-                  </div>
-                </div>
-              ))}
+            {/* Scroll Area */}
+            <div className="flex-1 overflow-y-auto px-4 py-4">
+              <div className="space-y-3">
+                {[
+                  {
+                    name: "AllSaints",
+                    address: "Airport Road, Bhopal",
+                    phone: "+91 98765 43210",
+                  },
+                  {
+                    name: "LGS",
+                    address: "VIP Road, Bhopal",
+                    phone: "+91 98765 43211",
+                  },
+                  {
+                    name: "Mecaps",
+                    address: "Near Moti Masjid, Bhopal",
+                    phone: "+91 98765 43212",
+                  },
+                ].map((center, index) => (
+            <div
+  key={index}
+  className="
+    flex items-center
+    justify-between
+    px-4
+    py-3
+    rounded-xl
+    border
+    bg-white
+  "
+>
+  {/* Pill (NOT flex-1) */}
+  <div className="
+    w-full
+    max-w-[260px]
+    h-11
+    rounded-full
+    bg-muted
+    flex items-center justify-center
+  ">
+    <MapPin size={16} className="text-primary" />
+  </div>
+
+  {/* Right side */}
+  <div className="
+    flex items-center
+    gap-3
+    ml-4
+    flex-shrink-0
+  ">
+    <span className="
+      text-sm
+      text-muted-foreground
+      whitespace-nowrap
+    ">
+      {center.phone}
+    </span>
+
+    <ChevronRight
+      size={18}
+      className="text-muted-foreground"
+    />
+  </div>
+</div>
+
+
+
+
+                ))}
+              </div>
             </div>
 
             {/* Footer */}
-            <div className="px-4 py-3 border-t flex justify-center">
+            <div className="px-6 py-4 border-t bg-muted/30">
               <Button
-                className="px-8 sm:px-10 rounded-full"
+                className="w-full rounded-full py-2.5 text-base"
                 onClick={() => setOpenCenters(false)}
               >
                 Close
               </Button>
             </div>
+
           </div>
         </DialogContent>
       </Dialog>
+
     </>
   );
 }
