@@ -2,86 +2,88 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 
 export const ThursdayReads = () => {
-  const Navigate = useNavigate()
-  
-  return(
-  <div className="max-w-6xl mx-auto px-6">
-    <motion.div
-      initial={{ opacity: 0, y: 32 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-120px" }}
-      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-      className="bg-white rounded-lg  border border-gray-200 p-10 grid md:grid-cols-2 gap-12"
-    >
-      {/* Book Image */}
-      <div className="bg-light rounded-lg p-4 sm:p-6">
-        <motion.img
-          src="https://m.media-amazon.com/images/I/7111-QqvNCL.jpg"
-          alt="Amusing Ourselves to Death"
-          className="max-h-[260px] sm:max-h-[320px] md:max-h-[620px] w-auto object-contain mx-auto"
-          initial={{ opacity: 0, scale: 0.96 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-        />
-      </div>
+  const navigate = useNavigate();
 
+  return (
+    <div className="max-w-6xl mx-auto px-6">
+      <motion.div
+        initial={{ opacity: 0, y: 32 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-120px" }}
+        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        className="bg-white rounded-xl border border-gray-200 p-10"
+      >
+        {/* ===== Top Section : Readers' Hub ===== */}
+        <div className="grid md:grid-cols-2 gap-12 items-start">
+          <div>
+            <h4 className="text-2xl font-bold text-dark mb-3">
+              Al Meezan Readers’ Hub
+            </h4>
 
-      {/* Content */}
-      <div>
-        <p className="text-primary font-semibold text-sm">
-          Al Meezan · Current Book
-        </p>
-
-        <h3 className="text-3xl font-bold mt-2 mb-4 text-dark">
-          Amusing Ourselves to Death
-        </h3>
-
-        <p className="text-gray-600 mb-6 leading-relaxed">
-          We are currently finishing <b>Part One</b> of Neil Postman’s
-          thought-provoking book, which explores how modern media and
-          entertainment shape public discourse and dilute serious thinking.
-          <br></br>
-          We are concluding Part One of Neil Postman’s Amusing Ourselves to Death, 
-          which examines how modern media prioritizes entertainment over serious public discourse.
-          In the foreword, Postman’s son reflects on the book’s continued relevance, 
-          arguing that college students—immersed in screens, constant media, 
-          and multitasking—are best positioned to judge its impact.
-          Many students find the book strikingly accurate, noting how news, politics,
-          education, and religion are increasingly shaped by entertainment,
-          shortening attention spans and discouraging deep thinking.
-          Classroom experiences such as “media fasts” further highlight society’s
-          dependence on technology. The author concludes that the book remains relevant,
-          echoing Aldous Huxley’s warning that freedom may be undermined not through force, 
-          but through distraction, pleasure, and technological excess.
-        </p>
-
-        <h4 className="font-semibold  text-dark">
-          Community Discussion
-        </h4>
-
-        {/* <div className="space-y-4">
-          <div className="bg-light p-4 rounded-md text-sm">
-            <b>Alina</b> — The contrast between print culture and television
-            culture was eye-opening.
+            <p className="text-gray-600 text-sm leading-relaxed">
+              An effort to cultivate intellectual balance. While engaging deeply
+              with modern technology, we seek clarity, restraint, and
+              <b> Baseera</b>—the vision to see beyond surface realities.
+            </p>
           </div>
 
-          <div className="bg-light p-4 rounded-md text-sm">
-            <b>Ben</b> — This explains so much about social media today.
+          <div>
+            <div className="bg-light rounded-lg p-4 mb-3">
+              <p
+                dir="rtl"
+                className="text-dark text-base leading-loose text-center"
+              >
+                مَثَلُ كَلِمَةٍ طَيِّبَةٍ كَشَجَرَةٍ طَيِّبَةٍ أَصْلُهَا ثَابِتٌ
+                وَفَرْعُهَا فِي السَّمَاءِ
+              </p>
+            </div>
+
+            <p className="text-gray-600 text-sm text-center">
+              As we grow stronger in the worldly realm, we aspire to rise closer
+              to our Creator.
+            </p>
+          </div>
+        </div>
+
+        {/* ===== Divider ===== */}
+        <div className="my-14 mt-4 border-t border-gray-200" />
+
+        {/* ===== Bottom Section : Book ===== */}
+        <div className="grid md:grid-cols-2 gap-12">
+          {/* Book Image (UNCHANGED) */}
+          <div className="bg-light rounded-lg p-4 sm:p-6">
+            <motion.img
+              src="https://m.media-amazon.com/images/I/7111-QqvNCL.jpg"
+              alt="Amusing Ourselves to Death"
+              className="max-h-[260px] sm:max-h-[320px] md:max-h-[620px] w-auto object-contain mx-auto"
+              initial={{ opacity: 0, scale: 0.96 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+            />
           </div>
 
-          <div className="bg-light p-4 rounded-md text-sm">
-            <b>Rahul</b> — Curious to see how Part Two builds on this.
-          </div>
-        </div> */}
+          {/* Book Content */}
+          <div>
+            <p className="text-primary font-semibold text-sm">
+              Al Meezan · Current Read
+            </p>
 
-        <motion.a
-        onClick={()=>Navigate("/Bookhub/Home")}
-          whileHover={{ x: 4 }}
-          transition={{ duration: 0.25, ease: "easeOut" }}
-          className="inline-block mt-3 text-primary font-semibold cursor-pointer"
-        >
-          Join the discussion →
-        </motion.a>
-      </div>
-    </motion.div>
-  </div>
-);}
+            <h3 className="text-3xl font-bold mt-2 mb-4 text-dark">
+              Amusing Ourselves to Death
+            </h3>
+
+            <p className="text-gray-600 leading-relaxed mb-4 text-md">
+              We are finishing Part One of Neil Postman’s Amusing Ourselves to Death, which shows how modern media favors entertainment over serious public discourse. Postman’s son notes the book’s relevance today, especially for students immersed in screens and constant media. Many find it accurate in highlighting how news, politics, education, and religion are shaped by entertainment, shortening attention spans and discouraging deep thinking. Classroom activities like “media fasts” emphasize society’s dependence on technology, echoing Huxley’s warning that freedom can be lost through distraction and pleasure rather than force.
+            </p>
+
+            <button
+              onClick={() => navigate("/Bookhub/Home")}
+              className="text-primary font-semibold text-md hover:underline"
+            >
+              Join the discussion →
+            </button>
+          </div>
+        </div>
+      </motion.div>
+    </div>
+  );
+};

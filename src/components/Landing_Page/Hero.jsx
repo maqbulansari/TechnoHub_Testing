@@ -63,7 +63,7 @@ export default function Hero() {
             </p> */}
 
             <p className="mt-4 max-w-lg text-sm italic text-muted-foreground">
-              لَمْ تَرَ كَيْفَ ضَرَبَ ٱللَّهُ مَثَلًۭا كَلِمَةًۭ طَيِّبَةًۭ كَشَجَرَةٍۢ
+              أَلَمْ تَرَ كَيْفَ ضَرَبَ اللَّهُ مَثَلًا كَلِمَةً طَيِّبَةً كَشَجَرَةٍ 
               <br />
               <span className="not-italic text-xs">
                 A good word is like a good tree — firmly rooted, reaching the skies.
