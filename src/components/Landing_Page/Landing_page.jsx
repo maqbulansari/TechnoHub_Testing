@@ -116,7 +116,7 @@ export const Landing_page = () => {
       <Section gray>
         <div id="reads" className="scroll-mt-[90px]">
           <SectionHeading
-            title="Thursday Reads"
+            title="Al Meezan Reader's Hub"
             subtitle="Join the discussion every week."
           />
           <ThursdayReads />

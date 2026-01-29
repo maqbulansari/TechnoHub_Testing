@@ -129,7 +129,7 @@ const { count ,fetchCount} = useContext(NotificationContext);
                 <a href="#trainers">Trainers</a>
                 <a href="#tech">Technologies</a>
                 <a href="#gallery">Gallery</a>
-                <a href="#reads">Thursday Reads</a>
+                <a href="#reads">Al Meezan</a>
               </nav>
             )}
 

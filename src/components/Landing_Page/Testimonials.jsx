@@ -1,86 +1,102 @@
 import { motion } from "framer-motion";
 
-const trainers = [
+const team = [
   {
-    name: "Dr. Evelyn Reed",
-    role: "AI & Machine Learning",
-    desc: "12+ years of experience in data science.",
-    img: "https://randomuser.me/api/portraits/women/44.jpg",
+    name: "Arsalan Ahmed",
+    role: "MERN Stack Trainer",
+    description: "Expert in building scalable full-stack applications using MERN.",
+    image:
+      "https://cdn-icons-png.flaticon.com/512/3567/3567769.png",
   },
   {
-    name: "Marcus Chen",
-    role: "Full-Stack Development",
-    desc: "Expert in modern web frameworks.",
-    img: "https://randomuser.me/api/portraits/men/32.jpg",
+    name: "Farha Alam",
+    role: "Python Full Stack & Data Analytics Trainer",
+    description: "Specialist in Python, data analysis, and backend systems.",
+    image:
+      "https://cdn-icons-png.flaticon.com/512/3567/3567769.png",
   },
   {
-    name: "Isabelle Rossi",
-    role: "UX/UI Design",
-    desc: "Award-winning designer.",
-    img: "https://randomuser.me/api/portraits/women/65.jpg",
+    name: "Imad Baig",
+    role: "Frontend Developer & Trainer",
+    description: "Focused on modern UI, UX, and frontend performance.",
+    image:
+        "https://cdn-icons-png.flaticon.com/512/3567/3567769.png",
   },
   {
-    name: "Leo Kim",
-    role: "Cybersecurity",
-    desc: "Certified ethical hacker.",
-    img: "https://randomuser.me/api/portraits/men/45.jpg",
+    name: "Maisara Waseem",
+    role: "Data Science & AI Trainer",
+    description: "Passionate about AI models and data-driven solutions.",
+    image:
+      "https://cdn-icons-png.flaticon.com/512/3567/3567769.png",
+  },
+  {
+    name: "Mohammad Ibrahim",
+    role: "AI & ML Trainer",
+    description: "Experienced in machine learning and real-world AI use cases.",
+    image:
+      "https://cdn-icons-png.flaticon.com/512/3567/3567769.png",
+  },
+  {
+    name: "MD Musa Alam",
+    role: "Java Full Stack Trainer",
+    description: "Strong background in Java, Spring Boot, and APIs.",
+    image:
+      "https://cdn-icons-png.flaticon.com/512/3567/3567769.png",
+  },
+  {
+    name: "Subhana Maroof",
+    role: "Python & Full Stack Trainer",
+    description: "Hands-on experience in full-stack Python development.",
+    image:
+      "https://cdn-icons-png.flaticon.com/512/3567/3567769.png",
+  },
+  {
+    name: "Toseef Ali",
+    role: "Backend Developer & Co-Trainer",
+    description: "Backend expert with focus on databases and APIs.",
+    image:
+      "https://cdn-icons-png.flaticon.com/512/3567/3567769.png",
   },
 ];
 
-export const Testimonials = () => (
-  <div
-    className="
-      grid
-      grid-cols-1
-      sm:grid-cols-2
-      md:grid-cols-4
-      gap-6
-      max-w-7xl
-      mx-auto
-      px-4 sm:px-6
-    "
-  >
-    {trainers.map((t) => (
+export const Testimonials = () => {
+  return (
+    <section className="w-full overflow-hidden py-14">
       <motion.div
-        key={t.name}
-        whileHover={{ y: -6 }}
-        transition={{ type: "spring", stiffness: 280, damping: 22 }}
-        className="
-          bg-white
-          rounded-lg
-          border
-          border-gray-200
-          pt-6
-          pb-10
-          px-5
-          text-center
-          w-full
-          max-w-[240px]
-          mx-auto
-        "
+        className="flex gap-6 w-max px-6"
+        animate={{ x: ["0%", "-50%"] }}
+        transition={{
+          repeat: Infinity,
+          ease: "linear",
+          duration: 45, 
+        }}
       >
-        {/* Avatar */}
-        <img
-          src={t.img}
-          alt={t.name}
-          className="w-16 h-16 mx-auto rounded-full mb-5 object-cover"
-        />
+        {[...team, ...team].map((member, index) => (
+          <motion.div
+            key={index}
+            whileHover={{ y: -8 }}
+            className="w-[260px] flex-shrink-0 bg-white border rounded-2xl p-6 text-center shadow-sm hover:shadow-lg transition-all duration-300"
+          >
+            <img
+              src={member.image}
+              alt={member.name}
+              className="w-24 h-24 mx-auto  rounded-full object-cover mb-4"
+            />
 
-        {/* Name */}
-        <h4 className="text-sm font-semibold text-dark leading-tight">
-          {t.name}
-        </h4>
+            <h3 className="text-sm font-semibold text-gray-900">
+              {member.name}
+            </h3>
 
-        {/* Role */}
-        <p className="text-primary text-xs font-medium mt-1">
-          {t.role}
-        </p>
+            <p className="text-primary text-xs font-medium mt-1">
+              {member.role}
+            </p>
 
-        {/* Description */}
-        <p className="mt-4 text-xs text-gray-600 leading-relaxed">
-          {t.desc}
-        </p>
+            <p className="text-xs text-gray-600 mt-3 leading-relaxed line-clamp-2">
+              {member.description}
+            </p>
+          </motion.div>
+        ))}
       </motion.div>
-    ))}
-  </div>
-);
+    </section>
+  );
+};
