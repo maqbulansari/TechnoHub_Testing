@@ -1,8 +1,15 @@
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export const ThursdayReads = () => {
   const navigate = useNavigate();
+  const [hasToken, setHasToken] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    setHasToken(!!token); // true if token exists
+  }, []);
 
   return (
     <div className="max-w-6xl mx-auto px-6">
@@ -17,13 +24,23 @@ export const ThursdayReads = () => {
         <div className="grid md:grid-cols-2 gap-12 items-start">
           <div>
             <h4 className="text-2xl font-bold text-dark mb-3">
-              Al Meezan Readers’ Hub
+              ِﺳْﺧُ ﺗ
+              ﻻَ و
+              نا َزﯾِﻣ ْ ﻟا
+
             </h4>
 
             <p className="text-gray-600 text-sm leading-relaxed">
-              An effort to cultivate intellectual balance. While engaging deeply
-              with modern technology, we seek clarity, restraint, and
-              <b> Baseera</b>—the vision to see beyond surface realities.
+
+              Al Meezan  Readers' Hub is an attempt to attain an intellectual
+              balance !
+              As we get our roots get our roots deep and firm through technology,
+              which today is predominantly produced by the West, we don't want to
+              play naive and import the liberal intellectual infrastructure too into the
+              minds of our youth and hence we dream of  a vibrant community of
+              competent technocrats who are well versed not on in technology but
+              also possess  the ability, the vision<b> Baseera</b> to penetrate through the
+              outward reality and see things for what they really are.
             </p>
           </div>
 
@@ -33,14 +50,13 @@ export const ThursdayReads = () => {
                 dir="rtl"
                 className="text-dark text-base leading-loose text-center"
               >
-                مَثَلُ كَلِمَةٍ طَيِّبَةٍ كَشَجَرَةٍ طَيِّبَةٍ أَصْلُهَا ثَابِتٌ
-                وَفَرْعُهَا فِي السَّمَاءِ
+                أَلَمْ تَرَ كَيْفَ ضَرَبَ اللَّهُ مَثَلًا كَلِمَةً طَيِّبَةً كَشَجَرَةٍ طَيِّبَةٍ أَصْلُهَا ثَابِتٌ وَفَرْعُهَا فِي السَّمَاءِ
               </p>
             </div>
 
             <p className="text-gray-600 text-sm text-center">
-              As we grow stronger in the worldly realm, we aspire to rise closer
-              to our Creator.
+             AS we do deeper and stronger in the 'worldly' , we want to go higher 
+and closer to our Creator  
             </p>
           </div>
         </div>
@@ -76,12 +92,14 @@ export const ThursdayReads = () => {
               We are finishing Part One of Neil Postman’s Amusing Ourselves to Death, which shows how modern media favors entertainment over serious public discourse. Postman’s son notes the book’s relevance today, especially for students immersed in screens and constant media. Many find it accurate in highlighting how news, politics, education, and religion are shaped by entertainment, shortening attention spans and discouraging deep thinking. Classroom activities like “media fasts” emphasize society’s dependence on technology, echoing Huxley’s warning that freedom can be lost through distraction and pleasure rather than force.
             </p>
 
-            <button
-              onClick={() => navigate("/Bookhub/Home")}
-              className="text-primary font-semibold text-md hover:underline"
-            >
-              Join the discussion →
-            </button>
+            {hasToken && (
+              <button
+                onClick={() => navigate("/Bookhub/Home")}
+                className="text-primary font-semibold text-md hover:underline"
+              >
+                Join the discussion →
+              </button>
+            )}
           </div>
         </div>
       </motion.div>

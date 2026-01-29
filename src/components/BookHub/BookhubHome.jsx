@@ -493,15 +493,18 @@ export const BookhubHome = () => {
   // Error state
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <AlertCircle className="h-12 w-12 text-red-500 mx-auto" />
-          <p className="text-red-500">{error}</p>
-          <Button onClick={() => window.location.reload()}>
-            Try Again
-          </Button>
-        </div>
-      </div>
+     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
+  <div className="text-center space-y-4">
+    <AlertCircle className="h-12 w-12 mx-auto" />
+    <p className="text-gray-600 font-semibold text-lg">
+      You need to login first
+    </p>
+    <Button onClick={() => window.location.href = "/login3"}>
+      Go to Login
+    </Button>
+  </div>
+</div>
+
     )
   }
 
