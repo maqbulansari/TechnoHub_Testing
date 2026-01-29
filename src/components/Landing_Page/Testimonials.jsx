@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import image1 from "../../assets/images/trainers/Trainer1.jpg";
-import image2 from "../../assets/images/trainers/Trainer2.jpg";
-import image3 from "../../assets/images/trainers/Trainer3.jpg";
-import image4 from "../../assets/images/trainers/Trainer4.jpg";
+import image1 from "../../assets/images/trainers/trainer1.jpg";
+import image2 from "../../assets/images/trainers/trainer2.jpg";
+import image3 from "../../assets/images/trainers/trainer3.jpg";
+import image4 from "../../assets/images/trainers/trainer4.jpg";
 
 const team = [
   {
