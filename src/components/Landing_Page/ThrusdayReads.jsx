@@ -23,12 +23,7 @@ export const ThursdayReads = () => {
         {/* ===== Top Section : Readers' Hub ===== */}
         <div className="grid md:grid-cols-2 gap-12 items-start">
           <div>
-            <h4 className="text-2xl font-bold text-dark mb-3">
-              ِﺳْﺧُ ﺗ
-              ﻻَ و
-              نا َزﯾِﻣ ْ ﻟا
-
-            </h4>
+          
 
             <p className="text-gray-600 text-sm leading-relaxed">
 
@@ -55,7 +50,7 @@ export const ThursdayReads = () => {
             </div>
 
             <p className="text-gray-600 text-sm text-center">
-             AS we do deeper and stronger in the 'worldly' , we want to go higher 
+             As we do deeper and stronger in the <b>worldly</b>, we want to go higher 
 and closer to our Creator  
             </p>
           </div>
