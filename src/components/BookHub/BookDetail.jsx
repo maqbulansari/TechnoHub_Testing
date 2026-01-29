@@ -801,7 +801,7 @@ const BookDetail = () => {
                               key={contributor.id}
                               className="flex items-center gap-3"
                             >
-                              <div className="h-8 w-8 min-w-[32px] min-h-[32px] rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                              <div className=" min-w-[32px] min-h-[32px] rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                                 <User className="h-4 w-4 text-primary" />
                               </div>
                               <div className="flex-1 min-w-0">
