@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import AnimatedButton from "../ui/AnimatedButton";
 import image1 from "../../assets/images/carousel/carousel8.jpg";
-import image2 from "../../assets/images/carousel/carousel6.jpg";
+import image2 from "../../assets/images/carousel/carousel15.jpg";
 import image3 from "../../assets/images/carousel/carousel7.jpg";
 import image4 from "../../assets/images/carousel/carousel9.jpg";
 import image5 from "../../assets/images/carousel/carousel17.jpeg";
@@ -22,7 +22,7 @@ import { Button } from "@/components/ui/button";
 
 export default function Hero() {
   const navigate = useNavigate();
-  const images = [image5, image1, image2, image3, image4];
+  const images = [image5, image2, image1, image4, image3];
   const [current, setCurrent] = useState(0);
   const [openCenters, setOpenCenters] = useState(false);
 
