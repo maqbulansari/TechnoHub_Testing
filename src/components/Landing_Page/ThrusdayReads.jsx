@@ -39,13 +39,26 @@ export const ThursdayReads = () => {
           We are currently finishing <b>Part One</b> of Neil Postman’s
           thought-provoking book, which explores how modern media and
           entertainment shape public discourse and dilute serious thinking.
+          <br></br>
+          We are concluding Part One of Neil Postman’s Amusing Ourselves to Death, 
+          which examines how modern media prioritizes entertainment over serious public discourse.
+          In the foreword, Postman’s son reflects on the book’s continued relevance, 
+          arguing that college students—immersed in screens, constant media, 
+          and multitasking—are best positioned to judge its impact.
+          Many students find the book strikingly accurate, noting how news, politics,
+          education, and religion are increasingly shaped by entertainment,
+          shortening attention spans and discouraging deep thinking.
+          Classroom experiences such as “media fasts” further highlight society’s
+          dependence on technology. The author concludes that the book remains relevant,
+          echoing Aldous Huxley’s warning that freedom may be undermined not through force, 
+          but through distraction, pleasure, and technological excess.
         </p>
 
-        <h4 className="font-semibold mb-4 text-dark">
-          Community Discussion (3)
+        <h4 className="font-semibold  text-dark">
+          Community Discussion
         </h4>
 
-        <div className="space-y-4">
+        {/* <div className="space-y-4">
           <div className="bg-light p-4 rounded-md text-sm">
             <b>Alina</b> — The contrast between print culture and television
             culture was eye-opening.
@@ -58,13 +71,13 @@ export const ThursdayReads = () => {
           <div className="bg-light p-4 rounded-md text-sm">
             <b>Rahul</b> — Curious to see how Part Two builds on this.
           </div>
-        </div>
+        </div> */}
 
         <motion.a
         onClick={()=>Navigate("/Bookhub/Home")}
           whileHover={{ x: 4 }}
           transition={{ duration: 0.25, ease: "easeOut" }}
-          className="inline-block mt-6 text-primary font-semibold cursor-pointer"
+          className="inline-block mt-3 text-primary font-semibold cursor-pointer"
         >
           Join the discussion →
         </motion.a>
