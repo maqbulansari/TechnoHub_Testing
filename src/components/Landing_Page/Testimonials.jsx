@@ -1,12 +1,15 @@
 import { motion } from "framer-motion";
+import image1 from "../../assets/images/trainers/Trainer1.jpg";
+import image2 from "../../assets/images/trainers/Trainer2.jpg";
+import image3 from "../../assets/images/trainers/Trainer3.jpg"; 
+import image4 from "../../assets/images/trainers/Trainer4.jpg";
 
 const team = [
   {
     name: "Arsalan Ahmed",
     role: "MERN Stack Trainer",
     description: "Expert in building scalable full-stack applications using MERN.",
-    image:
-      "https://cdn-icons-png.flaticon.com/512/3567/3567769.png",
+    image: image3,
   },
   {
     name: "Farha Alam",
@@ -33,15 +36,13 @@ const team = [
     name: "Mohammad Ibrahim",
     role: "AI & ML Trainer",
     description: "Experienced in machine learning and real-world AI use cases.",
-    image:
-      "https://cdn-icons-png.flaticon.com/512/3567/3567769.png",
+   image: image4,
   },
   {
     name: "MD Musa Alam",
     role: "Java Full Stack Trainer",
     description: "Strong background in Java, Spring Boot, and APIs.",
-    image:
-      "https://cdn-icons-png.flaticon.com/512/3567/3567769.png",
+    image: image1,
   },
   {
     name: "Subhana Maroof",
@@ -54,12 +55,12 @@ const team = [
     name: "Toseef Ali",
     role: "Backend Developer & Co-Trainer",
     description: "Backend expert with focus on databases and APIs.",
-    image:
-      "https://cdn-icons-png.flaticon.com/512/3567/3567769.png",
+    image: image2,
   },
 ];
 
 export const Testimonials = () => {
+
   return (
     <section className="w-full overflow-hidden py-14">
       <motion.div
