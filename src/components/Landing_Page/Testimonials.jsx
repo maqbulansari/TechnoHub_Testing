@@ -69,7 +69,7 @@ export const Testimonials = () => {
         transition={{
           repeat: Infinity,
           ease: "linear",
-          duration: 45, 
+          duration: 60, 
         }}
       >
         {[...team, ...team].map((member, index) => (
