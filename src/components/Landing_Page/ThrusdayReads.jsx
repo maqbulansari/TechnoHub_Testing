@@ -55,10 +55,11 @@ export const ThursdayReads = () => {
             <motion.img
               src="https://m.media-amazon.com/images/I/7111-QqvNCL.jpg"
               alt="Amusing Ourselves to Death"
-              className="max-h-[260px] sm:max-h-[320px] md:max-h-[620px] w-auto object-contain mx-auto"
+              className="max-h-[180px] sm:max-h-[220px] md:max-h-[400px] w-auto object-contain mx-auto"
               initial={{ opacity: 0, scale: 0.96 }}
               whileInView={{ opacity: 1, scale: 1 }}
             />
+
           </div>
 
           {/* Book Content */}
