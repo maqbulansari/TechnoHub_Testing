@@ -102,120 +102,94 @@ export default function Hero() {
       </section>
 
       <Dialog open={openCenters} onOpenChange={setOpenCenters}>
-        <DialogContent
-          className="
-      w-[95%]
-      sm:w-[85%]
-      md:w-[65%]
-      lg:w-[45%]
-      xl:w-[38%]
-      max-w-xl
-      max-h-[85vh]
-      rounded-2xl
-      p-0
-      mt-4
+  <DialogContent
+    className="
+      w-[95%] sm:w-[80%] md:w-[60%] lg:w-[45%] xl:w-[40%]
+      max-h-[85vh] 
+      rounded-3xl 
+      p-0 
       overflow-hidden
-      shadow-xl
+      flex flex-col
+      bg-white
     "
-        >
-          <div className="flex flex-col h-full">
+  >
+    {/* Header */}
+    <DialogHeader className="px-6 pt-6 pb-4 text-center border-b">
+      <DialogTitle className="text-xl sm:text-2xl font-bold">
+        Our Training Centers
+      </DialogTitle>
+      <DialogDescription className="text-sm mt-2 max-w-sm mx-auto text-muted-foreground">
+        Choose the nearest center and start learning with us.
+      </DialogDescription>
+    </DialogHeader>
 
-            {/* Header */}
-            <DialogHeader className="px-6 pt-6 pb-4 text-center border-b">
-              <DialogTitle className="text-xl sm:text-2xl font-bold">
-                Our Training Centers
-              </DialogTitle>
-              <DialogDescription className="text-sm mt-2 max-w-sm mx-auto">
-                Choose the nearest center and start learning with us.
-              </DialogDescription>
-            </DialogHeader>
-
-            {/* Scroll Area */}
-            <div className="flex-1 overflow-y-auto px-4 py-4">
-              <div className="space-y-3">
-                {[
-                  {
-                    name: "AllSaints",
-                    address: "Airport Road, Bhopal",
-                    phone: "+91 98765 43210",
-                  },
-                  {
-                    name: "LGS",
-                    address: "VIP Road, Bhopal",
-                    phone: "+91 98765 43211",
-                  },
-                  {
-                    name: "Mecaps",
-                    address: "Near Moti Masjid, Bhopal",
-                    phone: "+91 98765 43212",
-                  },
-                ].map((center, index) => (
-            <div
-  key={index}
-  className="
-    flex items-center
-    justify-between
-    px-4
-    py-3
-    rounded-xl
-    border
-    bg-white
-  "
->
-  {/* Pill (NOT flex-1) */}
-  <div className="
-    w-full
-    max-w-[260px]
-    h-11
-    rounded-full
-    bg-muted
-    flex items-center justify-center
-  ">
-    <MapPin size={16} className="text-primary" />
-  </div>
-
-  {/* Right side */}
-  <div className="
-    flex items-center
-    gap-3
-    ml-4
-    flex-shrink-0
-  ">
-    <span className="
-      text-sm
-      text-muted-foreground
-      whitespace-nowrap
-    ">
-      {center.phone}
-    </span>
-
-    <ChevronRight
-      size={18}
-      className="text-muted-foreground"
-    />
-  </div>
-</div>
-
-
-
-
-                ))}
+    {/* Scrollable Content */}
+    <div className="flex-1 overflow-y-auto px-4 py-4">
+      <div className="space-y-3">
+        {[
+          {
+            name: "AllSaints",
+            address: "Airport Road, Bhopal",
+            phone: "+91 98765 43210",
+          },
+          {
+            name: "LGS",
+            address: "VIP Road, Bhopal",
+            phone: "+91 98765 43211",
+          },
+          {
+            name: "Mecaps",
+            address: "Near Moti Masjid, Bhopal",
+            phone: "+91 98765 43212",
+          },
+        ].map((center, index) => (
+          <div
+            key={index}
+            className="
+              flex items-center justify-between
+              px-4 py-3
+              rounded-xl
+              border border-gray-200
+              hover:shadow-md transition-shadow
+              bg-white
+            "
+          >
+            {/* Left side */}
+            <div className="flex items-center gap-3">
+              
+                <MapPin size={18} className="text-primary" />
+              <div className="flex flex-col">
+                <span className="font-semibold text-sm sm:text-base text-text">
+                  {center.name}
+                </span>
+                <span className="text-xs sm:text-sm text-muted-foreground">
+                  {center.address}
+                </span>
               </div>
             </div>
 
-            {/* Footer */}
-            <div className="px-6 py-4 border-t bg-muted/30">
-              <Button
-                className="w-full rounded-full py-2.5 text-base"
-                onClick={() => setOpenCenters(false)}
-              >
-                Close
-              </Button>
+            {/* Right side */}
+            <div className="flex items-center gap-2">
+              <span className="text-sm sm:text-base text-muted-foreground">
+                {center.phone}
+              </span>
             </div>
-
           </div>
-        </DialogContent>
-      </Dialog>
+        ))}
+      </div>
+    </div>
+
+    {/* Footer */}
+    <div className="px-6 py-4 border-t bg-muted/30">
+      <Button
+        className="w-full rounded-full py-2.5 text-base"
+        onClick={() => setOpenCenters(false)}
+      >
+        Close
+      </Button>
+    </div>
+  </DialogContent>
+</Dialog>
 
     </>
   );
