@@ -172,10 +172,10 @@ const ScheduleCard = ({ schedule, getBookCoverUrl, onClick }) => {
       {/* Discussed Badge */}
       {book?.is_discussed && (
         <div className="absolute top-3 left-3 z-10">
-          <Badge className="bg-green-500 text-white text-xs shadow-lg">
+          {/* <Badge className="bg-green-500 text-white text-xs shadow-lg">
             <CheckCircle2 className="h-3 w-3 mr-1" />
             Done
-          </Badge>
+          </Badge> */}
         </div>
       )}
 
@@ -592,12 +592,12 @@ export const BookhubHome = () => {
 
                     {/* Badges */}
                     <div className="flex flex-wrap items-center gap-2">
-                      <Badge variant="secondary" className="text-xs text-nowrap px-2 py-0.5 gap-1">
+                      <Badge variant="primary" className="text-xs text-nowrap px-2 py-0.5 gap-1">
                         <CalendarDays className="h-3 w-3" />
                         {currentBook.discussion_month} {currentBook.discussion_year}
                       </Badge>
                       {currentBook.total_chapters && (
-                        <Badge variant="secondary" className="text-xs text-nowrap px-2 py-0.5 gap-1">
+                        <Badge variant="primary" className="text-xs text-nowrap px-2 py-0.5 gap-1">
                           <BookOpen className="h-3 w-3" />
                           {currentBook.total_chapters} Chapters
                         </Badge>
