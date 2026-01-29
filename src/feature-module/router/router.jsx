@@ -60,6 +60,7 @@ import { AdminProfile } from "@/components/AdminDashboard/AdminProfile";
 import AdminAccessManager from "@/components/BookHub/AdminAccessManager";
 import BookDetail from "@/components/BookHub/BookDetail";
 import CreateBook from "@/components/BookHub/CreateBook";
+import  Courses from "@/components/Batches/Courses";
 
 
 
@@ -108,6 +109,7 @@ const ALLRoutes = () => {
       <Route path={routes.resetPassword} element={<ResetPassword />} />
       <Route path="/terms" element={<TermAndConditions />} />
       <Route path="/Bookhub" element={<BookhubHome />} />
+      <Route path="/Courses" element={<Courses />} />
     </Route>
 
     {/* Public routes */}

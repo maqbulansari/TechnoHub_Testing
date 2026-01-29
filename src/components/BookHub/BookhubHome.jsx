@@ -427,27 +427,32 @@ export const BookhubHome = () => {
     'July', 'August', 'September', 'October', 'November', 'December']
 
   // Derive current book
-  const currentBook = books.find(book =>
-    book.discussion_month === currentMonth &&
-    book.discussion_year === currentYear &&
-    !book.is_discussed
-  ) || books.find(book => !book.is_discussed)
+ const currentBook = books.find(book =>
+  book.discussion_month === currentMonth &&
+  book.discussion_year === currentYear &&
+  book.status === "DISCUSSING"
+) || books.find(book => book.status === "DISCUSSING")
+
 
   // Filter upcoming books (not discussed)
-  const upcomingBooks = books
-    .filter(book => !book.is_discussed)
-    .sort((a, b) => {
-      if (a.discussion_year !== b.discussion_year) return a.discussion_year - b.discussion_year
-      return monthOrder.indexOf(a.discussion_month) - monthOrder.indexOf(b.discussion_month)
-    })
+ const upcomingBooks = books
+  .filter(book =>
+    book.status === "UPCOMING" || book.status === "DISCUSSING"
+  )
+  .sort((a, b) => {
+    if (a.discussion_year !== b.discussion_year)
+      return a.discussion_year - b.discussion_year
+    return monthOrder.indexOf(a.discussion_month) - monthOrder.indexOf(b.discussion_month)
+  })
 
   // Filter discussed books
-  const discussedBooks = books
-    .filter(book => book.is_discussed)
-    .sort((a, b) => {
-      if (b.discussion_year !== a.discussion_year) return b.discussion_year - a.discussion_year
-      return monthOrder.indexOf(b.discussion_month) - monthOrder.indexOf(a.discussion_month)
-    })
+ const discussedBooks = books
+  .filter(book => book.status === "DISCUSSED")
+  .sort((a, b) => {
+    if (b.discussion_year !== a.discussion_year)
+      return b.discussion_year - a.discussion_year
+    return monthOrder.indexOf(b.discussion_month) - monthOrder.indexOf(a.discussion_month)
+  })
 
   // Generate monthly schedule from books
   const monthlySchedule = books.reduce((acc, book) => {
@@ -608,7 +613,7 @@ export const BookhubHome = () => {
                         {currentBook.is_discussed ? (
                           <>
                             <CheckCircle2 className="h-3 w-3" />
-                            Discussed
+                            DISCUSSING
                           </>
                         ) : (
                           <>
