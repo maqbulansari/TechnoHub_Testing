@@ -65,9 +65,9 @@ const BookCard = ({ book, getBookCoverUrl, onClick, variant = "upcoming" }) => {
             {isDiscussed && <CheckCircle2 className="h-2.5 w-2.5 mr-1" />}
             {isDiscussed ? 'Discussed' : 'Upcoming'}
           </Badge>
-          <Badge className="bg-white/90 text-gray-700 text-[10px] px-2 py-0.5 font-medium">
+          {/* <Badge className="bg-white/90 text-gray-700 text-[10px] px-2 py-0.5 font-medium">
             {book.discussion_month} {book.discussion_year}
-          </Badge>
+          </Badge> */}
         </div>
 
         {/* Bottom Badges */}
@@ -168,12 +168,12 @@ const ScheduleCard = ({ schedule, getBookCoverUrl, onClick }) => {
       )}
 
       {/* Discussed Badge */}
-      {book?.is_discussed && (
+      {book?.is_discussed && !schedule.is_current &&(
         <div className="absolute top-3 left-3 z-10">
-          {/* <Badge className="bg-green-500 text-white text-xs shadow-lg">
+          <Badge className="bg-green-500 text-white text-xs shadow-lg">
             <CheckCircle2 className="h-3 w-3 mr-1" />
             Done
-          </Badge> */}
+          </Badge>
         </div>
       )}
 
