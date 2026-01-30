@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { motion } from "framer-motion";
+import { useState, useRef, useEffect } from "react";
+import { motion, useMotionValue, animate } from "framer-motion";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import image1 from "../../assets/images/trainers/trainer1.jpg";
 import image2 from "../../assets/images/trainers/trainer2.jpg";
 import image3 from "../../assets/images/trainers/trainer3.jpg";
@@ -77,7 +78,7 @@ const team = [
     name: "Imad Baig",
     role: " Python Full Stack &Frontend Trainer",
     description: "Focused on modern UI, UX, and frontend performance.",
-  image: image5,
+    image: image5,
     qualification: "BCA 1st Year",
     batchesTaken: 2,
     studentsTrained: 18,
@@ -115,13 +116,97 @@ const team = [
 
 export const Testimonials = () => {
   const [selectedProfile, setSelectedProfile] = useState(null);
+  const x = useMotionValue(0);
+  const animationRef = useRef(null);
+
+  const CARD_WIDTH = 260;
+  const GAP = 24;
+  const ITEM_WIDTH = CARD_WIDTH + GAP;
+  const TOTAL_WIDTH = team.length * ITEM_WIDTH;
+  const DURATION = 120; // seconds for full loop
+
+  // Start infinite scroll animation
+  const startAnimation = (fromX = 0) => {
+    // Cancel any existing animation
+    if (animationRef.current) {
+      animationRef.current.stop();
+    }
+
+    // Normalize position to stay within bounds
+    let normalizedX = fromX;
+    while (normalizedX > 0) normalizedX -= TOTAL_WIDTH;
+    while (normalizedX < -TOTAL_WIDTH) normalizedX += TOTAL_WIDTH;
+
+    // Calculate proportional duration based on remaining distance
+    const distance = TOTAL_WIDTH + normalizedX;
+    const duration = (distance / TOTAL_WIDTH) * DURATION;
+
+    x.set(normalizedX);
+
+    animationRef.current = animate(x, -TOTAL_WIDTH, {
+      duration: duration,
+      ease: "linear",
+      onComplete: () => startAnimation(0),
+    });
+  };
+
+  useEffect(() => {
+    startAnimation(0);
+    return () => {
+      if (animationRef.current) animationRef.current.stop();
+    };
+  }, []);
+
+  // Handle previous button click
+  const handlePrev = () => {
+    if (animationRef.current) animationRef.current.stop();
+    const currentX = x.get();
+    const newX = currentX + ITEM_WIDTH;
+
+    animationRef.current = animate(x, newX, {
+      duration: 0.4,
+      ease: "easeOut",
+      onComplete: () => startAnimation(newX),
+    });
+  };
+
+  // Handle next button click
+  const handleNext = () => {
+    if (animationRef.current) animationRef.current.stop();
+    const currentX = x.get();
+    const newX = currentX - ITEM_WIDTH;
+
+    animationRef.current = animate(x, newX, {
+      duration: 0.4,
+      ease: "easeOut",
+      onComplete: () => startAnimation(newX),
+    });
+  };
 
   return (
     <section className="w-full overflow-hidden py-14 relative">
+      {/* Left Arrow */}
+      <button
+        onClick={handlePrev}
+        className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur-sm shadow-lg rounded-full p-2 sm:p-3 hover:bg-white hover:scale-110 transition-all duration-200 border border-gray-200 flex items-center justify-center"
+        aria-label="Previous"
+      >
+        <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700" />
+      </button>
+
+      {/* Right Arrow */}
+      <button
+        onClick={handleNext}
+        className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur-sm shadow-lg rounded-full p-2 sm:p-3 hover:bg-white hover:scale-110 transition-all duration-200 border border-gray-200 flex items-center justify-center"
+        aria-label="Next"
+      >
+        <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700" />
+      </button>
+
+      {/* Carousel */}
       <motion.div
         className="flex gap-6 w-max px-6"
-        animate={{ x: ["0%", "-50%"] }}
-        transition={{ repeat: Infinity, ease: "linear", duration: 120 }}
+        style={{ x }}
       >
         {[...team, ...team].map((member, index) => (
           <motion.div
@@ -150,24 +235,23 @@ export const Testimonials = () => {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
             className="
-    bg-white 
-    rounded-2xl 
-    p-6 
-    w-11/12 
-    max-w-4xl 
-    max-h-[90vh] 
-    overflow-y-auto 
-    shadow-lg 
-    relative
-  "
+              bg-white 
+              rounded-2xl 
+              p-6 
+              w-11/12 
+              max-w-4xl 
+              max-h-[90vh] 
+              overflow-y-auto 
+              shadow-lg 
+              relative
+            "
           >
-
             {/* Top-right X button */}
             <button
               className="absolute top-3 right-3 text-gray-500 hover:text-gray-900 font-bold text-lg"
               onClick={() => setSelectedProfile(null)}
             >
-              ×
+
             </button>
 
             {/* Profile Image and Info */}
@@ -226,7 +310,6 @@ export const Testimonials = () => {
           </motion.div>
         </div>
       )}
-
     </section>
   );
 };
