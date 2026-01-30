@@ -22,7 +22,8 @@ export const Footer = () => (
       <motion.div variants={fadeUp}>
         <h4 className="font-semibold text-gray-300 mb-4">TechnoHub</h4>
         <p className="text-sm leading-relaxed">
-          A global community dedicated to lifelong learning.
+          A global community using technology to educate, empower, and uplift Muslims
+  with ethics, intelligence, and purpose.
         </p>
       </motion.div>
 

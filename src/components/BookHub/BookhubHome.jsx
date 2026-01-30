@@ -367,8 +367,7 @@ export const BookhubHome = () => {
         setError(null)
 
         const response = await axios.get(
-          `${API_BASE_URL}/bookhub/books/`,
-          getAuthHeader()
+          `${API_BASE_URL}/bookhub/books/`
         )
         setBooks(response.data)
 

@@ -27,7 +27,7 @@ export const useComments = (bookId) => {
       if (ordering) url += `&ordering=${ordering}`
       if (search) url += `&search=${search}`
       
-      const response = await axios.get(url, getAuthHeader())
+      const response = await axios.get(url)
       
       // Handle paginated or direct response
       const commentsData = response.data.results || response.data

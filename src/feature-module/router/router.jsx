@@ -110,11 +110,14 @@ const ALLRoutes = () => {
       <Route path="/terms" element={<TermAndConditions />} />
       <Route path="/Bookhub" element={<BookhubHome />} />
       <Route path="/Courses" element={<Courses />} />
+         <Route path="/bookhub/book/:bookId" element={<BookDetail />} />
+
     </Route>
 
     {/* Public routes */}
     <Route path="/Bookhub" element={<Defaultlayout />}>
       <Route path="Home" element={<BookhubHome />} />
+      
     </Route>     
 
     <Route element={<ProtectedRoute />}>

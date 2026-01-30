@@ -369,7 +369,7 @@ const BookDetail = () => {
 
         const bookResponse = await axios.get(
           `${API_BASE_URL}/bookhub/books/${bookId}/`,
-          getAuthHeader()
+          // getAuthHeader()
         )
         setBook(bookResponse.data)
 
@@ -377,7 +377,7 @@ const BookDetail = () => {
           setSummaryLoading(true)
           const summaryResponse = await axios.get(
             `${API_BASE_URL}/bookhub/summaries/?book=${bookId}`,
-            getAuthHeader()
+            // getAuthHeader()
           )
           setChapterSummaries(summaryResponse.data.chapters || [])
         } catch (summaryErr) {
