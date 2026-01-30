@@ -87,14 +87,14 @@ and closer to our Creator
               We are finishing Part One of Neil Postman’s Amusing Ourselves to Death, which shows how modern media favors entertainment over serious public discourse. Postman’s son notes the book’s relevance today, especially for students immersed in screens and constant media. Many find it accurate in highlighting how news, politics, education, and religion are shaped by entertainment, shortening attention spans and discouraging deep thinking. Classroom activities like “media fasts” emphasize society’s dependence on technology, echoing Huxley’s warning that freedom can be lost through distraction and pleasure rather than force.
             </p>
 
-            {hasToken && (
+            
               <button
                 onClick={() => navigate("/Bookhub/Home")}
                 className="text-primary font-semibold text-md hover:underline"
               >
-                Join the discussion →
+                Join Al Meezan →
               </button>
-            )}
+        
           </div>
         </div>
       </motion.div>
