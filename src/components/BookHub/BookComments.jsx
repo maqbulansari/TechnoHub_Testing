@@ -433,7 +433,7 @@ const BookComments = ({ bookId, bookTitle }) => {
           <div className="flex items-center gap-2">
             <MessageCircle className="h-5 w-5 text-primary" />
             <CardTitle className="text-lg">Discussion</CardTitle>
-            <Badge variant="outline" className="text-xs">
+            <Badge variant="outline" className="text-xs text-nowrap">
               {comments.length} comments
             </Badge>
           </div>
@@ -441,7 +441,7 @@ const BookComments = ({ bookId, bookTitle }) => {
           <div className="flex gap-2">
             <Select value={sortBy} onValueChange={handleSortChange}>
               <SelectTrigger className="h-8 w-[130px] text-xs">
-                <SlidersHorizontal className="h-3.5 w-3.5 mr-1.5" />
+                {/* <SlidersHorizontal className="h-3.5 w-3.5 mr-1.5" /> */}
                 <SelectValue placeholder="Sort" />
               </SelectTrigger>
               <SelectContent>
@@ -457,7 +457,7 @@ const BookComments = ({ bookId, bookTitle }) => {
               onClick={() => fetchComments({ ordering: sortBy })}
               disabled={loading}
             >
-              <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`h-8 w-8 ${loading ? 'animate-spin' : ''}`} />
             </Button>
           </div>
         </div>
@@ -470,7 +470,7 @@ const BookComments = ({ bookId, bookTitle }) => {
             onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
             className="pl-9"
           />
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          {/* <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /> */}
           {searchQuery && (
             <Button
               variant="ghost"
