@@ -35,7 +35,7 @@ const DEFAULT_BOOK_COVER = "/placeholder-book.png"
 
 const BookCard = ({ book, getBookCoverUrl, onClick, variant = "upcoming" }) => {
   const isDiscussed = variant === "discussed"
-  
+
   return (
     <Card
       className="group overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer"
@@ -58,17 +58,16 @@ const BookCard = ({ book, getBookCoverUrl, onClick, variant = "upcoming" }) => {
 
         {/* Top Badges */}
         <div className="absolute top-2.5 left-2.5 right-2.5 flex justify-between items-start">
-          <Badge 
-            className={`text-white text-[10px] px-2 py-0.5 font-medium ${
-              isDiscussed ? 'bg-green-500' : 'bg-amber-500'
-            }`}
+          <Badge
+            className={`text-white text-[10px] px-2 py-0.5 font-medium ${isDiscussed ? 'bg-green-500' : 'bg-amber-500'
+              }`}
           >
             {isDiscussed && <CheckCircle2 className="h-2.5 w-2.5 mr-1" />}
             {isDiscussed ? 'Discussed' : 'Upcoming'}
           </Badge>
-          <Badge className="bg-white/90 text-gray-700 text-[10px] px-2 py-0.5 font-medium">
+          {/* <Badge className="bg-white/90 text-gray-700 text-[10px] px-2 py-0.5 font-medium">
             {book.discussion_month} {book.discussion_year}
-          </Badge>
+          </Badge> */}
         </div>
 
         {/* Bottom Badges */}
@@ -138,12 +137,11 @@ const BookCard = ({ book, getBookCoverUrl, onClick, variant = "upcoming" }) => {
 
 const ScheduleCard = ({ schedule, getBookCoverUrl, onClick }) => {
   const book = schedule.books[0]
-  
+
   return (
     <Card
-      className={`relative overflow-hidden h-64 transition-all hover:shadow-xl hover:scale-[1.02] cursor-pointer group ${
-        schedule.is_current ? 'ring-2 ring-primary ring-offset-2' : ''
-      }`}
+      className={`relative overflow-hidden h-64 transition-all hover:shadow-xl hover:scale-[1.02] cursor-pointer group ${schedule.is_current ? 'ring-2 ring-primary ring-offset-2' : ''
+        }`}
       onClick={onClick}
     >
       {/* Background Image */}
@@ -170,12 +168,12 @@ const ScheduleCard = ({ schedule, getBookCoverUrl, onClick }) => {
       )}
 
       {/* Discussed Badge */}
-      {book?.is_discussed && (
+      {book?.is_discussed && !schedule.is_current &&(
         <div className="absolute top-3 left-3 z-10">
-          {/* <Badge className="bg-green-500 text-white text-xs shadow-lg">
+          <Badge className="bg-green-500 text-white text-xs shadow-lg">
             <CheckCircle2 className="h-3 w-3 mr-1" />
             Done
-          </Badge> */}
+          </Badge>
         </div>
       )}
 
@@ -184,13 +182,10 @@ const ScheduleCard = ({ schedule, getBookCoverUrl, onClick }) => {
         {book && (
           <div className="space-y-2">
             {/* Month & Year */}
-            <div className="flex items-center gap-2">
-              <CalendarDays className="h-4 w-4 text-white/70" />
-              <span className="text-white/70 text-sm font-medium">
-                {schedule.month} {schedule.year}
-              </span>
+            <div className="inline-flex text-nowrap items-center text-white/70 text-sm font-medium">
+              <CalendarDays className="h-4 w-4 mr-1" />
+              {schedule.month} {schedule.year}
             </div>
-
             {/* Book Title */}
             <h3 className="font-bold text-white text-lg leading-tight line-clamp-2">
               {book.title}
@@ -203,8 +198,8 @@ const ScheduleCard = ({ schedule, getBookCoverUrl, onClick }) => {
 
             {/* Chapters info */}
             {book.total_chapters && (
-              <div className="flex items-center gap-1 text-white/60 text-xs">
-                <BookOpen className="h-3 w-3" />
+              <div className="inline-flex items-center text-nowrap text-white/60 text-xs">
+                <BookOpen className="h-3 w-3 mr-1" />
                 {book.total_chapters} chapters
               </div>
             )}
@@ -319,7 +314,7 @@ const AccessRequestCard = ({ accessState, requestReason, setRequestReason, onSub
 
 export const BookhubHome = () => {
   const navigate = useNavigate()
-  
+
   const [activeTab, setActiveTab] = useState("upcoming")
   const [books, setBooks] = useState([])
   const [loading, setLoading] = useState(true)
@@ -426,32 +421,32 @@ export const BookhubHome = () => {
     'July', 'August', 'September', 'October', 'November', 'December']
 
   // Derive current book
- const currentBook = books.find(book =>
-  book.discussion_month === currentMonth &&
-  book.discussion_year === currentYear &&
-  book.status === "DISCUSSING"
-) || books.find(book => book.status === "DISCUSSING")
+  const currentBook = books.find(book =>
+    book.discussion_month === currentMonth &&
+    book.discussion_year === currentYear &&
+    book.status === "DISCUSSING"
+  ) || books.find(book => book.status === "DISCUSSING")
 
 
   // Filter upcoming books (not discussed)
- const upcomingBooks = books
-  .filter(book =>
-    book.status === "UPCOMING" || book.status === "DISCUSSING"
-  )
-  .sort((a, b) => {
-    if (a.discussion_year !== b.discussion_year)
-      return a.discussion_year - b.discussion_year
-    return monthOrder.indexOf(a.discussion_month) - monthOrder.indexOf(b.discussion_month)
-  })
+  const upcomingBooks = books
+    .filter(book =>
+      book.status === "UPCOMING" || book.status === "DISCUSSING"
+    )
+    .sort((a, b) => {
+      if (a.discussion_year !== b.discussion_year)
+        return a.discussion_year - b.discussion_year
+      return monthOrder.indexOf(a.discussion_month) - monthOrder.indexOf(b.discussion_month)
+    })
 
   // Filter discussed books
- const discussedBooks = books
-  .filter(book => book.status === "DISCUSSED")
-  .sort((a, b) => {
-    if (b.discussion_year !== a.discussion_year)
-      return b.discussion_year - a.discussion_year
-    return monthOrder.indexOf(b.discussion_month) - monthOrder.indexOf(a.discussion_month)
-  })
+  const discussedBooks = books
+    .filter(book => book.status === "DISCUSSED")
+    .sort((a, b) => {
+      if (b.discussion_year !== a.discussion_year)
+        return b.discussion_year - a.discussion_year
+      return monthOrder.indexOf(b.discussion_month) - monthOrder.indexOf(a.discussion_month)
+    })
 
   // Generate monthly schedule from books
   const monthlySchedule = books.reduce((acc, book) => {
@@ -492,17 +487,17 @@ export const BookhubHome = () => {
   // Error state
   if (error) {
     return (
-     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
-  <div className="text-center space-y-4">
-    <AlertCircle className="h-12 w-12 mx-auto" />
-    <p className="text-gray-600 font-semibold text-lg">
-      You need to login first
-    </p>
-    <Button onClick={() => window.location.href = "/login3"}>
-      Go to Login
-    </Button>
-  </div>
-</div>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <AlertCircle className="h-12 w-12 mx-auto" />
+          <p className="text-gray-600 font-semibold text-lg">
+            You need to login first
+          </p>
+          <Button onClick={() => window.location.href = "/login3"}>
+            Go to Login
+          </Button>
+        </div>
+      </div>
 
     )
   }
@@ -533,7 +528,7 @@ export const BookhubHome = () => {
     )
   }
 
- 
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       <main className="container mx-auto px-4 py-8 space-y-10">
@@ -552,7 +547,7 @@ export const BookhubHome = () => {
               </span>
             </div>
 
-            <Card 
+            <Card
               className="overflow-hidden border border-border shadow-sm hover:shadow-md transition-shadow cursor-pointer group"
               onClick={() => navigateToBook(currentBook.id)}
             >
@@ -606,11 +601,10 @@ export const BookhubHome = () => {
                       )}
                       <Badge
                         variant="secondary"
-                        className={`text-xs text-nowrap px-2 py-0.5 gap-1 ${
-                          currentBook.is_discussed
-                            ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                            : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
-                        }`}
+                        className={`text-xs text-nowrap px-2 py-0.5 gap-1 ${currentBook.is_discussed
+                          ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                          : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+                          }`}
                       >
                         {currentBook.is_discussed ? (
                           <>
@@ -629,8 +623,8 @@ export const BookhubHome = () => {
 
                   {/* Action Buttons */}
                   <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-border">
-                    <Button 
-                      size="sm" 
+                    <Button
+                      size="sm"
                       className="gap-1.5 h-9 px-4 text-sm"
                       onClick={(e) => {
                         e.stopPropagation()
@@ -640,9 +634,9 @@ export const BookhubHome = () => {
                       <BookOpen className="h-4 w-4" />
                       View Book
                     </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
+                    <Button
+                      variant="outline"
+                      size="sm"
                       className="gap-1.5 h-9 px-4 text-sm"
                       onClick={(e) => e.stopPropagation()}
                     >
