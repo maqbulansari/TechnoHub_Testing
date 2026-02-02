@@ -92,7 +92,7 @@ export default function Hero() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8 }}
-            className="rounded-xl overflow-hidden shadow-2xl shadow-black/40"
+            className="rounded-xl overflow-hidden shadow-none shadow-black/40"
           >
             <img
               src={images[current]}

@@ -118,7 +118,7 @@ const AdminAccessManager = () => {
       <h2 className="text-2xl font-semibold">BookHub Access Requests</h2>
 
       {/* Filters */}
-      <div className="flex flex-col md:flex-row gap-4 w-full md:w-1/2">
+      <div className="flex flex-col md:flex-row gap-4 md:w-1/2">
         <Input
           placeholder="Search by name or email..."
           value={search}
