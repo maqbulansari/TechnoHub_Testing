@@ -8,7 +8,7 @@ import {
   faTicket,
   faCubes,
   faUserShield, faClipboardCheck,
-  faLayerGroup, faHandshake
+  faLayerGroup, faHandshake,faBook
 } from "@fortawesome/free-solid-svg-icons";
 import { Sidebar } from "primereact/sidebar";
 import { all_routes } from "../feature-module/router/all_routes";
@@ -106,6 +106,20 @@ const menuItems = (role) => ({
       items: [{ path: "/AssessmentTable", label: "Assessment Candidate" }],
     },
   ],
+  Bookhub: [
+    {
+      title: "Bookhub Management",
+      key: "alltrainer-bookhub-management",
+      icon: faBook,
+      items:
+        role === "ADMIN"
+          ? [
+            { path: "/AdminAccessManager", label: "Access Management" },
+            { path: "/bookhub/CreateBook", label: "CreateBook" },
+          ]
+          : [],
+    },
+  ],
   ALLTRAINER: [
     {
       title: "Trainer Dashboard",
@@ -150,6 +164,18 @@ const menuItems = (role) => ({
           ]
           : [],
     },
+    // {
+    //   title: "Bookhub Management",
+    //   key: "alltrainer-bookhub-management",
+    //   icon: faBook,
+    //   items:
+    //     role === "ADMIN"
+    //       ? [
+    //         { path: "/AdminAccessManager", label: "Access Management" },
+    //         { path: "/bookhub/CreateBook", label: "CreateBook" },
+    //       ]
+    //       : [],
+    // },
   ],
   ALLSTUDENT: [
     {
@@ -209,6 +235,7 @@ const Defaultlayout = () => {
         ...allMenus.ALLTRAINER,
         ...allMenus.RECRUITER,
         ...allMenus.SPONSOR,
+        ...allMenus.Bookhub,
       ];
     }
     return allMenus[subrole] || [];

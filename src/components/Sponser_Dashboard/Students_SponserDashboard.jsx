@@ -134,7 +134,7 @@ export const Students_SponserDashboard = () => {
       setSubmitting(true);
       const res = await axios.post(
         `${API_BASE_URL}/sponsors/create-order/`,
-        { student_id: selectedIds[0], amount: totalAmount },
+        { student_ids: selectedIds, amount: totalAmount },
         { headers: { Authorization: `Bearer ${accessToken}` } }
       );
 
@@ -143,7 +143,7 @@ export const Students_SponserDashboard = () => {
       localStorage.setItem(
         "currentStudentInfo",
         JSON.stringify({
-          studentId: selectedIds[0],
+          studentIds: selectedIds,
           studentName: student_name,
           sponsorshipId: sponsorship_id,
         })
