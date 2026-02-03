@@ -6,6 +6,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter
 } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -69,6 +70,7 @@ import axios from 'axios'
 import Loading from '@/Loading'
 import BookComments from './BookComments'
 import { toast } from 'sonner'
+import LoginModal from '@/feature-module/auth/login/login-3'
 
 const DEFAULT_BOOK_COVER = "/placeholder-book.png"
 
@@ -76,6 +78,95 @@ const MONTHS = [
   'January', 'February', 'March', 'April', 'May', 'June',
   'July', 'August', 'September', 'October', 'November', 'December'
 ]
+
+const AccessRequestCard = ({ accessState, requestReason, setRequestReason, onSubmit, loading }) => (
+  <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950 px-4 mt-0">
+    <Card className="max-w-lg w-full">
+      <CardHeader className="pb-4">
+        <div className="flex items-center gap-3 mb-2">
+          {/* <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+            <BookOpen className="h-5 w-5 text-primary" />
+          </div> */}
+          <div>
+            <CardTitle className="text-lg">Request BookHub Access</CardTitle>
+            <CardDescription>
+              Join our reading community
+            </CardDescription>
+          </div>
+        </div>
+      </CardHeader>
+
+      <CardContent className="space-y-4 pb-4">
+        {accessState.status === "pending" ? (
+          <div className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 shadow-sm dark:border-amber-800 dark:bg-amber-900/20">
+            {/* <div className="flex h-9 w-9 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-800/40">
+              <Clock className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+            </div> */}
+
+            <div className="space-y-1">
+              <p className="text-sm font-semibold text-amber-800 dark:text-amber-300">
+                Request under review
+              </p>
+              <p className="text-xs text-amber-700/80 dark:text-amber-300/70 leading-relaxed">
+                Your access request has been submitted and is awaiting approval.
+              </p>
+            </div>
+          </div>
+
+        ) : accessState.status === "rejected" ? (
+          <div className="flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20 px-4 py-3">
+            <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 shrink-0" />
+            <div className="space-y-0.5">
+              <p className="text-sm font-medium text-red-700 dark:text-red-300">
+                Request was not approved
+              </p>
+              <p className="text-xs text-red-700/80 dark:text-red-300/70 leading-relaxed">
+                Please contact support if you believe this was a mistake.
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            <label className="text-sm font-medium">
+              Reason for access
+            </label>
+            <textarea
+              className="w-full min-h-[100px] rounded-lg border border-input bg-background px-3 py-2.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none"
+              placeholder="Example: I want to join monthly book discussions and read summaries"
+              value={requestReason}
+              onChange={(e) => setRequestReason(e.target.value)}
+            />
+            <p className="text-xs text-muted-foreground">
+              Please provide a brief reason for requesting access to BookHub.
+            </p>
+          </div>
+        )}
+      </CardContent>
+
+      <CardFooter className="pt-2">
+        {accessState.status === "not_requested" && (
+          <Button
+            className="w-full gap-2"
+            onClick={onSubmit}
+            disabled={loading || !requestReason.trim()}
+          >
+            {loading ? (
+              <>
+
+                Submitting...
+              </>
+            ) : (
+              <>
+
+                Submit Request
+              </>
+            )}
+          </Button>
+        )}
+      </CardFooter>
+    </Card>
+  </div>
+)
 
 const BookDetail = () => {
   const { bookId } = useParams()
@@ -86,6 +177,10 @@ const BookDetail = () => {
   const [loading, setLoading] = useState(true)
   const [summaryLoading, setSummaryLoading] = useState(false)
   const [error, setError] = useState(null)
+  const [accessState, setAccessState] = useState(null)
+  const [requestReason, setRequestReason] = useState("")
+  const [requestLoading, setRequestLoading] = useState(false)
+  const [loginModalOpen, setLoginModalOpen] = useState(false)
   const [activeTab, setActiveTab] = useState("overview")
   const [isBookmarked, setIsBookmarked] = useState(false)
 
@@ -181,6 +276,31 @@ const BookDetail = () => {
     return date.toISOString().split('T')[0]
   }
 
+  // Handle access request
+  const handleRequestAccess = async () => {
+    if (!requestReason.trim()) return
+
+    try {
+      setRequestLoading(true)
+
+      await axios.post(
+        `${API_BASE_URL}/bookhub/access/request/`,
+        { reason: requestReason },
+        getAuthHeader()
+      )
+
+      setAccessState({
+        status: "pending",
+        hasRequested: true
+      })
+    } catch (err) {
+      console.error(err)
+      alert("Failed to submit access request.")
+    } finally {
+      setRequestLoading(false)
+    }
+  }
+
   // Download file handler
   const handleDownload = async (fileUrl, fileName) => {
     try {
@@ -259,7 +379,7 @@ const BookDetail = () => {
       setEditBookLoading(true)
 
       const formData = new FormData()
-      
+
       // Append text fields
       Object.keys(bookForm).forEach(key => {
         if (bookForm[key] !== '' && bookForm[key] !== null && bookForm[key] !== undefined) {
@@ -326,7 +446,7 @@ const BookDetail = () => {
       setEditSummaryLoading(true)
 
       const formData = new FormData()
-      
+
       if (summaryForm.discussed_on) {
         formData.append('discussed_on', summaryForm.discussed_on)
       }
@@ -367,9 +487,17 @@ const BookDetail = () => {
         setLoading(true)
         setError(null)
 
+        // Check if user is authenticated
+        const accessToken = localStorage.getItem("accessToken")
+        if (!accessToken) {
+          setError("You need to login first to view book details")
+          setLoading(false)
+          return
+        }
+
         const bookResponse = await axios.get(
           `${API_BASE_URL}/bookhub/books/${bookId}/`,
-          // getAuthHeader()
+          getAuthHeader()
         )
         setBook(bookResponse.data)
 
@@ -377,10 +505,22 @@ const BookDetail = () => {
           setSummaryLoading(true)
           const summaryResponse = await axios.get(
             `${API_BASE_URL}/bookhub/summaries/?book=${bookId}`,
-            // getAuthHeader()
+            getAuthHeader()
           )
           setChapterSummaries(summaryResponse.data.chapters || [])
         } catch (summaryErr) {
+          const summaryData = summaryErr?.response?.data
+
+          // Check if access is denied during summary fetch
+          if (summaryData?.error === "bookhub_access_denied") {
+            setAccessState({
+              status: summaryData.status || "not_requested",
+              hasRequested: summaryData.has_requested === "True"
+            })
+            setLoading(false)
+            return
+          }
+
           console.error('Failed to fetch summaries:', summaryErr)
           setChapterSummaries([])
         } finally {
@@ -388,6 +528,16 @@ const BookDetail = () => {
         }
 
       } catch (err) {
+        const data = err?.response?.data
+
+        if (data?.error === "access_denied") {
+          setAccessState({
+            status: data.status || "not_requested",
+            hasRequested: data.has_requested === "True"
+          })
+          return
+        }
+
         console.error(err)
         setError('Failed to load book details.')
       } finally {
@@ -405,16 +555,54 @@ const BookDetail = () => {
     return <Loading />
   }
 
+  // Access request state
+  if (accessState) {
+    return (
+      <AccessRequestCard
+        accessState={accessState}
+        requestReason={requestReason}
+        setRequestReason={setRequestReason}
+        onSubmit={handleRequestAccess}
+        loading={requestLoading}
+      />
+    )
+  }
+
   // Error state
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <LoginModal
+          open={loginModalOpen}
+          onClose={() => setLoginModalOpen(false)}
+          onForgot={() => {
+            setLoginModalOpen(false)
+            navigate('/forgot-password')
+          }}
+        />
+
         <div className="text-center space-y-4">
-          <AlertCircle className="h-12 w-12 text-red-500 mx-auto" />
-          <p className="text-red-500">{error}</p>
-          <Button onClick={() => navigate(-1)}>
-            Go Back
-          </Button>
+          <BookOpen className="h-12 w-12" />
+          <div className="space-y-2">
+            <p className="text-gray-700 dark:text-gray-300 font-semibold text-lg">
+              {error}
+            </p>
+            {error.includes("login") && (
+              <p className="text-sm text-muted-foreground">
+                Please log in to access this book's details
+              </p>
+            )}
+          </div>
+          <div className="flex gap-3 justify-center pt-4">
+            {error.includes("login") && (
+              <Button onClick={() => setLoginModalOpen(true)} className="gap-2">
+                Go to Login
+              </Button>
+            )}
+            <Button variant="outline" onClick={() => navigate(-1)}>
+              Go Back
+            </Button>
+          </div>
         </div>
       </div>
     )
@@ -696,11 +884,11 @@ const BookDetail = () => {
                                     <DropdownMenuContent align="end">
                                       <DropdownMenuItem onClick={() => handleEditSummary(chapter)}>
                                         <Pencil className="h-4 w-4 mr-2 text-nowrap" />
-                                        Edit 
+                                        Edit
                                       </DropdownMenuItem>
                                       <DropdownMenuItem onClick={() => handleEditSummary(chapter)}>
                                         <Upload className="h-4 w-4 mr-2 text-nowrap" />
-                                        Replace 
+                                        Replace
                                       </DropdownMenuItem>
                                     </DropdownMenuContent>
                                   </DropdownMenu>
@@ -1120,7 +1308,7 @@ const BookDetail = () => {
             >
               {editBookLoading ? (
                 <>
-                 
+
                   Saving...
                 </>
               ) : (
@@ -1136,7 +1324,7 @@ const BookDetail = () => {
 
       {/* Edit Summary Dialog */}
       <Dialog open={editSummaryDialogOpen} onOpenChange={setEditSummaryDialogOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md mt-2 [&>button]:hidden">
           <DialogHeader>
             <DialogTitle className="text-nowrap">Edit Chapter Summary</DialogTitle>
             <DialogDescription className="text-nowrap">
@@ -1152,13 +1340,14 @@ const BookDetail = () => {
             {/* Current File Info */}
             {selectedChapter?.summary_file && (
               <div className="p-3 rounded-lg bg-muted/50 border">
-                <div className="flex items-center gap-2 text-sm">
-                  <FileText className="h-4 w-4 text-primary" />
+                <div className="flex items-center text-nowrap gap-1 text-sm">
+                  <FileText className="h-4 w-1 text-primary" />
                   <span className="font-medium">Current File:</span>
-                </div>
-                <p className="text-xs text-muted-foreground mt-1 truncate">
+                  <p className="text-xs text-muted-foreground mt-1 truncate">
                   {selectedChapter.summary_file.split('/').pop()}
                 </p>
+                </div>
+                
               </div>
             )}
 
@@ -1179,7 +1368,7 @@ const BookDetail = () => {
                   onClick={() => summaryFileInputRef.current?.click()}
                   className="gap-2 flex-1"
                 >
-                  <Upload className="h-4 w-4" />
+                  {/* <Upload className="h-4 w-4" /> */}
                   {summaryFileName || 'Choose PDF File'}
                 </Button>
               </div>
@@ -1224,7 +1413,7 @@ const BookDetail = () => {
             >
               {editSummaryLoading ? (
                 <>
-                 
+
                   Updating...
                 </>
               ) : (

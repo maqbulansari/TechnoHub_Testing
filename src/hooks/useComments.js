@@ -45,11 +45,24 @@ export const useComments = (bookId) => {
   }, [API_BASE_URL, bookId])
 
   // Add new comment
-  const addComment = useCallback(async (commentText) => {
+  const addComment = useCallback(async (commentText, mentionedUsers = []) => {
     try {
+      const payload = {
+        book: bookId,
+        comment: commentText
+      }
+      
+      // Add mentioned users to payload if any
+      if (mentionedUsers.length > 0) {
+        payload.mentioned_users = mentionedUsers.map(u => ({
+          id: u.id,
+          email: u.email
+        }))
+      }
+      
       const response = await axios.post(
         `${API_BASE_URL}/bookhub/comments/`,
-        { book: bookId, comment: commentText },
+        payload,
         getAuthHeader()
       )
       
