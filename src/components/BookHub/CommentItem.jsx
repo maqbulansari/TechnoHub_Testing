@@ -142,6 +142,7 @@ const CommentItem = ({
   }
 
   const userDetails = getUserDetails()
+  const isLiked = !!(comment.is_liked || comment.liked)
 
   return (
     <div className={`group ${depth > 0 ? 'ml-8 pl-4 border-l-2 border-muted' : ''}`}>
@@ -194,7 +195,7 @@ const CommentItem = ({
           )}
 
           {/* Mentioned Users - Fixed Avatars */}
-          {comment.mentions_details?.length > 0 && !isEditing && (
+          {/* {comment.mentions_details?.length > 0 && !isEditing && (
             <div className="flex items-center gap-1.5 mt-2 flex-wrap">
               {comment.mentions_details.map((mention) => (
                 <Badge 
@@ -211,7 +212,7 @@ const CommentItem = ({
                 </Badge>
               ))}
             </div>
-          )}
+          )} */}
 
           {/* Actions */}
           {!isEditing && (
@@ -221,12 +222,12 @@ const CommentItem = ({
                 size="sm"
                 onClick={() => onLike(comment.id)}
                 className={`h-7 px-2 text-xs gap-1 ${
-                  comment.liked 
-                    ? 'text-red-500 hover:text-red-600' 
+                  isLiked
+                    ? 'text-red-500 hover:text-red-600'
                     : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
-                <Heart className={`h-3.5 w-3.5 ${comment.liked ? 'fill-current' : ''}`} />
+                <Heart className={`h-3.5 w-3.5 ${isLiked ? 'fill-current' : ''}`} />
                 {comment.like_count > 0 && comment.like_count}
               </Button>
 

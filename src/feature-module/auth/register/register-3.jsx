@@ -308,7 +308,7 @@ const Register3 = () => {
   const currentRole = isLoggedIn ? newSelectedRole : "LEARNER";
 
   return (
-    <div className="min-h-screen mt-6 sm:mt-12 py-4 sm:py-8 px-3 sm:px-4">
+    <div className="min-h-screen mt-2 sm:mt-12 py-4 sm:py-8 px-3 sm:px-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

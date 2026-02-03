@@ -20,8 +20,6 @@ import {
   BookMarked,
   CheckCircle2,
   CalendarDays,
-  Loader2,
-  AlertCircle,
   Eye,
   MessageCircle
 } from 'lucide-react'
@@ -226,92 +224,6 @@ const EmptyState = ({ icon: Icon, title, description }) => (
 )
 
 
-const AccessRequestCard = ({ accessState, requestReason, setRequestReason, onSubmit, loading }) => (
-  <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950 px-4">
-    <Card className="max-w-lg w-full">
-      <CardHeader className="pb-4">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-            <BookOpen className="h-5 w-5 text-primary" />
-          </div>
-          <div>
-            <CardTitle className="text-lg">Request BookHub Access</CardTitle>
-            <CardDescription>
-              Join our reading community
-            </CardDescription>
-          </div>
-        </div>
-      </CardHeader>
-
-      <CardContent className="space-y-4 pb-4">
-        {accessState.status === "pending" ? (
-          <div className="flex items-center gap-3 rounded-lg border border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-900/20 px-4 py-3">
-            <Clock className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0" />
-            <div className="space-y-0.5">
-              <p className="text-sm font-medium text-amber-700 dark:text-amber-300">
-                Request under review
-              </p>
-              <p className="text-xs text-amber-700/80 dark:text-amber-300/70 leading-relaxed">
-                Your access request has been submitted and is currently pending approval.
-              </p>
-            </div>
-          </div>
-        ) : accessState.status === "rejected" ? (
-          <div className="flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20 px-4 py-3">
-            <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 shrink-0" />
-            <div className="space-y-0.5">
-              <p className="text-sm font-medium text-red-700 dark:text-red-300">
-                Request was not approved
-              </p>
-              <p className="text-xs text-red-700/80 dark:text-red-300/70 leading-relaxed">
-                Please contact support if you believe this was a mistake.
-              </p>
-            </div>
-          </div>
-        ) : (
-          <div className="space-y-2">
-            <label className="text-sm font-medium">
-              Reason for access
-            </label>
-            <textarea
-              className="w-full min-h-[100px] rounded-lg border border-input bg-background px-3 py-2.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none"
-              placeholder="Example: I want to join monthly book discussions and read summaries"
-              value={requestReason}
-              onChange={(e) => setRequestReason(e.target.value)}
-            />
-            <p className="text-xs text-muted-foreground">
-              Please provide a brief reason for requesting access to BookHub.
-            </p>
-          </div>
-        )}
-      </CardContent>
-
-      <CardFooter className="pt-2">
-        {accessState.status === "not_requested" && (
-          <Button
-            className="w-full gap-2"
-            onClick={onSubmit}
-            disabled={loading || !requestReason.trim()}
-          >
-            {loading ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Submitting...
-              </>
-            ) : (
-              <>
-                <BookOpen className="h-4 w-4" />
-                Submit Request
-              </>
-            )}
-          </Button>
-        )}
-      </CardFooter>
-    </Card>
-  </div>
-)
-
-
 export const BookhubHome = () => {
   const navigate = useNavigate()
 
@@ -319,9 +231,6 @@ export const BookhubHome = () => {
   const [books, setBooks] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [accessState, setAccessState] = useState(null)
-  const [requestReason, setRequestReason] = useState("")
-  const [requestLoading, setRequestLoading] = useState(false)
 
   const { API_BASE_URL } = useContext(AuthContext)
 
@@ -367,16 +276,6 @@ export const BookhubHome = () => {
         setBooks(response.data)
 
       } catch (err) {
-        const data = err?.response?.data
-
-        if (data?.error === "access_denied") {
-          setAccessState({
-            status: data.status || "not_requested",
-            hasRequested: data.has_requested === "True"
-          })
-          return
-        }
-
         setError('Failed to load books. Please try again.')
       } finally {
         setLoading(false)
@@ -385,32 +284,6 @@ export const BookhubHome = () => {
 
     fetchBooks()
   }, [API_BASE_URL])
-
-  // Handle access request
-  const handleRequestAccess = async () => {
-    if (!requestReason.trim()) return
-
-    try {
-      setRequestLoading(true)
-
-      await axios.post(
-        `${API_BASE_URL}/bookhub/access/request/`,
-        { reason: requestReason },
-        getAuthHeader()
-      )
-
-      setAccessState({
-        status: "pending",
-        hasRequested: true
-      })
-    } catch (err) {
-      console.error(err)
-      alert("Failed to submit access request.")
-    } finally {
-      setRequestLoading(false)
-    }
-  }
-
   // Get current month and year
   const currentDate = new Date()
   const currentMonth = currentDate.toLocaleString('default', { month: 'long' })
@@ -482,37 +355,6 @@ export const BookhubHome = () => {
   // Loading state
   if (loading) {
     return <Loading />
-  }
-
-  // Error state
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <AlertCircle className="h-12 w-12 mx-auto" />
-          <p className="text-gray-600 font-semibold text-lg">
-            You need to login first
-          </p>
-          <Button onClick={() => window.location.href = "/login3"}>
-            Go to Login
-          </Button>
-        </div>
-      </div>
-
-    )
-  }
-
-  // Access request state
-  if (accessState) {
-    return (
-      <AccessRequestCard
-        accessState={accessState}
-        requestReason={requestReason}
-        setRequestReason={setRequestReason}
-        onSubmit={handleRequestAccess}
-        loading={requestLoading}
-      />
-    )
   }
 
   // Empty state

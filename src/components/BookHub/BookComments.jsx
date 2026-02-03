@@ -386,9 +386,9 @@ const BookComments = ({ bookId, bookTitle }) => {
   const requireAuth = (fn) => {
     if (!user) {
       alert('Please log in to perform this action.')
-      return
+      return Promise.resolve({ success: false, error: 'Not authenticated' })
     }
-    return fn
+    return fn()
   }
 
   const safeAddComment = (data) =>
