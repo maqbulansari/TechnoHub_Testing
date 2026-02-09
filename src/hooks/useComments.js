@@ -1,4 +1,4 @@
-import { useState, useCallback, useContext } from 'react'
+import { useState, useCallback, useContext, useEffect, useRef } from 'react'
 import axios from 'axios'
 import { AuthContext } from '@/contexts/authContext'
 
@@ -7,204 +7,211 @@ export const useComments = (bookId) => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [hasMore, setHasMore] = useState(true)
-  
-  const { API_BASE_URL } = useContext(AuthContext)
-  
-  const getAuthHeader = () => ({
-    headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` }
-  })
 
-  // Fetch comments for a book
-  const fetchComments = useCallback(async (options = {}) => {
-    const { topLevelOnly = true, ordering = '-created_at', search = '' } = options
-    
+  const socketRef = useRef(null)
+  const { API_BASE_URL } = useContext(AuthContext)
+
+  const getAuthHeader = () => ({
+    headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` }
+  })
+  const getWebSocketUrl = (baseUrl, bookId) => {
+    const wsProtocol = baseUrl.startsWith('https') ? 'wss' : 'ws'
+
+    const host = baseUrl
+      .replace(/^https?:\/\//, '')
+      .replace(/\/auth\/?$/, '')
+
+    return `${wsProtocol}://${host}/ws/bookhub/comments/${bookId}/`
+  }
+
+
+  /* Helpers (IMMUTABLE + SAFE)*/
+
+  const upsertRecursive = (items, updater) =>
+    items.map(item => {
+      const updated = updater(item)
+      if (updated) return updated
+      if (item.replies) {
+        return { ...item, replies: upsertRecursive(item.replies, updater) }
+      }
+      return item
+    })
+
+  const removeRecursive = (items, id) =>
+    items
+      .filter(item => item.id !== id)
+      .map(item =>
+        item.replies
+          ? { ...item, replies: removeRecursive(item.replies, id) }
+          : item
+      )
+
+  /* WebSocket message handler (SOURCE OF TRUTH)*/
+
+  const handleSocketMessage = useCallback((data) => {
+    const { event_type, payload } = data
+
+    setComments(prev => {
+      switch (event_type) {
+
+        case 'new_comment':
+          if (prev.some(c => c.id === payload.id)) return prev
+          return [payload, ...prev]
+
+        case 'new_reply':
+          return upsertRecursive(prev, c => {
+            if (c.id === payload.parent_id) {
+              const exists = (c.replies || []).some(r => r.id === payload.reply.id)
+              if (exists) return c
+              return {
+                ...c,
+                replies: [...(c.replies || []), payload.reply],
+                reply_count: (c.reply_count || 0) + 1
+              }
+            }
+            return null
+          })
+
+        case 'comment_updated':
+          return upsertRecursive(prev, c =>
+            c.id === payload.id ? { ...c, ...payload } : null
+          )
+
+        case 'comment_deleted':
+          return removeRecursive(prev, payload.id)
+
+        case 'comment_liked':
+          return upsertRecursive(prev, c =>
+            c.id === payload.comment_id
+              ? { ...c, like_count: payload.like_count, liked: payload.liked }
+              : null
+          )
+
+        case 'comment_flagged':
+          return upsertRecursive(prev, c =>
+            c.id === payload.comment_id
+              ? { ...c, is_flagged: payload.is_flagged }
+              : null
+          )
+
+        default:
+          return prev
+      }
+    })
+  }, [])
+
+  /*  WebSocket lifecycle*/
+
+  useEffect(() => {
+    if (!bookId) return
+
+    if (socketRef.current) {
+      socketRef.current.close()
+    }
+
+    // const socket = new WebSocket(
+    //   `wss://xbzp7968-7000.inc1.devtunnels.ms/ws/bookhub/comments/${bookId}/`
+    // )
+    const socket = new WebSocket(
+      getWebSocketUrl(API_BASE_URL, bookId)
+    )
+
+
+    socketRef.current = socket
+
+    socket.onopen = () => console.log('🟢 WebSocket connected')
+    socket.onmessage = e => handleSocketMessage(JSON.parse(e.data))
+    socket.onerror = e => console.error('WebSocket error:', e)
+    socket.onclose = () => console.log('🔴 WebSocket disconnected')
+
+    return () => socket.close()
+  }, [bookId, handleSocketMessage])
+
+  /* REST: fetch only (MERGE, never overwrite)*/
+
+  const fetchComments = useCallback(async () => {
     try {
       setLoading(true)
-      setError(null)
-      
-      let url = `${API_BASE_URL}/bookhub/comments/?book=${bookId}`
-      if (topLevelOnly) url += '&top_level=true'
-      if (ordering) url += `&ordering=${ordering}`
-      if (search) url += `&search=${search}`
-      
-      const response = await axios.get(url)
-      
-      // Handle paginated or direct response
-      const commentsData = response.data.results || response.data
-      setComments(commentsData)
-      setHasMore(!!response.data.next)
-      
-      return commentsData
+      const res = await axios.get(
+        `${API_BASE_URL}/bookhub/comments/?book=${bookId}&top_level=true`
+      )
+
+      const data = res.data.results || res.data
+
+      // Sort descending by ID (latest first)
+      data.sort((a, b) => b.id - a.id)
+
+      setComments(prev => {
+        const map = new Map(prev.map(c => [c.id, c]))
+        data.forEach(c => map.set(c.id, c))
+        // Convert map to array and sort again so latest comments are first
+        return Array.from(map.values()).sort((a, b) => b.id - a.id)
+      })
+
+      setHasMore(!!res.data.next)
+      return data
     } catch (err) {
       setError('Failed to load comments')
-      console.error(err)
       return []
     } finally {
       setLoading(false)
     }
   }, [API_BASE_URL, bookId])
 
-  // Add new comment
-  const addComment = useCallback(async (commentText, mentionedUsers = []) => {
-    try {
-      const payload = {
+
+  /* REST mutations (DO NOT touch state here)
+     Socket will update UI */
+
+  const addComment = async (text, mentionedUsers = []) => {
+    await axios.post(
+      `${API_BASE_URL}/bookhub/comments/`,
+      {
         book: bookId,
-        comment: commentText
-      }
-      
-      // Add mentioned users to payload if any
-      if (mentionedUsers.length > 0) {
-        payload.mentioned_users = mentionedUsers.map(u => ({
-          id: u.id,
-          email: u.email
-        }))
-      }
-      
-      const response = await axios.post(
-        `${API_BASE_URL}/bookhub/comments/`,
-        payload,
-        getAuthHeader()
-      )
-      
-      setComments(prev => [response.data, ...prev])
-      return { success: true, data: response.data }
-    } catch (err) {
-      console.error(err)
-      return { success: false, error: err.response?.data?.error || 'Failed to add comment' }
-    }
-  }, [API_BASE_URL, bookId])
+        comment: text,
+        mentioned_users: mentionedUsers
+      },
+      getAuthHeader()
+    )
+  }
 
-  // Reply to a comment
-  const replyToComment = useCallback(async (parentId, commentText) => {
-    try {
-      const response = await axios.post(
-        `${API_BASE_URL}/bookhub/comments/${parentId}/reply/`,
-        { comment: commentText },
-        getAuthHeader()
-      )
-      
-      // Update the parent comment's replies
-      setComments(prev => prev.map(comment => {
-        if (comment.id === parentId) {
-          return {
-            ...comment,
-            replies: [...(comment.replies || []), response.data]
-          }
-        }
-        return comment
-      }))
-      
-      return { success: true, data: response.data }
-    } catch (err) {
-      console.error(err)
-      return { success: false, error: err.response?.data?.error || 'Failed to reply' }
-    }
-  }, [API_BASE_URL])
+  const replyToComment = async (parentId, text) => {
+    await axios.post(
+      `${API_BASE_URL}/bookhub/comments/${parentId}/reply/`,
+      { comment: text },
+      getAuthHeader()
+    )
+  }
 
-  // Like/Unlike a comment
-  const toggleLike = useCallback(async (commentId) => {
-    try {
-      const response = await axios.post(
-        `${API_BASE_URL}/bookhub/comments/${commentId}/like/`,
-        {},
-        getAuthHeader()
-      )
-      
-      // Update comment in state
-      const updateCommentLike = (comments) => comments.map(comment => {
-        if (comment.id === commentId) {
-          return {
-            ...comment,
-            liked: response.data.liked,
-            like_count: response.data.like_count
-          }
-        }
-        if (comment.replies) {
-          return {
-            ...comment,
-            replies: updateCommentLike(comment.replies)
-          }
-        }
-        return comment
-      })
-      
-      setComments(prev => updateCommentLike(prev))
-      return { success: true, data: response.data }
-    } catch (err) {
-      console.error(err)
-      return { success: false, error: 'Failed to like comment' }
-    }
-  }, [API_BASE_URL])
+  const toggleLike = async (id) => {
+    await axios.post(
+      `${API_BASE_URL}/bookhub/comments/${id}/like/`,
+      {},
+      getAuthHeader()
+    )
+  }
 
-  // Flag a comment
-  const flagComment = useCallback(async (commentId, reason) => {
-    try {
-      const response = await axios.post(
-        `${API_BASE_URL}/bookhub/comments/${commentId}/flag/`,
-        { reason },
-        getAuthHeader()
-      )
-      
-      return { success: true, data: response.data }
-    } catch (err) {
-      console.error(err)
-      return { 
-        success: false, 
-        error: err.response?.data?.error || 'Failed to flag comment' 
-      }
-    }
-  }, [API_BASE_URL])
+  const flagComment = async (id, reason) => {
+    await axios.post(
+      `${API_BASE_URL}/bookhub/comments/${id}/flag/`,
+      { reason },
+      getAuthHeader()
+    )
+  }
 
-  // Edit a comment
-  const editComment = useCallback(async (commentId, newText) => {
-    try {
-      const response = await axios.patch(
-        `${API_BASE_URL}/bookhub/comments/${commentId}/`,
-        { comment: newText },
-        getAuthHeader()
-      )
-      
-      const updateCommentText = (comments) => comments.map(comment => {
-        if (comment.id === commentId) {
-          return { ...comment, comment: newText, updated_at: new Date().toISOString() }
-        }
-        if (comment.replies) {
-          return { ...comment, replies: updateCommentText(comment.replies) }
-        }
-        return comment
-      })
-      
-      setComments(prev => updateCommentText(prev))
-      return { success: true, data: response.data }
-    } catch (err) {
-      console.error(err)
-      return { success: false, error: 'Failed to edit comment' }
-    }
-  }, [API_BASE_URL])
+  const editComment = async (id, text) => {
+    await axios.patch(
+      `${API_BASE_URL}/bookhub/comments/${id}/`,
+      { comment: text },
+      getAuthHeader()
+    )
+  }
 
-  // Delete a comment (if user owns it)
-  const deleteComment = useCallback(async (commentId) => {
-    try {
-      await axios.delete(
-        `${API_BASE_URL}/bookhub/comments/${commentId}/`,
-        getAuthHeader()
-      )
-      
-      const removeComment = (comments) => comments.filter(comment => {
-        if (comment.id === commentId) return false
-        if (comment.replies) {
-          comment.replies = removeComment(comment.replies)
-        }
-        return true
-      })
-      
-      setComments(prev => removeComment(prev))
-      return { success: true }
-    } catch (err) {
-      console.error(err)
-      return { success: false, error: 'Failed to delete comment' }
-    }
-  }, [API_BASE_URL])
+  const deleteComment = async (id) => {
+    await axios.delete(
+      `${API_BASE_URL}/bookhub/comments/${id}/`,
+      getAuthHeader()
+    )
+  }
 
   return {
     comments,
@@ -217,7 +224,6 @@ export const useComments = (bookId) => {
     toggleLike,
     flagComment,
     editComment,
-    deleteComment,
-    setComments
+    deleteComment
   }
 }

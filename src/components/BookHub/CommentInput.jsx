@@ -95,13 +95,16 @@ const CommentInput = ({
         try {
             const resolved = await resolveMentionEmails(text.trim())
             const result = await onSubmit(resolved.text, resolved.mentioned)
-            if (result?.success) {
+            
+            // Handle success (whether explicitly returned or undefined)
+            if (result?.success !== false) {
                 setText("")
                 setShowMentions(false)
                 setMentionSuggestions([])
                 setMentionedUsers([])
                 onCancel?.()
             }
+            
         } finally {
             setIsSubmitting(false)
         }
@@ -216,7 +219,7 @@ const CommentInput = ({
     const getInitials = (user) =>
         `${user?.first_name?.[0] || ''}${user?.last_name?.[0] || ''}`.toUpperCase() || 'U'
 
-console.log(isSubmitting);
+
 
     return (
         <div className="flex gap-3 items-start">

@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState, useMemo } from "react";
 import { SponsorContext } from "../../contexts/dashboard/sponsorDashboardContext";
 import { AuthContext } from "../../contexts/authContext";
+import axios from "axios";
 import bgSponser from "../../assets/images/sponserDashboard/bgSponser.png";
 
 import {
@@ -61,6 +62,27 @@ export const RecruitmentDashboard = () => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
 
+
+useEffect(() => {
+  const fetchRecruitment = async () => {
+    try {
+      const token = localStorage.getItem("accessToken");
+
+      const res = await axios.get(`${API_BASE_URL}/recruitment/`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      console.log(res);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  fetchRecruitment();
+}, []);
+       
 
 
   useEffect(() => {
@@ -124,49 +146,54 @@ export const RecruitmentDashboard = () => {
     setStudentCount(value);
   };
 
-  const handleRecruitStudent = async () => {
-    if (!isFormValid) return;
 
-    setLoading(true);
 
-    try {
-      const payload = {
-        technologies: [technology],
-        num_students: Number(studentCount),
-        remarks,
-      };
 
-      const response = await fetch(
-        `${API_BASE_URL}/recruiter/select_students/`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`,
-          },
-          body: JSON.stringify(payload),
-        }
-      );
+const handleRecruitStudent = async () => {
+  if (!isFormValid) return;
 
-      if (!response.ok) {
-        throw new Error("Recruitment failed");
+  setLoading(true);
+
+  try {
+    const payload = {
+      technologies: [technology],
+      num_students: Number(studentCount),
+      remarks,
+    };
+
+    const response = await axios.post(
+      `${API_BASE_URL}/recruiter/select_students/`,
+      payload,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
       }
+    );
 
-      // RESET FORM
-      setTechnology("Select Technology");
-      setStudentCount("");
-      setRemarks("");
-      setAvailableStudent(null);
-      setError("");
-      setOpenRecruitModal(false);
-      setShowSuccessModal(true);
-    } catch (err) {
-      console.error(err);
-      setError("Failed to recruit students. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
+    // RESET FORM
+    setTechnology("Select Technology");
+    setStudentCount("");
+    setRemarks("");
+    setAvailableStudent(null);
+    setError("");
+    setOpenRecruitModal(false);
+    setShowSuccessModal(true);
+
+  } catch (err) {
+    console.error(err);
+
+    const message =
+      err.response?.data?.message ||
+      err.response?.data?.detail ||
+      "Failed to recruit students. Please try again.";
+
+    setError(message);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
 
   const filteredStudents = useMemo(() => {

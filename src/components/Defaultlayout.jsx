@@ -40,7 +40,7 @@ const menuItems = (role) => ({
         { path: "/Students_profile", label: "Profile" },
         { path: "/Students_batches", label: "Batch" },
         { path: "/Admission_table", label: "Interview" },
-        // { path: "/StudentAssignment", label: "Assignment" },
+        { path: "/StuRecuitment", label: "Recuitment" },
       ],
     },
   ],
@@ -74,10 +74,11 @@ const menuItems = (role) => ({
       icon: faChalkboardUser,
       items:
         role === "ADMIN"
-          ? [{ path: "/RecuriterTable", label: "Recruiter" }]
+          ? [{ path: "/RecuriterTable", label: "Recruiter" },{ path: "/RecruitmentAssignment", label: "Recruitment Status" }]
           : [
             { path: "/Recruitment_Profile", label: "Profile" },
             { path: "/ReadyToRecruitDashboard", label: "Dashboard" },
+            { path: "/RecruiterHire", label: "Hire" },
           ],
     },
   ],

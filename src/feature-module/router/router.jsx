@@ -61,6 +61,10 @@ import AdminAccessManager from "@/components/BookHub/AdminAccessManager";
 import BookDetail from "@/components/BookHub/BookDetail";
 import CreateBook from "@/components/BookHub/CreateBook";
 import  Courses from "@/components/Batches/Courses";
+import RecruitmentApprovalTable from "@/components/RecruitmentDashboard/RecruitmentAdminAskStu";
+import { StuRecuitment } from "@/components/RecruitmentDashboard/StuRecuitment";
+import { RecruiterHire } from "@/components/RecruitmentDashboard/RecruiterHire";
+import RecruitmentAssignment from "@/components/RecruitmentDashboard/RecruitmentAssignment";
 
 
 
@@ -110,7 +114,7 @@ const ALLRoutes = () => {
       <Route path="/terms" element={<TermAndConditions />} />
       <Route path="/Bookhub" element={<BookhubHome />} />
       <Route path="/Courses" element={<Courses />} />
-         <Route path="/bookhub/book/:bookId" element={<BookDetail />} />
+      <Route path="/bookhub/book/:bookId" element={<BookDetail />} />
 
     </Route>
 
@@ -163,6 +167,10 @@ const ALLRoutes = () => {
         <Route path="/AdminAccessManager" element={<AdminAccessManager />} />
          <Route path="/bookhub/book/:bookId" element={<BookDetail />} />
          <Route path="/bookhub/CreateBook" element={<CreateBook />} />
+         <Route path="/RecruitmentApprovalTable" element={<RecruitmentApprovalTable />} />
+         <Route path="/StuRecuitment" element={<StuRecuitment />} />
+         <Route path="/RecruiterHire" element={<RecruiterHire />} />
+         <Route path="/RecruitmentAssignment" element={<RecruitmentAssignment />} />
       </Route>
 
     </Route>
