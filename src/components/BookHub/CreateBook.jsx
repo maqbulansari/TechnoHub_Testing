@@ -60,7 +60,7 @@ export const CreateBook = () => {
         formData.append("cover_image", data.cover_image[0]);
       }
 
-      await axios.post(`${API_BASE_URL}/auth/bookhub/books/`, formData, {
+      await axios.post(`${API_BASE_URL}/bookhub/books/`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",

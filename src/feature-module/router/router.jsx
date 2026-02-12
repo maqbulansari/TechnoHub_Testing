@@ -27,6 +27,7 @@ import { Forbidden } from "../../components/Forbidden/Forbidden";
 import RecruitmentProfile from "../../components/RecruitmentDashboard/RecruitmentProfile";
 import Register from "../auth/register/register";
 import { ProtectedRoute } from "../../components/PrivateRoute/Private";
+import { RoleProtectedRoute } from "../../components/PrivateRoute/RoleProtectedRoute";
 import { Interviewee } from "../../components/Interview/Interviewee";
 import AssignBatch from "../../components/Admission_dashboard/AssignBatch";
 import StudentInformation from "../../components/Assessment_dashboard/StudentInformation";
@@ -127,52 +128,84 @@ const ALLRoutes = () => {
     <Route element={<ProtectedRoute />}>
       <Route path="/" element={<Defaultlayout />}>
         <Route path={routes.changePassword} element={<ChangePassword />} />
-        <Route path="/Students_SponserDashboard" element={<Students_SponserDashboard />} />
-        <Route path="/Interviewee" element={<Interviewee />} />
-        <Route path="/ReadyToRecruitDashboard" element={<RecruitmentDashboard />} />
-        <Route path="/Students_profile" element={<StudentsProfile />} />
-        <Route path="/Recruitment_Profile" element={<RecruitmentProfile />} />
-        <Route path="/Sponsor_Profile" element={<Sponsor_Profile />} />
-        <Route path="/Students_batches" element={<StudentsBatches />} />
-        <Route path="/Trainer_profile" element={<TrainerProfile />} />
-        <Route path="/Admission_table" element={<AdmissionTable />} />
-        <Route path="/interview-candidate/:id" element={<InterviewCandidate />} />
-        <Route path="/AllIntervieweesInformation" element={<AllIntervieweesInformation />} />
-        <Route path="/Trainer_batch" element={<TrainerBatch />} />
-        <Route path="/TrainerBatchDetail/:batchId" element={<TrainerBatchDetail />} />
-        <Route path="/AssessmentTable" element={<AssessmentTable />} />
-        <Route path="/AssessmentSelectedStudent" element={<AssessmentSelectedStudents />} />
-        <Route path="/AssessmentCandidte/:id" element={<AssessmentCandidte />} />
-        <Route path="/AssignBatch" element={<AssignBatch />} />
-        <Route path="/StudentInformation" element={<StudentInformation />} />
-        <Route path="/AllTrainer" element={<AllTrainer />} />
-        <Route path="/AllStudent" element={<AllStudent />} />
-        <Route path="/AssignBatchForTrainer" element={<AssignBatchForTrainer />} />
-        <Route path="/StudentInformation" element={<StudentInformation />} />
-        <Route path="/RecuriterTable" element={<RecruiterTable />} />
-        <Route path="/Sponsor_Table" element={<SponsorTable />} />
-        <Route path="/Sponsored_Students" element={<SponsoredStudents />} />
-        <Route path="/AssignTrainerForInterview" element={<AssignTrainerForInterview />} />
-        <Route path="/SelectedTrainerForInterview" element={<SelectedTrainerForInterview />} />
-        <Route path="/CreateBatches" element={<CreateBatches />} />
-        <Route path="/AllBatches" element={<AllBatches />} />
-        <Route path="/EditBatch/:batchId" element={<EditBatch />} />
-        <Route path="/CreateAssignments/:batchId" element={<CreateAssignments />} />
-        <Route path="/AllAssignments/:batchId" element={<AllAssignments />} />
-        <Route path="/StudentAssignment" element={<StudentAssignment />} />
-        <Route path="/AssignmentComments/:assignmentId" element={<AssignmentComments />} />
-        <Route path="/Notifications" element={<Notifications />} />
-        <Route path="/adminDashboard" element={<AdminDashboard />} />
-        <Route path="/Admin_Profile" element={<AdminProfile />} />
-        <Route path="/AdminAccessManager" element={<AdminAccessManager />} />
-         <Route path="/bookhub/book/:bookId" element={<BookDetail />} />
-         <Route path="/bookhub/CreateBook" element={<CreateBook />} />
-         <Route path="/RecruitmentApprovalTable" element={<RecruitmentApprovalTable />} />
-         <Route path="/StuRecuitment" element={<StuRecuitment />} />
-         <Route path="/RecruiterHire" element={<RecruiterHire />} />
-         <Route path="/RecruitmentAssignment" element={<RecruitmentAssignment />} />
-      </Route>
 
+        {/* Student Routes */}
+        <Route element={<RoleProtectedRoute allowedRoles={["STUDENT"]} />}>
+          <Route path="/Students_profile" element={<StudentsProfile />} />
+          <Route path="/Students_batches" element={<StudentsBatches />} />
+          <Route path="/StudentAssignment" element={<StudentAssignment />} />
+          <Route path="/AssignmentComments/:assignmentId" element={<AssignmentComments />} />
+          <Route path="/StuRecuitment" element={<StuRecuitment />} />
+        </Route>
+
+        {/* Trainer Routes */}
+        <Route element={<RoleProtectedRoute allowedRoles={["TRAINER"]} />}>
+          <Route path="/Trainer_profile" element={<TrainerProfile />} />
+          <Route path="/Trainer_batch" element={<TrainerBatch />} />
+          <Route path="/TrainerBatchDetail/:batchId" element={<TrainerBatchDetail />} />
+          <Route path="/AssignBatchForTrainer" element={<AssignBatchForTrainer />} />
+          <Route path="/CreateAssignments/:batchId" element={<CreateAssignments />} />
+          <Route path="/AllAssignments/:batchId" element={<AllAssignments />} />
+        </Route>
+
+        {/* Admission Officer Routes */}
+        <Route element={<RoleProtectedRoute allowedRoles={["ADMISSION_OFFICER"]} />}>
+          <Route path="/Admission_table" element={<AdmissionTable />} />
+          <Route path="/interview-candidate/:id" element={<InterviewCandidate />} />
+          <Route path="/AllIntervieweesInformation" element={<AllIntervieweesInformation />} />
+          <Route path="/AssignBatch" element={<AssignBatch />} />
+          <Route path="/AssignTrainerForInterview" element={<AssignTrainerForInterview />} />
+          <Route path="/SelectedTrainerForInterview" element={<SelectedTrainerForInterview />} />
+        </Route>
+
+        {/* Assessment Officer Routes */}
+        <Route element={<RoleProtectedRoute allowedRoles={["ASSESSMENT_OFFICER"]} />}>
+          <Route path="/AssessmentTable" element={<AssessmentTable />} />
+          <Route path="/AssessmentSelectedStudent" element={<AssessmentSelectedStudents />} />
+          <Route path="/AssessmentCandidte/:id" element={<AssessmentCandidte />} />
+          <Route path="/StudentInformation" element={<StudentInformation />} />
+        </Route>
+
+        {/* Sponsor Routes */}
+        <Route element={<RoleProtectedRoute allowedRoles={["SPONSOR"]} />}>
+          <Route path="/Students_SponserDashboard" element={<Students_SponserDashboard />} />
+          <Route path="/Sponsor_Profile" element={<Sponsor_Profile />} />
+          <Route path="/Sponsor_Table" element={<SponsorTable />} />
+          <Route path="/Sponsored_Students" element={<SponsoredStudents />} />
+        </Route>
+
+        {/* Recruiter Routes */}
+        <Route element={<RoleProtectedRoute allowedRoles={["RECRUITER"]} />}>
+          <Route path="/ReadyToRecruitDashboard" element={<RecruitmentDashboard />} />
+          <Route path="/RecuriterTable" element={<RecruiterTable />} />
+          <Route path="/Recruitment_Profile" element={<RecruitmentProfile />} />
+          <Route path="/RecruiterHire" element={<RecruiterHire />} />
+          <Route path="/RecruitmentAssignment" element={<RecruitmentAssignment />} />
+        </Route>
+
+        {/* Admin Routes */}
+        <Route element={<RoleProtectedRoute allowedRoles={["ADMIN"]} />}>
+          <Route path="/adminDashboard" element={<AdminDashboard />} />
+          <Route path="/Admin_Profile" element={<AdminProfile />} />
+          <Route path="/AdminAccessManager" element={<AdminAccessManager />} />
+          <Route path="/AllTrainer" element={<AllTrainer />} />
+          <Route path="/AllStudent" element={<AllStudent />} />
+          <Route path="/CreateBatches" element={<CreateBatches />} />
+          <Route path="/AllBatches" element={<AllBatches />} />
+          <Route path="/EditBatch/:batchId" element={<EditBatch />} />
+          <Route path="/RecruitmentApprovalTable" element={<RecruitmentApprovalTable />} />
+          <Route path="/bookhub/CreateBook" element={<CreateBook />} />
+        </Route>
+
+        {/* Interviewee Routes */}
+        <Route element={<RoleProtectedRoute allowedRoles={["INTERVIEWEE"]} />}>
+          <Route path="/Interviewee" element={<Interviewee />} />
+        </Route>
+
+        {/* Common Protected Routes (All authenticated users) */}
+        <Route path="/Notifications" element={<Notifications />} />
+        <Route path="/bookhub/book/:bookId" element={<BookDetail />} />
+      </Route>
     </Route>
 
     {/* Feature-based route groups */}

@@ -141,12 +141,7 @@ export const useComments = (bookId) => {
       // Sort descending by ID (latest first)
       data.sort((a, b) => b.id - a.id)
 
-      setComments(prev => {
-        const map = new Map(prev.map(c => [c.id, c]))
-        data.forEach(c => map.set(c.id, c))
-        // Convert map to array and sort again so latest comments are first
-        return Array.from(map.values()).sort((a, b) => b.id - a.id)
-      })
+      setComments(data)
 
       setHasMore(!!res.data.next)
       return data
