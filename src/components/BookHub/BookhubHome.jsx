@@ -24,6 +24,7 @@ import {
   MessageCircle
 } from 'lucide-react'
 import { AuthContext } from '@/contexts/authContext'
+import { TECHNO_BASE_URL } from '@/environment'
 import axios from 'axios'
 import Loading from '@/Loading'
 
@@ -271,7 +272,7 @@ export const BookhubHome = () => {
         setError(null)
 
         const response = await axios.get(
-          `${API_BASE_URL}/bookhub/books/`
+          `${TECHNO_BASE_URL}/bookhub/books/`
         )
         setBooks(response.data)
 

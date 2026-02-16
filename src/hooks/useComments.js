@@ -1,6 +1,7 @@
 import { useState, useCallback, useContext, useEffect, useRef } from 'react'
 import axios from 'axios'
 import { AuthContext } from '@/contexts/authContext'
+import { TECHNO_BASE_URL } from '@/environment'
 
 export const useComments = (bookId) => {
   const [comments, setComments] = useState([])
@@ -15,11 +16,11 @@ export const useComments = (bookId) => {
     headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` }
   })
   const getWebSocketUrl = (baseUrl, bookId) => {
-    const wsProtocol = baseUrl.startsWith('https') ? 'wss' : 'ws'
+    const wsProtocol = TECHNO_BASE_URL.startsWith('https') ? 'wss' : 'ws'
 
-    const host = baseUrl
+    const host = TECHNO_BASE_URL
       .replace(/^https?:\/\//, '')
-      .replace(/\/auth\/?$/, '')
+      .replace(/\/techno\/?$/, '')
 
     return `${wsProtocol}://${host}/ws/bookhub/comments/${bookId}/`
   }
@@ -113,7 +114,7 @@ export const useComments = (bookId) => {
     //   `wss://xbzp7968-7000.inc1.devtunnels.ms/ws/bookhub/comments/${bookId}/`
     // )
     const socket = new WebSocket(
-      getWebSocketUrl(API_BASE_URL, bookId)
+      getWebSocketUrl(TECHNO_BASE_URL, bookId)
     )
 
 
@@ -133,7 +134,7 @@ export const useComments = (bookId) => {
     try {
       setLoading(true)
       const res = await axios.get(
-        `${API_BASE_URL}/bookhub/comments/?book=${bookId}&top_level=true`
+        `${TECHNO_BASE_URL}/bookhub/comments/?book=${bookId}&top_level=true`
       )
 
       const data = res.data.results || res.data
@@ -151,7 +152,7 @@ export const useComments = (bookId) => {
     } finally {
       setLoading(false)
     }
-  }, [API_BASE_URL, bookId])
+  }, [TECHNO_BASE_URL, bookId])
 
 
   /* REST mutations (DO NOT touch state here)
@@ -159,7 +160,7 @@ export const useComments = (bookId) => {
 
   const addComment = async (text, mentionedUsers = []) => {
     await axios.post(
-      `${API_BASE_URL}/bookhub/comments/`,
+      `${TECHNO_BASE_URL}/bookhub/comments/`,
       {
         book: bookId,
         comment: text,
@@ -171,7 +172,7 @@ export const useComments = (bookId) => {
 
   const replyToComment = async (parentId, text) => {
     await axios.post(
-      `${API_BASE_URL}/bookhub/comments/${parentId}/reply/`,
+      `${TECHNO_BASE_URL}/bookhub/comments/${parentId}/reply/`,
       { comment: text },
       getAuthHeader()
     )
@@ -179,7 +180,7 @@ export const useComments = (bookId) => {
 
   const toggleLike = async (id) => {
     await axios.post(
-      `${API_BASE_URL}/bookhub/comments/${id}/like/`,
+      `${TECHNO_BASE_URL}/bookhub/comments/${id}/like/`,
       {},
       getAuthHeader()
     )
@@ -187,7 +188,7 @@ export const useComments = (bookId) => {
 
   const flagComment = async (id, reason) => {
     await axios.post(
-      `${API_BASE_URL}/bookhub/comments/${id}/flag/`,
+      `${TECHNO_BASE_URL}/bookhub/comments/${id}/flag/`,
       { reason },
       getAuthHeader()
     )
@@ -195,7 +196,7 @@ export const useComments = (bookId) => {
 
   const editComment = async (id, text) => {
     await axios.patch(
-      `${API_BASE_URL}/bookhub/comments/${id}/`,
+      `${TECHNO_BASE_URL}/bookhub/comments/${id}/`,
       { comment: text },
       getAuthHeader()
     )
@@ -203,7 +204,7 @@ export const useComments = (bookId) => {
 
   const deleteComment = async (id) => {
     await axios.delete(
-      `${API_BASE_URL}/bookhub/comments/${id}/`,
+      `${TECHNO_BASE_URL}/bookhub/comments/${id}/`,
       getAuthHeader()
     )
   }

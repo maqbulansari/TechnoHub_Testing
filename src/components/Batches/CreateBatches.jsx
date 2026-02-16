@@ -1,6 +1,7 @@
 import React, { useContext, useState, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { AuthContext } from "../../contexts/authContext";
+import { TECHNO_BASE_URL } from "@/environment";
 import axios from "axios";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -59,13 +60,13 @@ export const CreateBatches = () => {
             setLoading(true);
             try {
                 const [techRes, trainerRes, statusRes] = await Promise.all([
-                    axios.get(`${API_BASE_URL}/technology/`, {
+                    axios.get(`${TECHNO_BASE_URL}/technology/`, {
                         headers: { Authorization: `Bearer ${token}` },
                     }),
-                    axios.get(`${API_BASE_URL}/trainers/`, {
+                    axios.get(`${TECHNO_BASE_URL}/trainers/`, {
                         headers: { Authorization: `Bearer ${token}` },
                     }),
-                    axios.get(`${API_BASE_URL}/batchstatuses/`, {
+                    axios.get(`${TECHNO_BASE_URL}/batchstatuses/`, {
                         headers: { Authorization: `Bearer ${token}` },
                     }),
                 ]);
@@ -113,46 +114,46 @@ export const CreateBatches = () => {
     const validateTechnologies = () => selectedTechs.length > 0 || "Select at least one technology";
     const validateTrainers = () => selectedTrainers.length > 0 || "Select at least one trainer";
 
- const onSubmit = async (data) => {
-    setIsSubmitting(true);
-    try {
-        const payload = {
-            batch_name: data.batch_name,
-            start_date: data.start_date,
-            end_date: data.end_date,
-            capacity: parseInt(data.capacity),
-            time_slot: data.time_slot,
-            fee: parseFloat(data.fee),
-            status_id: parseInt(data.status_id),
-            technoLogies: selectedTechs,
-            trainer: selectedTrainers,
-            center: data.center,
-        };
+    const onSubmit = async (data) => {
+        setIsSubmitting(true);
+        try {
+            const payload = {
+                batch_name: data.batch_name,
+                start_date: data.start_date,
+                end_date: data.end_date,
+                capacity: parseInt(data.capacity),
+                time_slot: data.time_slot,
+                fee: parseFloat(data.fee),
+                status_id: parseInt(data.status_id),
+                technoLogies: selectedTechs,
+                trainer: selectedTrainers,
+                center: data.center,
+            };
 
-        await axios.post(`${API_BASE_URL}/batches/`, payload, {
-            headers: { Authorization: `Bearer ${token}` },
-        });
+            await axios.post(`${TECHNO_BASE_URL}/batches/`, payload, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
 
-        setModalMessage("Batch created successfully!");
-        setSubmitSuccess(true);
+            setModalMessage("Batch created successfully!");
+            setSubmitSuccess(true);
 
-        reset();
-        setSelectedTechs([]);
-        setSelectedTrainers([]);
-        setTechSearchTerm("");
-        setTrainerSearchTerm("");
-    } catch (err) {
-        console.error(err);
+            reset();
+            setSelectedTechs([]);
+            setSelectedTrainers([]);
+            setTechSearchTerm("");
+            setTrainerSearchTerm("");
+        } catch (err) {
+            console.error(err);
 
-        // Handle non_field_errors
-        const errorMsg = err.response?.data?.non_field_errors?.[0] 
-                         || "Failed to create batch";
-        setModalMessage(errorMsg);
-        setSubmitSuccess(true); // open modal to show error
-    } finally {
-        setIsSubmitting(false);
-    }
-};
+            // Handle non_field_errors
+            const errorMsg = err.response?.data?.non_field_errors?.[0]
+                || "Failed to create batch";
+            setModalMessage(errorMsg);
+            setSubmitSuccess(true); // open modal to show error
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
     return (
         <Card className="max-w-4xl mx-auto p-6 mt-20 border border-gray-200 shadow-sm rounded-lg">
@@ -317,7 +318,7 @@ export const CreateBatches = () => {
                                         onChange={(e) => setTechSearchTerm(e.target.value)}
                                     />
                                 </div>
-                                 <ScrollArea className="h-60">
+                                <ScrollArea className="h-60">
                                     {filteredTechnologies.map((tech) => (
                                         <label
                                             key={tech.id}
@@ -375,7 +376,7 @@ export const CreateBatches = () => {
                                         onChange={(e) => setTrainerSearchTerm(e.target.value)}
                                     />
                                 </div>
-                              <ScrollArea className="h-60">
+                                <ScrollArea className="h-60">
                                     {filteredTrainers.map((trainer) => (
                                         <label
                                             key={trainer.id}
@@ -438,23 +439,23 @@ export const CreateBatches = () => {
             </form>
 
             {/* Dialog Modal */}
-           <Dialog open={submitSuccess} onOpenChange={setSubmitSuccess}>
-    <DialogContent className="sm:max-w-md p-0 gap-0 overflow-hidden [&>button]:hidden rounded-xl">
-        <DialogHeader className="px-5 pt-4 pb-4 space-y-1">
-            <DialogTitle className="text-xl pb-2 font-semibold">
-                {modalMessage === "Batch created successfully!" ? "Success" : "Error"}
-            </DialogTitle>
-            <DialogDescription className="text-sm pb-2 text-muted-foreground leading-relaxed">
-                {modalMessage}
-            </DialogDescription>
-        </DialogHeader>
-        <DialogFooter className="px-3 pb-3 bg-muted/30">
-            <Button onClick={() => setSubmitSuccess(false)} className="w-full sm:w-auto">
-                Close
-            </Button>
-        </DialogFooter>
-    </DialogContent>
-</Dialog>
+            <Dialog open={submitSuccess} onOpenChange={setSubmitSuccess}>
+                <DialogContent className="sm:max-w-md p-0 gap-0 overflow-hidden [&>button]:hidden rounded-xl">
+                    <DialogHeader className="px-5 pt-4 pb-4 space-y-1">
+                        <DialogTitle className="text-xl pb-2 font-semibold">
+                            {modalMessage === "Batch created successfully!" ? "Success" : "Error"}
+                        </DialogTitle>
+                        <DialogDescription className="text-sm pb-2 text-muted-foreground leading-relaxed">
+                            {modalMessage}
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter className="px-3 pb-3 bg-muted/30">
+                        <Button onClick={() => setSubmitSuccess(false)} className="w-full sm:w-auto">
+                            Close
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
 
         </Card>
     );

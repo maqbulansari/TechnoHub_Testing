@@ -67,6 +67,7 @@ import {
   Plus
 } from 'lucide-react'
 import { AuthContext } from '@/contexts/authContext'
+import { TECHNO_BASE_URL } from '@/environment'
 import axios from 'axios'
 import Loading from '@/Loading'
 import BookComments from './BookComments'
@@ -226,7 +227,7 @@ const BookDetail = () => {
 
   const STATUS_TRANSITIONS = {
     UPCOMING: ["DISCUSSING"],
-    DISCUSSING: ["DISCUSSED", "RE-READ"],
+    DISCUSSING: ["DISCUSSED"],
     DISCUSSED: ["RE-READ"],
     "RE-READ": ["DISCUSSING"]
   }
@@ -292,7 +293,7 @@ const BookDetail = () => {
     try {
       setRequestLoading(true)
       await axios.post(
-        `${API_BASE_URL}/bookhub/access/request/`,
+        `${TECHNO_BASE_URL}/bookhub/access/request/`,
         { reason: requestReason },
         getAuthHeader()
       )
@@ -395,14 +396,14 @@ const BookDetail = () => {
       }
 
       const response = await axios.patch(
-        `${API_BASE_URL}/bookhub/books/${bookId}/`,
+        `${TECHNO_BASE_URL}/bookhub/books/${bookId}/`,
         formData,
         getAuthHeaderMultipart()
       )
 
       if (bookForm.status && bookForm.status !== book.status) {
         await axios.patch(
-          `${API_BASE_URL}/bookhub/books/${bookId}/change_status/`,
+          `${TECHNO_BASE_URL}/bookhub/books/${bookId}/change_status/`,
           { status: bookForm.status },
           getAuthHeader()
         )
@@ -411,13 +412,62 @@ const BookDetail = () => {
       setBook(response.data)
       setEditBookDialogOpen(false)
       toast.success('Book updated successfully!')
-    } catch (err) {
+    }
+    catch (err) {
       console.error('Failed to update book:', err)
-      toast.error(err.response?.data?.detail || 'Failed to update book')
-    } finally {
+
+      const errorMessage =
+        err.response?.data?.error ||
+        err.response?.data?.detail ||
+        'Failed to update book'
+
+      toast.error(errorMessage)
+
+      // Optional: show pending chapters
+      if (err.response?.data?.pending_chapters) {
+        console.log(
+          "Pending chapters:",
+          err.response.data.pending_chapters
+        )
+      }
+    }
+
+    finally {
       setEditBookLoading(false)
     }
   }
+
+
+  const handleDeleteSummary = async (chapter) => {
+    try {
+    
+      await axios.delete(
+        `${TECHNO_BASE_URL}/bookhub/chapters/delete-summary/`,
+        {
+          ...getAuthHeader(),
+          data: { chapter_number: chapter.chapter_number } 
+        }
+      )
+
+      // Refresh summaries after delete
+      const summaryResponse = await axios.get(
+        `${TECHNO_BASE_URL}/bookhub/summaries/?book=${bookId}`,
+        getAuthHeader()
+      )
+
+      setChapterSummaries(summaryResponse.data.chapters || [])
+
+      toast.success("Summary deleted successfully!")
+    } catch (err) {
+      console.error("Failed to delete summary:", err)
+      toast.error(
+        err.response?.data?.detail ||
+        err.response?.data?.error ||
+        "Failed to delete summary"
+      )
+    }
+  }
+
 
   // ──────────────────────────────────────────────
   // Open the summary dialog for EDITING an existing chapter
@@ -460,79 +510,66 @@ const BookDetail = () => {
     }
   }
 
-
-  // ──────────────────────────────────────────────
-// Compute the next chapter ID for "Add"
-// ──────────────────────────────────────────────
-const getNextChapterId = () => {
-  if (!chapterSummaries || chapterSummaries.length === 0) return 1
-  const maxId = Math.max(
-    ...chapterSummaries.map((ch) => ch.id || 0)
-  )
-  return maxId + 1
-}
-
   // ──────────────────────────────────────────────
   // Submit: CREATE or UPDATE summary
   // ──────────────────────────────────────────────
-const handleUpdateSummary = async () => {
-  try {
-    setEditSummaryLoading(true)
+  const handleUpdateSummary = async () => {
+    try {
+      setEditSummaryLoading(true)
 
-    const formData = new FormData()
+      const formData = new FormData()
 
-    if (summaryForm.discussed_on) {
-      formData.append('discussed_on', summaryForm.discussed_on)
-    }
+      if (summaryFile) {
+        formData.append('summary_file', summaryFile)
+      }
 
-    if (summaryFile) {
-      formData.append('summary_file', summaryFile)
-    }
+      if (isAddingSummary) {
+        // ─── CREATE ───
+        formData.append('book', bookId)
+        formData.append('chapter_number', summaryForm.chapter_number)
+        formData.append('chapter_title', summaryForm.chapter_title)
 
-    if (isAddingSummary) {
-      // ─── CREATE: compute next ID and post ───
-      const newChapterId = getNextChapterId()
+        await axios.post(
+          `${TECHNO_BASE_URL}/bookhub/chapters/upload-summary/`,
+          formData,
+          getAuthHeaderMultipart()
+        )
+      } else {
+        // ─── UPDATE: always send chapter_number and chapter_title ───
+        formData.append('chapter_id', selectedChapter.id)
+        formData.append('chapter_number', summaryForm.chapter_number)
+        formData.append('chapter_title', summaryForm.chapter_title)
 
-      formData.append('chapter_number', summaryForm.chapter_number)
-      formData.append('chapter_title', summaryForm.chapter_title)
+        await axios.patch(
+          `${TECHNO_BASE_URL}/bookhub/chapters/update-summary/`,
+          formData,
+          getAuthHeaderMultipart()
+        )
+      }
 
-      await axios.post(
-        `${API_BASE_URL}/bookhub/chapters/${newChapterId}/upload_summary/`,
-        formData,
-        getAuthHeaderMultipart()
+      // Refresh summaries after save
+      const summaryResponse = await axios.get(
+        `${TECHNO_BASE_URL}/bookhub/summaries/?book=${bookId}`,
+        getAuthHeader()
       )
-    } else {
-      // ─── UPDATE: use existing chapter ID ───
-      await axios.patch(
-        `${API_BASE_URL}/bookhub/chapters/${selectedChapter.id}/update_summary/`,
-        formData,
-        getAuthHeaderMultipart()
+      setChapterSummaries(summaryResponse.data.chapters || [])
+
+      setEditSummaryDialogOpen(false)
+      setSelectedChapter(null)
+      setIsAddingSummary(false)
+
+      toast.success(
+        isAddingSummary
+          ? "Summary added successfully!"
+          : "Summary updated successfully!"
       )
+    } catch (err) {
+      console.error('Failed to save summary:', err)
+      toast.error(err.response?.data?.detail || 'Failed to save summary')
+    } finally {
+      setEditSummaryLoading(false)
     }
-
-    // Refresh summaries after save
-    const summaryResponse = await axios.get(
-      `${API_BASE_URL}/bookhub/summaries/?book=${bookId}`,
-      getAuthHeader()
-    )
-    setChapterSummaries(summaryResponse.data.chapters || [])
-
-    setEditSummaryDialogOpen(false)
-    setSelectedChapter(null)
-    setIsAddingSummary(false)
-
-    toast.success(
-      isAddingSummary
-        ? "Summary added successfully!"
-        : "Summary updated successfully!"
-    )
-  } catch (err) {
-    console.error('Failed to save summary:', err)
-    toast.error(err.response?.data?.detail || 'Failed to save summary')
-  } finally {
-    setEditSummaryLoading(false)
   }
-}
 
   // Fetch book details and summaries
   useEffect(() => {
@@ -549,7 +586,7 @@ const handleUpdateSummary = async () => {
         }
 
         const bookResponse = await axios.get(
-          `${API_BASE_URL}/bookhub/books/${bookId}/`,
+          `${TECHNO_BASE_URL}/bookhub/books/${bookId}/`,
           getAuthHeader()
         )
         setBook(bookResponse.data)
@@ -557,7 +594,7 @@ const handleUpdateSummary = async () => {
         try {
           setSummaryLoading(true)
           const summaryResponse = await axios.get(
-            `${API_BASE_URL}/bookhub/summaries/?book=${bookId}`,
+            `${TECHNO_BASE_URL}/bookhub/summaries/?book=${bookId}`,
             getAuthHeader()
           )
           setChapterSummaries(summaryResponse.data.chapters || [])
@@ -717,13 +754,13 @@ const handleUpdateSummary = async () => {
                         <Clock className="h-3 w-3 mr-1" />
                         UPCOMING
                       </>) : book.status === 'DISCUSSED' ? (
-                      <>
-                        <CheckCircle2 className="h-3 w-3 mr-1" /> 
-                         DISCUSSED
-                      </>) : ( <>
-                        <Clock className="h-3 w-3 mr-1" />
-                        RE-READ
-                      </>
+                        <>
+                          <CheckCircle2 className="h-3 w-3 mr-1" />
+                          DISCUSSED
+                        </>) : (<>
+                          <Clock className="h-3 w-3 mr-1" />
+                          RE-READ
+                        </>
                     )}
                   </Badge>
 
@@ -840,7 +877,7 @@ const handleUpdateSummary = async () => {
                           </Badge>
                         )}
                         {/* ─── ADD SUMMARY BUTTON (Admin only) ─── */}
-                        {isAdmin && (
+                        {isAdmin && book.status === 'DISCUSSING' && (
                           <Button
                             variant="outline"
                             size="sm"
@@ -860,7 +897,7 @@ const handleUpdateSummary = async () => {
                   <CardContent>
                     {summaryLoading ? (
                       <div className="flex items-center justify-center py-12 gap-3">
-                        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+
                         <span className="text-muted-foreground">Loading summaries...</span>
                       </div>
                     ) : chapterSummaries.length > 0 ? (
@@ -914,7 +951,7 @@ const handleUpdateSummary = async () => {
                                   <span className="hidden sm:inline">Download</span>
                                 </Button>
 
-                                {isAdmin && (
+                                {isAdmin && book.status === 'DISCUSSING' && (
                                   <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
                                       <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -926,10 +963,14 @@ const handleUpdateSummary = async () => {
                                         <Pencil className="h-4 w-4 mr-2 text-nowrap" />
                                         Edit
                                       </DropdownMenuItem>
-                                      <DropdownMenuItem onClick={() => handleEditSummary(chapter)}>
-                                        <Upload className="h-4 w-4 mr-2 text-nowrap" />
-                                        Replace File
+                                      <DropdownMenuItem
+                                        onClick={() => handleDeleteSummary(chapter)}
+                                        className="text-red-600 focus:text-red-600"
+                                      >
+                                        <Trash2 className="h-4 w-4 mr-2" />
+                                        Delete 
                                       </DropdownMenuItem>
+
                                     </DropdownMenuContent>
                                   </DropdownMenu>
                                 )}
@@ -1256,59 +1297,59 @@ const handleUpdateSummary = async () => {
               {isAddingSummary
                 ? "Create a new chapter summary for this book"
                 : selectedChapter && (
-                    <>
-                      Chapter {selectedChapter.chapter_number}:{" "}
-                      {selectedChapter.chapter_title}
-                    </>
-                  )}
+                  <>
+                    Chapter {selectedChapter.chapter_number}:{" "}
+                    {selectedChapter.chapter_title}
+                  </>
+                )}
             </DialogDescription>
           </DialogHeader>
 
           <div className="grid gap-4 py-4">
             {/* ─── Chapter Number & Title (only when adding) ─── */}
-            {isAddingSummary && (
-              <>
-                <div className="grid grid-cols-3 gap-3">
-                  <div className="space-y-2">
-                    <Label htmlFor="chapter_number">Chapter #</Label>
-                    <Input
-                      id="chapter_number"
-                      type="number"
-                      min="1"
-                      value={summaryForm.chapter_number}
-                      onChange={(e) =>
-                        setSummaryForm((prev) => ({
-                          ...prev,
-                          chapter_number: e.target.value,
-                        }))
-                      }
-                      placeholder="1"
-                    />
-                  </div>
-                  <div className="col-span-2 space-y-2">
-                    <Label htmlFor="chapter_title">Chapter Title</Label>
-                    <Input
-                      id="chapter_title"
-                      value={summaryForm.chapter_title}
-                      onChange={(e) =>
-                        setSummaryForm((prev) => ({
-                          ...prev,
-                          chapter_title: e.target.value,
-                        }))
-                      }
-                      placeholder="Chapter title"
-                    />
-                  </div>
+
+            <>
+              <div className="grid grid-cols-3 gap-3">
+                <div className="space-y-2">
+                  <Label htmlFor="chapter_number">Chapter No.</Label>
+                  <Input
+                    id="chapter_number"
+                    type="number"
+                    min="1"
+                    value={summaryForm.chapter_number}
+                    onChange={(e) =>
+                      setSummaryForm((prev) => ({
+                        ...prev,
+                        chapter_number: e.target.value,
+                      }))
+                    }
+                    placeholder="1"
+                  />
                 </div>
-                <Separator />
-              </>
-            )}
+                <div className="col-span-2 space-y-2">
+                  <Label htmlFor="chapter_title">Chapter Title</Label>
+                  <Input
+                    id="chapter_title"
+                    value={summaryForm.chapter_title}
+                    onChange={(e) =>
+                      setSummaryForm((prev) => ({
+                        ...prev,
+                        chapter_title: e.target.value,
+                      }))
+                    }
+                    placeholder="Chapter title"
+                  />
+                </div>
+              </div>
+              <Separator />
+            </>
+
 
             {/* Current File Info (Edit mode only) */}
             {!isAddingSummary && selectedChapter?.summary_file && (
               <div className="p-3 rounded-lg bg-muted/50 border">
                 <div className="flex items-center text-nowrap gap-1 text-sm">
-                  <FileText className="h-4 w-4 text-primary" />
+                  <FileText className="h-4 w-2 text-primary" />
                   <span className="font-medium">Current File:</span>
                   <p className="text-xs text-muted-foreground mt-1 truncate">
                     {selectedChapter.summary_file.split('/').pop()}
@@ -1336,7 +1377,7 @@ const handleUpdateSummary = async () => {
                   onClick={() => summaryFileInputRef.current?.click()}
                   className="gap-2 flex-1"
                 >
-                  <Upload className="h-4 w-4" />
+                  <Upload className="h-4 w-1" />
                   {summaryFileName || "Choose PDF File"}
                 </Button>
               </div>
@@ -1348,21 +1389,6 @@ const handleUpdateSummary = async () => {
               )}
             </div>
 
-            {/* Discussion Date */}
-            <div className="space-y-2">
-              <Label htmlFor="discussed_on">Discussion Date</Label>
-              <Input
-                id="discussed_on"
-                type="date"
-                value={summaryForm.discussed_on}
-                onChange={(e) =>
-                  setSummaryForm((prev) => ({
-                    ...prev,
-                    discussed_on: e.target.value,
-                  }))
-                }
-              />
-            </div>
           </div>
 
           <DialogFooter>

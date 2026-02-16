@@ -2,6 +2,7 @@ import axios from "axios";
 import { createContext, useEffect, useState } from "react";
 import { deleteToken } from "firebase/messaging";
 import { messaging } from "@/firebase/firebase";
+import { AUTH_BASE_URL, TECHNO_BASE_URL } from "@/environment";
 
 
 export const AuthContext = createContext();
@@ -27,15 +28,11 @@ const AuthProvider = ({ children }) => {
   const [loadingBatches, setLoadingBatches] = useState(false);
   const [error1, setError1] = useState(null);
 
-
-
-
-  // const API_BASE_URL = "http://72.61.173.6:8086/auth/";//main
-  // const API_BASE_URL = "https://api.lgstechnohub.in/auth";//Deployed main vps
-  // const API_BASE_URL = "https://technohub.pythonanywhere.com/auth";//main
-  // const API_BASE_URL = "https://9gqxjbjg-8000.inc1.devtunnels.ms/auth";//tahur  
-  const API_BASE_URL = "https://xbzp7968-7000.inc1.devtunnels.ms/auth";//farha
-  // const API_BASE_URL = "https://958cp4w5-8000.inc1.devtunnels.ms/auth";//Saba
+  // API Base URLs (from environment.jsx)
+  // AUTH_BASE_URL for authentication endpoints: login, logout, register, etc.
+  // TECHNO_BASE_URL for other endpoints: batches, learners, trainers, notifications, etc.
+  // API_BASE_URL kept for backward compatibility
+  const API_BASE_URL = AUTH_BASE_URL;
 
 
 
@@ -122,7 +119,7 @@ const AuthProvider = ({ children }) => {
     if (role !== "TRAINER" && responseSubrole !== "TRAINER") return;
     setLoading(true);
     try {
-      const response = await axios.get(`${API_BASE_URL}/trainers/`, {
+      const response = await axios.get(`${TECHNO_BASE_URL}/trainers/`, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
@@ -143,7 +140,7 @@ const AuthProvider = ({ children }) => {
     if (role !== "ADMIN") return;
     setLoading(true);
     try {
-      const response = await axios.get(`${API_BASE_URL}/Admin/`);
+      const response = await axios.get(`${TECHNO_BASE_URL}/Admin/`);
       if (response.status === 200) {
         setAdmin(
           response.data[0].user.first_name +
@@ -161,7 +158,7 @@ const AuthProvider = ({ children }) => {
   // const fetchAllTrainer = async () => {
   //   if (allTrainer.length > 0) return; // Already fetched
   //   try {
-  //     const response = await axios.get(`${API_BASE_URL}/trainers/`);
+  //     const response = await axios.get(`${TECHNO_BASE_URL}/trainers/`);
   //     if (response.status === 200) {
   //       setAllTrainer(response.data);
   //       console.log(response.data);
@@ -178,7 +175,7 @@ const AuthProvider = ({ children }) => {
     setLoadingBatches(true);
     setError1(null);
     try {
-      const response = await axios.get(`${API_BASE_URL}/batches/`);
+      const response = await axios.get(`${TECHNO_BASE_URL}/batches/`);
       setBatches(response.data);
     } catch (err) {
       console.error("Error fetching batches:", err);
@@ -284,7 +281,7 @@ const LoginUser = async (userData) => {
     if (!accessToken) return;
     setLoading(true);
     try {
-      const response = await axios.get(`${API_BASE_URL}/User/${userID}`);
+      const response = await axios.get(`${TECHNO_BASE_URL}/User/${userID}`);
 
       if (response.status === 200) {
         setUser(response.data);
@@ -413,6 +410,8 @@ const LoginUser = async (userData) => {
     emailAlreadyCreated,
     setLoginError,
     API_BASE_URL,
+    AUTH_BASE_URL,
+    TECHNO_BASE_URL,
     GenerateNewAccessToken,
     trainers,
     batches,

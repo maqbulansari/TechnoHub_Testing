@@ -42,13 +42,13 @@ const AllStudent = () => {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
-        const res = await axios.get(
-          `${API_BASE_URL}/recruitment/requests/`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-        console.log(res);
+        // const res = await axios.get(
+        //   `${API_BASE_URL}/recruitment/requests/`,
+        //   {
+        //     headers: { Authorization: `Bearer ${token}` },
+        //   }
+        // );
+        // console.log(res);
         
         setStudentData(response.data);
       } catch (err) {
