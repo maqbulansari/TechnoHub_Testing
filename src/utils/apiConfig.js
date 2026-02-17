@@ -3,7 +3,7 @@
 
 import { AUTH_BASE_URL, TECHNO_BASE_URL } from "@/environment";
 
-// Auth-related endpoints that use AUTH_BASE_URL
+// Auth-related endpoints (Shared APIs) that use AUTH_BASE_URL (/s/)
 const AUTH_ENDPOINTS = [
   "login",
   "logout",
@@ -15,17 +15,99 @@ const AUTH_ENDPOINTS = [
   "Role",
   "SubRole",
   "idtypes",
+  "gallery",
+  "User",
+  "Admin",
 ];
 
-// Techno-related endpoints that use TECHNO_BASE_URL
+// Techno-related endpoints that use TECHNO_BASE_URL (/techno/)
 const TECHNO_ENDPOINTS = [
-  "trainers",
-  "Admin",
-  "batches",
-  "technology",
-  "batchstatuses",
-  "User",
+  // Dashboards
+  "admin-dashboard",
+  "trainer-dashboard",
+  "student-dashboard",
+  "sponsor-dashboard",
+  "recruiter-dashboard",
+  
+  // Approval/Rejection
+  "approve",
+  "reject",
+  
+  // Learner APIs
   "Learner",
+  "interviewee_student",
+  "selected_without_batch",
+  "selected_with_batch",
+  "assign_batch",
+  "update_selected",
+  
+  // Students APIs
+  "Students",
+  "not_sponsored",
+  "selected_student_assessment",
+  
+  // Sponsors APIs
+  "sponsors",
+  "Sponser_update",
+  "batch_wise_data",
+  "available_students",
+  "sponsored_students",
+  "select_students",
+  "sponsor_batch",
+  "create_order",
+  "verify-payment",
+  "webhook",
+  
+  // Recruiter APIs
+  "recruiter",
+  "Recruiter_update",
+  "ready_for_recruitment",
+  
+  // Trainers APIs
+  "trainers",
+  "single-trainer",
+  "get_selected-students",
+  "Trainer/get_selected-students",
+  "trainer_select",
+  "Proposer",
+  "proposerstatuses",
+  
+  // Batches APIs
+  "batches",
+  "students_in_batch",
+  "trainer_stats",
+  "assign-trainers",
+  "center-summary",
+  "assign_trainers_for_admin",
+  "people",
+  "batchstatuses",
+  
+  // Assessment APIs
+  "assessment",
+  
+  // Interview APIs
+  "interview-schedules",
+  "users-by-role",
+  
+  // Assignments APIs
+  "assignments",
+  "batch-analytics",
+  
+  // Submissions APIs
+  "submissions",
+  "evaluate",
+  
+  // Admin APIs
+  "admin/assignments/dashboard",
+  "admin/batch-performance",
+  
+  // Other APIs
+  "classwork",
+  "technology",
+  "recruitment",
+  "training-center",
+  
+  // Legacy/Additional
   "bookhub",
   "notifications",
   "whatsapp",

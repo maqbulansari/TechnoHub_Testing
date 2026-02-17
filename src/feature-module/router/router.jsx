@@ -300,12 +300,14 @@ import RecruitmentApprovalTable from "@/components/RecruitmentDashboard/Recruitm
 import { StuRecuitment } from "@/components/RecruitmentDashboard/StuRecuitment";
 import { RecruiterHire } from "@/components/RecruitmentDashboard/RecruiterHire";
 import RecruitmentAssignment from "@/components/RecruitmentDashboard/RecruitmentAssignment";
+import { AllResources } from "@/components/recource-menagement/AllResources";
+import { AUTH_BASE_URL } from "@/environment";
 
 
 
 const ALLRoutes = () => {
   const routes = all_routes;
-  const { API_BASE_URL, accessToken } = useContext(AuthContext);
+  const { accessToken } = useContext(AuthContext);
 
   useEffect(() => {
     if (!accessToken) return;
@@ -321,7 +323,7 @@ const ALLRoutes = () => {
 
       axios
         .post(
-          `${API_BASE_URL}/notifications/save-token/`,
+          `${AUTH_BASE_URL}/notifications/save-token/`,
           { token },
           {
             headers: {
@@ -406,6 +408,7 @@ const ALLRoutes = () => {
          <Route path="/StuRecuitment" element={<StuRecuitment />} />
          <Route path="/RecruiterHire" element={<RecruiterHire />} />
          <Route path="/RecruitmentAssignment" element={<RecruitmentAssignment />} />
+         <Route path="/AllResorces" element={<AllResources />} />
       </Route>
 
     </Route>

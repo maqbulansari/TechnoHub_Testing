@@ -32,7 +32,7 @@ const AuthProvider = ({ children }) => {
   // AUTH_BASE_URL for authentication endpoints: login, logout, register, etc.
   // TECHNO_BASE_URL for other endpoints: batches, learners, trainers, notifications, etc.
   // API_BASE_URL kept for backward compatibility
-  const API_BASE_URL = AUTH_BASE_URL;
+  const API_BASE_URL = TECHNO_BASE_URL;
 
 
 
@@ -197,7 +197,7 @@ const AuthProvider = ({ children }) => {
       };
 
       const response = await axios.post(
-        `${API_BASE_URL}/register/`,
+        `${AUTH_BASE_URL}/register/`,
         userData,
         config
       );
@@ -233,7 +233,7 @@ const LoginUser = async (userData) => {
   setLoading(true);
 
   try {
-    const response = await axios.post(`${API_BASE_URL}/login/`, userData, {
+    const response = await axios.post(`${AUTH_BASE_URL}/login/`, userData, {
       headers: { "Content-Type": "application/json" },
     });
 
@@ -281,7 +281,7 @@ const LoginUser = async (userData) => {
     if (!accessToken) return;
     setLoading(true);
     try {
-      const response = await axios.get(`${TECHNO_BASE_URL}/User/${userID}`);
+      const response = await axios.get(`${AUTH_BASE_URL}/User/${userID}`);
 
       if (response.status === 200) {
         setUser(response.data);
@@ -300,7 +300,7 @@ const LoginUser = async (userData) => {
   const fetchNewSubrole = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`${API_BASE_URL}/SubRole/`);
+      const response = await axios.get(`${AUTH_BASE_URL}/SubRole/`);
 
       if (response.status === 200) {
         console.log("Subroles fetched successfully:", response.data);
@@ -330,7 +330,7 @@ const LoginUser = async (userData) => {
       }
 
       if (refreshToken) {
-        await axios.post(`${API_BASE_URL}/logout/`, {
+        await axios.post(`${AUTH_BASE_URL}/logout/`, {
           refresh_token: refreshToken,
         });
       }
@@ -362,7 +362,7 @@ const LoginUser = async (userData) => {
 
     try {
       const response = await refreshAxios.post(
-        `${API_BASE_URL}/login/refresh/`,
+        `${AUTH_BASE_URL}/login/refresh/`,
         { refresh }
       );
 

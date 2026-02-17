@@ -951,7 +951,7 @@ const BookDetail = () => {
                                   <span className="hidden sm:inline">Download</span>
                                 </Button>
 
-                                {isAdmin && book.status === 'DISCUSSING' && (
+                                {isAdmin && book.status === 'DISCUSSING' || book.status === 'RE_READ'  && (
                                   <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
                                       <Button variant="ghost" size="icon" className="h-8 w-8">

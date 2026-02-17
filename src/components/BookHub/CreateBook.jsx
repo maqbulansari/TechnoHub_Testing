@@ -166,7 +166,7 @@ export const CreateBook = () => {
             type="number"
             {...register("discussion_year", {
               required: "Year is required",
-              min: 2024,
+           
             })}
             disabled={isSubmitting}
           />
