@@ -30,7 +30,7 @@ export const img_path = '/';
 // export const TECHNO_BASE_URL = "https://958cp4w5-8000.inc1.devtunnels.ms/techno";
 
 // ===============================
-// 🌐 Production / Server Options
+// 🌐   Production / Server Options
 // ===============================
 
 // Main VPS
@@ -50,12 +50,12 @@ export const img_path = '/';
 // export const TECHNO_BASE_URL = "https://9gqxjbjg-8000.inc1.devtunnels.ms/techno";
 
 // DevTunnel - Farha
-export const AUTH_BASE_URL = "https://xbzp7968-7000.inc1.devtunnels.ms/auth";
-export const TECHNO_BASE_URL = "https://xbzp7968-7000.inc1.devtunnels.ms/auth";
+// export const AUTH_BASE_URL = "https://xbzp7968-7000.inc1.devtunnels.ms/auth";
+// export const TECHNO_BASE_URL = "https://xbzp7968-7000.inc1.devtunnels.ms/auth";
 
 // DevTunnel - Saba
-// export const AUTH_BASE_URL = "https://958cp4w5-8000.inc1.devtunnels.ms/s";
-// export const TECHNO_BASE_URL = "https://958cp4w5-8000.inc1.devtunnels.ms/techno";
+export const AUTH_BASE_URL = "https://958cp4w5-8000.inc1.devtunnels.ms/s";
+export const TECHNO_BASE_URL = "https://958cp4w5-8000.inc1.devtunnels.ms/techno";
 
 // DevTunnel - Naaz
 // export const AUTH_BASE_URL = "https://94f38xkg-7000.inc1.devtunnels.ms/auth";`

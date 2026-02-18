@@ -321,7 +321,7 @@ const LoginUser = async (userData) => {
     try {
 
       if (fcmToken) {
-        await axios.post("/notifications/unregister/", {
+        await axios.post("/unregister/", {
           token: fcmToken,
         });
 

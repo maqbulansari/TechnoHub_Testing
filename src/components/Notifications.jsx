@@ -2,6 +2,7 @@ import axios from "axios";
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "@/contexts/authContext";
 import { motion, AnimatePresence } from "framer-motion";
+import { AUTH_BASE_URL } from "@/environment";
 
 const NotificationPopover = ({ refreshCount }) => {
   const { API_BASE_URL } = useContext(AuthContext);
@@ -14,7 +15,7 @@ const NotificationPopover = ({ refreshCount }) => {
   const fetchNotifications = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`${API_BASE_URL}/notifications/`, {
+      const res = await axios.get(`${AUTH_BASE_URL}/notifications/`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setNotifications(res.data);
@@ -32,7 +33,7 @@ const NotificationPopover = ({ refreshCount }) => {
 
   const markAllRead = async () => {
     await axios.post(
-      `${API_BASE_URL}/notifications/mark-all-read/`,
+      `${API_BASE_URL}/mark-all-read/`,
       {},
       { headers: { Authorization: `Bearer ${token}` } }
     );

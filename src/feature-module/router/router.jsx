@@ -323,7 +323,7 @@ const ALLRoutes = () => {
 
       axios
         .post(
-          `${AUTH_BASE_URL}/notifications/save-token/`,
+          `${AUTH_BASE_URL}/save-token/`,
           { token },
           {
             headers: {
