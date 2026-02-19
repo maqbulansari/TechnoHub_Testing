@@ -305,7 +305,7 @@ export const BookhubHome = () => {
   // Filter upcoming books (not discussed)
   const upcomingBooks = books
     .filter(book =>
-      book.status === "UPCOMING" || book.status === "DISCUSSING"
+      book.status === "UPCOMING" 
     )
     .sort((a, b) => {
       if (a.discussion_year !== b.discussion_year)
@@ -491,7 +491,7 @@ export const BookhubHome = () => {
         )}
 
         {/* Monthly Schedule Section */}
-        {monthlySchedule.length > 0 && (
+        {/* {monthlySchedule.length > 0 && (
           <section>
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
@@ -516,7 +516,7 @@ export const BookhubHome = () => {
               ))}
             </div>
           </section>
-        )}
+        )} */}
 
         {/* Tabs Section */}
         <section>
