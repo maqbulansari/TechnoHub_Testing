@@ -15,7 +15,7 @@ const AuthProvider = ({ children }) => {
   const [refreshToken, setRefreshToken] = useState(null);
   const [userID, setUserID] = useState(null);
   const [role, setRole] = useState(null);
-  const [responseSubrole, setResponseSubrole] = useState(null);
+  const [responseSubrole, setResponseSubrole] = useState([]);
   const [newSubrole, setNewSubRole] = useState([]);
   const [loading, setLoading] = useState(false);
   const [emailAlreadyCreated, setEmailAlreadyCreated] = useState(false);
@@ -44,14 +44,39 @@ const AuthProvider = ({ children }) => {
     const storedRefreshToken = localStorage.getItem("refreshToken");
     const storedUserID = localStorage.getItem("userID");
     const storedRole = localStorage.getItem("role");
-    const storedSubrole = localStorage.getItem("subrole");
+    // support both keys for backward compatibility
+    const storedSubroleRaw =
+      localStorage.getItem("subroles") || localStorage.getItem("subrole");
+
+    // Parse stored subrole which may be JSON (array) or a plain string
+    let parsedSubrole = [];
+    if (storedSubroleRaw) {
+      try {
+        parsedSubrole = JSON.parse(storedSubroleRaw);
+      } catch (e) {
+        parsedSubrole = storedSubroleRaw.includes(",")
+          ? storedSubroleRaw.split(",").map((s) => s.trim())
+          : [storedSubroleRaw];
+      }
+    }
 
     if (storedAccessToken && storedRefreshToken && storedUserID && storedRole) {
       setAccessToken(storedAccessToken);
       setRefreshToken(storedRefreshToken);
       setUserID(storedUserID);
-      setRole(storedRole);
-      setResponseSubrole(storedSubrole);
+      // role stored as string for compatibility; if it's JSON, try to parse
+      let parsedRole = storedRole;
+      if (storedRole) {
+        try {
+          const maybe = JSON.parse(storedRole);
+          // if array, pick first element for legacy single-role expectations
+          parsedRole = Array.isArray(maybe) ? maybe[0] : maybe;
+        } catch (e) {
+          parsedRole = storedRole;
+        }
+      }
+      setRole(parsedRole);
+      setResponseSubrole(parsedSubrole);
       setUserLoggedIN(true);
     }
   }, []);
@@ -116,7 +141,7 @@ const AuthProvider = ({ children }) => {
   const fetchTrainers = async () => {
     if (trainers) return; // Already fetched (trainers is a string)
     // Only fetch if user is a trainer
-    if (role !== "TRAINER" && responseSubrole !== "TRAINER") return;
+    if (role !== "TRAINER" && !hasSubrole("TRAINER")) return;
     setLoading(true);
     try {
       const response = await axios.get(`${TECHNO_BASE_URL}/trainers/`, {
@@ -137,7 +162,7 @@ const AuthProvider = ({ children }) => {
   const fetchAdmin = async () => {
     if (admin) return; // Already fetched (admin is a string)
     // Only fetch if user is ADMIN
-    if (role !== "ADMIN") return;
+    if (role !== "ADMIN" && !hasSubrole("ADMIN")) return;
     setLoading(true);
     try {
       const response = await axios.get(`${TECHNO_BASE_URL}/Admin/`);
@@ -236,27 +261,46 @@ const LoginUser = async (userData) => {
     const response = await axios.post(`${AUTH_BASE_URL}/login/`, userData, {
       headers: { "Content-Type": "application/json" },
     });
+    console.log(response);
+    
 
     if (response.status === 200) {
-      const { access, refresh, user_id, subrole, role } = response.data;
+      const { access, refresh, user_id } = response.data;
+
+      // Support both `subroles` (plural) and `subrole` (singular) from API
+      const subrolesRaw = response.data.subroles ?? response.data.subrole;
+      const normalizedSubroles = Array.isArray(subrolesRaw)
+        ? subrolesRaw
+        : subrolesRaw
+        ? [subrolesRaw]
+        : [];
+
+      // Role may come as array or string. Normalize for backwards compatibility.
+      const roleRaw = response.data.role ?? response.data.roles;
+      const normalizedRoles = Array.isArray(roleRaw) ? roleRaw : roleRaw ? [roleRaw] : [];
+      const primaryRole = normalizedRoles.length > 0 ? normalizedRoles[0] : null;
 
       // Update context state
       setAccessToken(access);
       setRefreshToken(refresh);
       setUserID(user_id);
-      setResponseSubrole(subrole);
-      setRole(role);
+      setResponseSubrole(normalizedSubroles);
+      setRole(primaryRole);
       setUserLoggedIN(true);
 
-      // Save tokens locally
+      // Save tokens and subroles/roles locally (store arrays as JSON and keep legacy keys)
       localStorage.setItem("accessToken", access);
       localStorage.setItem("refreshToken", refresh);
       localStorage.setItem("userID", user_id);
-      localStorage.setItem("role", role);
-      localStorage.setItem("subrole", subrole);
+      // store primary role for legacy code, and full roles array under `roles`
+      if (primaryRole) localStorage.setItem("role", primaryRole);
+      localStorage.setItem("roles", JSON.stringify(normalizedRoles));
+      // store both plural and singular subrole keys for compatibility
+      localStorage.setItem("subroles", JSON.stringify(normalizedSubroles));
+      localStorage.setItem("subrole", normalizedSubroles.join(","));
 
       // Return info for navigation
-      return { subrole, role };
+      return { subrole: normalizedSubroles, role: normalizedRoles };
     }
   } catch (error) {
     const errorMessage =
@@ -271,6 +315,15 @@ const LoginUser = async (userData) => {
     setLoading(false);
   }
 };
+
+  // Helper to check whether the current user has a specific subrole
+  const hasSubrole = (name) => {
+    if (!name) return false;
+    if (!responseSubrole) return false;
+    return Array.isArray(responseSubrole)
+      ? responseSubrole.includes(name)
+      : responseSubrole === name;
+  };
 
   useEffect(() => {
     console.log("AuthContext effect:", userLoggedIN);
@@ -344,6 +397,8 @@ const LoginUser = async (userData) => {
       localStorage.removeItem("userID");
       localStorage.removeItem("role");
       localStorage.removeItem("subrole");
+      localStorage.removeItem("subroles");
+      localStorage.removeItem("roles");
       localStorage.removeItem("first_name");
       localStorage.removeItem("last_name");
       localStorage.removeItem("fcm_token");
@@ -407,6 +462,7 @@ const LoginUser = async (userData) => {
     loginError,
     userCreatedSuccessfully,
     responseSubrole,
+    hasSubrole,
     emailAlreadyCreated,
     setLoginError,
     API_BASE_URL,
