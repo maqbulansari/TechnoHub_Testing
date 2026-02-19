@@ -8,6 +8,7 @@ import axios from "axios";
 import { AuthContext } from "../../../contexts/authContext";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { AUTH_BASE_URL } from "@/environment";
 
 const Register3 = () => {
   const { userLoggedIN, accessToken, refreshToken, API_BASE_URL, RegisterUser, newSubrole, fetchNewSubrole } = useContext(AuthContext);
@@ -56,7 +57,7 @@ const Register3 = () => {
 
   const fetchIdType = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/idtypes/`);
+      const response = await axios.get(`${AUTH_BASE_URL}/idtypes/`);
       if (response.status === 200) setIdType(response.data);
     } catch (error) {
       console.error("Error fetching ID types:", error);

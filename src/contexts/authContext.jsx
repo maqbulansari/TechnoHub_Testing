@@ -2,6 +2,7 @@ import axios from "axios";
 import { createContext, useEffect, useState } from "react";
 import { deleteToken } from "firebase/messaging";
 import { messaging } from "@/firebase/firebase";
+import { AUTH_BASE_URL, TECHNO_BASE_URL } from "@/environment";
 
 
 export const AuthContext = createContext();
@@ -14,7 +15,7 @@ const AuthProvider = ({ children }) => {
   const [refreshToken, setRefreshToken] = useState(null);
   const [userID, setUserID] = useState(null);
   const [role, setRole] = useState(null);
-  const [responseSubrole, setResponseSubrole] = useState(null);
+  const [responseSubrole, setResponseSubrole] = useState([]);
   const [newSubrole, setNewSubRole] = useState([]);
   const [loading, setLoading] = useState(false);
   const [emailAlreadyCreated, setEmailAlreadyCreated] = useState(false);
@@ -27,15 +28,11 @@ const AuthProvider = ({ children }) => {
   const [loadingBatches, setLoadingBatches] = useState(false);
   const [error1, setError1] = useState(null);
 
-
-
-
-  // const API_BASE_URL = "http://72.61.173.6:8086/auth/";//main
-  // const API_BASE_URL = "https://api.lgstechnohub.in/auth";//Deployed main vps
-   const API_BASE_URL = "https://technohub.pythonanywhere.com/auth";//main
-  // const API_BASE_URL = "https://9gqxjbjg-8000.inc1.devtunnels.ms/auth";//tahur  
- // const API_BASE_URL = "https://xbzp7968-7000.inc1.devtunnels.ms/auth";//farha
-  // const API_BASE_URL = "https://958cp4w5-8000.inc1.devtunnels.ms/auth";//Saba
+  // API Base URLs (from environment.jsx)
+  // AUTH_BASE_URL for authentication endpoints: login, logout, register, etc.
+  // TECHNO_BASE_URL for other endpoints: batches, learners, trainers, notifications, etc.
+  // API_BASE_URL kept for backward compatibility
+  const API_BASE_URL = TECHNO_BASE_URL;
 
 
 
@@ -47,14 +44,39 @@ const AuthProvider = ({ children }) => {
     const storedRefreshToken = localStorage.getItem("refreshToken");
     const storedUserID = localStorage.getItem("userID");
     const storedRole = localStorage.getItem("role");
-    const storedSubrole = localStorage.getItem("subrole");
+    // support both keys for backward compatibility
+    const storedSubroleRaw =
+      localStorage.getItem("subroles") || localStorage.getItem("subrole");
+
+    // Parse stored subrole which may be JSON (array) or a plain string
+    let parsedSubrole = [];
+    if (storedSubroleRaw) {
+      try {
+        parsedSubrole = JSON.parse(storedSubroleRaw);
+      } catch (e) {
+        parsedSubrole = storedSubroleRaw.includes(",")
+          ? storedSubroleRaw.split(",").map((s) => s.trim())
+          : [storedSubroleRaw];
+      }
+    }
 
     if (storedAccessToken && storedRefreshToken && storedUserID && storedRole) {
       setAccessToken(storedAccessToken);
       setRefreshToken(storedRefreshToken);
       setUserID(storedUserID);
-      setRole(storedRole);
-      setResponseSubrole(storedSubrole);
+      // role stored as string for compatibility; if it's JSON, try to parse
+      let parsedRole = storedRole;
+      if (storedRole) {
+        try {
+          const maybe = JSON.parse(storedRole);
+          // if array, pick first element for legacy single-role expectations
+          parsedRole = Array.isArray(maybe) ? maybe[0] : maybe;
+        } catch (e) {
+          parsedRole = storedRole;
+        }
+      }
+      setRole(parsedRole);
+      setResponseSubrole(parsedSubrole);
       setUserLoggedIN(true);
     }
   }, []);
@@ -119,10 +141,10 @@ const AuthProvider = ({ children }) => {
   const fetchTrainers = async () => {
     if (trainers) return; // Already fetched (trainers is a string)
     // Only fetch if user is a trainer
-    if (role !== "TRAINER" && responseSubrole !== "TRAINER") return;
+    if (role !== "TRAINER" && !hasSubrole("TRAINER")) return;
     setLoading(true);
     try {
-      const response = await axios.get(`${API_BASE_URL}/trainers/`, {
+      const response = await axios.get(`${TECHNO_BASE_URL}/trainers/`, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
@@ -140,10 +162,10 @@ const AuthProvider = ({ children }) => {
   const fetchAdmin = async () => {
     if (admin) return; // Already fetched (admin is a string)
     // Only fetch if user is ADMIN
-    if (role !== "ADMIN") return;
+    if (role !== "ADMIN" && !hasSubrole("ADMIN")) return;
     setLoading(true);
     try {
-      const response = await axios.get(`${API_BASE_URL}/Admin/`);
+      const response = await axios.get(`${TECHNO_BASE_URL}/Admin/`);
       if (response.status === 200) {
         setAdmin(
           response.data[0].user.first_name +
@@ -161,7 +183,7 @@ const AuthProvider = ({ children }) => {
   // const fetchAllTrainer = async () => {
   //   if (allTrainer.length > 0) return; // Already fetched
   //   try {
-  //     const response = await axios.get(`${API_BASE_URL}/trainers/`);
+  //     const response = await axios.get(`${TECHNO_BASE_URL}/trainers/`);
   //     if (response.status === 200) {
   //       setAllTrainer(response.data);
   //       console.log(response.data);
@@ -178,7 +200,7 @@ const AuthProvider = ({ children }) => {
     setLoadingBatches(true);
     setError1(null);
     try {
-      const response = await axios.get(`${API_BASE_URL}/batches/`);
+      const response = await axios.get(`${TECHNO_BASE_URL}/batches/`);
       setBatches(response.data);
     } catch (err) {
       console.error("Error fetching batches:", err);
@@ -200,7 +222,7 @@ const AuthProvider = ({ children }) => {
       };
 
       const response = await axios.post(
-        `${API_BASE_URL}/register/`,
+        `${AUTH_BASE_URL}/register/`,
         userData,
         config
       );
@@ -236,30 +258,49 @@ const LoginUser = async (userData) => {
   setLoading(true);
 
   try {
-    const response = await axios.post(`${API_BASE_URL}/login/`, userData, {
+    const response = await axios.post(`${AUTH_BASE_URL}/login/`, userData, {
       headers: { "Content-Type": "application/json" },
     });
+    console.log(response);
+    
 
     if (response.status === 200) {
-      const { access, refresh, user_id, subrole, role } = response.data;
+      const { access, refresh, user_id } = response.data;
+
+      // Support both `subroles` (plural) and `subrole` (singular) from API
+      const subrolesRaw = response.data.subroles ?? response.data.subrole;
+      const normalizedSubroles = Array.isArray(subrolesRaw)
+        ? subrolesRaw
+        : subrolesRaw
+        ? [subrolesRaw]
+        : [];
+
+      // Role may come as array or string. Normalize for backwards compatibility.
+      const roleRaw = response.data.role ?? response.data.roles;
+      const normalizedRoles = Array.isArray(roleRaw) ? roleRaw : roleRaw ? [roleRaw] : [];
+      const primaryRole = normalizedRoles.length > 0 ? normalizedRoles[0] : null;
 
       // Update context state
       setAccessToken(access);
       setRefreshToken(refresh);
       setUserID(user_id);
-      setResponseSubrole(subrole);
-      setRole(role);
+      setResponseSubrole(normalizedSubroles);
+      setRole(primaryRole);
       setUserLoggedIN(true);
 
-      // Save tokens locally
+      // Save tokens and subroles/roles locally (store arrays as JSON and keep legacy keys)
       localStorage.setItem("accessToken", access);
       localStorage.setItem("refreshToken", refresh);
       localStorage.setItem("userID", user_id);
-      localStorage.setItem("role", role);
-      localStorage.setItem("subrole", subrole);
+      // store primary role for legacy code, and full roles array under `roles`
+      if (primaryRole) localStorage.setItem("role", primaryRole);
+      localStorage.setItem("roles", JSON.stringify(normalizedRoles));
+      // store both plural and singular subrole keys for compatibility
+      localStorage.setItem("subroles", JSON.stringify(normalizedSubroles));
+      localStorage.setItem("subrole", normalizedSubroles.join(","));
 
       // Return info for navigation
-      return { subrole, role };
+      return { subrole: normalizedSubroles, role: normalizedRoles };
     }
   } catch (error) {
     const errorMessage =
@@ -275,6 +316,15 @@ const LoginUser = async (userData) => {
   }
 };
 
+  // Helper to check whether the current user has a specific subrole
+  const hasSubrole = (name) => {
+    if (!name) return false;
+    if (!responseSubrole) return false;
+    return Array.isArray(responseSubrole)
+      ? responseSubrole.includes(name)
+      : responseSubrole === name;
+  };
+
   useEffect(() => {
     console.log("AuthContext effect:", userLoggedIN);
   }, [userLoggedIN]);
@@ -284,7 +334,7 @@ const LoginUser = async (userData) => {
     if (!accessToken) return;
     setLoading(true);
     try {
-      const response = await axios.get(`${API_BASE_URL}/User/${userID}`);
+      const response = await axios.get(`${AUTH_BASE_URL}/User/${userID}`);
 
       if (response.status === 200) {
         setUser(response.data);
@@ -303,7 +353,7 @@ const LoginUser = async (userData) => {
   const fetchNewSubrole = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`${API_BASE_URL}/SubRole/`);
+      const response = await axios.get(`${AUTH_BASE_URL}/SubRole/`);
 
       if (response.status === 200) {
         console.log("Subroles fetched successfully:", response.data);
@@ -324,7 +374,7 @@ const LoginUser = async (userData) => {
     try {
 
       if (fcmToken) {
-        await axios.post("/notifications/unregister/", {
+        await axios.post("/unregister/", {
           token: fcmToken,
         });
 
@@ -333,7 +383,7 @@ const LoginUser = async (userData) => {
       }
 
       if (refreshToken) {
-        await axios.post(`${API_BASE_URL}/logout/`, {
+        await axios.post(`${AUTH_BASE_URL}/logout/`, {
           refresh_token: refreshToken,
         });
       }
@@ -347,6 +397,8 @@ const LoginUser = async (userData) => {
       localStorage.removeItem("userID");
       localStorage.removeItem("role");
       localStorage.removeItem("subrole");
+      localStorage.removeItem("subroles");
+      localStorage.removeItem("roles");
       localStorage.removeItem("first_name");
       localStorage.removeItem("last_name");
       localStorage.removeItem("fcm_token");
@@ -365,7 +417,7 @@ const LoginUser = async (userData) => {
 
     try {
       const response = await refreshAxios.post(
-        `${API_BASE_URL}/login/refresh/`,
+        `${AUTH_BASE_URL}/login/refresh/`,
         { refresh }
       );
 
@@ -410,9 +462,12 @@ const LoginUser = async (userData) => {
     loginError,
     userCreatedSuccessfully,
     responseSubrole,
+    hasSubrole,
     emailAlreadyCreated,
     setLoginError,
     API_BASE_URL,
+    AUTH_BASE_URL,
+    TECHNO_BASE_URL,
     GenerateNewAccessToken,
     trainers,
     batches,

@@ -2,6 +2,7 @@ import React, { useContext, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import axios from "axios";
 import { AuthContext } from "../../contexts/authContext";
+import { TECHNO_BASE_URL } from "@/environment";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -60,7 +61,7 @@ export const CreateBook = () => {
         formData.append("cover_image", data.cover_image[0]);
       }
 
-      await axios.post(`${API_BASE_URL}/auth/bookhub/books/`, formData, {
+      await axios.post(`${TECHNO_BASE_URL}/bookhub/books/`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
@@ -165,7 +166,7 @@ export const CreateBook = () => {
             type="number"
             {...register("discussion_year", {
               required: "Year is required",
-              min: 2024,
+           
             })}
             disabled={isSubmitting}
           />

@@ -1,7 +1,6 @@
 import axios from "axios";
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { AuthContext } from "../authContext";
-
+import { AuthContext } from "@/contexts/authContext";
 
 export const SponsorContext = createContext();
 

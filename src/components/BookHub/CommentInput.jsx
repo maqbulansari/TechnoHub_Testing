@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Loader2, Send, AtSign, X } from 'lucide-react'
 import { AuthContext } from '@/contexts/authContext'
+import { TECHNO_BASE_URL } from '@/environment'
 import axios from 'axios'
 import { UserAvatar } from './UserAvatar'
 
@@ -68,7 +69,7 @@ const CommentInput = ({
             // query API for this username to try to resolve to an email
             try {
                 const resp = await axios.post(
-                    `${API_BASE_URL}/bookhub/comments/get-mention-suggestions/`,
+                    `${API_BASE_URL}bookhub/comments/get-mention-suggestions/`,
                     { comment: `@${username}` },
                     { headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` } }
                 )
@@ -113,9 +114,8 @@ const CommentInput = ({
     const fetchMentionSuggestions = async (query) => {
         setMentionLoading(true)
         try {
-            const response = await axios.post(
-                `${API_BASE_URL}/bookhub/comments/get-mention-suggestions/`,
-                { comment: `@${query}` },
+            const response = await axios.get(
+                `${TECHNO_BASE_URL}/bookhub/comments/mention-suggestions/?q=${encodeURIComponent(query)}`,
                 {
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('access_token')}`

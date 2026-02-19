@@ -1,8 +1,9 @@
 import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { useForm, Controller } from "react-hook-form";
-import { AuthContext } from "../../contexts/authContext";
+
 import Loading from "@/Loading";
+import { AuthContext } from "@/contexts/authContext";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,6 +19,7 @@ import {
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { AUTH_BASE_URL } from "@/environment";
 
 export const AdminProfile = () => {
   const [admin, setAdmin] = useState(null);
@@ -55,7 +57,7 @@ export const AdminProfile = () => {
 
 
     if (profilePath.startsWith("http://localhost:8000")) {
-      return profilePath.replace("http://localhost:8000", API_BASE_URL);
+      return profilePath.replace("http://localhost:8000", AUTH_BASE_URL);
     }
 
 
@@ -63,7 +65,7 @@ export const AdminProfile = () => {
       return profilePath;
     }
 
-    return `${API_BASE_URL}${profilePath}`;
+    return `${AUTH_BASE_URL}${profilePath}`;
   };
 
   // Fetch admin
@@ -73,7 +75,7 @@ export const AdminProfile = () => {
 
     const fetchAdmin = async () => {
       try {
-        const res = await axios.get(`${API_BASE_URL}/User/${user.id}`, {
+        const res = await axios.get(`${AUTH_BASE_URL}/User/${user.id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -132,7 +134,7 @@ export const AdminProfile = () => {
 
     try {
       await axios.patch(
-        `${API_BASE_URL}/User/${admin.id}/`,
+        `${AUTH_BASE_URL}/User/${admin.id}/`,
         formData,
         {
           headers: {

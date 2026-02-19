@@ -24,6 +24,7 @@ import {
   MessageCircle
 } from 'lucide-react'
 import { AuthContext } from '@/contexts/authContext'
+import { TECHNO_BASE_URL } from '@/environment'
 import axios from 'axios'
 import Loading from '@/Loading'
 
@@ -271,7 +272,7 @@ export const BookhubHome = () => {
         setError(null)
 
         const response = await axios.get(
-          `${API_BASE_URL}/bookhub/books/`
+          `${TECHNO_BASE_URL}/bookhub/books/`
         )
         setBooks(response.data)
 
@@ -297,7 +298,7 @@ export const BookhubHome = () => {
   const currentBook = books.find(book =>
     book.discussion_month === currentMonth &&
     book.discussion_year === currentYear &&
-    book.status === "DISCUSSING"
+    book.status === "DISCUSSING" || book.status === "RE_READ"
   ) || books.find(book => book.status === "DISCUSSING")
 
 
@@ -442,13 +443,10 @@ export const BookhubHome = () => {
                         </Badge>
                       )}
                       <Badge
-                        variant="secondary"
-                        className={`text-xs text-nowrap px-2 py-0.5 gap-1 ${currentBook.is_discussed
-                          ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                          : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
-                          }`}
+                        variant="outline"
+                        className={`text-xs text-nowrap px-2 py-0.5 gap-1`}
                       >
-                        {currentBook.is_discussed ? (
+                        {currentBook.status === "DISCUSSING" ? (
                           <>
                             <CheckCircle2 className="h-3 w-3" />
                             DISCUSSING
@@ -456,7 +454,7 @@ export const BookhubHome = () => {
                         ) : (
                           <>
                             <Clock className="h-3 w-3" />
-                            In Progress
+                            Re-Read
                           </>
                         )}
                       </Badge>
