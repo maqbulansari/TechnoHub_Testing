@@ -38,8 +38,8 @@ export const img_path = '/';
 // export const TECHNO_BASE_URL = "http://72.61.173.6:8086/techno";
 
 // LG Technohub Production
-// export const AUTH_BASE_URL = "https://api.lgctechnohub.in/auth";
-// export const TECHNO_BASE_URL = "https://api.lgctechnohub.in/techno";
+export const AUTH_BASE_URL = "https://api.lgctechnohub.in/auth";
+export const TECHNO_BASE_URL = "https://api.lgctechnohub.in/auth";
 
 // PythonAnywhere
 // export const AUTH_BASE_URL = "https://technohub.pythonanywhere.com/auth";
@@ -54,8 +54,8 @@ export const img_path = '/';
 // export const TECHNO_BASE_URL = "https://xbzp7968-7000.inc1.devtunnels.ms/auth";
 
 // DevTunnel - Saba
-export const AUTH_BASE_URL = "https://958cp4w5-8000.inc1.devtunnels.ms/s";
-export const TECHNO_BASE_URL = "https://958cp4w5-8000.inc1.devtunnels.ms/techno";
+// export const AUTH_BASE_URL = "https://958cp4w5-8000.inc1.devtunnels.ms/s";
+// export const TECHNO_BASE_URL = "https://958cp4w5-8000.inc1.devtunnels.ms/techno";
 
 // DevTunnel - Naaz
 // export const AUTH_BASE_URL = "https://94f38xkg-7000.inc1.devtunnels.ms/auth";`
