@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-
+import { Link } from "react-router-dom"; // if you're using react-router
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
   visible: {
@@ -14,7 +14,7 @@ export const Footer = () => (
     initial="hidden"
     whileInView="visible"
     viewport={{ once: true, margin: "-100px" }}
-    className="bg-[#263746] text-gray-300 py-20"
+    className="bg-[#263746] text-gray-300 py-20 pb-4"
   >
     <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-12">
 
@@ -22,7 +22,8 @@ export const Footer = () => (
       <motion.div variants={fadeUp}>
         <h4 className="font-semibold text-gray-300 mb-4">TechnoHub</h4>
         <p className="text-sm leading-relaxed">
-          A global community dedicated to lifelong learning.
+          A global community using technology to educate, empower, and uplift Muslims
+  with ethics, intelligence, and purpose.
         </p>
       </motion.div>
 
@@ -40,6 +41,7 @@ export const Footer = () => (
               {link}
             </motion.li>
           ))}
+
         </ul>
       </motion.div>
 
@@ -59,6 +61,19 @@ export const Footer = () => (
           ))}
         </div>
       </motion.div>
+    </div>
+
+    {/* Footer Bottom */}
+    <div className="mt-6 border-t  border-gray-700 pt-6 mb-0 text-center text-sm text-gray-400">
+      © {new Date().getFullYear()} TechnoHub. All rights reserved.
+
+      <Link
+        to="/terms"
+        className="text-white mx-2 border-b"
+      >
+        Terms & Conditions
+      </Link>
+
 
     </div>
   </motion.footer>

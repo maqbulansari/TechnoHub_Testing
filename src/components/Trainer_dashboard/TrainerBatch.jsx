@@ -8,10 +8,12 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import TrainerImage from "../../assets/images/trainers/Trainer.jpg";
+import Loading from "@/Loading";
 
 const TrainerBatch = () => {
   const { loginSuccess, setLoginSuccess, API_BASE_URL } = useContext(AuthContext);
   const [showModal, setShowModal] = useState(false);
+  const [loading, setloading] = useState(true);
   const [batches, setBatches] = useState([]);
   const navigate = useNavigate();
 
@@ -28,15 +30,20 @@ const TrainerBatch = () => {
 
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
-
+    setloading(true)
     const fetchBatches = async () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/batches/`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setBatches(response.data);
+        setloading(false)
       } catch (error) {
         console.error("Error fetching batches:", error);
+        setloading(false)
+      }
+      finally{
+        setloading(false)
       }
     };
 
@@ -49,7 +56,7 @@ const TrainerBatch = () => {
   const handleCardClickAssessment = (batchId) => {
     navigate(`/TrainerBatchDetail/${batchId}`);
   };
-
+if (loading) return <Loading />;
   return (
     <div className="max-w-6xl mx-auto mt-20 px-4">
       <h1 className="text-3xl font-bold mb-6 text-center">Your Batches</h1>

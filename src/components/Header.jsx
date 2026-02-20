@@ -13,33 +13,37 @@ import { AuthContext } from "../contexts/authContext";
 import LoginModal from "@/feature-module/auth/login/login-3";
 import ForgotPasswordModal from "@/feature-module/auth/forgotPassword/forgotPassword";
 import axios from "axios";
-import { onForegroundMessage } from "@/firebase/notificationsHelper";
-import { toast } from "sonner";
 import NotificationPopover from "./Notifications";
+import { NotificationContext } from "@/contexts/NotificationContext";
+
 
 
 export default function Header({ setVisible }) {
+const { count ,fetchCount} = useContext(NotificationContext);
   const MotionLink = motion(Link);
   const location = useLocation();
   const navigate = useNavigate();
-  const { API_BASE_URL } = useContext(AuthContext);
+  const { API_BASE_URL,accessToken } = useContext(AuthContext);
 
-  const requestIdRef = useRef(0);
+ 
 
-  const isAuthenticated =
+  const isAuthenticated = Boolean(
     localStorage.getItem("accessToken") &&
     localStorage.getItem("refreshToken") &&
-    localStorage.getItem("userID");
+    localStorage.getItem("userID")
+  );
+
 
   const isHome = location.pathname === "/";
 
   const [loginOpen, setLoginOpen] = useState(false);
   const [forgotOpen, setForgotOpen] = useState(false);
 
-  const [notificationCount, setNotificationCount] = useState(0);
 
   const [openNotifications, setOpenNotifications] = useState(false);
   const notifRef = useRef(null);
+
+
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (notifRef.current && !notifRef.current.contains(e.target)) {
@@ -52,83 +56,28 @@ export default function Header({ setVisible }) {
   }, []);
 
 
+//   useEffect(() => {
 
-  // DEBUG: log on every render to ensure this instance is the one you see
-  console.log("Header render, notificationCount:", notificationCount);
+//  fetchCount(); 
+//     const unsubscribe = onForegroundMessage((payload) => {
+//       console.log("FCM payload:", payload);
 
-  // Stable fetch function + race-condition protection
-  const fetchNotificationCount = useCallback(async () => {
-    if (!isAuthenticated) return;
+//       window.dispatchEvent(new Event("notification-received"));
 
-    const currentRequestId = ++requestIdRef.current;
-    console.log("fetchNotificationCount requestId:", currentRequestId);
+//       if (payload?.data) {
+//          fetchCount(); 
+//         toast(payload.data.title || "New notification", {
+//           description: payload.data.body || "You have a new notification",
+//         });
+//       }
+//     });
 
-    try {
-      const accessToken = localStorage.getItem("accessToken");
-      const response = await axios.get(
-        `${API_BASE_URL}/notifications/unread/`,
-        {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        }
-      );
-
-      const unread = response.data?.unread ?? 0;
-      console.log(
-        "API returned unread:",
-        unread,
-        "for requestId:",
-        currentRequestId,
-        "latest requestIdRef:",
-        requestIdRef.current
-      );
-
-      // Only update state if this is the latest request
-      if (currentRequestId === requestIdRef.current) {
-        setNotificationCount(unread);
-        console.log("unread", unread);
-
-      } else {
-        console.log(
-          "Ignored stale response for requestId:",
-          currentRequestId
-        );
-      }
-    } catch (error) {
-      console.error("Error fetching notification count:", error);
-    }
-  }, [API_BASE_URL, isAuthenticated]);
-
-  useEffect(() => {
-    if (!isAuthenticated) {
-      setNotificationCount(0);
-      return;
-    }
-
-    // initial load
-    fetchNotificationCount();
-
-    const unsubscribe = onForegroundMessage((payload) => {
-      console.log("FCM payload:", payload);
-      window.dispatchEvent(new Event("notification-received"));
+//     return () => {
+//       unsubscribe?.();
+//     };
+//   }, [accessToken]);
 
 
-      if (payload?.data?.type === "notification") {
-        // always refetch on each notification
-        fetchNotificationCount();
-        toast("New notification", {
-          description: payload?.notification?.body || "You have a new notification",
-        });
-
-
-      }
-    });
-
-    return () => unsubscribe?.();
-  }, []);
-
-  useEffect(() => {
-    console.log("notificationCount changed:", notificationCount);
-  }, [notificationCount]);
 
 
   const handleNavigate = () => async () => {
@@ -141,7 +90,7 @@ export default function Header({ setVisible }) {
           headers: { Authorization: `Bearer ${accessToken}` },
         }
       );
-      setNotificationCount(0);
+      // setNotificationCount(0);
     } catch (error) {
       console.log(error);
     }
@@ -180,7 +129,7 @@ export default function Header({ setVisible }) {
                 <a href="#trainers">Trainers</a>
                 <a href="#tech">Technologies</a>
                 <a href="#gallery">Gallery</a>
-                <a href="#reads">Thursday Reads</a>
+                <a href="#reads">Al Meezan</a>
               </nav>
             )}
 
@@ -204,10 +153,15 @@ export default function Header({ setVisible }) {
                 >
                   <Bell className="w-8 h-6 text-gray-600" />
 
-                  {notificationCount > 0 && (
-                    <span className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full bg-red-500" />
+                  {count > 0 && (
+                    <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 
+                     flex items-center justify-center 
+                     rounded-full bg-red-500 text-white text-xs font-bold">
+                      {count}
+                    </span>
                   )}
                 </motion.button>
+
 
               </div>
             )}
@@ -240,7 +194,7 @@ export default function Header({ setVisible }) {
         <div ref={notifRef} className="absolute right-6 top-16 z-50">
           <NotificationPopover
             onClose={() => setOpenNotifications(false)}
-            refreshCount={fetchNotificationCount}
+            refreshCount={fetchCount}
           />
         </div>
       )}

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import { Provider } from "react-redux";
@@ -23,6 +23,9 @@ import "primeicons/primeicons.css";
 import "primeflex/primeflex.css";
 import "./index.css";
 import { Toaster } from "sonner";
+import { NotificationProvider } from "./contexts/NotificationContext";
+
+
 
 
 const rootElement = document.getElementById("root");
@@ -30,6 +33,8 @@ const rootElement = document.getElementById("root");
 if (!rootElement) {
   throw new Error("Root element not found");
 }
+// const token = window.localStorage.getItem("fcm_token")
+
 
 ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
@@ -37,10 +42,11 @@ ReactDOM.createRoot(rootElement).render(
       <NetworkProvider>
         <AppProvider>
           <BrowserRouter basename={base_path}>
+          <NotificationProvider>
             <ALLRoutes />
             <Toaster richColors toastOptions={{
               style: { zIndex: 9999 },
-            }} position="top-center" />
+            }} position="top-center" /> </NotificationProvider>
           </BrowserRouter>
         </AppProvider>
       </NetworkProvider>

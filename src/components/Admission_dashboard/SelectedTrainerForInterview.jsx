@@ -29,6 +29,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Trash2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const SelectedTrainerForInterview = () => {
   const { API_BASE_URL } = useContext(AuthContext);
@@ -42,6 +43,9 @@ const SelectedTrainerForInterview = () => {
   const [rowToDelete, setRowToDelete] = useState(null);
 
   const token = localStorage.getItem("accessToken");
+
+  const navigate = useNavigate();
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -102,9 +106,12 @@ const SelectedTrainerForInterview = () => {
 
   return (
     <div className="p-6 mt-16 space-y-6">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
       <h2 className="text-2xl font-semibold">
         Selected Trainer For Interview
-      </h2>
+      </h2><Button variant="outline" onClick={() => navigate("/AssignTrainerForInterview")}>
+                Assign Trainer Interview
+              </Button></div>
 
       {/* Filters Card */}
       <div className="flex flex-col md:flex-row gap-4">
@@ -133,7 +140,7 @@ const SelectedTrainerForInterview = () => {
       </div>
 
       {/* Table */}
-      <div className="rounded-lg border bg-white shadow-sm overflow-hidden">
+      <div className="rounded-lg border bg-white shadow-sm overflow-auto max-h-[70vh]">
         <Table>
           <TableHeader>
             <TableRow>
@@ -153,7 +160,7 @@ const SelectedTrainerForInterview = () => {
                     {row.user_name}
                   </TableCell>
 
-                  <TableCell className="flex flex-wrap gap-1">
+                  <TableCell className="flex flex-wrap items-center gap-1 border-none">
                     {row.batches_names?.map((b) => (
                       <Badge key={b.id} variant="">
                         {b.name}
@@ -200,9 +207,9 @@ const SelectedTrainerForInterview = () => {
 
       {/* Delete Dialog */}
       <Dialog open={!!rowToDelete} onOpenChange={() => setRowToDelete(null)}>
-        <DialogContent className="pt-4 pb-3 px-6 sm:w-[400px]">
+        <DialogContent className="pt-4 pb-3 px-6 sm:w-[400px] [&>button]:hidden">
           <DialogHeader>
-            <DialogTitle>Delete Interview Schedule</DialogTitle>
+            <DialogTitle>Delete</DialogTitle>
           </DialogHeader>
 
           <p>

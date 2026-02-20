@@ -1,5 +1,9 @@
 import axios from "axios";
 import { createContext, useEffect, useState } from "react";
+import { deleteToken } from "firebase/messaging";
+import { messaging } from "@/firebase/firebase";
+import { AUTH_BASE_URL, TECHNO_BASE_URL } from "@/environment";
+
 
 export const AuthContext = createContext();
 
@@ -11,7 +15,8 @@ const AuthProvider = ({ children }) => {
   const [refreshToken, setRefreshToken] = useState(null);
   const [userID, setUserID] = useState(null);
   const [role, setRole] = useState(null);
-  const [responseSubrole, setResponseSubrole] = useState(null);
+  const [roles, setRoles] = useState([]);
+  const [responseSubrole, setResponseSubrole] = useState([]);
   const [newSubrole, setNewSubRole] = useState([]);
   const [loading, setLoading] = useState(false);
   const [emailAlreadyCreated, setEmailAlreadyCreated] = useState(false);
@@ -24,13 +29,11 @@ const AuthProvider = ({ children }) => {
   const [loadingBatches, setLoadingBatches] = useState(false);
   const [error1, setError1] = useState(null);
 
-
-
-
-  const API_BASE_URL = "https://technohub.pythonanywhere.com/auth";//main
-  // const API_BASE_URL = "https://9gqxjbjg-8000.inc1.devtunnels.ms/auth";//tahur
-  // const API_BASE_URL = "https://187gwsw1-8000.inc1.devtunnels.ms/auth";//farha
-  // const API_BASE_URL = "https://958cp4w5-8000.inc1.devtunnels.ms/auth";//Saba
+  // API Base URLs (from environment.jsx)
+  // AUTH_BASE_URL for authentication endpoints: login, logout, register, etc.
+  // TECHNO_BASE_URL for other endpoints: batches, learners, trainers, notifications, etc.
+  // API_BASE_URL kept for backward compatibility
+  const API_BASE_URL = TECHNO_BASE_URL;
 
 
 
@@ -42,14 +45,50 @@ const AuthProvider = ({ children }) => {
     const storedRefreshToken = localStorage.getItem("refreshToken");
     const storedUserID = localStorage.getItem("userID");
     const storedRole = localStorage.getItem("role");
-    const storedSubrole = localStorage.getItem("subrole");
+    const storedRolesRaw = localStorage.getItem("roles");
+    // support both keys for backward compatibility
+    const storedSubroleRaw =
+      localStorage.getItem("subroles") || localStorage.getItem("subrole");
 
-    if (storedAccessToken && storedRefreshToken && storedUserID && storedRole) {
+    // Parse stored subrole which may be JSON (array) or a plain string
+    let parsedSubrole = [];
+    if (storedSubroleRaw) {
+      try {
+        parsedSubrole = JSON.parse(storedSubroleRaw);
+      } catch (e) {
+        parsedSubrole = storedSubroleRaw.includes(",")
+          ? storedSubroleRaw.split(",").map((s) => s.trim())
+          : [storedSubroleRaw];
+      }
+    }
+
+    if (storedAccessToken && storedRefreshToken && storedUserID && (storedRole || storedRolesRaw)) {
       setAccessToken(storedAccessToken);
       setRefreshToken(storedRefreshToken);
       setUserID(storedUserID);
-      setRole(storedRole);
-      setResponseSubrole(storedSubrole);
+      // roles may be stored as JSON array under `roles` or as a legacy `role` string
+      let parsedRoles = [];
+      if (storedRolesRaw) {
+        try {
+          parsedRoles = JSON.parse(storedRolesRaw);
+        } catch (e) {
+          parsedRoles = storedRolesRaw.includes(",")
+            ? storedRolesRaw.split(",").map((s) => s.trim())
+            : [storedRolesRaw];
+        }
+      } else if (storedRole) {
+        try {
+          const maybe = JSON.parse(storedRole);
+          parsedRoles = Array.isArray(maybe) ? maybe : [maybe];
+        } catch (e) {
+          parsedRoles = [storedRole];
+        }
+      }
+
+      const primary = parsedRoles.length > 0 ? parsedRoles[0] : null;
+      setRoles(parsedRoles);
+      setRole(primary);
+      setResponseSubrole(parsedSubrole);
       setUserLoggedIN(true);
     }
   }, []);
@@ -58,8 +97,11 @@ const AuthProvider = ({ children }) => {
   useEffect(() => {
     const requestInterceptor = axios.interceptors.request.use(
       config => {
-        if (accessToken) {
-          config.headers.Authorization = `Bearer ${accessToken}`;
+        if (!config.headers.Authorization) {
+          const token = localStorage.getItem("accessToken");
+          if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+          }
         }
         return config;
       },
@@ -70,19 +112,22 @@ const AuthProvider = ({ children }) => {
       response => response,
       async error => {
         const originalRequest = error.config;
-        const isTokenExpired =
-          error.response?.status === 401 &&
-          error.response?.data?.code === "token_not_valid";
 
-        if (isTokenExpired && !originalRequest._retry) {
+
+        if (originalRequest.url.includes("/login/refresh/")) {
+          return Promise.reject(error);
+        }
+
+        if (
+          error.response?.status === 401 &&
+          error.response?.data?.code === "token_not_valid" &&
+          !originalRequest._retry
+        ) {
           originalRequest._retry = true;
 
           try {
             const newToken = await GenerateNewAccessToken();
-
-            axios.defaults.headers.common.Authorization = `Bearer ${newToken}`;
             originalRequest.headers.Authorization = `Bearer ${newToken}`;
-
             return axios(originalRequest);
           } catch (err) {
             LogoutUser();
@@ -98,19 +143,20 @@ const AuthProvider = ({ children }) => {
       axios.interceptors.request.eject(requestInterceptor);
       axios.interceptors.response.eject(responseInterceptor);
     };
-  }, [accessToken, refreshToken]);
+  }, []);
+
 
 
   // Lazy fetch functions - only called when explicitly needed
   // fetchTrainers() - Only fetches current user's trainer profile (single trainer name)
   // Should only be called when user is a TRAINER and on trainer-specific pages
   const fetchTrainers = async () => {
-    if (trainers) return; // Already fetched (trainers is a string)
-    // Only fetch if user is a trainer
-    if (role !== "TRAINER" && responseSubrole !== "TRAINER") return;
+  if (trainers) return; // Already fetched (trainers is a string)
+  // Only fetch if user is a trainer
+  if (!hasRole("TRAINER") && !hasSubrole("TRAINER")) return;
     setLoading(true);
     try {
-      const response = await axios.get(`${API_BASE_URL}/trainers/`, {
+      const response = await axios.get(`${TECHNO_BASE_URL}/trainers/`, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
@@ -128,10 +174,10 @@ const AuthProvider = ({ children }) => {
   const fetchAdmin = async () => {
     if (admin) return; // Already fetched (admin is a string)
     // Only fetch if user is ADMIN
-    if (role !== "ADMIN") return;
+    if (!hasRole("ADMIN") && !hasSubrole("ADMIN")) return;
     setLoading(true);
     try {
-      const response = await axios.get(`${API_BASE_URL}/Admin/`);
+      const response = await axios.get(`${TECHNO_BASE_URL}/Admin/`);
       if (response.status === 200) {
         setAdmin(
           response.data[0].user.first_name +
@@ -149,7 +195,7 @@ const AuthProvider = ({ children }) => {
   // const fetchAllTrainer = async () => {
   //   if (allTrainer.length > 0) return; // Already fetched
   //   try {
-  //     const response = await axios.get(`${API_BASE_URL}/trainers/`);
+  //     const response = await axios.get(`${TECHNO_BASE_URL}/trainers/`);
   //     if (response.status === 200) {
   //       setAllTrainer(response.data);
   //       console.log(response.data);
@@ -166,7 +212,7 @@ const AuthProvider = ({ children }) => {
     setLoadingBatches(true);
     setError1(null);
     try {
-      const response = await axios.get(`${API_BASE_URL}/batches/`);
+      const response = await axios.get(`${TECHNO_BASE_URL}/batches/`);
       setBatches(response.data);
     } catch (err) {
       console.error("Error fetching batches:", err);
@@ -188,7 +234,7 @@ const AuthProvider = ({ children }) => {
       };
 
       const response = await axios.post(
-        `${API_BASE_URL}/register/`,
+        `${AUTH_BASE_URL}/register/`,
         userData,
         config
       );
@@ -219,48 +265,111 @@ const AuthProvider = ({ children }) => {
       setLoading(false);
     }
   };
-  const LoginUser = async (userData) => {
-    setLoginError("");
-    setLoading(true);
-    try {
-      const response = await axios.post(`${API_BASE_URL}/login/`, userData, {
-        headers: { "Content-Type": "application/json" },
-      });
+const LoginUser = async (userData) => {
+  setLoginError("");
+  setLoading(true);
 
-      setAccessToken(response.data.access);
-      setRefreshToken(response.data.refresh);
-      setUserID(response.data.user_id);
-      setResponseSubrole(response.data.subrole);    
-      setRole(response.data.role);
-      localStorage.setItem("accessToken", response.data.access);
-      localStorage.setItem("refreshToken", response.data.refresh);
-      localStorage.setItem("userID", response.data.user_id);
-      localStorage.setItem("role", response.data.role);
-      localStorage.setItem("subrole", response.data.subrole);
+  try {
+    const response = await axios.post(`${AUTH_BASE_URL}/login/`, userData, {
+      headers: { "Content-Type": "application/json" },
+    });
+    console.log(response);
+    
 
-      if (response.status === 200) {
-        setUserLoggedIN(true);
-        return response.data;
+    if (response.status === 200) {
+      const { access, refresh, user_id } = response.data;
+
+      // Support both `subroles` (plural) and `subrole` (singular) from API
+      const subrolesRaw = response.data.subroles ?? response.data.subrole;
+      const normalizedSubroles = Array.isArray(subrolesRaw)
+        ? subrolesRaw
+        : subrolesRaw
+        ? [subrolesRaw]
+        : [];
+
+      // Always normalize roles to array for all users (ADMIN, ENABLER, LEARNER, etc)
+      let roleRaw = response.data.role ?? response.data.roles;
+      let normalizedRoles = [];
+      if (Array.isArray(roleRaw)) {
+        normalizedRoles = roleRaw;
+      } else if (typeof roleRaw === "string" && roleRaw) {
+        normalizedRoles = [roleRaw];
+      } else if (roleRaw && typeof roleRaw === "object") {
+        // Defensive: handle object case if API changes
+        normalizedRoles = Object.values(roleRaw).filter(Boolean);
       }
-    } catch (error) {
-      const errorMessage =
-        error.response?.data?.error ||
-        error.response?.data?.non_field_errors?.[0] ||
-        "Login failed. Please try again.";
+      const primaryRole = normalizedRoles.length > 0 ? normalizedRoles[0] : null;
 
-      setLoginError(errorMessage);
-      console.error("Login Error:", error.response?.data);
-      throw error;
-    } finally {
-      setLoading(false);
+      // Update context state
+      setAccessToken(access);
+      setRefreshToken(refresh);
+      setUserID(user_id);
+      setResponseSubrole(normalizedSubroles);
+      setRole(primaryRole);
+      setRoles(normalizedRoles);
+      setUserLoggedIN(true);
+
+      // Clear old/duplicate keys then set canonical keys
+      localStorage.removeItem("role");
+      localStorage.removeItem("roles");
+      localStorage.removeItem("subroles");
+      localStorage.removeItem("subrole");
+
+      localStorage.setItem("accessToken", access);
+      localStorage.setItem("refreshToken", refresh);
+      localStorage.setItem("userID", user_id);
+      // Always store roles as array (JSON) and primary as string for legacy
+      if (primaryRole) localStorage.setItem("role", primaryRole);
+      localStorage.setItem("roles", JSON.stringify(normalizedRoles));
+      // store both plural and singular subrole keys for compatibility
+      localStorage.setItem("subroles", JSON.stringify(normalizedSubroles));
+      localStorage.setItem("subrole", normalizedSubroles.join(","));
+
+      // Return info for navigation - return primaryRole and primarySubrole (strings) for easy checking
+      const primarySubrole = normalizedSubroles.length > 0 ? normalizedSubroles[0] : null;
+      return { subrole: primarySubrole, role: primaryRole };
     }
+  } catch (error) {
+    const errorMessage =
+      error.response?.data?.error ||
+      error.response?.data?.non_field_errors?.[0] ||
+      "Login failed. Please try again.";
+
+    setLoginError(errorMessage);
+    console.error("Login Error:", error.response?.data);
+    throw error;
+  } finally {
+    setLoading(false);
+  }
+};
+
+  // Helper to check whether the current user has a specific subrole
+  const hasSubrole = (name) => {
+    if (!name) return false;
+    if (!responseSubrole) return false;
+    return Array.isArray(responseSubrole)
+      ? responseSubrole.includes(name)
+      : responseSubrole === name;
   };
+
+  // Helper to check whether the current user has a specific role
+  const hasRole = (name) => {
+    if (!name) return false;
+    if (roles && Array.isArray(roles) && roles.includes(name)) return true;
+    if (role && role === name) return true;
+    return false;
+  };
+
+  useEffect(() => {
+    console.log("AuthContext effect:", userLoggedIN);
+  }, [userLoggedIN]);
+
 
   const GetUser = async () => {
     if (!accessToken) return;
     setLoading(true);
     try {
-      const response = await axios.get(`${API_BASE_URL}/User/${userID}`);
+      const response = await axios.get(`${AUTH_BASE_URL}/User/${userID}`);
 
       if (response.status === 200) {
         setUser(response.data);
@@ -279,7 +388,7 @@ const AuthProvider = ({ children }) => {
   const fetchNewSubrole = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`${API_BASE_URL}/SubRole/`);
+      const response = await axios.get(`${AUTH_BASE_URL}/SubRole/`);
 
       if (response.status === 200) {
         console.log("Subroles fetched successfully:", response.data);
@@ -292,54 +401,78 @@ const AuthProvider = ({ children }) => {
     }
   };
 
+
   const LogoutUser = async () => {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-    localStorage.removeItem("userID");
-    localStorage.removeItem("role");
-    localStorage.removeItem("subrole");
-    localStorage.removeItem("first_name");
-    localStorage.removeItem("last_name");
-    localStorage.removeItem("fcm_token");
-    setUserLoggedIN(false);
-    setAccessToken(null);
-    setRefreshToken(null);
-    setUserID(null);
-    setRole(null);
-    setResponseSubrole(null);
-    setUser(null);
+    const fcmToken = localStorage.getItem("fcm_token");
+    const refreshToken = localStorage.getItem("refreshToken");
+
+    try {
+
+      if (fcmToken) {
+        await axios.post("/unregister/", {
+          token: fcmToken,
+        });
+
+
+        await deleteToken(messaging);
+      }
+
+      if (refreshToken) {
+        await axios.post(`${AUTH_BASE_URL}/logout/`, {
+          refresh_token: refreshToken,
+        });
+      }
+
+    } catch (err) {
+      console.error("Logout failed:", err);
+    } finally {
+
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      localStorage.removeItem("userID");
+      localStorage.removeItem("role");
+      localStorage.removeItem("subrole");
+      localStorage.removeItem("subroles");
+      localStorage.removeItem("roles");
+      setRoles([]);
+      setRole(null);
+      setResponseSubrole([]);
+      localStorage.removeItem("first_name");
+      localStorage.removeItem("last_name");
+      localStorage.removeItem("fcm_token");
+      window.location.href = "/";
+    }
   };
+  const refreshAxios = axios.create();
+
   const GenerateNewAccessToken = async () => {
-    if (!refreshToken) {
+    const refresh = localStorage.getItem("refreshToken");
+
+    if (!refresh) {
       LogoutUser();
-      throw new Error("No refresh token available");
+      throw new Error("No refresh token");
     }
 
     try {
-      const response = await axios.post(`${API_BASE_URL}/login/refresh/`, {
-        refresh: refreshToken
-      });
+      const response = await refreshAxios.post(
+        `${AUTH_BASE_URL}/login/refresh/`,
+        { refresh }
+      );
 
-      if (response.data.access) {
-        const newAccessToken = response.data.access;
+      const newAccessToken = response.data.access;
 
-        // Update local state
-        setAccessToken(newAccessToken);
-        // Persist
-        localStorage.setItem("accessToken", newAccessToken);
-        // Update global axios header immediately
-        axios.defaults.headers.common["Authorization"] = `Bearer ${newAccessToken}`;
+      setAccessToken(newAccessToken);
+      localStorage.setItem("accessToken", newAccessToken);
 
-        return newAccessToken;
-      }
+      axios.defaults.headers.common.Authorization = `Bearer ${newAccessToken}`;
 
-      throw new Error("Invalid refresh response");
+      return newAccessToken;
     } catch (error) {
-      console.error("Token refresh failed:", error);
       LogoutUser();
       throw error;
     }
   };
+
 
 
   // Fetch user data when accessToken or userID changes (only if not already fetched)
@@ -367,9 +500,14 @@ const AuthProvider = ({ children }) => {
     loginError,
     userCreatedSuccessfully,
     responseSubrole,
+    hasSubrole,
+    hasRole,
+    roles,
     emailAlreadyCreated,
     setLoginError,
     API_BASE_URL,
+    AUTH_BASE_URL,
+    TECHNO_BASE_URL,
     GenerateNewAccessToken,
     trainers,
     batches,

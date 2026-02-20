@@ -1,7 +1,6 @@
 import axios from "axios";
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { AuthContext } from "../authContext";
-
+import { AuthContext } from "@/contexts/authContext";
 
 export const SponsorContext = createContext();
 
@@ -28,7 +27,7 @@ const SponsorDashboardProvider = ({ children }) => {
           },
 
         }
-      );
+      );           
       if (response.status == 200) {
         setUserDataToSponsor(response.data.students_to_sponsor);
       }

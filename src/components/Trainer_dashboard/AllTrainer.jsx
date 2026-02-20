@@ -20,6 +20,8 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { useNavigate } from "react-router-dom";
+import { Button } from "../ui/button";
 
 const AllTrainer = () => {
   const { API_BASE_URL } = useContext(AuthContext);
@@ -32,6 +34,9 @@ const AllTrainer = () => {
   const [techFilter, setTechFilter] = useState("all");
 
   const token = localStorage.getItem("accessToken");
+
+  const navigate = useNavigate();
+
 
   const fetchAllTrainer = async () => {
     try {
@@ -86,12 +91,15 @@ const AllTrainer = () => {
 
   return (
     <div className="p-6 mt-16 space-y-6">
-      <h2 className="text-2xl font-semibold">Trainer Information</h2>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <h2 className="text-2xl font-semibold">Trainer Information</h2>  <Button variant="outline" onClick={() => navigate("/AssignBatchForTrainer")}>
+          Assign Trainer Batch
+        </Button> </div>
 
       {/* Filters */}
-      <div className="flex flex-col md:flex-row gap-4">
+      <div className="flex flex-col md:flex-row gap-4 w-1/2">
         <Input
-          placeholder="Search by name or email..."
+          placeholder="name or email..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="md:w-1/3"
@@ -102,7 +110,7 @@ const AllTrainer = () => {
             <SelectValue placeholder="Gender" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All</SelectItem>
+            <SelectItem value="all">All Gender</SelectItem>
             <SelectItem value="Male">Male</SelectItem>
             <SelectItem value="Female">Female</SelectItem>
           </SelectContent>
@@ -113,7 +121,7 @@ const AllTrainer = () => {
             <SelectValue placeholder="Technology" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All</SelectItem>
+            <SelectItem value="all">All Technologies</SelectItem>
             {allTechnologies.map((tech) => (
               <SelectItem key={tech} value={tech}>
                 {tech}
@@ -124,7 +132,7 @@ const AllTrainer = () => {
       </div>
 
       {/* Table */}
-      <div className="rounded-lg border bg-white shadow-sm overflow-hidden">
+      <div className="rounded-lg border max-h-[70vh] bg-white shadow-sm overflow-auto">
         <Table>
           <TableHeader>
             <TableRow>
@@ -149,7 +157,7 @@ const AllTrainer = () => {
                     {trainer.job_title}
                   </TableCell>
                   <TableCell>{trainer.experience} yrs</TableCell>
-                  <TableCell className="flex flex-wrap gap-1">
+                  <TableCell className="flex flex-wrap gap-1 border-none">
                     {trainer.technologies?.length ? (
                       trainer.technologies.map((tech, idx) => (
                         <Badge key={idx} variant="outline">

@@ -84,7 +84,7 @@ export const RecruiterTable = () => {
       <h1 className="sponsornowHeading text-left">Recruiters</h1>
 
       {/* Filters */}
-      <div className="flex flex-col md:flex-row gap-4 mb-4">
+      <div className="flex flex-col md:flex-row gap-4 mb-4 w-1/2">
         <Input
           placeholder="Search by name or company..."
           value={search}
@@ -106,7 +106,7 @@ export const RecruiterTable = () => {
       </div>
 
       {/* Table */}
-      <div className="rounded-lg bg-white shadow-sm overflow-auto">
+      <div className="rounded-lg bg-white shadow-sm max-h-[70vh] overflow-auto">
         <Table>
           <TableHeader>
             <TableRow>

@@ -42,6 +42,14 @@ const AllStudent = () => {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
+        // const res = await axios.get(
+        //   `${API_BASE_URL}/recruitment/requests/`,
+        //   {
+        //     headers: { Authorization: `Bearer ${token}` },
+        //   }
+        // );
+        // console.log(res);
+        
         setStudentData(response.data);
       } catch (err) {
         setError(err.message);
@@ -83,9 +91,9 @@ const AllStudent = () => {
       <h2 className="text-2xl font-semibold">Students</h2>
 
       {/* Filters */}
-      <div className="flex flex-col md:flex-row gap-4">
+      <div className="flex flex-col md:flex-row gap-4 w-1/2">
         <Input
-          placeholder="Search by name or email..."
+          placeholder="name or email..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="md:w-1/3"
@@ -96,7 +104,7 @@ const AllStudent = () => {
             <SelectValue placeholder="Gender" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All</SelectItem>
+            <SelectItem value="all">Gender</SelectItem>
             <SelectItem value="Male">Male</SelectItem>
             <SelectItem value="Female">Female</SelectItem>
           </SelectContent>
@@ -107,11 +115,11 @@ const AllStudent = () => {
             <SelectValue placeholder="Batch" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All</SelectItem>
+            <SelectItem value="all">All Batches</SelectItem>
             {[...new Set(studentData.map((s) => s.batch))].map(
               (batch) =>
                 batch && (
-                  <SelectItem key={batch} value={batch}>
+                  <SelectItem  key={batch} value={batch}>
                     {batch}
                   </SelectItem>
                 )
@@ -121,14 +129,14 @@ const AllStudent = () => {
       </div>
 
       {/* Table */}
-      <div className="rounded-lg border bg-white shadow-sm overflow-hidden">
+      <div className="rounded-lg border max-h-[70vh] bg-white shadow-sm overflow-auto">
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead>Name</TableHead>
+            <TableRow >
+              <TableHead >Name</TableHead>
               <TableHead>Email</TableHead>
-              <TableHead>Mobile</TableHead>
-              <TableHead>Gender</TableHead>
+              <TableHead >Mobile</TableHead>
+              <TableHead >Gender</TableHead>
               <TableHead>Batch</TableHead>
             </TableRow>
           </TableHeader>
@@ -137,7 +145,7 @@ const AllStudent = () => {
             {filteredStudents.length > 0 ? (
               filteredStudents.map((student) => (
                 <TableRow key={student.id || student.email}>
-                  <TableCell className="font-medium capitalize">
+                  <TableCell className="font-medium capitalize ">
                     {student.name}
                   </TableCell>
                   <TableCell>{student.email}</TableCell>
@@ -146,7 +154,7 @@ const AllStudent = () => {
                     <Badge variant="outline">{student.gender}</Badge>
                   </TableCell>
                   <TableCell>
-                    <Badge className="uppercase">
+                    <Badge className="uppercase text-nowrap">
                       {student.batch || "N/A"}
                     </Badge>
                   </TableCell>
