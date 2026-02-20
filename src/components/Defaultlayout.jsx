@@ -100,26 +100,6 @@ const menuItems = (role) => ({
     },
   ],
   ADMIN: [
-    {
-      title: "Assessment Process",
-      key: "admin-assessment-process",
-      icon: faCubes,
-      items: [{ path: "/AssessmentTable", label: "Assessment Candidate" }],
-    },
-  ],
-  Bookhub: [
-    {
-      title: "Bookhub Management",
-      key: "alltrainer-bookhub-management",
-      icon: faBook,
-      items:
-        role === "ADMIN"
-          ? [
-            { path: "/AdminAccessManager", label: "Access Management" },
-            { path: "/bookhub/CreateBook", label: "CreateBook" },
-          ]
-          : [],
-    },
   ],
   ALLTRAINER: [
     {
@@ -186,11 +166,52 @@ const menuItems = (role) => ({
       items: [{ path: "/AllStudent", label: "Students" }],
     },
   ],
+  BOOKHUB_MANAGER: [
+    {
+      title: "Bookhub Management",
+      key: "bookhub-manager-management",
+      icon: faBook,
+      items: [
+        { path: "/AdminAccessManager", label: "Access Management" },
+        { path: "/bookhub/CreateBook", label: "Create Book" },
+        { path: "/bookhub", label: "View Books" },
+      ],
+    },
+  ],
+  ADMISSION_MANAGER: [
+    {
+      title: "Admission Process",
+      key: "admission-manager-process",
+      icon: faTicket,
+      items: [
+        { path: "/Admission_table", label: "Interview" },
+        { path: "/AssignTrainerForInterview", label: "Assign Trainer" },
+        { path: "/SelectedTrainerForInterview", label: "Selected Trainer" },
+      ],
+    },
+  ],
+  CO_TRAINER: [
+    {
+      title: "Co-Trainer Dashboard",
+      key: "co-trainer-dashboard",
+      icon: faChalkboardUser,
+      items: [
+        { path: "/Trainer_profile", label: "Profile" },
+        { path: "/Trainer_batch", label: "Batch" },
+      ],
+    },
+    {
+      title: "Assessment Process",
+      key: "co-trainer-assessment-process",
+      icon: faCubes,
+      items: [{ path: "/AssessmentTable", label: "Assessment Candidate" }],
+    },
+  ],
 });
 
 const Defaultlayout = () => {
   const navigate = useNavigate();
-  const { user, userLoggedIN, LogoutUser, API_BASE_URL } = useContext(AuthContext);
+  const { user, userLoggedIN, LogoutUser, API_BASE_URL, role: contextRole, responseSubrole } = useContext(AuthContext);
   const { isOnline } = useNetworkCheck();
   const [visible, setVisible] = useState(false);
   const [role, setRole] = useState("");
@@ -205,13 +226,22 @@ const Defaultlayout = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Get role/subrole from localStorage
+  // Get role/subrole from context first, then localStorage
   useEffect(() => {
-    const userRole = localStorage.getItem("role");
-    const userSubrole = localStorage.getItem("subrole");
-    setRole(userRole || "");
-    setSubrole(userSubrole || "");
-  }, [userLoggedIN]);
+    if (contextRole) {
+      setRole(contextRole);
+    } else {
+      const userRole = localStorage.getItem("role");
+      setRole(userRole || "");
+    }
+    
+    if (responseSubrole && responseSubrole.length > 0) {
+      setSubrole(Array.isArray(responseSubrole) ? responseSubrole[0] : responseSubrole);
+    } else {
+      const userSubrole = localStorage.getItem("subrole");
+      setSubrole(userSubrole || "");
+    }
+  }, [userLoggedIN, contextRole, responseSubrole]);
 
   const toggleSidebar = useCallback(() => setVisible((prev) => !prev), []);
   const handleLogout = useCallback(() => {
@@ -226,19 +256,22 @@ const Defaultlayout = () => {
   // Get menus for current role
 
   const getMenusForRole = () => {
-    if (!role || !subrole) return [];
-    const allMenus = menuItems(role);
-
+    // Admin access - only admin-specific menus
     if (role === "ADMIN") {
+      const allMenus = menuItems(role);
       return [
         ...allMenus.ADMIN_DASHBOARD,
         ...allMenus.ALLSTUDENT,
         ...allMenus.ALLTRAINER,
         ...allMenus.RECRUITER,
         ...allMenus.SPONSOR,
-        ...allMenus.Bookhub,
+        ...allMenus.ADMIN,
       ];
     }
+    
+    // Other users need both role and subrole
+    if (!role || !subrole) return [];
+    const allMenus = menuItems(role);
     return allMenus[subrole] || [];
   };
 

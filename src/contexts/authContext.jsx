@@ -15,6 +15,7 @@ const AuthProvider = ({ children }) => {
   const [refreshToken, setRefreshToken] = useState(null);
   const [userID, setUserID] = useState(null);
   const [role, setRole] = useState(null);
+  const [roles, setRoles] = useState([]);
   const [responseSubrole, setResponseSubrole] = useState([]);
   const [newSubrole, setNewSubRole] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -44,6 +45,7 @@ const AuthProvider = ({ children }) => {
     const storedRefreshToken = localStorage.getItem("refreshToken");
     const storedUserID = localStorage.getItem("userID");
     const storedRole = localStorage.getItem("role");
+    const storedRolesRaw = localStorage.getItem("roles");
     // support both keys for backward compatibility
     const storedSubroleRaw =
       localStorage.getItem("subroles") || localStorage.getItem("subrole");
@@ -60,22 +62,32 @@ const AuthProvider = ({ children }) => {
       }
     }
 
-    if (storedAccessToken && storedRefreshToken && storedUserID && storedRole) {
+    if (storedAccessToken && storedRefreshToken && storedUserID && (storedRole || storedRolesRaw)) {
       setAccessToken(storedAccessToken);
       setRefreshToken(storedRefreshToken);
       setUserID(storedUserID);
-      // role stored as string for compatibility; if it's JSON, try to parse
-      let parsedRole = storedRole;
-      if (storedRole) {
+      // roles may be stored as JSON array under `roles` or as a legacy `role` string
+      let parsedRoles = [];
+      if (storedRolesRaw) {
+        try {
+          parsedRoles = JSON.parse(storedRolesRaw);
+        } catch (e) {
+          parsedRoles = storedRolesRaw.includes(",")
+            ? storedRolesRaw.split(",").map((s) => s.trim())
+            : [storedRolesRaw];
+        }
+      } else if (storedRole) {
         try {
           const maybe = JSON.parse(storedRole);
-          // if array, pick first element for legacy single-role expectations
-          parsedRole = Array.isArray(maybe) ? maybe[0] : maybe;
+          parsedRoles = Array.isArray(maybe) ? maybe : [maybe];
         } catch (e) {
-          parsedRole = storedRole;
+          parsedRoles = [storedRole];
         }
       }
-      setRole(parsedRole);
+
+      const primary = parsedRoles.length > 0 ? parsedRoles[0] : null;
+      setRoles(parsedRoles);
+      setRole(primary);
       setResponseSubrole(parsedSubrole);
       setUserLoggedIN(true);
     }
@@ -139,9 +151,9 @@ const AuthProvider = ({ children }) => {
   // fetchTrainers() - Only fetches current user's trainer profile (single trainer name)
   // Should only be called when user is a TRAINER and on trainer-specific pages
   const fetchTrainers = async () => {
-    if (trainers) return; // Already fetched (trainers is a string)
-    // Only fetch if user is a trainer
-    if (role !== "TRAINER" && !hasSubrole("TRAINER")) return;
+  if (trainers) return; // Already fetched (trainers is a string)
+  // Only fetch if user is a trainer
+  if (!hasRole("TRAINER") && !hasSubrole("TRAINER")) return;
     setLoading(true);
     try {
       const response = await axios.get(`${TECHNO_BASE_URL}/trainers/`, {
@@ -162,7 +174,7 @@ const AuthProvider = ({ children }) => {
   const fetchAdmin = async () => {
     if (admin) return; // Already fetched (admin is a string)
     // Only fetch if user is ADMIN
-    if (role !== "ADMIN" && !hasSubrole("ADMIN")) return;
+    if (!hasRole("ADMIN") && !hasSubrole("ADMIN")) return;
     setLoading(true);
     try {
       const response = await axios.get(`${TECHNO_BASE_URL}/Admin/`);
@@ -275,9 +287,17 @@ const LoginUser = async (userData) => {
         ? [subrolesRaw]
         : [];
 
-      // Role may come as array or string. Normalize for backwards compatibility.
-      const roleRaw = response.data.role ?? response.data.roles;
-      const normalizedRoles = Array.isArray(roleRaw) ? roleRaw : roleRaw ? [roleRaw] : [];
+      // Always normalize roles to array for all users (ADMIN, ENABLER, LEARNER, etc)
+      let roleRaw = response.data.role ?? response.data.roles;
+      let normalizedRoles = [];
+      if (Array.isArray(roleRaw)) {
+        normalizedRoles = roleRaw;
+      } else if (typeof roleRaw === "string" && roleRaw) {
+        normalizedRoles = [roleRaw];
+      } else if (roleRaw && typeof roleRaw === "object") {
+        // Defensive: handle object case if API changes
+        normalizedRoles = Object.values(roleRaw).filter(Boolean);
+      }
       const primaryRole = normalizedRoles.length > 0 ? normalizedRoles[0] : null;
 
       // Update context state
@@ -286,21 +306,28 @@ const LoginUser = async (userData) => {
       setUserID(user_id);
       setResponseSubrole(normalizedSubroles);
       setRole(primaryRole);
+      setRoles(normalizedRoles);
       setUserLoggedIN(true);
 
-      // Save tokens and subroles/roles locally (store arrays as JSON and keep legacy keys)
+      // Clear old/duplicate keys then set canonical keys
+      localStorage.removeItem("role");
+      localStorage.removeItem("roles");
+      localStorage.removeItem("subroles");
+      localStorage.removeItem("subrole");
+
       localStorage.setItem("accessToken", access);
       localStorage.setItem("refreshToken", refresh);
       localStorage.setItem("userID", user_id);
-      // store primary role for legacy code, and full roles array under `roles`
+      // Always store roles as array (JSON) and primary as string for legacy
       if (primaryRole) localStorage.setItem("role", primaryRole);
       localStorage.setItem("roles", JSON.stringify(normalizedRoles));
       // store both plural and singular subrole keys for compatibility
       localStorage.setItem("subroles", JSON.stringify(normalizedSubroles));
       localStorage.setItem("subrole", normalizedSubroles.join(","));
 
-      // Return info for navigation
-      return { subrole: normalizedSubroles, role: normalizedRoles };
+      // Return info for navigation - return primaryRole and primarySubrole (strings) for easy checking
+      const primarySubrole = normalizedSubroles.length > 0 ? normalizedSubroles[0] : null;
+      return { subrole: primarySubrole, role: primaryRole };
     }
   } catch (error) {
     const errorMessage =
@@ -323,6 +350,14 @@ const LoginUser = async (userData) => {
     return Array.isArray(responseSubrole)
       ? responseSubrole.includes(name)
       : responseSubrole === name;
+  };
+
+  // Helper to check whether the current user has a specific role
+  const hasRole = (name) => {
+    if (!name) return false;
+    if (roles && Array.isArray(roles) && roles.includes(name)) return true;
+    if (role && role === name) return true;
+    return false;
   };
 
   useEffect(() => {
@@ -399,6 +434,9 @@ const LoginUser = async (userData) => {
       localStorage.removeItem("subrole");
       localStorage.removeItem("subroles");
       localStorage.removeItem("roles");
+      setRoles([]);
+      setRole(null);
+      setResponseSubrole([]);
       localStorage.removeItem("first_name");
       localStorage.removeItem("last_name");
       localStorage.removeItem("fcm_token");
@@ -463,6 +501,8 @@ const LoginUser = async (userData) => {
     userCreatedSuccessfully,
     responseSubrole,
     hasSubrole,
+    hasRole,
+    roles,
     emailAlreadyCreated,
     setLoginError,
     API_BASE_URL,
