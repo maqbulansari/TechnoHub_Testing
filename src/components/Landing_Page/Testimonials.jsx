@@ -116,75 +116,110 @@ const team = [
 
 export const Testimonials = () => {
   const [selectedProfile, setSelectedProfile] = useState(null);
+  const [containerWidth, setContainerWidth] = useState(0);
+  const containerRef = useRef(null);
   const x = useMotionValue(0);
   const animationRef = useRef(null);
 
   const CARD_WIDTH = 260;
   const GAP = 24;
   const ITEM_WIDTH = CARD_WIDTH + GAP;
-  const TOTAL_WIDTH = team.length * ITEM_WIDTH;
-  const DURATION = 120; // seconds for full loop
+  const SET_WIDTH = team.length * ITEM_WIDTH;
+  const DURATION = 120; // seconds for one complete cycle
 
-  // Start infinite scroll animation
-  const startAnimation = (fromX = 0) => {
-    // Cancel any existing animation
-    if (animationRef.current) {
-      animationRef.current.stop();
-    }
+  // Calculate minimum duplicates needed to fill viewport + seamless loop
+  const getMinDuplicates = () => {
+    if (containerWidth === 0) return 4;
+    // Need: viewport width + at least one full set for seamless looping
+    const minContentWidth = containerWidth + SET_WIDTH;
+    return Math.ceil(minContentWidth / SET_WIDTH) + 1;
+  };
 
-    // Normalize position to stay within bounds
-    let normalizedX = fromX;
-    while (normalizedX > 0) normalizedX -= TOTAL_WIDTH;
-    while (normalizedX < -TOTAL_WIDTH) normalizedX += TOTAL_WIDTH;
+  const duplicates = Math.max(4, getMinDuplicates());
+  // Create array: [H,G,F,E,D,C,B,A, H,G,F,E,D,C,B,A, ...] reversed for right movement
+  // Actually we want normal order but animate right, so we start negative and go to 0
+  const infiniteTeam = Array(duplicates).fill(team).flat();
 
-    // Calculate proportional duration based on remaining distance
-    const distance = TOTAL_WIDTH + normalizedX;
-    const duration = (distance / TOTAL_WIDTH) * DURATION;
+  // Start infinite scroll animation (moving right)
+  const startAnimation = (fromX = null) => {
+    if (animationRef.current) animationRef.current.stop();
 
-    x.set(normalizedX);
+    const current = fromX ?? x.get();
 
-    animationRef.current = animate(x, -TOTAL_WIDTH, {
-      duration: duration,
+    // Distance remaining until 0
+    const remainingDistance = Math.abs(0 - current);
+    const remainingDuration = (remainingDistance / SET_WIDTH) * DURATION;
+
+    animationRef.current = animate(x, 0, {
+      duration: remainingDuration,
       ease: "linear",
-      onComplete: () => startAnimation(0),
+      onComplete: () => {
+        // Instantly jump back without visible shift
+        x.set(-SET_WIDTH);
+        startAnimation(-SET_WIDTH);
+      },
     });
   };
 
   useEffect(() => {
-    startAnimation(0);
+    const updateWidth = () => {
+      if (containerRef.current) {
+        setContainerWidth(containerRef.current.offsetWidth);
+      }
+    };
+    updateWidth();
+    window.addEventListener('resize', updateWidth);
+    return () => window.removeEventListener('resize', updateWidth);
+  }, []);
+
+  useEffect(() => {
+    if (containerWidth === 0) return;
+    startAnimation(-SET_WIDTH);
     return () => {
       if (animationRef.current) animationRef.current.stop();
     };
-  }, []);
+  }, [containerWidth]);
 
-  // Handle previous button click
-  const handlePrev = () => {
+  // Handle navigation
+  const handleNav = (direction) => {
     if (animationRef.current) animationRef.current.stop();
-    const currentX = x.get();
-    const newX = currentX + ITEM_WIDTH;
 
-    animationRef.current = animate(x, newX, {
+    const currentX = x.get();
+    let targetX = currentX + direction * ITEM_WIDTH;
+
+    // Normalize inside loop range BEFORE animating
+    if (targetX > 0) targetX -= SET_WIDTH;
+    if (targetX < -SET_WIDTH) targetX += SET_WIDTH;
+
+    animate(x, targetX, {
       duration: 0.4,
       ease: "easeOut",
-      onComplete: () => startAnimation(newX),
+      onComplete: () => {
+        // Resume smooth scroll from exact position
+        startAnimation(targetX);
+      },
     });
   };
 
-  // Handle next button click
-  const handleNext = () => {
-    if (animationRef.current) animationRef.current.stop();
-    const currentX = x.get();
-    const newX = currentX - ITEM_WIDTH;
+  const handlePrev = () => handleNav(-1); // left arrow = show previous (move left)
+  const handleNext = () => handleNav(1);  // right arrow = show next (move right, default direction)
 
-    animationRef.current = animate(x, newX, {
-      duration: 0.4,
-      ease: "easeOut",
-      onComplete: () => startAnimation(newX),
-    });
+  const handleOpenModal = (member) => {
+    if (animationRef.current) animationRef.current.stop();
+    setSelectedProfile(member);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedProfile(null);
+    // Resume from current position, normalized to loop range
+    const currentX = x.get();
+    let resumeX = currentX % SET_WIDTH;
+    if (resumeX > 0) resumeX -= SET_WIDTH;
+    startAnimation(resumeX);
   };
 
   return (
-    <section className="w-full overflow-hidden py-14 relative">
+    <section ref={containerRef} className="w-full overflow-hidden py-2 relative">
       {/* Left Arrow */}
       <button
         onClick={handlePrev}
@@ -203,17 +238,17 @@ export const Testimonials = () => {
         <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700" />
       </button>
 
-      {/* Carousel */}
+      {/* Carousel Track - wide enough to never show gap */}
       <motion.div
-        className="flex gap-6 w-max px-6"
+        className="flex gap-6 w-max"
         style={{ x }}
       >
-        {[...team, ...team].map((member, index) => (
+        {infiniteTeam.map((member, index) => (
           <motion.div
-            key={index}
+            key={`${member.name}-${index}`}
             whileHover={{ y: -8 }}
             className="w-[260px] flex-shrink-0 bg-white border rounded-2xl p-6 text-center shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer"
-            onClick={() => setSelectedProfile(member)}
+            onClick={() => handleOpenModal(member)}
           >
             <img
               src={member.image}
@@ -222,87 +257,104 @@ export const Testimonials = () => {
             />
             <h3 className="text-sm font-semibold text-gray-900">{member.name}</h3>
             <p className="text-primary text-xs font-medium mt-1">{member.role}</p>
-            <p className="text-xs text-gray-600 mt-3 leading-relaxed line-clamp-2">{member.description}</p>
+            <p className="text-xs text-gray-600 mt-3 leading-relaxed line-clamp-2">
+              {member.description}
+            </p>
           </motion.div>
         ))}
       </motion.div>
 
       {/* Modal */}
       {selectedProfile && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+          onClick={(e) => e.target === e.currentTarget && handleCloseModal()}
+        >
           <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.8 }}
-            className="
-              bg-white 
-              rounded-2xl 
-              p-6 
-              w-11/12 
-              max-w-4xl 
-              max-h-[90vh] 
-              overflow-y-auto 
-              shadow-lg 
-              relative
-            "
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            transition={{ duration: 0.2 }}
+            className="bg-white rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl relative"
           >
-            {/* Top-right X button */}
-            <button
-              className="absolute top-3 right-3 text-gray-500 hover:text-gray-900 font-bold text-lg"
-              onClick={() => setSelectedProfile(null)}
-            >
 
-            </button>
 
-            {/* Profile Image and Info */}
-            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
+
+            {/* Profile Header */}
+            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5">
               <img
                 src={selectedProfile.image}
                 alt={selectedProfile.name}
-                className="w-32 h-32 rounded-full object-cover"
+                className="w-28 h-28 rounded-full object-cover ring-4 ring-primary/10"
               />
               <div className="text-center sm:text-left">
-                <h3 className="text-2xl font-semibold">{selectedProfile.name}</h3>
-                <p className="text-primary text-sm font-medium mt-1">{selectedProfile.role}</p>
-                <p className="text-gray-600 text-sm mt-2">{selectedProfile.description}</p>
+                <h3 className="text-2xl font-bold text-gray-900">{selectedProfile.name}</h3>
+                <p className="text-primary font-medium mt-1">{selectedProfile.role}</p>
+                <p className="text-gray-600 mt-2 leading-relaxed">{selectedProfile.description}</p>
               </div>
             </div>
 
-            {/* Detail Section */}
-            <div className="mt-6 text-sm text-gray-700 space-y-1">
-              {selectedProfile.qualification && <p><strong>Qualification:</strong> {selectedProfile.qualification}</p>}
-              {selectedProfile.batchName && <p><strong>Batch Name:</strong> {selectedProfile.batchName}</p>}
-              {selectedProfile.batchesTaken && <p><strong>Total Batches Taken:</strong> {selectedProfile.batchesTaken}</p>}
-              {selectedProfile.pythonBatches && <p><strong>Number of Python Batches:</strong> {selectedProfile.pythonBatches}</p>}
-              {selectedProfile.dataAnalyticsBatches && <p><strong>Number of Data Analytics Batches:</strong> {selectedProfile.dataAnalyticsBatches}</p>}
-              {selectedProfile.currentBatch && <p><strong>Current Batch:</strong> {selectedProfile.currentBatch}</p>}
-              {selectedProfile.studentsTrained && <p><strong>Number of Students Trained (Approx):</strong> {selectedProfile.studentsTrained}</p>}
+            {/* Details */}
+            <div className="mt-6 grid gap-3 text-sm">
+              {selectedProfile.qualification && (
+                <div className="flex flex-col sm:flex-row sm:gap-2">
+                  <span className="font-semibold text-gray-900 min-w-[140px]">Qualification:</span>
+                  <span className="text-gray-700">{selectedProfile.qualification}</span>
+                </div>
+              )}
+              {selectedProfile.batchName && (
+                <div className="flex flex-col sm:flex-row sm:gap-2">
+                  <span className="font-semibold text-gray-900 min-w-[140px]">Batch Name:</span>
+                  <span className="text-gray-700">{selectedProfile.batchName}</span>
+                </div>
+              )}
+              {selectedProfile.batchesTaken && (
+                <div className="flex flex-col sm:flex-row sm:gap-2">
+                  <span className="font-semibold text-gray-900 min-w-[140px]">Total Batches:</span>
+                  <span className="text-gray-700">{selectedProfile.batchesTaken}</span>
+                </div>
+              )}
+              {selectedProfile.studentsTrained && (
+                <div className="flex flex-col sm:flex-row sm:gap-2">
+                  <span className="font-semibold text-gray-900 min-w-[140px]">Students Trained:</span>
+                  <span className="text-gray-700">{selectedProfile.studentsTrained}</span>
+                </div>
+              )}
               {selectedProfile.experience && (
-                <p>
-                  <strong>Work Experience:</strong>{" "}
-                  {Array.isArray(selectedProfile.experience) ? selectedProfile.experience.join("; ") : selectedProfile.experience}
-                </p>
+                <div className="flex flex-col sm:flex-row sm:gap-2">
+                  <span className="font-semibold text-gray-900 min-w-[140px]">Experience:</span>
+                  <span className="text-gray-700">
+                    {Array.isArray(selectedProfile.experience)
+                      ? selectedProfile.experience.join("; ")
+                      : selectedProfile.experience}
+                  </span>
+                </div>
               )}
               {selectedProfile.projects && (
-                <p>
-                  <strong>Projects:</strong>{" "}
-                  {selectedProfile.projects.join("; ")}
-                </p>
+                <div className="flex flex-col sm:flex-row sm:gap-2">
+                  <span className="font-semibold text-gray-900 min-w-[140px]">Projects:</span>
+                  <span className="text-gray-700">{selectedProfile.projects.join("; ")}</span>
+                </div>
               )}
               {selectedProfile.companies && (
-                <p>
-                  <strong>Current Companies:</strong>{" "}
-                  {selectedProfile.companies.join("; ")}
-                </p>
+                <div className="flex flex-col sm:flex-row sm:gap-2">
+                  <span className="font-semibold text-gray-900 min-w-[140px]">Companies:</span>
+                  <span className="text-gray-700">{selectedProfile.companies.join("; ")}</span>
+                </div>
               )}
-              {selectedProfile.currentProject && <p><strong>Current Project:</strong> {selectedProfile.currentProject}</p>}
+              {selectedProfile.currentProject && (
+                <div className="flex flex-col sm:flex-row sm:gap-2">
+                  <span className="font-semibold text-gray-900 min-w-[140px]">Current Project:</span>
+                  <span className="text-gray-700">{selectedProfile.currentProject}</span>
+                </div>
+              )}
             </div>
 
-            {/* Footer Close Button */}
-            <div className="mt-6 text-center">
+            {/* Footer */}
+            <div className="mt-8 flex justify-center">
               <button
-                className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
-                onClick={() => setSelectedProfile(null)}
+                className="px-8 py-2.5 bg-primary text-white font-medium rounded-lg hover:bg-primary/90 active:scale-95 transition-all"
+                onClick={handleCloseModal}
               >
                 Close
               </button>

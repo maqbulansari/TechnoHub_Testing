@@ -125,7 +125,7 @@ const { count ,fetchCount} = useContext(NotificationContext);
             )}
 
             {!isAuthenticated && isHome && (
-              <nav className="hidden md:flex gap-8 text-sm text-text">
+              <nav className="hidden lg:flex gap-8 text-sm text-text">
                 <a href="#trainers">Trainers</a>
                 <a href="#tech">Technologies</a>
                 <a href="#gallery">Gallery</a>
