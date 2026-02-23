@@ -79,10 +79,10 @@ export const Landing_page = () => {
       </Section> */}
 
       <Section gray>
-        <div id="tech" className="scroll-mt-[90px]">
+        <div id="tech"  className="scroll-mt-[90px] text-center mx-auto">
           <SectionHeading
             title="Technologies We Teach"
-            subtitle="Stay ahead of the curve with in-demand skills."
+            // subtitle="Stay ahead of the curve with in-demand skills."
           />
           <Technologies />
         </div>
@@ -116,7 +116,7 @@ export const Landing_page = () => {
       <Section gray>
         <div id="reads" className="scroll-mt-[90px]">
           <SectionHeading
-            title="Al Meezan Reader's Hub (وَلَا تُخْسِرُوا۟ ٱلْمِيزَانَ)"
+            title="Al Meezan Reader's Hub"
             subtitle="Join the discussion every week."
           />
           <ThursdayReads />
