@@ -122,8 +122,8 @@ export const ThursdayReads = () => {
               </div>
             </div>
             <p className="text-gray-600 text-xs sm:text-sm text-center mt-2 sm:mt-3">
-              "As we go deeper and stronger in the <b>worldly</b>, we want to go
-              higher and closer to our Creator"
+              As we go deeper and stronger in the <b>worldly</b>, we want to go
+              higher and closer to our Creator.
             </p>
           </div>
         </div>
