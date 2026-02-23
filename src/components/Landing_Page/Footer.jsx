@@ -116,7 +116,7 @@ export const Footer = () => {
         <DialogContent className="w-[95%] sm:w-[80%] md:w-[60%] lg:w-[45%] xl:w-[40%] max-h-[85vh] rounded-3xl p-0 overflow-hidden flex flex-col bg-white [&>button]:hidden">
           
           <DialogHeader className="px-6 pt-6 pb-4 text-center border-b">
-            <DialogTitle className="text-xl sm:text-2xl font-bold">
+            <DialogTitle className="text-xl text-center sm:text-2xl font-bold">
               Our Training Centers
             </DialogTitle>
             <DialogDescription className="text-sm mt-2 max-w-sm mx-auto text-muted-foreground">
