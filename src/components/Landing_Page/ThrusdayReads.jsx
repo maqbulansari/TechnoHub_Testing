@@ -29,9 +29,8 @@ const StatusBadge = ({ status }) => {
 
   return (
     <span
-      className={`text-xs font-semibold px-2 py-1 rounded-full ${
-        styles[status] || "bg-gray-100 text-gray-600"
-      }`}
+      className={`text-xs font-semibold px-2 py-1 rounded-full ${styles[status] || "bg-gray-100 text-gray-600"
+        }`}
     >
       {labels[status] || status}
     </span>
@@ -85,6 +84,15 @@ export const ThursdayReads = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 items-start">
           {/* Left Column - Description */}
           <div className="flex flex-col justify-start">
+            <div className="bg-light rounded-lg p-4 sm:p-5 mb-4">
+              <p dir="rtl" className="text-dark text-base leading-loose text-center">
+                وَلَا تُخْسِرُوا الْمِيزَانَ
+              </p>
+              <p className="text-gray-600 text-xs sm:text-sm text-center mt-2">
+                “And do not make deficient the balance.” <br />
+                <span className="italic">Surah Ar-Rahman (55:9)</span>
+              </p>
+            </div>
             <p className="text-gray-600 text-sm leading-relaxed text-left">
               Al Meezan Readers' Hub is an attempt to attain an intellectual
               balance! As we get our roots deep and firm through technology,
@@ -93,26 +101,29 @@ export const ThursdayReads = () => {
               too into the minds of our youth and hence we dream of a vibrant
               community of competent technocrats who are well versed not only in
               technology but also possess the ability, the vision{" "}
-              <b>Baseera</b> to penetrate through the outward reality and see
+              <b>"Baseera"</b> to penetrate through the outward reality and see
               things for what they really are.
             </p>
           </div>
 
           {/* Right Column - Arabic Verse */}
           <div className="flex flex-col justify-start">
-            <div className="bg-light rounded-lg p-4 sm:p-5">
-              <p
-                dir="rtl"
-                className="text-dark text-base leading-loose text-center"
-              >
-                أَلَمْ تَرَ كَيْفَ ضَرَبَ اللَّهُ مَثَلًا كَلِمَةً طَيِّبَةً
-                كَشَجَرَةٍ طَيِّبَةٍ أَصْلُهَا ثَابِتٌ وَفَرْعُهَا فِي
-                السَّمَاءِ
-              </p>
+            <div className="flex flex-col justify-start">
+              <div className="bg-light rounded-lg p-4 sm:p-5 mb-4">
+                <p dir="rtl" className="text-dark text-base leading-loose text-center">
+                  أَلَمْ تَرَ كَيْفَ ضَرَبَ اللَّهُ مَثَلًا كَلِمَةً طَيِّبَةً
+                  كَشَجَرَةٍ طَيِّبَةٍ أَصْلُهَا ثَابِتٌ وَفَرْعُهَا فِي السَّمَاءِ
+                </p>
+                <p className="text-gray-600 text-xs sm:text-sm text-center mt-2">
+                  “A good word like a good tree,
+                  whose root is firmly fixed and its branches reach to the sky.” <br />
+                  <span className="italic">Surah Ibrahim (14:24)</span>
+                </p>
+              </div>
             </div>
             <p className="text-gray-600 text-xs sm:text-sm text-center mt-2 sm:mt-3">
-              As we go deeper and stronger in the <b>worldly</b>, we want to go
-              higher and closer to our Creator
+              "As we go deeper and stronger in the <b>worldly</b>, we want to go
+              higher and closer to our Creator"
             </p>
           </div>
         </div>

@@ -60,8 +60,8 @@ export default function Hero() {
               أَلَمْ تَرَ كَيْفَ ضَرَبَ اللَّهُ مَثَلًا كَلِمَةً طَيِّبَةً كَشَجَرَةٍ
               <br />
               <span className="not-italic text-xs block mt-2">
-                A good word is like a good tree — firmly rooted, reaching the skies.
-              </span>
+                "A good word is like a good tree — firmly rooted, reaching the skies."  —  Surah Ibrahim (14:24)
+              </span> 
             </p>
 
               <div className="flex flex-col sm:flex-row gap-4 mt-10">
