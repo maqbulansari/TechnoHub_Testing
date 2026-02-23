@@ -24,6 +24,7 @@ import "primeflex/primeflex.css";
 import "./index.css";
 import { Toaster } from "sonner";
 import { NotificationProvider } from "./contexts/NotificationContext";
+import ScrollToTop from "./hooks/ScrollToTop";
 
 
 
@@ -43,6 +44,7 @@ ReactDOM.createRoot(rootElement).render(
         <AppProvider>
           <BrowserRouter basename={base_path}>
           <NotificationProvider>
+             <ScrollToTop />
             <ALLRoutes />
             <Toaster richColors toastOptions={{
               style: { zIndex: 9999 },
