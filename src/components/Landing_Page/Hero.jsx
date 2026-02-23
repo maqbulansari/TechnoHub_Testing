@@ -114,7 +114,7 @@ export default function Hero() {
         >
           {/* Header */}
           <DialogHeader className="px-6 pt-6 pb-4 text-center border-b">
-            <DialogTitle className="text-xl sm:text-2xl font-bold">
+            <DialogTitle className="text-xl text-center sm:text-2xl font-bold">
               Our Training Centers
             </DialogTitle>
             <DialogDescription className="text-sm mt-2 max-w-sm mx-auto text-muted-foreground">
