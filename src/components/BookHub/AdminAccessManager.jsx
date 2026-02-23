@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext, useMemo } from "react";
 import axios from "axios";
 import { AuthContext } from "../../contexts/authContext";
+import { TECHNO_BASE_URL } from "@/environment";
 import Loading from "@/Loading";
 
 import {
@@ -47,7 +48,7 @@ const AdminAccessManager = () => {
     const fetchUsers = async () => {
       setLoading(true);
       try {
-        const res = await axios.get(`${API_BASE_URL}/bookhub/admin/access/`, {
+        const res = await axios.get(`${TECHNO_BASE_URL}/bookhub/admin/access/`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         // Exclude admin accounts (no request and no access)
@@ -87,7 +88,7 @@ const AdminAccessManager = () => {
     try {
       setActionLoading(userId);
       const res = await axios.post(
-        `${API_BASE_URL}/bookhub/admin/access/`,
+        `${TECHNO_BASE_URL}/bookhub/admin/access/`,
         { user_id: userId, notes: "Approved" },
         { headers: { Authorization: `Bearer ${token}` } }
       );

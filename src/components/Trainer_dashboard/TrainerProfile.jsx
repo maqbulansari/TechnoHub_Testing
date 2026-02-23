@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { useForm, Controller } from "react-hook-form";
 import { AuthContext } from "../../contexts/authContext";
+
 import Loading from "@/Loading";
 
 import { Button } from "@/components/ui/button";
@@ -56,7 +57,7 @@ const TrainerProfile = () => {
 
     const fetchTrainer = async () => {
       try {
-        const res = await axios.get(`${API_BASE_URL}/trainers/`, {
+        const res = await axios.get(`${TECHNO_BASE_URL}/trainers/`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 

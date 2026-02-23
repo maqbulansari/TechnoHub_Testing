@@ -1,14 +1,91 @@
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { TECHNO_BASE_URL } from "@/environment";
+
+
+const DEFAULT_BOOK_COVER = "/default-book-cover.jpg";
+
+// Helper function to get proper image URL
+const getBookCoverUrl = (coverPath) => {
+  if (!coverPath) return DEFAULT_BOOK_COVER;
+  if (coverPath.startsWith("http://") || coverPath.startsWith("https://")) {
+    return coverPath;
+  }
+  return `${TECHNO_BASE_URL}${coverPath.startsWith("/") ? "" : "/"}${coverPath}`;
+};
+
+// Status Badge Component
+const StatusBadge = ({ status }) => {
+  const styles = {
+    DISCUSSING: "bg-green-100 text-green-700",
+    DISCUSSED: "bg-blue-100 text-blue-700",
+    UPCOMING: "bg-yellow-100 text-yellow-700",
+  };
+
+  const labels = {
+    DISCUSSING: "Currently Discussing",
+    DISCUSSED: "Discussed",
+    UPCOMING: "Upcoming",
+  };
+
+  return (
+    <span
+      className={`text-xs font-semibold px-2 py-1 rounded-full ${
+        styles[status] || "bg-gray-100 text-gray-600"
+      }`}
+    >
+      {labels[status] || status}
+    </span>
+  );
+};
+
+// Skeleton Card Component
+const BookCardSkeleton = () => (
+  <div className="animate-pulse">
+    {/* Cover Skeleton */}
+    <div className="bg-gray-200 rounded-lg mb-3 aspect-[3/4]" />
+
+    {/* Badge Skeleton */}
+    <div className="h-4 w-20 bg-gray-200 rounded-full mb-2" />
+
+    {/* Title Skeleton Line 1 */}
+    <div className="h-3 w-full bg-gray-200 rounded mb-1" />
+
+    {/* Title Skeleton Line 2 */}
+    <div className="h-3 w-3/4 bg-gray-200 rounded mb-2" />
+
+    {/* Author Skeleton */}
+    <div className="h-3 w-1/2 bg-gray-200 rounded mb-1" />
+
+    {/* Month Skeleton */}
+    <div className="h-3 w-1/3 bg-gray-200 rounded" />
+  </div>
+);
 
 export const ThursdayReads = () => {
   const navigate = useNavigate();
-  const [hasToken, setHasToken] = useState(false);
+  const [books, setBooks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
+  // Fetch all books
   useEffect(() => {
-    const token = localStorage.getItem("accessToken");
-    setHasToken(!!token); // true if token exists
+    const fetchBooks = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await axios.get(`${TECHNO_BASE_URL}/bookhub/books/`);
+        setBooks(response.data);
+      } catch (err) {
+        setError("Failed to load books. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBooks();
   }, []);
 
   return (
@@ -23,19 +100,16 @@ export const ThursdayReads = () => {
         {/* ===== Top Section : Readers' Hub ===== */}
         <div className="grid md:grid-cols-2 gap-12 items-start">
           <div>
-          
-
             <p className="text-gray-600 text-sm leading-relaxed">
-
-              Al Meezan  Readers' Hub is an attempt to attain an intellectual
-              balance !
-              As we get our roots get our roots deep and firm through technology,
-              which today is predominantly produced by the West, we don't want to
-              play naive and import the liberal intellectual infrastructure too into the
-              minds of our youth and hence we dream of  a vibrant community of
-              competent technocrats who are well versed not on in technology but
-              also possess  the ability, the vision<b> Baseera</b> to penetrate through the
-              outward reality and see things for what they really are.
+              Al Meezan Readers' Hub is an attempt to attain an intellectual
+              balance ! As we get our roots get our roots deep and firm through
+              technology, which today is predominantly produced by the West, we
+              don't want to play naive and import the liberal intellectual
+              infrastructure too into the minds of our youth and hence we dream
+              of a vibrant community of competent technocrats who are well
+              versed not on in technology but also possess the ability, the
+              vision <b>Baseera</b> to penetrate through the outward reality and
+              see things for what they really are.
             </p>
           </div>
 
@@ -45,58 +119,131 @@ export const ThursdayReads = () => {
                 dir="rtl"
                 className="text-dark text-base leading-loose text-center"
               >
-                أَلَمْ تَرَ كَيْفَ ضَرَبَ اللَّهُ مَثَلًا كَلِمَةً طَيِّبَةً كَشَجَرَةٍ طَيِّبَةٍ أَصْلُهَا ثَابِتٌ وَفَرْعُهَا فِي السَّمَاءِ
+                أَلَمْ تَرَ كَيْفَ ضَرَبَ اللَّهُ مَثَلًا كَلِمَةً طَيِّبَةً
+                كَشَجَرَةٍ طَيِّبَةٍ أَصْلُهَا ثَابِتٌ وَفَرْعُهَا فِي
+                السَّمَاءِ
               </p>
             </div>
-
             <p className="text-gray-600 text-sm text-center">
-             As we do deeper and stronger in the <b>worldly</b>, we want to go higher 
-and closer to our Creator  
+              As we do deeper and stronger in the <b>worldly</b>, we want to go
+              higher and closer to our Creator
             </p>
           </div>
         </div>
 
         {/* ===== Divider ===== */}
-        <div className="my-14 mt-4 border-t border-gray-200" />
+        <div className="my-8 border-t border-gray-200" />
 
-        {/* ===== Bottom Section : Book ===== */}
-        <div className="grid md:grid-cols-2 gap-12">
-          {/* Book Image (UNCHANGED) */}
-          <div className="bg-light rounded-lg p-4 sm:p-6">
-            <motion.img
-              src="https://m.media-amazon.com/images/I/7111-QqvNCL.jpg"
-              alt="Amusing Ourselves to Death"
-              className="max-h-[180px] sm:max-h-[220px] md:max-h-[400px] w-auto object-contain mx-auto"
-              initial={{ opacity: 0, scale: 0.96 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-            />
-
-          </div>
-
-          {/* Book Content */}
+        {/* ===== Books Section Header ===== */}
+        <div className="flex items-center justify-between mb-8">
           <div>
             <p className="text-primary font-semibold text-sm">
-              Al Meezan · Current Read
+              Al Meezan · Reading List
             </p>
-
-            <h3 className="text-3xl font-bold mt-2 mb-4 text-dark">
-              Amusing Ourselves to Death
+            <h3 className="text-2xl font-bold text-dark mt-1">
+              Our Book Journey
             </h3>
-
-            <p className="text-gray-600 leading-relaxed mb-4 text-md">
-              We are finishing Part One of Neil Postman’s Amusing Ourselves to Death, which shows how modern media favors entertainment over serious public discourse. Postman’s son notes the book’s relevance today, especially for students immersed in screens and constant media. Many find it accurate in highlighting how news, politics, education, and religion are shaped by entertainment, shortening attention spans and discouraging deep thinking. Classroom activities like “media fasts” emphasize society’s dependence on technology, echoing Huxley’s warning that freedom can be lost through distraction and pleasure rather than force.
-            </p>
-
-            
-              <button
-                onClick={() => navigate("/Bookhub/Home")}
-                className="text-primary font-semibold text-md hover:underline"
-              >
-                Join Al Meezan →
-              </button>
-        
           </div>
+          {!loading && books.length > 0 && (
+            <button
+              onClick={() => navigate("/Bookhub/Home")}
+              className="text-primary font-semibold text-sm hover:underline hidden sm:block"
+            >
+              View All →
+            </button>
+          )}
         </div>
+
+        {/* ===== Skeleton Loading State ===== */}
+        {loading && (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
+            {Array.from({ length: 8 }).map((_, index) => (
+              <BookCardSkeleton key={index} />
+            ))}
+          </div>
+        )}
+
+        {/* ===== Error State ===== */}
+        {!loading && error && (
+          <div className="text-center py-16">
+            <p className="text-red-500 text-sm">{error}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="mt-3 text-primary text-sm font-semibold hover:underline"
+            >
+              Try Again
+            </button>
+          </div>
+        )}
+
+        {/* ===== Empty State ===== */}
+        {!loading && !error && books.length === 0 && (
+          <div className="text-center py-16">
+            <p className="text-gray-500 text-sm">No books available yet.</p>
+          </div>
+        )}
+
+        {/* ===== Books Grid ===== */}
+        {!loading && !error && books.length > 0 && (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
+            {books.map((book, index) => (
+              <motion.div
+                key={book.id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: index * 0.08 }}
+                onClick={() => navigate("/Bookhub/Home")}
+                className="group cursor-pointer"
+              >
+                {/* Book Cover */}
+                <div className="bg-light rounded-lg overflow-hidden mb-3 aspect-[3/4] flex items-center justify-center">
+                  <img
+                    src={getBookCoverUrl(book.cover_image)}
+                    alt={book.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    onError={(e) => {
+                      e.target.src = DEFAULT_BOOK_COVER;
+                    }}
+                  />
+                </div>
+
+                {/* Book Info */}
+                <div className="space-y-1">
+                  {/* Status Badge */}
+                  <StatusBadge status={book.status} />
+
+                  {/* Title */}
+                  <h4 className="text-dark font-semibold text-sm leading-tight mt-1 group-hover:text-primary transition-colors line-clamp-2">
+                    {book.title}
+                  </h4>
+
+                  {/* Author */}
+                  <p className="text-gray-500 text-xs italic line-clamp-1">
+                    {book.author}
+                  </p>
+
+                  {/* Month & Year */}
+                  <p className="text-gray-400 text-xs">
+                    {book.discussion_month} {book.discussion_year}
+                  </p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
+
+        {/* ===== Mobile View All Button ===== */}
+        {!loading && !error && books.length > 0 && (
+          <div className="mt-8 text-center sm:hidden">
+            <button
+              onClick={() => navigate("/Bookhub/Home")}
+              className="text-primary font-semibold text-sm hover:underline"
+            >
+              View All Books →
+            </button>
+          </div>
+        )}
       </motion.div>
     </div>
   );

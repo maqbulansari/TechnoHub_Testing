@@ -3,6 +3,7 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import { onForegroundMessage } from "@/firebase/notificationsHelper";
 import axios from "axios";
 import { AuthContext } from "@/contexts/authContext";
+import { AUTH_BASE_URL } from "@/environment";
 import { toast } from "sonner";
 
 export const NotificationContext = createContext();
@@ -17,7 +18,7 @@ export const NotificationProvider = ({ children }) => {
             if (!token) {
                 return null
             }
-            const res = await axios.get(`${API_BASE_URL}/notifications/unread/`, {
+            const res = await axios.get(`${AUTH_BASE_URL}/unread/`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setCount(Number(res.data?.unread ?? 0));

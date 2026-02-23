@@ -67,8 +67,11 @@ const handleLogin = async (e) => {
     if (subrole === "SPONSOR") navigate("/Students_SponserDashboard");
     else if (subrole === "STUDENT") navigate("/Students_batches");
     else if (subrole === "TRAINER") navigate("/Trainer_batch");
+    else if (subrole === "CO_TRAINER") navigate("/Trainer_batch");
     else if (subrole === "RECRUITER") navigate("/ReadyToRecruitDashboard");
     else if (subrole === "INTERVIEWEE") navigate("/Interviewee");
+    else if (subrole === "BOOKHUB_MANAGER") navigate("/bookhub");
+    else if (subrole === "ADMISSION_MANAGER") navigate("/Admission_table");
     else if (role === "ADMIN") navigate("/adminDashboard");
     else navigate("/");
 
@@ -87,11 +90,17 @@ const handleLogin = async (e) => {
 
     onClose();
  
-    if (responseSubrole === "SPONSOR") navigate("/Students_SponserDashboard");
-    else if (responseSubrole === "STUDENT") navigate("/Students_profile");
-    else if (responseSubrole === "TRAINER") navigate("/Trainer_batch");
-    else if (responseSubrole === "RECRUITER") navigate("/ReadyToRecruitDashboard");
-    else if (responseSubrole === "INTERVIEWEE") navigate("/Interviewee");
+    // responseSubrole is an array, so get first element if it exists
+    const subroleStr = Array.isArray(responseSubrole) ? responseSubrole[0] : responseSubrole;
+    
+    if (subroleStr === "SPONSOR") navigate("/Students_SponserDashboard");
+    else if (subroleStr === "STUDENT") navigate("/Students_profile");
+    else if (subroleStr === "TRAINER") navigate("/Trainer_batch");
+    else if (subroleStr === "CO_TRAINER") navigate("/Trainer_batch");
+    else if (subroleStr === "RECRUITER") navigate("/ReadyToRecruitDashboard");
+    else if (subroleStr === "INTERVIEWEE") navigate("/Interviewee");
+    else if (subroleStr === "BOOKHUB_MANAGER") navigate("/bookhub");
+    else if (subroleStr === "ADMISSION_MANAGER") navigate("/Admission_table");
     else if (role === "ADMIN") navigate("/adminDashboard");
     else navigate("/");
   }, [userLoggedIN]);

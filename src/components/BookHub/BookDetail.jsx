@@ -63,9 +63,11 @@ import {
   Settings,
   Trash2,
   Save,
-  X
+  X,
+  Plus
 } from 'lucide-react'
 import { AuthContext } from '@/contexts/authContext'
+import { TECHNO_BASE_URL } from '@/environment'
 import axios from 'axios'
 import Loading from '@/Loading'
 import BookComments from './BookComments'
@@ -84,9 +86,6 @@ const AccessRequestCard = ({ accessState, requestReason, setRequestReason, onSub
     <Card className="max-w-lg w-full">
       <CardHeader className="pb-4">
         <div className="flex items-center gap-3 mb-2">
-          {/* <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-            <BookOpen className="h-5 w-5 text-primary" />
-          </div> */}
           <div>
             <CardTitle className="text-lg">Request BookHub Access</CardTitle>
             <CardDescription>
@@ -99,10 +98,6 @@ const AccessRequestCard = ({ accessState, requestReason, setRequestReason, onSub
       <CardContent className="space-y-4 pb-4">
         {accessState.status === "pending" ? (
           <div className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 shadow-sm dark:border-amber-800 dark:bg-amber-900/20">
-            {/* <div className="flex h-9 w-9 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-800/40">
-              <Clock className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-            </div> */}
-
             <div className="space-y-1">
               <p className="text-sm font-semibold text-amber-800 dark:text-amber-300">
                 Request under review
@@ -112,7 +107,6 @@ const AccessRequestCard = ({ accessState, requestReason, setRequestReason, onSub
               </p>
             </div>
           </div>
-
         ) : accessState.status === "rejected" ? (
           <div className="flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20 px-4 py-3">
             <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 shrink-0" />
@@ -151,15 +145,9 @@ const AccessRequestCard = ({ accessState, requestReason, setRequestReason, onSub
             disabled={loading || !requestReason.trim()}
           >
             {loading ? (
-              <>
-
-                Submitting...
-              </>
+              <>Submitting...</>
             ) : (
-              <>
-
-                Submit Request
-              </>
+              <>Submit Request</>
             )}
           </Button>
         )}
@@ -190,6 +178,7 @@ const BookDetail = () => {
   const [selectedChapter, setSelectedChapter] = useState(null)
   const [editBookLoading, setEditBookLoading] = useState(false)
   const [editSummaryLoading, setEditSummaryLoading] = useState(false)
+  const [isAddingSummary, setIsAddingSummary] = useState(false)
 
   // Book form state
   const [bookForm, setBookForm] = useState({
@@ -203,14 +192,17 @@ const BookDetail = () => {
     total_chapters: '',
     page_count: '',
     genre: '',
-    isbn: ''
+    isbn: '',
+    status: '',
   })
   const [bookCoverFile, setBookCoverFile] = useState(null)
   const [bookCoverPreview, setBookCoverPreview] = useState(null)
 
   // Summary form state
   const [summaryForm, setSummaryForm] = useState({
-    discussed_on: ''
+    discussed_on: '',
+    chapter_number: '',
+    chapter_title: '',
   })
   const [summaryFile, setSummaryFile] = useState(null)
   const [summaryFileName, setSummaryFileName] = useState('')
@@ -220,7 +212,6 @@ const BookDetail = () => {
 
   const { API_BASE_URL, user } = useContext(AuthContext)
 
-  // Check if user is admin
   const isAdmin = localStorage.getItem("role") === 'ADMIN'
 
   const getAuthHeader = () => ({
@@ -234,7 +225,31 @@ const BookDetail = () => {
     }
   })
 
-  // Helper function to get proper image URL
+  const STATUS_TRANSITIONS = {
+    UPCOMING: ["DISCUSSING"],
+    DISCUSSING: ["DISCUSSED"],
+    DISCUSSED: ["RE-READ"],
+    "RE-READ": ["DISCUSSING"]
+  }
+  const currentStatus =
+    book?.status === "RE_READ" ? "RE-READ" : book?.status
+
+  const allowedStatuses = [
+    currentStatus,
+    ...(STATUS_TRANSITIONS[currentStatus] || [])
+  ]
+
+  // ──────────────────────────────────────────────
+  // Compute the next chapter number for "Add"
+  // ──────────────────────────────────────────────
+  const getNextChapterNumber = () => {
+    if (!chapterSummaries || chapterSummaries.length === 0) return 1
+    const maxChapter = Math.max(
+      ...chapterSummaries.map((ch) => ch.chapter_number || 0)
+    )
+    return maxChapter + 1
+  }
+
   const getBookCoverUrl = (coverPath) => {
     if (!coverPath) return DEFAULT_BOOK_COVER
     if (coverPath.startsWith("http://localhost:8000")) {
@@ -249,7 +264,6 @@ const BookDetail = () => {
     return `${API_BASE_URL}${coverPath.startsWith('/') ? '' : '/'}${coverPath}`
   }
 
-  // Helper function to get file URL
   const getFileUrl = (filePath) => {
     if (!filePath) return null
     if (filePath.startsWith("http://") || filePath.startsWith("https://")) {
@@ -258,7 +272,6 @@ const BookDetail = () => {
     return `${API_BASE_URL}${filePath.startsWith('/') ? '' : '/'}${filePath}`
   }
 
-  // Format date helper
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A'
     const date = new Date(dateString)
@@ -269,30 +282,22 @@ const BookDetail = () => {
     })
   }
 
-  // Format date for input
   const formatDateForInput = (dateString) => {
     if (!dateString) return ''
     const date = new Date(dateString)
     return date.toISOString().split('T')[0]
   }
 
-  // Handle access request
   const handleRequestAccess = async () => {
     if (!requestReason.trim()) return
-
     try {
       setRequestLoading(true)
-
       await axios.post(
-        `${API_BASE_URL}/bookhub/access/request/`,
+        `${TECHNO_BASE_URL}/bookhub/access/request/`,
         { reason: requestReason },
         getAuthHeader()
       )
-
-      setAccessState({
-        status: "pending",
-        hasRequested: true
-      })
+      setAccessState({ status: "pending", hasRequested: true })
     } catch (err) {
       console.error(err)
       alert("Failed to submit access request.")
@@ -301,7 +306,6 @@ const BookDetail = () => {
     }
   }
 
-  // Download file handler
   const handleDownload = async (fileUrl, fileName) => {
     try {
       const fullUrl = getFileUrl(fileUrl)
@@ -310,9 +314,7 @@ const BookDetail = () => {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`
         }
       })
-
       if (!response.ok) throw new Error('Download failed')
-
       const blob = await response.blob()
       const url = window.URL.createObjectURL(blob)
       const link = document.createElement('a')
@@ -328,12 +330,10 @@ const BookDetail = () => {
     }
   }
 
-  // Open file in new tab
   const handleViewFile = (fileUrl) => {
     window.open(getFileUrl(fileUrl), '_blank')
   }
 
-  // Initialize book form when editing
   const handleEditBook = () => {
     if (book) {
       setBookForm({
@@ -347,7 +347,8 @@ const BookDetail = () => {
         total_chapters: book.total_chapters?.toString() || '',
         page_count: book.page_count?.toString() || '',
         genre: book.genre || '',
-        isbn: book.isbn || ''
+        isbn: book.isbn || '',
+        status: book.status === "RE_READ" ? "RE-READ" : book.status || '',
       })
       setBookCoverFile(null)
       setBookCoverPreview(null)
@@ -355,12 +356,10 @@ const BookDetail = () => {
     }
   }
 
-  // Handle book form changes
   const handleBookFormChange = (field, value) => {
     setBookForm(prev => ({ ...prev, [field]: value }))
   }
 
-  // Handle book cover file selection
   const handleBookCoverChange = (e) => {
     const file = e.target.files[0]
     if (file) {
@@ -373,14 +372,11 @@ const BookDetail = () => {
     }
   }
 
-  // Submit book update
   const handleUpdateBook = async () => {
     try {
       setEditBookLoading(true)
 
       const formData = new FormData()
-
-      // Append text fields
       Object.keys(bookForm).forEach(key => {
         if (bookForm[key] !== '' && bookForm[key] !== null && bookForm[key] !== undefined) {
           if (key === 'is_discussed') {
@@ -395,41 +391,117 @@ const BookDetail = () => {
         }
       })
 
-      // Append cover image if selected
       if (bookCoverFile) {
         formData.append('cover_image', bookCoverFile)
       }
 
       const response = await axios.patch(
-        `${API_BASE_URL}/bookhub/books/${bookId}/`,
+        `${TECHNO_BASE_URL}/bookhub/books/${bookId}/`,
         formData,
         getAuthHeaderMultipart()
       )
 
+      if (bookForm.status && bookForm.status !== book.status) {
+        await axios.patch(
+          `${TECHNO_BASE_URL}/bookhub/books/${bookId}/change_status/`,
+          { status: bookForm.status },
+          getAuthHeader()
+        )
+      }
+
       setBook(response.data)
       setEditBookDialogOpen(false)
       toast.success('Book updated successfully!')
-
-    } catch (err) {
+    }
+    catch (err) {
       console.error('Failed to update book:', err)
-      toast.error(err.response?.data?.detail || 'Failed to update book')
-    } finally {
+
+      const errorMessage =
+        err.response?.data?.error ||
+        err.response?.data?.detail ||
+        'Failed to update book'
+
+      toast.error(errorMessage)
+
+      // Optional: show pending chapters
+      if (err.response?.data?.pending_chapters) {
+        console.log(
+          "Pending chapters:",
+          err.response.data.pending_chapters
+        )
+      }
+    }
+
+    finally {
       setEditBookLoading(false)
     }
   }
 
-  // Initialize summary form when editing
+
+  const handleDeleteSummary = async (chapter) => {
+    try {
+    
+      await axios.delete(
+        `${TECHNO_BASE_URL}/bookhub/chapters/delete-summary/`,
+        {
+          ...getAuthHeader(),
+          data: { chapter_number: chapter.chapter_number } 
+        }
+      )
+
+      // Refresh summaries after delete
+      const summaryResponse = await axios.get(
+        `${TECHNO_BASE_URL}/bookhub/summaries/?book=${bookId}`,
+        getAuthHeader()
+      )
+
+      setChapterSummaries(summaryResponse.data.chapters || [])
+
+      toast.success("Summary deleted successfully!")
+    } catch (err) {
+      console.error("Failed to delete summary:", err)
+      toast.error(
+        err.response?.data?.detail ||
+        err.response?.data?.error ||
+        "Failed to delete summary"
+      )
+    }
+  }
+
+
+  // ──────────────────────────────────────────────
+  // Open the summary dialog for EDITING an existing chapter
+  // ──────────────────────────────────────────────
   const handleEditSummary = (chapter) => {
     setSelectedChapter(chapter)
+    setIsAddingSummary(false)
     setSummaryForm({
-      discussed_on: formatDateForInput(chapter.discussed_on)
+      discussed_on: formatDateForInput(chapter.discussed_on),
+      chapter_number: chapter.chapter_number?.toString() || '',
+      chapter_title: chapter.chapter_title || '',
     })
     setSummaryFile(null)
     setSummaryFileName('')
     setEditSummaryDialogOpen(true)
   }
 
-  // Handle summary file selection
+  // ──────────────────────────────────────────────
+  // Open the summary dialog for ADDING a new chapter summary
+  // ──────────────────────────────────────────────
+  const handleAddSummary = () => {
+    const nextNum = getNextChapterNumber()
+    setSelectedChapter(null) // No existing chapter
+    setIsAddingSummary(true)
+    setSummaryForm({
+      discussed_on: '',
+      chapter_number: nextNum.toString(),
+      chapter_title: '',
+    })
+    setSummaryFile(null)
+    setSummaryFileName('')
+    setEditSummaryDialogOpen(true)
+  }
+
   const handleSummaryFileChange = (e) => {
     const file = e.target.files[0]
     if (file) {
@@ -438,43 +510,62 @@ const BookDetail = () => {
     }
   }
 
-  // Submit summary update
+  // ──────────────────────────────────────────────
+  // Submit: CREATE or UPDATE summary
+  // ──────────────────────────────────────────────
   const handleUpdateSummary = async () => {
-    if (!selectedChapter) return
-
     try {
       setEditSummaryLoading(true)
 
       const formData = new FormData()
 
-      if (summaryForm.discussed_on) {
-        formData.append('discussed_on', summaryForm.discussed_on)
-      }
-
       if (summaryFile) {
         formData.append('summary_file', summaryFile)
       }
 
-      await axios.patch(
-        `${API_BASE_URL}/bookhub/chapters/${selectedChapter.id}/update_summary/`,
-        formData,
-        getAuthHeaderMultipart()
-      )
+      if (isAddingSummary) {
+        // ─── CREATE ───
+        formData.append('book', bookId)
+        formData.append('chapter_number', summaryForm.chapter_number)
+        formData.append('chapter_title', summaryForm.chapter_title)
 
-      // Refresh summaries
+        await axios.post(
+          `${TECHNO_BASE_URL}/bookhub/chapters/upload-summary/`,
+          formData,
+          getAuthHeaderMultipart()
+        )
+      } else {
+        // ─── UPDATE: always send chapter_number and chapter_title ───
+        formData.append('chapter_id', selectedChapter.id)
+        formData.append('chapter_number', summaryForm.chapter_number)
+        formData.append('chapter_title', summaryForm.chapter_title)
+
+        await axios.patch(
+          `${TECHNO_BASE_URL}/bookhub/chapters/update-summary/`,
+          formData,
+          getAuthHeaderMultipart()
+        )
+      }
+
+      // Refresh summaries after save
       const summaryResponse = await axios.get(
-        `${API_BASE_URL}/bookhub/summaries/?book=${bookId}`,
+        `${TECHNO_BASE_URL}/bookhub/summaries/?book=${bookId}`,
         getAuthHeader()
       )
       setChapterSummaries(summaryResponse.data.chapters || [])
 
       setEditSummaryDialogOpen(false)
       setSelectedChapter(null)
-      toast.success('Summary updated successfully!')
+      setIsAddingSummary(false)
 
+      toast.success(
+        isAddingSummary
+          ? "Summary added successfully!"
+          : "Summary updated successfully!"
+      )
     } catch (err) {
-      console.error('Failed to update summary:', err)
-      toast.error(err.response?.data?.detail || 'Failed to update summary')
+      console.error('Failed to save summary:', err)
+      toast.error(err.response?.data?.detail || 'Failed to save summary')
     } finally {
       setEditSummaryLoading(false)
     }
@@ -487,7 +578,6 @@ const BookDetail = () => {
         setLoading(true)
         setError(null)
 
-        // Check if user is authenticated
         const accessToken = localStorage.getItem("accessToken")
         if (!accessToken) {
           setError("You need to login first to view book details")
@@ -496,7 +586,7 @@ const BookDetail = () => {
         }
 
         const bookResponse = await axios.get(
-          `${API_BASE_URL}/bookhub/books/${bookId}/`,
+          `${TECHNO_BASE_URL}/bookhub/books/${bookId}/`,
           getAuthHeader()
         )
         setBook(bookResponse.data)
@@ -504,14 +594,12 @@ const BookDetail = () => {
         try {
           setSummaryLoading(true)
           const summaryResponse = await axios.get(
-            `${API_BASE_URL}/bookhub/summaries/?book=${bookId}`,
+            `${TECHNO_BASE_URL}/bookhub/summaries/?book=${bookId}`,
             getAuthHeader()
           )
           setChapterSummaries(summaryResponse.data.chapters || [])
         } catch (summaryErr) {
           const summaryData = summaryErr?.response?.data
-
-          // Check if access is denied during summary fetch
           if (summaryData?.error === "bookhub_access_denied") {
             setAccessState({
               status: summaryData.status || "not_requested",
@@ -520,16 +608,13 @@ const BookDetail = () => {
             setLoading(false)
             return
           }
-
           console.error('Failed to fetch summaries:', summaryErr)
           setChapterSummaries([])
         } finally {
           setSummaryLoading(false)
         }
-
       } catch (err) {
         const data = err?.response?.data
-
         if (data?.error === "access_denied") {
           setAccessState({
             status: data.status || "not_requested",
@@ -537,7 +622,6 @@ const BookDetail = () => {
           })
           return
         }
-
         console.error(err)
         setError('Failed to load book details.')
       } finally {
@@ -550,12 +634,8 @@ const BookDetail = () => {
     }
   }, [bookId, API_BASE_URL])
 
-  // Loading state
-  if (loading) {
-    return <Loading />
-  }
+  if (loading) return <Loading />
 
-  // Access request state
   if (accessState) {
     return (
       <AccessRequestCard
@@ -568,7 +648,6 @@ const BookDetail = () => {
     )
   }
 
-  // Error state
   if (error) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -580,7 +659,6 @@ const BookDetail = () => {
             navigate('/forgot-password')
           }}
         />
-
         <div className="text-center space-y-4">
           <BookOpen className="h-12 w-12" />
           <div className="space-y-2">
@@ -612,7 +690,7 @@ const BookDetail = () => {
 
   return (
     <div className="min-h-screen mt-14 bg-gray-50">
-      {/* Hero Section with Book Cover */}
+      {/* Hero Section */}
       <div className="relative bg-gradient-to-br from-primary/10 via-primary/5 to-transparent">
         <div className="absolute inset-0 overflow-hidden">
           <div
@@ -622,7 +700,6 @@ const BookDetail = () => {
         </div>
 
         <div className="container mx-auto px-4 py-6 relative">
-          {/* Back Button & Admin Actions */}
           <div className="flex items-center justify-between mb-4">
             <Button
               variant="ghost"
@@ -634,7 +711,6 @@ const BookDetail = () => {
               Back to Books
             </Button>
 
-            {/* Admin Edit Button */}
             {isAdmin && (
               <Button
                 variant="outline"
@@ -648,9 +724,7 @@ const BookDetail = () => {
             )}
           </div>
 
-          {/* Book Header */}
           <div className="flex flex-col lg:flex-row gap-8">
-            {/* Book Cover */}
             <div className="flex-shrink-0">
               <div className="relative group">
                 <img
@@ -666,23 +740,27 @@ const BookDetail = () => {
               </div>
             </div>
 
-            {/* Book Info */}
             <div className="flex-1 text-center lg:text-left min-w-0">
-              {/* Status + Actions Row */}
               <div className="flex items-center justify-between mb-3 gap-3">
-                {/* Left: Status Badges */}
                 <div className="flex flex-wrap items-center gap-2 min-w-0">
                   <Badge className="text-xs px-2.5 py-1 whitespace-nowrap">
-                    {book.is_discussed ? (
+                    {book.status === 'DISCUSSING' ? (
                       <>
                         <CheckCircle2 className="h-3 w-3 mr-1" />
-                        Discussed
+                        DISCUSSING
                       </>
-                    ) : (
+                    ) : book.status === 'UPCOMING' ? (
                       <>
                         <Clock className="h-3 w-3 mr-1" />
-                        In Progress
-                      </>
+                        UPCOMING
+                      </>) : book.status === 'DISCUSSED' ? (
+                        <>
+                          <CheckCircle2 className="h-3 w-3 mr-1" />
+                          DISCUSSED
+                        </>) : (<>
+                          <Clock className="h-3 w-3 mr-1" />
+                          RE-READ
+                        </>
                     )}
                   </Badge>
 
@@ -692,7 +770,6 @@ const BookDetail = () => {
                   </Badge>
                 </div>
 
-                {/* Right: Save & Share */}
                 <div className="flex items-center gap-2 shrink-0">
                   <Button variant="ghost" size="icon" className="h-9 w-9">
                     <Bookmark className="h-12 w-12" />
@@ -703,22 +780,18 @@ const BookDetail = () => {
                 </div>
               </div>
 
-              {/* Title */}
               <h1 className="text-3xl md:text-4xl font-bold mb-2 truncate">
                 {book.title}
               </h1>
 
-              {/* Author */}
               <p className="text-lg text-muted-foreground mb-4 truncate">
                 by <span className="font-medium">{book.author}</span>
               </p>
 
-              {/* Description */}
               <p className="text-muted-foreground leading-relaxed max-w-2xl mx-auto lg:mx-0 mb-6">
                 {book.short_desc}
               </p>
 
-              {/* Meta Info */}
               <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 mb-6">
                 {book.total_chapters && (
                   <div className="flex items-center gap-1.5 text-sm text-muted-foreground whitespace-nowrap">
@@ -726,21 +799,18 @@ const BookDetail = () => {
                     {book.total_chapters} Chapters
                   </div>
                 )}
-
                 {book.page_count && (
                   <div className="flex items-center gap-1.5 text-sm text-muted-foreground whitespace-nowrap">
                     <FileText className="h-4 w-4" />
                     {book.page_count} Pages
                   </div>
                 )}
-
                 {chapterSummaries.length > 0 && (
                   <div className="flex items-center gap-1.5 text-sm text-muted-foreground whitespace-nowrap">
                     <Download className="h-4 w-4" />
                     {chapterSummaries.length} Summaries Available
                   </div>
                 )}
-
                 {book.genre && (
                   <Badge variant="outline" className="text-xs whitespace-nowrap">
                     {book.genre}
@@ -748,13 +818,11 @@ const BookDetail = () => {
                 )}
               </div>
 
-              {/* Action Buttons */}
               <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3">
                 <Button className="gap-2 whitespace-nowrap">
                   <BookOpen className="h-4 w-4" />
                   Start Reading
                 </Button>
-
                 <Button variant="outline" className="gap-2 whitespace-nowrap">
                   <Calendar className="h-4 w-4" />
                   Add to Calendar
@@ -779,10 +847,8 @@ const BookDetail = () => {
             </TabsTrigger>
           </TabsList>
 
-          {/* Overview & Summary Tab */}
           <TabsContent value="overview" className="space-y-6">
             <div className="grid gap-6 lg:grid-cols-3">
-              {/* Main Content */}
               <div className="lg:col-span-2 space-y-6">
                 {/* About the Book */}
                 <Card className="shadow-sm">
@@ -804,11 +870,25 @@ const BookDetail = () => {
                         <FileText className="h-5 w-5 text-primary" />
                         <CardTitle className="text-lg text-nowrap">Chapter Summaries</CardTitle>
                       </div>
-                      {chapterSummaries.length > 0 && (
-                        <Badge variant="blue">
-                          {chapterSummaries.length} available
-                        </Badge>
-                      )}
+                      <div className="flex items-center gap-2">
+                        {chapterSummaries.length > 0 && (
+                          <Badge variant="blue">
+                            {chapterSummaries.length} available
+                          </Badge>
+                        )}
+                        {/* ─── ADD SUMMARY BUTTON (Admin only) ─── */}
+                        {isAdmin && book.status === 'DISCUSSING' && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={handleAddSummary}
+                            className="gap-1.5 px-3"
+                          >
+                            <Plus className="h-4 w-4" />
+                            Add
+                          </Button>
+                        )}
+                      </div>
                     </div>
                     <CardDescription>
                       Download chapter summaries submitted by book club members
@@ -817,7 +897,7 @@ const BookDetail = () => {
                   <CardContent>
                     {summaryLoading ? (
                       <div className="flex items-center justify-center py-12 gap-3">
-                        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+
                         <span className="text-muted-foreground">Loading summaries...</span>
                       </div>
                     ) : chapterSummaries.length > 0 ? (
@@ -829,7 +909,6 @@ const BookDetail = () => {
                               key={chapter.id}
                               className="flex items-center gap-4 p-4 rounded-lg border bg-card hover:bg-muted/50 transition-colors"
                             >
-                              {/* Chapter Info */}
                               <div className="flex-1 min-w-0">
                                 <h4 className="font-medium text-sm truncate">
                                   {chapter.chapter_number}. {chapter.chapter_title}
@@ -846,7 +925,6 @@ const BookDetail = () => {
                                 </div>
                               </div>
 
-                              {/* Action Buttons */}
                               <div className="flex items-center gap-2 shrink-0">
                                 <Button
                                   variant="outline"
@@ -873,8 +951,7 @@ const BookDetail = () => {
                                   <span className="hidden sm:inline">Download</span>
                                 </Button>
 
-                                {/* Admin Edit Button */}
-                                {isAdmin && (
+                                {isAdmin && book.status === 'DISCUSSING' || book.status === 'RE_READ'  && (
                                   <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
                                       <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -886,10 +963,14 @@ const BookDetail = () => {
                                         <Pencil className="h-4 w-4 mr-2 text-nowrap" />
                                         Edit
                                       </DropdownMenuItem>
-                                      <DropdownMenuItem onClick={() => handleEditSummary(chapter)}>
-                                        <Upload className="h-4 w-4 mr-2 text-nowrap" />
-                                        Replace
+                                      <DropdownMenuItem
+                                        onClick={() => handleDeleteSummary(chapter)}
+                                        className="text-red-600 focus:text-red-600"
+                                      >
+                                        <Trash2 className="h-4 w-4 mr-2" />
+                                        Delete 
                                       </DropdownMenuItem>
+
                                     </DropdownMenuContent>
                                   </DropdownMenu>
                                 )}
@@ -915,7 +996,7 @@ const BookDetail = () => {
                   </CardContent>
                 </Card>
 
-                {/* Chapters List (if different from summaries) */}
+                {/* All Chapters */}
                 {book.chapters && book.chapters.length > 0 && (
                   <Card className="shadow-sm">
                     <CardHeader>
@@ -932,7 +1013,6 @@ const BookDetail = () => {
                           const hasSummary = chapterSummaries.some(
                             s => s.chapter_number === index + 1
                           )
-
                           return (
                             <div
                               key={chapter.id || index}
@@ -969,7 +1049,6 @@ const BookDetail = () => {
 
               {/* Sidebar */}
               <div className="space-y-6">
-                {/* Recent Summary Contributors */}
                 {chapterSummaries.length > 0 && (
                   <Card className="shadow-sm">
                     <CardHeader>
@@ -989,7 +1068,7 @@ const BookDetail = () => {
                               key={contributor.id}
                               className="flex items-center gap-3"
                             >
-                              <div className=" min-w-[32px] min-h-[32px] rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                              <div className="min-w-[32px] min-h-[32px] rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                                 <User className="h-4 w-4 text-primary" />
                               </div>
                               <div className="flex-1 min-w-0">
@@ -1008,96 +1087,19 @@ const BookDetail = () => {
                     </CardContent>
                   </Card>
                 )}
-
-                {/* Book Details Card */}
-                {/* <Card className="shadow-sm">
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-lg">Book Details</CardTitle>
-                      {isAdmin && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8"
-                          onClick={handleEditBook}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                      )}
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Author</span>
-                      <span className="font-medium">{book.author}</span>
-                    </div>
-                    <Separator />
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Discussion</span>
-                      <span className="font-medium">
-                        {book.discussion_month} {book.discussion_year}
-                      </span>
-                    </div>
-                    {book.total_chapters && (
-                      <>
-                        <Separator />
-                        <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Chapters</span>
-                          <span className="font-medium">{book.total_chapters}</span>
-                        </div>
-                      </>
-                    )}
-                    {book.page_count && (
-                      <>
-                        <Separator />
-                        <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Pages</span>
-                          <span className="font-medium">{book.page_count}</span>
-                        </div>
-                      </>
-                    )}
-                    {book.genre && (
-                      <>
-                        <Separator />
-                        <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Genre</span>
-                          <span className="font-medium">{book.genre}</span>
-                        </div>
-                      </>
-                    )}
-                    {book.isbn && (
-                      <>
-                        <Separator />
-                        <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">ISBN</span>
-                          <span className="font-medium text-xs">{book.isbn}</span>
-                        </div>
-                      </>
-                    )}
-                    <Separator />
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Status</span>
-                      <Badge
-                        variant={book.is_discussed ? "default" : "secondary"}
-                        className="text-xs"
-                      >
-                        {book.is_discussed ? "Discussed" : "In Progress"}
-                      </Badge>
-                    </div>
-                  </CardContent>
-                </Card> */}
               </div>
             </div>
           </TabsContent>
 
-          {/* Discussion Tab */}
           <TabsContent value="discussion">
             <BookComments bookId={parseInt(bookId)} bookTitle={book.title} />
           </TabsContent>
         </Tabs>
       </main>
 
-      {/* Edit Book Dialog */}
+      {/* ════════════════════════════════════════════
+          Edit Book Dialog
+          ════════════════════════════════════════════ */}
       <Dialog open={editBookDialogOpen} onOpenChange={setEditBookDialogOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
@@ -1108,7 +1110,6 @@ const BookDetail = () => {
           </DialogHeader>
 
           <div className="grid gap-4 py-4">
-            {/* Cover Image Preview & Upload */}
             <div className="space-y-2">
               <Label>Cover Image</Label>
               <div className="flex items-start gap-4">
@@ -1134,7 +1135,7 @@ const BookDetail = () => {
                     onClick={() => bookCoverInputRef.current?.click()}
                     className="gap-2"
                   >
-                    <Upload className="h-4 w-4" />
+                    <Upload className="h-4 w-2" />
                     Upload New Cover
                   </Button>
                   {bookCoverFile && (
@@ -1148,7 +1149,6 @@ const BookDetail = () => {
 
             <Separator />
 
-            {/* Title & Author */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="title">Title</Label>
@@ -1170,7 +1170,6 @@ const BookDetail = () => {
               </div>
             </div>
 
-            {/* Short Description */}
             <div className="space-y-2">
               <Label htmlFor="short_desc">Short Description</Label>
               <Textarea
@@ -1182,21 +1181,8 @@ const BookDetail = () => {
               />
             </div>
 
-            {/* Full Description */}
-            {/* <div className="space-y-2">
-              <Label htmlFor="description">Full Description</Label>
-              <Textarea
-                id="description"
-                value={bookForm.description}
-                onChange={(e) => handleBookFormChange('description', e.target.value)}
-                placeholder="Detailed description of the book"
-                rows={4}
-              />
-            </div> */}
-
             <Separator />
 
-            {/* Discussion Month & Year */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="discussion_month">Discussion Month</Label>
@@ -1230,7 +1216,6 @@ const BookDetail = () => {
               </div>
             </div>
 
-            {/* Chapters, Pages, Genre */}
             <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="total_chapters">Total Chapters</Label>
@@ -1244,17 +1229,6 @@ const BookDetail = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="page_count">Page Count</Label>
-                <Input
-                  id="page_count"
-                  type="number"
-                  value={bookForm.page_count}
-                  onChange={(e) => handleBookFormChange('page_count', e.target.value)}
-                  placeholder="300"
-                  min="0"
-                />
-              </div>
-              <div className="space-y-2">
                 <Label htmlFor="genre">Genre</Label>
                 <Input
                   id="genre"
@@ -1263,33 +1237,24 @@ const BookDetail = () => {
                   placeholder="Non-fiction"
                 />
               </div>
-            </div>
-
-            {/* ISBN */}
-            {/* <div className="space-y-2">
-              <Label htmlFor="isbn">ISBN</Label>
-              <Input
-                id="isbn"
-                value={bookForm.isbn}
-                onChange={(e) => handleBookFormChange('isbn', e.target.value)}
-                placeholder="978-0-123456-78-9"
-              />
-            </div> */}
-
-            {/* Is Discussed Toggle */}
-            <div className="flex items-center justify-between rounded-lg border p-4">
-              <div className="space-y-0.5">
-                <Label htmlFor="is_discussed">Mark as Discussed</Label>
-                <p className="text-xs text-muted-foreground">
-                  Toggle if the book discussion has been completed
-                </p>
+              <div className="space-y-2">
+                <Label>Status</Label>
+                <Select
+                  value={bookForm.status}
+                  onValueChange={(value) => handleBookFormChange('status', value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {allowedStatuses.map((status) => (
+                      <SelectItem key={status} value={status}>
+                        {status}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
-              <Switch
-                id="is_discussed"
-                className="shrink-0 ml-4"
-                checked={bookForm.is_discussed}
-                onCheckedChange={(checked) => handleBookFormChange('is_discussed', checked)}
-              />
             </div>
           </div>
 
@@ -1307,13 +1272,10 @@ const BookDetail = () => {
               className="gap-2"
             >
               {editBookLoading ? (
-                <>
-
-                  Saving...
-                </>
+                <>Saving...</>
               ) : (
                 <>
-                  <Save className="h-4 w-4" />
+                  <Save className="h-4 w-2" />
                   Save Changes
                 </>
               )}
@@ -1322,38 +1284,85 @@ const BookDetail = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Edit Summary Dialog */}
+      {/* ════════════════════════════════════════════
+          Add / Edit Summary Dialog
+          ════════════════════════════════════════════ */}
       <Dialog open={editSummaryDialogOpen} onOpenChange={setEditSummaryDialogOpen}>
         <DialogContent className="max-w-md mt-2 [&>button]:hidden">
           <DialogHeader>
-            <DialogTitle className="text-nowrap">Edit Chapter Summary</DialogTitle>
+            <DialogTitle className="text-nowrap">
+              {isAddingSummary ? "Add Chapter Summary" : "Edit Chapter Summary"}
+            </DialogTitle>
             <DialogDescription className="text-nowrap">
-              {selectedChapter && (
-                <>
-                  Chapter {selectedChapter.chapter_number}: {selectedChapter.chapter_title}
-                </>
-              )}
+              {isAddingSummary
+                ? "Create a new chapter summary for this book"
+                : selectedChapter && (
+                  <>
+                    Chapter {selectedChapter.chapter_number}:{" "}
+                    {selectedChapter.chapter_title}
+                  </>
+                )}
             </DialogDescription>
           </DialogHeader>
 
           <div className="grid gap-4 py-4">
-            {/* Current File Info */}
-            {selectedChapter?.summary_file && (
+            {/* ─── Chapter Number & Title (only when adding) ─── */}
+
+            <>
+              <div className="grid grid-cols-3 gap-3">
+                <div className="space-y-2">
+                  <Label htmlFor="chapter_number">Chapter No.</Label>
+                  <Input
+                    id="chapter_number"
+                    type="number"
+                    min="1"
+                    value={summaryForm.chapter_number}
+                    onChange={(e) =>
+                      setSummaryForm((prev) => ({
+                        ...prev,
+                        chapter_number: e.target.value,
+                      }))
+                    }
+                    placeholder="1"
+                  />
+                </div>
+                <div className="col-span-2 space-y-2">
+                  <Label htmlFor="chapter_title">Chapter Title</Label>
+                  <Input
+                    id="chapter_title"
+                    value={summaryForm.chapter_title}
+                    onChange={(e) =>
+                      setSummaryForm((prev) => ({
+                        ...prev,
+                        chapter_title: e.target.value,
+                      }))
+                    }
+                    placeholder="Chapter title"
+                  />
+                </div>
+              </div>
+              <Separator />
+            </>
+
+
+            {/* Current File Info (Edit mode only) */}
+            {!isAddingSummary && selectedChapter?.summary_file && (
               <div className="p-3 rounded-lg bg-muted/50 border">
                 <div className="flex items-center text-nowrap gap-1 text-sm">
-                  <FileText className="h-4 w-1 text-primary" />
+                  <FileText className="h-4 w-2 text-primary" />
                   <span className="font-medium">Current File:</span>
                   <p className="text-xs text-muted-foreground mt-1 truncate">
-                  {selectedChapter.summary_file.split('/').pop()}
-                </p>
+                    {selectedChapter.summary_file.split('/').pop()}
+                  </p>
                 </div>
-                
               </div>
             )}
 
-            {/* Upload New File */}
+            {/* Upload PDF */}
             <div className="space-y-2">
-              <Label>Replace Summary PDF</Label>
+              <Label>
+                {isAddingSummary ? "Upload Summary PDF *" : "Replace Summary PDF"}
+              </Label>
               <div className="flex items-center gap-2">
                 <Input
                   ref={summaryFileInputRef}
@@ -1368,8 +1377,8 @@ const BookDetail = () => {
                   onClick={() => summaryFileInputRef.current?.click()}
                   className="gap-2 flex-1"
                 >
-                  {/* <Upload className="h-4 w-4" /> */}
-                  {summaryFileName || 'Choose PDF File'}
+                  <Upload className="h-4 w-1" />
+                  {summaryFileName || "Choose PDF File"}
                 </Button>
               </div>
               {summaryFileName && (
@@ -1380,19 +1389,6 @@ const BookDetail = () => {
               )}
             </div>
 
-            {/* Discussion Date */}
-            <div className="space-y-2">
-              <Label htmlFor="discussed_on">Discussion Date</Label>
-              <Input
-                id="discussed_on"
-                type="date"
-                value={summaryForm.discussed_on}
-                onChange={(e) => setSummaryForm(prev => ({
-                  ...prev,
-                  discussed_on: e.target.value
-                }))}
-              />
-            </div>
           </div>
 
           <DialogFooter>
@@ -1401,25 +1397,30 @@ const BookDetail = () => {
               onClick={() => {
                 setEditSummaryDialogOpen(false)
                 setSelectedChapter(null)
+                setIsAddingSummary(false)
               }}
               disabled={editSummaryLoading}
             >
               Cancel
             </Button>
+
             <Button
               onClick={handleUpdateSummary}
-              disabled={editSummaryLoading || (!summaryFile && !summaryForm.discussed_on)}
+              disabled={
+                editSummaryLoading ||
+                (isAddingSummary && (!summaryFile || !summaryForm.chapter_number || !summaryForm.chapter_title?.trim()))
+              }
               className="gap-2"
             >
               {editSummaryLoading ? (
                 <>
-
-                  Updating...
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Saving...
                 </>
               ) : (
                 <>
                   <Save className="h-4 w-4" />
-                  Update Summary
+                  {isAddingSummary ? "Add Summary" : "Update Summary"}
                 </>
               )}
             </Button>
