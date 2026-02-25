@@ -38,8 +38,8 @@ export const img_path = '/';
 // export const TECHNO_BASE_URL = "http://72.61.173.6:8086/techno";
 
 // LG Technohub Production
-export const AUTH_BASE_URL = "https://api.lgctechnohub.in/auth";
-export const TECHNO_BASE_URL = "https://api.lgctechnohub.in/auth";
+export const AUTH_BASE_URL = "https://api.lgstechnohub.in/auth";
+export const TECHNO_BASE_URL = "https://api.lgstechnohub.in/auth";
 
 // PythonAnywhere
  // export const AUTH_BASE_URL = "https://technohub.pythonanywhere.com/auth";
