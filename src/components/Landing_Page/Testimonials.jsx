@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, useMotionValue, animate } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import image1 from "../../assets/images/trainers/trainer1.jpg";
@@ -43,22 +43,31 @@ const team = [
     role: "Java Full Stack Trainer",
     description: "Strong background in Java, Spring Boot, and APIs.",
     image: image1,
-    qualification: "Pursuing Bachelors in Computer Science Engineering (Final Year)",
+    qualification:
+      "Pursuing Bachelors in Computer Science Engineering (Final Year)",
     batchName: "Java Full Stack",
     batchesTaken: 2,
     studentsTrained: 20,
-    experience: ["Ethical Intelligence (2025 to Current)", "Afucent (05/2024 to 11/2024)"],
+    experience: [
+      "Ethical Intelligence (2025 to Current)",
+      "Afucent (05/2024 to 11/2024)",
+    ],
   },
   {
     name: "Mohammad Ibrahim",
     role: "AI & ML Trainer",
-    description: "Experienced in machine learning and real-world AI use cases.",
+    description:
+      "Experienced in machine learning and real-world AI use cases.",
     image: image4,
-    qualification: "Pursuing Bachelors in Computer Science Engineering (3rd Year)",
+    qualification:
+      "Pursuing Bachelors in Computer Science Engineering (3rd Year)",
     batchName: "AI-ML Batch",
     batchesTaken: 2,
     studentsTrained: 40,
-    experience: ["Ethical Intelligence (2025 to Current)", "Orange Antelopes (2024 to 2025)"],
+    experience: [
+      "Ethical Intelligence (2025 to Current)",
+      "Orange Antelopes (2024 to 2025)",
+    ],
   },
   {
     name: "Maisara Waseem",
@@ -99,7 +108,8 @@ const team = [
   {
     name: "Arsalan Ahmed",
     role: "MERN Stack Trainer",
-    description: "Expert in building scalable full-stack applications using MERN.",
+    description:
+      "Expert in building scalable full-stack applications using MERN.",
     image: image3,
     qualification: "Bachelors in Computer Science Engineering",
     batchName: "MERN Stack",
@@ -120,47 +130,67 @@ export const Testimonials = () => {
   const containerRef = useRef(null);
   const x = useMotionValue(0);
   const animationRef = useRef(null);
+  const isNavigatingRef = useRef(false);
 
   const CARD_WIDTH = 260;
   const GAP = 24;
   const ITEM_WIDTH = CARD_WIDTH + GAP;
   const SET_WIDTH = team.length * ITEM_WIDTH;
-  const DURATION = 120; // seconds for one complete cycle
+  const SPEED = 30; // pixels per second — consistent speed
 
-  // Calculate minimum duplicates needed to fill viewport + seamless loop
-  const getMinDuplicates = () => {
-    if (containerWidth === 0) return 4;
-    // Need: viewport width + at least one full set for seamless looping
-    const minContentWidth = containerWidth + SET_WIDTH;
-    return Math.ceil(minContentWidth / SET_WIDTH) + 1;
-  };
+  // We need enough duplicates so the visual content always fills the screen
+  // even during the wrap-around. 5 copies is more than enough.
+  const DUPLICATES = 5;
+  const infiniteTeam = Array(DUPLICATES).fill(team).flat();
 
-  const duplicates = Math.max(4, getMinDuplicates());
-  // Create array: [H,G,F,E,D,C,B,A, H,G,F,E,D,C,B,A, ...] reversed for right movement
-  // Actually we want normal order but animate right, so we start negative and go to 0
-  const infiniteTeam = Array(duplicates).fill(team).flat();
+  /**
+   * Normalize x into the range (-SET_WIDTH, 0].
+   * This keeps us always looking at "copy index 1-2" visually,
+   * so the jump is invisible since copies are identical.
+   */
+  const normalizeX = useCallback(
+    (val) => {
+      let normalized = val % SET_WIDTH;
+      // Keep it negative (scrolling left means negative x)
+      if (normalized > 0) normalized -= SET_WIDTH;
+      if (normalized === 0) normalized = -SET_WIDTH; // avoid 0 edge
+      return normalized;
+    },
+    [SET_WIDTH]
+  );
 
-  // Start infinite scroll animation (moving right)
-  const startAnimation = (fromX = null) => {
-    if (animationRef.current) animationRef.current.stop();
+  /*
+* Start continuous scroll — cards move RIGHT (x increases).
+*/
+  const startContinuousScroll = useCallback(
+    (fromX = null) => {
+      if (animationRef.current) animationRef.current.stop();
+      if (isNavigatingRef.current) return;
 
-    const current = fromX ?? x.get();
+      const current = fromX ?? x.get();
+      const normalized = normalizeX(current);
 
-    // Distance remaining until 0
-    const remainingDistance = Math.abs(0 - current);
-    const remainingDuration = (remainingDistance / SET_WIDTH) * DURATION;
+      // Scroll RIGHT: target is one SET_WIDTH further right (more positive)
+      const target = normalized + SET_WIDTH;
+      const distance = Math.abs(target - normalized);
+      const duration = distance / SPEED;
 
-    animationRef.current = animate(x, 0, {
-      duration: remainingDuration,
-      ease: "linear",
-      onComplete: () => {
-        // Instantly jump back without visible shift
-        x.set(-SET_WIDTH);
-        startAnimation(-SET_WIDTH);
-      },
-    });
-  };
+      x.set(normalized);
 
+      animationRef.current = animate(x, target, {
+        duration,
+        ease: "linear",
+        onComplete: () => {
+          const resetX = normalizeX(target);
+          x.set(resetX);
+          startContinuousScroll(resetX);
+        },
+      });
+    },
+    [SET_WIDTH, SPEED, normalizeX, x]
+  );
+
+  // Measure container
   useEffect(() => {
     const updateWidth = () => {
       if (containerRef.current) {
@@ -168,54 +198,67 @@ export const Testimonials = () => {
       }
     };
     updateWidth();
-    window.addEventListener('resize', updateWidth);
-    return () => window.removeEventListener('resize', updateWidth);
+    window.addEventListener("resize", updateWidth);
+    return () => window.removeEventListener("resize", updateWidth);
   }, []);
 
+  // Start scrolling once we know the container width
   useEffect(() => {
     if (containerWidth === 0) return;
-    startAnimation(-SET_WIDTH);
+
+    // Start at -SET_WIDTH so we have content on both sides
+    x.set(-SET_WIDTH);
+    startContinuousScroll(-SET_WIDTH);
+
     return () => {
       if (animationRef.current) animationRef.current.stop();
     };
-  }, [containerWidth]);
+  }, [containerWidth, SET_WIDTH, startContinuousScroll, x]);
 
-  // Handle navigation
-  const handleNav = (direction) => {
-    if (animationRef.current) animationRef.current.stop();
+  // Arrow navigation — step one card in the chosen direction
+  const handleNav = useCallback(
+    (direction) => {
+      // direction: -1 = prev (move content right, x increases)
+      //             1 = next (move content left, x decreases)
+      if (animationRef.current) animationRef.current.stop();
+      isNavigatingRef.current = true;
 
-    const currentX = x.get();
-    let targetX = currentX + direction * ITEM_WIDTH;
+      const currentX = x.get();
+      // Move by one card width in the requested direction
+      const targetX = currentX + direction * ITEM_WIDTH;
 
-    // Normalize inside loop range BEFORE animating
-    if (targetX > 0) targetX -= SET_WIDTH;
-    if (targetX < -SET_WIDTH) targetX += SET_WIDTH;
+      animate(x, targetX, {
+        duration: 0.35,
+        ease: [0.25, 0.1, 0.25, 1], // smooth ease-out
+        onComplete: () => {
+          // Normalize so we never drift too far
+          const normalized = normalizeX(targetX);
+          x.set(normalized);
+          isNavigatingRef.current = false;
+          // Resume auto-scroll from normalized position
+          startContinuousScroll(normalized);
+        },
+      });
+    },
+    [ITEM_WIDTH, normalizeX, startContinuousScroll, x]
+  );
 
-    animate(x, targetX, {
-      duration: 0.4,
-      ease: "easeOut",
-      onComplete: () => {
-        // Resume smooth scroll from exact position
-        startAnimation(targetX);
-      },
-    });
-  };
-
-  const handlePrev = () => handleNav(-1); // left arrow = show previous (move left)
-  const handleNext = () => handleNav(1);  // right arrow = show next (move right, default direction)
+  const handlePrev = () => handleNav(-1); // left arrow: content slides left
+  const handleNext = () => handleNav(1);  // right arrow: content slides right
 
   const handleOpenModal = (member) => {
     if (animationRef.current) animationRef.current.stop();
+    isNavigatingRef.current = true;
     setSelectedProfile(member);
   };
 
   const handleCloseModal = () => {
     setSelectedProfile(null);
-    // Resume from current position, normalized to loop range
-    const currentX = x.get();
-    let resumeX = currentX % SET_WIDTH;
-    if (resumeX > 0) resumeX -= SET_WIDTH;
-    startAnimation(resumeX);
+    isNavigatingRef.current = false;
+    // Resume from wherever we are, normalized
+    const normalized = normalizeX(x.get());
+    x.set(normalized);
+    startContinuousScroll(normalized);
   };
 
   return (
@@ -238,16 +281,14 @@ export const Testimonials = () => {
         <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700" />
       </button>
 
-      {/* Carousel Track - wide enough to never show gap */}
-      <motion.div
-        className="flex gap-6 w-max"
-        style={{ x }}
-      >
+      {/* Carousel Track */}
+      <motion.div className="flex w-max" style={{ x, gap: `${GAP}px` }}>
         {infiniteTeam.map((member, index) => (
           <motion.div
             key={`${member.name}-${index}`}
             whileHover={{ y: -8 }}
-            className="w-[260px] flex-shrink-0 bg-white border rounded-2xl p-6 text-center shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer"
+            className="flex-shrink-0 bg-white border rounded-2xl p-6 text-center shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer"
+            style={{ width: `${CARD_WIDTH}px` }}
             onClick={() => handleOpenModal(member)}
           >
             <img
@@ -255,8 +296,12 @@ export const Testimonials = () => {
               alt={member.name}
               className="w-24 h-24 mx-auto rounded-full object-cover mb-4"
             />
-            <h3 className="text-sm font-semibold text-gray-900">{member.name}</h3>
-            <p className="text-primary text-xs font-medium mt-1">{member.role}</p>
+            <h3 className="text-sm font-semibold text-gray-900">
+              {member.name}
+            </h3>
+            <p className="text-primary text-xs font-medium mt-1">
+              {member.role}
+            </p>
             <p className="text-xs text-gray-600 mt-3 leading-relaxed line-clamp-2">
               {member.description}
             </p>
@@ -277,9 +322,6 @@ export const Testimonials = () => {
             transition={{ duration: 0.2 }}
             className="bg-white rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl relative"
           >
-
-
-
             {/* Profile Header */}
             <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5">
               <img
@@ -288,9 +330,15 @@ export const Testimonials = () => {
                 className="w-28 h-28 rounded-full object-cover ring-4 ring-primary/10"
               />
               <div className="text-center sm:text-left">
-                <h3 className="text-2xl font-bold text-gray-900">{selectedProfile.name}</h3>
-                <p className="text-primary font-medium mt-1">{selectedProfile.role}</p>
-                <p className="text-gray-600 mt-2 leading-relaxed">{selectedProfile.description}</p>
+                <h3 className="text-2xl font-bold text-gray-900">
+                  {selectedProfile.name}
+                </h3>
+                <p className="text-primary font-medium mt-1">
+                  {selectedProfile.role}
+                </p>
+                <p className="text-gray-600 mt-2 leading-relaxed">
+                  {selectedProfile.description}
+                </p>
               </div>
             </div>
 
@@ -298,31 +346,49 @@ export const Testimonials = () => {
             <div className="mt-6 grid gap-3 text-sm">
               {selectedProfile.qualification && (
                 <div className="flex flex-col sm:flex-row sm:gap-2">
-                  <span className="font-semibold text-gray-900 min-w-[140px]">Qualification:</span>
-                  <span className="text-gray-700">{selectedProfile.qualification}</span>
+                  <span className="font-semibold text-gray-900 min-w-[140px]">
+                    Qualification:
+                  </span>
+                  <span className="text-gray-700">
+                    {selectedProfile.qualification}
+                  </span>
                 </div>
               )}
               {selectedProfile.batchName && (
                 <div className="flex flex-col sm:flex-row sm:gap-2">
-                  <span className="font-semibold text-gray-900 min-w-[140px]">Batch Name:</span>
-                  <span className="text-gray-700">{selectedProfile.batchName}</span>
+                  <span className="font-semibold text-gray-900 min-w-[140px]">
+                    Batch Name:
+                  </span>
+                  <span className="text-gray-700">
+                    {selectedProfile.batchName}
+                  </span>
                 </div>
               )}
               {selectedProfile.batchesTaken && (
                 <div className="flex flex-col sm:flex-row sm:gap-2">
-                  <span className="font-semibold text-gray-900 min-w-[140px]">Total Batches:</span>
-                  <span className="text-gray-700">{selectedProfile.batchesTaken}</span>
+                  <span className="font-semibold text-gray-900 min-w-[140px]">
+                    Total Batches:
+                  </span>
+                  <span className="text-gray-700">
+                    {selectedProfile.batchesTaken}
+                  </span>
                 </div>
               )}
               {selectedProfile.studentsTrained && (
                 <div className="flex flex-col sm:flex-row sm:gap-2">
-                  <span className="font-semibold text-gray-900 min-w-[140px]">Students Trained:</span>
-                  <span className="text-gray-700">{selectedProfile.studentsTrained}</span>
+                  <span className="font-semibold text-gray-900 min-w-[140px]">
+                    Students Trained:
+                  </span>
+                  <span className="text-gray-700">
+                    {selectedProfile.studentsTrained}
+                  </span>
                 </div>
               )}
               {selectedProfile.experience && (
                 <div className="flex flex-col sm:flex-row sm:gap-2">
-                  <span className="font-semibold text-gray-900 min-w-[140px]">Experience:</span>
+                  <span className="font-semibold text-gray-900 min-w-[140px]">
+                    Experience:
+                  </span>
                   <span className="text-gray-700">
                     {Array.isArray(selectedProfile.experience)
                       ? selectedProfile.experience.join("; ")
@@ -332,20 +398,32 @@ export const Testimonials = () => {
               )}
               {selectedProfile.projects && (
                 <div className="flex flex-col sm:flex-row sm:gap-2">
-                  <span className="font-semibold text-gray-900 min-w-[140px]">Projects:</span>
-                  <span className="text-gray-700">{selectedProfile.projects.join("; ")}</span>
+                  <span className="font-semibold text-gray-900 min-w-[140px]">
+                    Projects:
+                  </span>
+                  <span className="text-gray-700">
+                    {selectedProfile.projects.join("; ")}
+                  </span>
                 </div>
               )}
               {selectedProfile.companies && (
                 <div className="flex flex-col sm:flex-row sm:gap-2">
-                  <span className="font-semibold text-gray-900 min-w-[140px]">Companies:</span>
-                  <span className="text-gray-700">{selectedProfile.companies.join("; ")}</span>
+                  <span className="font-semibold text-gray-900 min-w-[140px]">
+                    Companies:
+                  </span>
+                  <span className="text-gray-700">
+                    {selectedProfile.companies.join("; ")}
+                  </span>
                 </div>
               )}
               {selectedProfile.currentProject && (
                 <div className="flex flex-col sm:flex-row sm:gap-2">
-                  <span className="font-semibold text-gray-900 min-w-[140px]">Current Project:</span>
-                  <span className="text-gray-700">{selectedProfile.currentProject}</span>
+                  <span className="font-semibold text-gray-900 min-w-[140px]">
+                    Current Project:
+                  </span>
+                  <span className="text-gray-700">
+                    {selectedProfile.currentProject}
+                  </span>
                 </div>
               )}
             </div>
