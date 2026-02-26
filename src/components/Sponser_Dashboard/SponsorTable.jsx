@@ -17,7 +17,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 
  export const SponsorTable = () => {
   const { sponsorProfileDetails, FetchSponsor, dataFetched, setDataFetched } = useContext(SponsorContext);
-  const { role, responseSubrole } = useContext(AuthContext);
+  const { role, responseSubrole, hasSubrole, hasRole } = useContext(AuthContext);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -50,7 +50,7 @@ useEffect(() => {
 
   const fetchData = async () => {
     try {
-      if ((responseSubrole === "SPONSOR" || role === "ADMIN") && !dataFetched?.sponsor) {
+      if ((hasSubrole("SPONSOR") || hasRole("ADMIN")) && !dataFetched?.sponsor) {
         await FetchSponsor();
         if (isMounted) {
           setDataFetched(prev => ({ ...prev, sponsor: true }));

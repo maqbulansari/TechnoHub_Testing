@@ -41,13 +41,19 @@ const AdminAccessManager = () => {
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
 
-  const { API_BASE_URL } = useContext(AuthContext);
+  const { API_BASE_URL, hasRole, hasSubrole } = useContext(AuthContext);
   const token = localStorage.getItem("accessToken");
 
   useEffect(() => {
     const fetchUsers = async () => {
       setLoading(true);
       try {
+        // Protect client-side: only ADMIN or BOOKHUB_MANAGER should fetch this
+        if (!(hasRole && hasRole('ADMIN')) && !(hasSubrole && hasSubrole('BOOKHUB_MANAGER'))) {
+          setUsers([]);
+          return;
+        }
+
         const res = await axios.get(`${TECHNO_BASE_URL}/bookhub/admin/access/`, {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -85,6 +91,11 @@ const AdminAccessManager = () => {
   }, [users, search, statusFilter]);
 
   const grantAccess = async (userId) => {
+    if (!(hasRole && hasRole('ADMIN')) && !(hasSubrole && hasSubrole('BOOKHUB_MANAGER'))) {
+      setModalMessage('Not authorized')
+      setSubmitSuccess(true)
+      return
+    }
     try {
       setActionLoading(userId);
       const res = await axios.post(

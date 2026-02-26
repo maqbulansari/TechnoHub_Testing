@@ -233,11 +233,24 @@ const CommentInput = ({
                         size={36}
                     />
 
-                    {currentUser?.is_admin && (
-                        <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 rounded bg-primary px-1 text-[9px] leading-tight text-primary-foreground">
-                            Admin
-                        </span>
-                    )}
+                                    {(() => {
+                                        try {
+                                            const { hasRole, hasSubrole } = useContext(AuthContext)
+                                            const isAdmin = currentUser?.is_admin || (hasRole && hasRole('ADMIN')) || (hasSubrole && hasSubrole('BOOKHUB_MANAGER'))
+                                            return isAdmin ? (
+                                                <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 rounded bg-primary px-1 text-[9px] leading-tight text-primary-foreground">
+                                                    Admin
+                                                </span>
+                                            ) : null
+                                        } catch (e) {
+                                            // fallback: use API-provided flag
+                                            return currentUser?.is_admin ? (
+                                                <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 rounded bg-primary px-1 text-[9px] leading-tight text-primary-foreground">
+                                                    Admin
+                                                </span>
+                                            ) : null
+                                        }
+                                    })()}
                 </div>
             )}
 

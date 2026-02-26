@@ -2,16 +2,38 @@ import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { TECHNO_BASE_URL } from "@/environment";
+import { API_BASE_URL, TECHNO_BASE_URL } from "@/environment";
 
-const DEFAULT_BOOK_COVER = "/default-book-cover.jpg";
+const DEFAULT_BOOK_COVER = null;
+
+// const getBookCoverUrl = (coverPath) => {
+//   if (!coverPath) return DEFAULT_BOOK_COVER;
+//   if (coverPath.startsWith("http://") || coverPath.startsWith("https://")) {
+//     return coverPath;
+//   }
+//   return `${TECHNO_BASE_URL}${coverPath.startsWith("/") ? "" : "/"}${coverPath}`;
+// };
+
 
 const getBookCoverUrl = (coverPath) => {
   if (!coverPath) return DEFAULT_BOOK_COVER;
+
+  // Replace any localhost backend URL with current API base URL
+  if (
+    coverPath.startsWith("http://localhost:8000") ||
+    coverPath.startsWith("http://localhost:7000")
+  ) {
+    const url = new URL(coverPath);
+    return `${API_BASE_URL}${url.pathname}`;
+  }
+
+  // If already absolute (production URL etc.)
   if (coverPath.startsWith("http://") || coverPath.startsWith("https://")) {
     return coverPath;
   }
-  return `${TECHNO_BASE_URL}${coverPath.startsWith("/") ? "" : "/"}${coverPath}`;
+
+  // If relative path from backend
+  return `${API_BASE_URL}${coverPath.startsWith("/") ? "" : "/"}${coverPath}`;
 };
 
 const StatusBadge = ({ status }) => {

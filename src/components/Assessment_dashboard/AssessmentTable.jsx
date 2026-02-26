@@ -22,7 +22,7 @@ const AssessmentTable = () => {
   const [search, setSearch] = useState("");
 
   const navigate = useNavigate();
-  const { API_BASE_URL, fetchTrainers, role, user } =
+  const { API_BASE_URL, fetchTrainers, role, user, hasRole } =
     useContext(AuthContext);
 
   const trainerName = `${user?.first_name || ""} ${user?.last_name || ""}`.trim();
@@ -122,7 +122,7 @@ const AssessmentTable = () => {
               <TableHead>Student</TableHead>
               <TableHead>Trainer</TableHead>
               <TableHead>Batch</TableHead>
-              {role === "ADMIN" && (
+              {hasRole && hasRole("ADMIN") && (
                 <TableHead>Admin Approval</TableHead>
               )}
               <TableHead className="text-right">Action</TableHead>
@@ -147,7 +147,7 @@ const AssessmentTable = () => {
 
                   <TableCell>{row.batch_name}</TableCell>
 
-                  {role === "ADMIN" && (
+                  {hasRole && hasRole("ADMIN") && (
                     <TableCell>
                       {row.admin_selected ? (
                         <Badge variant="success">Approved</Badge>
@@ -179,8 +179,8 @@ const AssessmentTable = () => {
               ))
             ) : (
               <TableRow>
-                <TableCell
-                  colSpan={role === "ADMIN" ? 5 : 4}
+                  <TableCell
+                  colSpan={hasRole && hasRole("ADMIN") ? 5 : 4}
                   className="text-center py-6"
                 >
                   No assessments found

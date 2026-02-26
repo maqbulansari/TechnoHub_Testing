@@ -72,7 +72,6 @@ import axios from 'axios'
 import Loading from '@/Loading'
 import BookComments from './BookComments'
 import { toast } from 'sonner'
-import LoginModal from '@/feature-module/auth/login/login-3'
 
 const DEFAULT_BOOK_COVER = "/placeholder-book.png"
 
@@ -81,80 +80,7 @@ const MONTHS = [
   'July', 'August', 'September', 'October', 'November', 'December'
 ]
 
-const AccessRequestCard = ({ accessState, requestReason, setRequestReason, onSubmit, loading }) => (
-  <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950 px-4 mt-0">
-    <Card className="max-w-lg w-full">
-      <CardHeader className="pb-4">
-        <div className="flex items-center gap-3 mb-2">
-          <div>
-            <CardTitle className="text-lg">Request BookHub Access</CardTitle>
-            <CardDescription>
-              Join our reading community
-            </CardDescription>
-          </div>
-        </div>
-      </CardHeader>
-
-      <CardContent className="space-y-4 pb-4">
-        {accessState.status === "pending" ? (
-          <div className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 shadow-sm dark:border-amber-800 dark:bg-amber-900/20">
-            <div className="space-y-1">
-              <p className="text-sm font-semibold text-amber-800 dark:text-amber-300">
-                Request under review
-              </p>
-              <p className="text-xs text-amber-700/80 dark:text-amber-300/70 leading-relaxed">
-                Your access request has been submitted and is awaiting approval.
-              </p>
-            </div>
-          </div>
-        ) : accessState.status === "rejected" ? (
-          <div className="flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20 px-4 py-3">
-            <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 shrink-0" />
-            <div className="space-y-0.5">
-              <p className="text-sm font-medium text-red-700 dark:text-red-300">
-                Request was not approved
-              </p>
-              <p className="text-xs text-red-700/80 dark:text-red-300/70 leading-relaxed">
-                Please contact support if you believe this was a mistake.
-              </p>
-            </div>
-          </div>
-        ) : (
-          <div className="space-y-2">
-            <label className="text-sm font-medium">
-              Reason for access
-            </label>
-            <textarea
-              className="w-full min-h-[100px] rounded-lg border border-input bg-background px-3 py-2.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none"
-              placeholder="Example: I want to join monthly book discussions and read summaries"
-              value={requestReason}
-              onChange={(e) => setRequestReason(e.target.value)}
-            />
-            <p className="text-xs text-muted-foreground">
-              Please provide a brief reason for requesting access to BookHub.
-            </p>
-          </div>
-        )}
-      </CardContent>
-
-      <CardFooter className="pt-2">
-        {accessState.status === "not_requested" && (
-          <Button
-            className="w-full gap-2"
-            onClick={onSubmit}
-            disabled={loading || !requestReason.trim()}
-          >
-            {loading ? (
-              <>Submitting...</>
-            ) : (
-              <>Submit Request</>
-            )}
-          </Button>
-        )}
-      </CardFooter>
-    </Card>
-  </div>
-)
+// Access request UI moved to BookhubHome; BookDetail assumes access is managed there.
 
 const BookDetail = () => {
   const { bookId } = useParams()
@@ -165,10 +91,6 @@ const BookDetail = () => {
   const [loading, setLoading] = useState(true)
   const [summaryLoading, setSummaryLoading] = useState(false)
   const [error, setError] = useState(null)
-  const [accessState, setAccessState] = useState(null)
-  const [requestReason, setRequestReason] = useState("")
-  const [requestLoading, setRequestLoading] = useState(false)
-  const [loginModalOpen, setLoginModalOpen] = useState(false)
   const [activeTab, setActiveTab] = useState("overview")
   const [isBookmarked, setIsBookmarked] = useState(false)
 
@@ -210,9 +132,10 @@ const BookDetail = () => {
   const bookCoverInputRef = useRef(null)
   const summaryFileInputRef = useRef(null)
 
-  const { API_BASE_URL, user } = useContext(AuthContext)
+  const { API_BASE_URL, user, hasRole, hasSubrole } = useContext(AuthContext)
 
-  const isAdmin = localStorage.getItem("role") === 'ADMIN'
+  // Treat BOOKHUB_MANAGER as admin for BookHub pages so they have full bookhub management access
+  const isAdmin = hasRole('ADMIN') || hasSubrole('BOOKHUB_MANAGER')
 
   const getAuthHeader = () => ({
     headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` }
@@ -288,23 +211,7 @@ const BookDetail = () => {
     return date.toISOString().split('T')[0]
   }
 
-  const handleRequestAccess = async () => {
-    if (!requestReason.trim()) return
-    try {
-      setRequestLoading(true)
-      await axios.post(
-        `${TECHNO_BASE_URL}/bookhub/access/request/`,
-        { reason: requestReason },
-        getAuthHeader()
-      )
-      setAccessState({ status: "pending", hasRequested: true })
-    } catch (err) {
-      console.error(err)
-      alert("Failed to submit access request.")
-    } finally {
-      setRequestLoading(false)
-    }
-  }
+  // Access/request logic moved to BookhubHome; BookDetail will redirect on access errors.
 
   const handleDownload = async (fileUrl, fileName) => {
     try {
@@ -373,6 +280,10 @@ const BookDetail = () => {
   }
 
   const handleUpdateBook = async () => {
+    if (!isAdmin) {
+      toast.error('Not authorized')
+      return
+    }
     try {
       setEditBookLoading(true)
 
@@ -439,6 +350,10 @@ const BookDetail = () => {
 
 
   const handleDeleteSummary = async (chapter) => {
+    if (!isAdmin) {
+      toast.error('Not authorized')
+      return
+    }
     try {
     
       await axios.delete(
@@ -514,6 +429,10 @@ const BookDetail = () => {
   // Submit: CREATE or UPDATE summary
   // ──────────────────────────────────────────────
   const handleUpdateSummary = async () => {
+    if (!isAdmin) {
+      toast.error('Not authorized')
+      return
+    }
     try {
       setEditSummaryLoading(true)
 
@@ -601,10 +520,7 @@ const BookDetail = () => {
         } catch (summaryErr) {
           const summaryData = summaryErr?.response?.data
           if (summaryData?.error === "bookhub_access_denied") {
-            setAccessState({
-              status: summaryData.status || "not_requested",
-              hasRequested: summaryData.has_requested === "True"
-            })
+            navigate('/bookhub')
             setLoading(false)
             return
           }
@@ -616,10 +532,7 @@ const BookDetail = () => {
       } catch (err) {
         const data = err?.response?.data
         if (data?.error === "access_denied") {
-          setAccessState({
-            status: data.status || "not_requested",
-            hasRequested: data.has_requested === "True"
-          })
+          navigate('/bookhub')
           return
         }
         console.error(err)
@@ -636,49 +549,19 @@ const BookDetail = () => {
 
   if (loading) return <Loading />
 
-  if (accessState) {
-    return (
-      <AccessRequestCard
-        accessState={accessState}
-        requestReason={requestReason}
-        setRequestReason={setRequestReason}
-        onSubmit={handleRequestAccess}
-        loading={requestLoading}
-      />
-    )
-  }
-
   if (error) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <LoginModal
-          open={loginModalOpen}
-          onClose={() => setLoginModalOpen(false)}
-          onForgot={() => {
-            setLoginModalOpen(false)
-            navigate('/forgot-password')
-          }}
-        />
         <div className="text-center space-y-4">
           <BookOpen className="h-12 w-12" />
           <div className="space-y-2">
             <p className="text-gray-700 dark:text-gray-300 font-semibold text-lg">
               {error}
             </p>
-            {error.includes("login") && (
-              <p className="text-sm text-muted-foreground">
-                Please log in to access this book's details
-              </p>
-            )}
           </div>
           <div className="flex gap-3 justify-center pt-4">
-            {error.includes("login") && (
-              <Button onClick={() => setLoginModalOpen(true)} className="gap-2">
-                Go to Login
-              </Button>
-            )}
-            <Button variant="outline" onClick={() => navigate(-1)}>
-              Go Back
+            <Button variant="outline" onClick={() => navigate('/bookhub')}>
+              Back to BookHub
             </Button>
           </div>
         </div>
@@ -951,7 +834,7 @@ const BookDetail = () => {
                                   <span className="hidden sm:inline">Download</span>
                                 </Button>
 
-                                {isAdmin && book.status === 'DISCUSSING' || book.status === 'RE_READ'  && (
+                                {isAdmin && (book.status === 'DISCUSSING' || book.status === 'RE_READ') && (
                                   <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
                                       <Button variant="ghost" size="icon" className="h-8 w-8">

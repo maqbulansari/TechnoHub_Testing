@@ -14,7 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "../ui/badge";
 
 const RecruitmentProfile = () => {
-  const { API_BASE_URL, role, responseSubrole } = useContext(AuthContext);
+  const { API_BASE_URL, role, responseSubrole, hasSubrole, hasRole } = useContext(AuthContext);
   const accessToken = localStorage.getItem("accessToken");
   const {
     recruiterProfileDetails,
@@ -67,13 +67,12 @@ useEffect(()=>{
   // Fetch recruiter
   useEffect(() => {
     if (
-      (responseSubrole === "RECRUITER" || role === "ADMIN") &&
+      (hasSubrole("RECRUITER") || hasRole("ADMIN")) &&
       !dataFetched["recruiter"]
     ) {
       FetchRecuiter().then(() =>
         setDataFetched((prev) => ({ ...prev, recruiter: true }))
       );
-      
     }
   }, [responseSubrole, role, dataFetched, FetchRecuiter, setDataFetched]);
 

@@ -22,7 +22,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 
  export const SponsoredStudents = () => {
-  const { API_BASE_URL, accessToken, role, responseSubrole } = useContext(AuthContext);
+  const { API_BASE_URL, accessToken, role, responseSubrole, hasSubrole, hasRole } = useContext(AuthContext);
 
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -36,7 +36,7 @@ import { Badge } from "@/components/ui/badge";
     let isMounted = true;
 
     const fetchStudents = async () => {
-      if (!(role === "ADMIN" || responseSubrole === "SPONSOR")) return;
+      if (!(hasRole("ADMIN") || hasSubrole("SPONSOR"))) return;
 
       try {
         const res = await axios.get(`${API_BASE_URL}/sponsors/sponsored_students/`, {

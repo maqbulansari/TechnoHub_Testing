@@ -25,7 +25,7 @@ import { Testimonials } from "./Testimonials";
 
 
 export const Landing_page = () => {
-  const { loginSuccess, setLoginSuccess, responseSubrole } = useContext(AuthContext);
+  const { loginSuccess, setLoginSuccess, responseSubrole, hasSubrole } = useContext(AuthContext);
 
 
 
@@ -37,25 +37,25 @@ export const Landing_page = () => {
   }, [loginSuccess, setLoginSuccess]);
 
   useEffect(() => {
-    if (responseSubrole === "SPONSOR") {
+    if (hasSubrole("SPONSOR")) {
       // setShowModal(false);
       setLoginSuccess(false);
     }
-    if (responseSubrole === "STUDENT") {
+    if (hasSubrole("STUDENT")) {
       // setShowModal(false);
       setLoginSuccess(false);
     }
-    if (responseSubrole === "TRAINER") {
+    if (hasSubrole("TRAINER")) {
       // setShowModal(false);
       setLoginSuccess(false);
     }
 
 
-    if (responseSubrole === "RECRUITER") {
+    if (hasSubrole("RECRUITER")) {
       // setShowModal(false);
       setLoginSuccess(false);
     }
-    if (responseSubrole === "INTERVIEWEE") {
+    if (hasSubrole("INTERVIEWEE")) {
       // setShowModal(false);
       setLoginSuccess(false);
     }

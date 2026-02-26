@@ -17,7 +17,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 
 export const RecruiterTable = () => {
   const { recruiterProfileDetails, FetchRecuiter, dataFetched, setDataFetched } = useContext(SponsorContext);
-  const { role, responseSubrole } = useContext(AuthContext);
+  const { role, responseSubrole, hasSubrole, hasRole } = useContext(AuthContext);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -34,7 +34,7 @@ export const RecruiterTable = () => {
   let isMounted = true;
   
   // Only fetch if not already fetched
-  if ((responseSubrole === "RECRUITER" || role === "ADMIN") && !dataFetched?.recruiter) {
+  if ((hasSubrole("RECRUITER") || hasRole("ADMIN")) && !dataFetched?.recruiter) {
     const fetchData = async () => {
       try {
         await FetchRecuiter();
@@ -49,7 +49,7 @@ export const RecruiterTable = () => {
       }
     };
 
-    fetchData();
+      fetchData();
   } else {
     // Already fetched, stop loading
     setLoading(false);

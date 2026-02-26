@@ -14,6 +14,7 @@ export default function LoginModal({ open, onClose, onForgot }) {
     userLoggedIN,
     responseSubrole,
     role,
+    hasRole,
     setLoginSuccess,
   } = useContext(AuthContext);
 
@@ -72,7 +73,7 @@ const handleLogin = async (e) => {
     else if (subrole === "INTERVIEWEE") navigate("/Interviewee");
     else if (subrole === "BOOKHUB_MANAGER") navigate("/bookhub");
     else if (subrole === "ADMISSION_MANAGER") navigate("/Admission_table");
-    else if (role === "ADMIN") navigate("/adminDashboard");
+    else if (hasRole("ADMIN")) navigate("/adminDashboard");
     else navigate("/");
 
   } catch (err) {
@@ -101,7 +102,7 @@ const handleLogin = async (e) => {
     else if (subroleStr === "INTERVIEWEE") navigate("/Interviewee");
     else if (subroleStr === "BOOKHUB_MANAGER") navigate("/bookhub");
     else if (subroleStr === "ADMISSION_MANAGER") navigate("/Admission_table");
-    else if (role === "ADMIN") navigate("/adminDashboard");
+    else if (hasRole("ADMIN")) navigate("/adminDashboard");
     else navigate("/");
   }, [userLoggedIN]);
 
@@ -209,7 +210,7 @@ const handleLogin = async (e) => {
                   onClick={onClose}
                   className="text-primary font-semibold"
                 >
-                  Create account
+                  Register account
                 </Link>
               </div>
             </div>

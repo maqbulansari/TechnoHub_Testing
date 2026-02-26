@@ -100,7 +100,23 @@ const menuItems = (role) => ({
     },
   ],
   ADMIN: [
-  ],
+      {
+        title: "Admin Tools",
+        key: "admin-tools",
+        icon: faUserShield,
+        items: [
+          { path: "/ManageRoles", label: "Manage Roles" },
+        ],
+      },
+    ],
+    COMMON: [
+      {
+        title: "Resources",
+        key: "resources",
+        icon: faBook,
+        items: [{ path: "/AllResources", label: "Resources" }],
+      },
+    ],
   ALLTRAINER: [
     {
       title: "Trainer Dashboard",
@@ -211,7 +227,7 @@ const menuItems = (role) => ({
 
 const Defaultlayout = () => {
   const navigate = useNavigate();
-  const { user, userLoggedIN, LogoutUser, API_BASE_URL, role: contextRole, responseSubrole } = useContext(AuthContext);
+  const { user, userLoggedIN, LogoutUser, API_BASE_URL, role: contextRole, responseSubrole, hasRole, hasSubrole } = useContext(AuthContext);
   const { isOnline } = useNetworkCheck();
   const [visible, setVisible] = useState(false);
   const [role, setRole] = useState("");
@@ -226,22 +242,34 @@ const Defaultlayout = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Get role/subrole from context first, then localStorage
+  // Compute role/subrole using AuthContext helpers; fall back to localStorage only when necessary
   useEffect(() => {
-    if (contextRole) {
+    if (hasRole && hasRole("ADMIN")) {
+      setRole("ADMIN");
+    } else if (contextRole) {
       setRole(contextRole);
     } else {
       const userRole = localStorage.getItem("role");
       setRole(userRole || "");
     }
-    
+
     if (responseSubrole && responseSubrole.length > 0) {
-      setSubrole(Array.isArray(responseSubrole) ? responseSubrole[0] : responseSubrole);
+      const raw = Array.isArray(responseSubrole) ? responseSubrole[0] : responseSubrole;
+      const normalized = String(raw).toUpperCase().replace(/\s+/g, "_").trim();
+      setSubrole(normalized);
+    } else if (hasSubrole && hasSubrole("BOOKHUB_MANAGER")) {
+      setSubrole("BOOKHUB_MANAGER");
     } else {
       const userSubrole = localStorage.getItem("subrole");
-      setSubrole(userSubrole || "");
+      // localStorage may contain comma-separated readable names; normalize first value
+      if (userSubrole) {
+        const first = userSubrole.split(",")[0];
+        setSubrole(String(first).toUpperCase().replace(/\s+/g, "_").trim());
+      } else {
+        setSubrole("");
+      }
     }
-  }, [userLoggedIN, contextRole, responseSubrole]);
+  }, [userLoggedIN, contextRole, responseSubrole, hasRole, hasSubrole]);
 
   const toggleSidebar = useCallback(() => setVisible((prev) => !prev), []);
   const handleLogout = useCallback(() => {
@@ -257,22 +285,76 @@ const Defaultlayout = () => {
 
   const getMenusForRole = () => {
     // Admin access - only admin-specific menus
-    if (role === "ADMIN") {
-      const allMenus = menuItems(role);
-      return [
-        ...allMenus.ADMIN_DASHBOARD,
-        ...allMenus.ALLSTUDENT,
-        ...allMenus.ALLTRAINER,
-        ...allMenus.RECRUITER,
-        ...allMenus.SPONSOR,
-        ...allMenus.ADMIN,
-      ];
-    }
-    
-    // Other users need both role and subrole
-    if (!role || !subrole) return [];
-    const allMenus = menuItems(role);
-    return allMenus[subrole] || [];
+    if (hasRole && hasRole("ADMIN")) {
+        const allMenus = menuItems("ADMIN");
+        let menus = [
+          ...allMenus.ADMIN_DASHBOARD,
+          ...allMenus.ALLSTUDENT,
+          ...allMenus.ALLTRAINER,
+          ...allMenus.RECRUITER,
+          ...allMenus.SPONSOR,
+          ...allMenus.ADMIN,
+        ];
+
+        // Also include BookHub manager sections for ADMIN so real admins see BookHub admin items
+        try {
+          const bh = menuItems("BOOKHUB_MANAGER");
+          const bhSections = bh.BOOKHUB_MANAGER || [];
+          const existingKeys = new Set(menus.map((s) => s.key));
+          menus = [...menus, ...bhSections.filter((s) => !existingKeys.has(s.key))];
+        } catch (e) {
+          // ignore
+        }
+
+        // Merge common sections for admin unless explicitly excluded
+        try {
+          const common = menuItems().COMMON || [];
+          const existingKeys = new Set(menus.map((s) => s.key));
+          menus = [...menus, ...common.filter((s) => !existingKeys.has(s.key))];
+        } catch (e) {}
+
+        return menus;
+      }
+
+      // If role is missing but we have a subrole (e.g., ADMIN user with subroles),
+      // try to render subrole menus using the subrole as the key.
+      if (!role && !subrole) return [];
+      const key = role || subrole;
+      const allMenus = menuItems(key);
+      let menus = allMenus[subrole] || allMenus[role] || [];
+
+      // Ensure Bookhub managers also get Bookhub admin items even if their primary
+      // role is something else. Merge unique sections from the BOOKHUB_MANAGER key.
+      try {
+        if (hasSubrole && hasSubrole("BOOKHUB_MANAGER")) {
+          const bh = menuItems("BOOKHUB_MANAGER");
+          const bhSections = bh.BOOKHUB_MANAGER || [];
+          // merge, avoiding duplicate keys
+          const existingKeys = new Set(menus.map((s) => s.key));
+          menus = [...menus, ...bhSections.filter((s) => !existingKeys.has(s.key))];
+        }
+
+        if (hasSubrole && hasSubrole("ADMISSION_MANAGER")) {
+          const adm = menuItems("ADMISSION_MANAGER");
+          const admSections = adm.ADMISSION_MANAGER || [];
+          const existingKeys = new Set(menus.map((s) => s.key));
+          menus = [...menus, ...admSections.filter((s) => !existingKeys.has(s.key))];
+        }
+      } catch (e) {
+        // ignore merge errors and fall back to computed menus
+      }
+
+      // Merge common sections for non-excluded subroles (not Sponsor/Recruiter)
+      try {
+        const isExcluded = hasSubrole && (hasSubrole("SPONSOR") || hasSubrole("RECRUITER"));
+        if (!isExcluded) {
+          const common = menuItems().COMMON || [];
+          const existingKeys = new Set(menus.map((s) => s.key));
+          menus = [...menus, ...common.filter((s) => !existingKeys.has(s.key))];
+        }
+      } catch (e) {}
+
+      return menus;
   };
 
   // MenuSection Component
@@ -374,18 +456,18 @@ const Defaultlayout = () => {
 
           >
             <div className="sidebar-content-wrapper bg-white" style={{ paddingBottom: '60px' }}>
-              {renderMenuItems()}
+                {renderMenuItems()}
 
-              {role === "ADMIN" && (
-                <Link
-                  to={all_routes.register3}
-                  className="dropdownBtn ml-"
-                  onClick={handleMenuItemClick}
-                >
-                  <i className="pi pi-plus me-2 text-gray-700 font-bold"></i>
-                  <span className=" capitalize text-sm text-[#2196f3]">Create User</span>
-                </Link>
-              )}
+                {hasRole && hasRole("ADMIN") && (
+                  <Link
+                    to={all_routes.register3}
+                    className="dropdownBtn ml-"
+                    onClick={handleMenuItemClick}
+                  >
+                    <i className="pi pi-plus me-2 text-gray-700 font-bold"></i>
+                    <span className=" capitalize text-sm text-[#2196f3]">Create User</span>
+                  </Link>
+                )}
             </div>
 
             <div className="bg-white">
