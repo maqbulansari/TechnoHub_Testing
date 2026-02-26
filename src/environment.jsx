@@ -42,8 +42,8 @@ export const AUTH_BASE_URL = "https://api.lgstechnohub.in/auth";
 export const TECHNO_BASE_URL = "https://api.lgstechnohub.in/auth";
 
 // PythonAnywhere
- // export const AUTH_BASE_URL = "https://technohub.pythonanywhere.com/auth";
- // export const TECHNO_BASE_URL = "https://technohub.pythonanywhere.com/auth";
+//  export const AUTH_BASE_URL = "https://technohub.pythonanywhere.com/auth";
+//  export const TECHNO_BASE_URL = "https://technohub.pythonanywhere.com/auth";
 
 // DevTunnel - Main
 // export const AUTH_BASE_URL = "https://9gqxjbjg-8000.inc1.devtunnels.ms/s";
