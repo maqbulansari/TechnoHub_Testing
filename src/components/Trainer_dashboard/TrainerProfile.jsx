@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { TECHNO_BASE_URL } from "@/environment";
+import { AUTH_BASE_URL, TECHNO_BASE_URL } from "@/environment";
 
 const TrainerProfile = () => {
   const [trainer, setTrainer] = useState(null);

@@ -158,12 +158,20 @@ const SponsorProfile = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label>First Name</Label>
-                  <Input {...register("first_name", { required: "First name required" })} />
+                  <Input {...register("first_name", {
+                    required: "First name required",
+                    minLength: { value: 2, message: "Minimum 2 characters" },
+                    pattern: { value: /^[A-Za-z\s]+$/, message: "Only letters and spaces allowed" }
+                  })} />
                   {errors.first_name && <p className="text-red-500 text-sm">{errors.first_name.message}</p>}
                 </div>
                 <div>
                   <Label>Last Name</Label>
-                  <Input {...register("last_name", { required: "Last name required" })} />
+                  <Input {...register("last_name", {
+                    required: "Last name required",
+                    minLength: { value: 2, message: "Minimum 2 characters" },
+                    pattern: { value: /^[A-Za-z\s]+$/, message: "Only letters and spaces allowed" }
+                  })} />
                   {errors.last_name && <p className="text-red-500 text-sm">{errors.last_name.message}</p>}
                 </div>
               </div>
@@ -171,12 +179,18 @@ const SponsorProfile = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label>Email</Label>
-                  <Input type="email" {...register("email", { required: "Email required" })} />
+                  <Input type="email" {...register("email", {
+                    required: "Email required",
+                    pattern: { value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i, message: "Invalid email address" }
+                  })} />
                   {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
                 </div>
                 <div>
                   <Label>Mobile Number</Label>
-                  <Input type="text" {...register("mobile_no", { required: "Mobile number required" })} />
+                  <Input type="text" {...register("mobile_no", {
+                    required: "Mobile number required",
+                    pattern: { value: /^[0-9]{10,15}$/, message: "Please enter a valid mobile number (10-15 digits)" }
+                  })} />
                   {errors.mobile_no && <p className="text-red-500 text-sm">{errors.mobile_no.message}</p>}
                 </div>
               </div>

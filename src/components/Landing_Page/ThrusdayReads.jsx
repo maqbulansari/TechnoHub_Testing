@@ -222,7 +222,8 @@ export const ThursdayReads = () => {
                     alt={book.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     onError={(e) => {
-                      e.target.src = DEFAULT_BOOK_COVER;
+                      e.target.onerror = null;
+                      e.target.style.display = 'none';
                     }}
                   />
                 </div>
