@@ -32,6 +32,7 @@ import {
     DialogFooter,
 } from "@/components/ui/dialog";
 import Loading from "@/Loading";
+import SingleStudentAttendence from "./SingleStudentAttendence";
 
 
 export const StudentAssignment = () => {
@@ -352,6 +353,12 @@ export const StudentAssignment = () => {
                         className="rounded-full px-6 py-2 text-sm font-medium transition-all data-[state=active]:bg-white data-[state=active]:shadow-sm"
                     >
                         People
+                    </TabsTrigger>
+                    <TabsTrigger
+                        value="Attendence"
+                        className="rounded-full px-6 py-2 text-sm font-medium transition-all data-[state=active]:bg-white data-[state=active]:shadow-sm"
+                    >
+                        Attendence-record
                     </TabsTrigger>
                 </TabsList>
 
@@ -754,6 +761,11 @@ export const StudentAssignment = () => {
                         )}
                     </div>
                 </TabsContent>
+                                <TabsContent value="Attendence" className="mt-6">
+                          <SingleStudentAttendence/>          
+                                                    </TabsContent>
+
+
             </Tabs>
 
             {/* Dialog Modal */}

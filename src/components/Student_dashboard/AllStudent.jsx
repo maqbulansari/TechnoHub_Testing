@@ -126,6 +126,13 @@ const AllStudent = () => {
             )}
           </SelectContent>
         </Select>
+
+        <button 
+
+                className="bg-primary text-primary-foreground hover:opacity-90 font-small rounded-md text-sm px-3 py-2 transition-all"
+              >
+              Attendence
+              </button>
       </div>
 
       {/* Table */}

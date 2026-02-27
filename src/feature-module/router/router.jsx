@@ -302,6 +302,7 @@ import { RecruiterHire } from "@/components/RecruitmentDashboard/RecruiterHire";
 import RecruitmentAssignment from "@/components/RecruitmentDashboard/RecruitmentAssignment";
 import { AllResources } from "@/components/recource-menagement/AllResources";
 import { AUTH_BASE_URL } from "@/environment";
+import AttendenceSummary from "@/components/Assignments/AttendenceSummary";
 
 
 
@@ -409,6 +410,7 @@ const ALLRoutes = () => {
          <Route path="/RecruiterHire" element={<RecruiterHire />} />
          <Route path="/RecruitmentAssignment" element={<RecruitmentAssignment />} />
          <Route path="/AllResorces" element={<AllResources />} />
+         <Route path="/ShowSummary/:batchId" element={<AttendenceSummary />} />
       </Route>
 
     </Route>
