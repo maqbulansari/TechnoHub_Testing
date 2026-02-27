@@ -377,7 +377,7 @@ const StudentsProfile = () => {
           <div className="px-5 pb-4 space-y-2">
             {Object.entries(apiErrors).map(([field, messages]) =>
               messages.map((msg, idx) => (
-                <p key={`${field}-${idx}`} className="text-sm ">
+                <p key={`${field}-${idx}`} className="text-sm text-red-500">
                   {field === "id_type"
                     ? "Please select a valid ID type."
                     : field === "user_profile"

@@ -18,7 +18,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 
 const AssessmentSelectedStudents = () => {
-  const { API_BASE_URL, role } = useContext(AuthContext);
+  const { API_BASE_URL, role, hasRole } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const [data, setData] = useState([]);
@@ -112,7 +112,7 @@ const AssessmentSelectedStudents = () => {
               <TableHead>Student Name</TableHead>
               <TableHead>Trainers</TableHead>
               <TableHead>Batch</TableHead>
-              {role === "ADMIN" && <TableHead>Trainer Assigned</TableHead>}
+              {hasRole && hasRole("ADMIN") && <TableHead>Trainer Assigned</TableHead>}
               <TableHead className="text-right">Action</TableHead>
             </TableRow>
           </TableHeader>
@@ -137,7 +137,7 @@ const AssessmentSelectedStudents = () => {
 
                   <TableCell className="capitalize">{student.batch_name}</TableCell>
 
-                  {role === "ADMIN" && (
+                  {hasRole && hasRole("ADMIN") && (
                     <TableCell>
                       <input type="checkbox" checked={student.trainer_is_selected} disabled />
                     </TableCell>

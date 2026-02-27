@@ -26,6 +26,8 @@ const SponsorProfile = () => {
   const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [errorModalOpen, setErrorModalOpen] = useState(false);
+  const [apiErrors, setApiErrors] = useState({});
   const [imageError, setImageError] = useState("");
 
   const { register, handleSubmit, reset, setValue, control, formState: { errors } } = useForm();
@@ -78,7 +80,11 @@ const SponsorProfile = () => {
     }
 
     setLoading(true);
+    setApiErrors({});
     const formData = new FormData();
+
+    // Remove user_profile from data — it's a path string from reset(), not a File
+    delete data.user_profile;
 
     // Only append fields with non-empty values
     Object.entries(data).forEach(([key, value]) => {
@@ -88,7 +94,7 @@ const SponsorProfile = () => {
     });
 
     formData.append("id", sponsor.id); // always send ID
-    if (image) formData.append("user_profile", image); // only if image selected
+    if (image instanceof File) formData.append("user_profile", image); // only if image selected
 
     try {
       const response = await axios.put(
@@ -109,7 +115,12 @@ const SponsorProfile = () => {
       setSubmitSuccess(true);
     } catch (err) {
       console.error("Error updating sponsor profile:", err);
-      alert("Failed to update profile");
+      if (err.response?.data) {
+        setApiErrors(err.response.data);
+      } else {
+        setApiErrors({ general: ["Something went wrong."] });
+      }
+      setErrorModalOpen(true);
     } finally {
       setLoading(false);
     }
@@ -315,6 +326,31 @@ const SponsorProfile = () => {
             <Button className="w-full sm:w-auto" onClick={() => setSubmitSuccess(false)}>
               Close
             </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* ERROR MODAL */}
+      <Dialog open={errorModalOpen} onOpenChange={setErrorModalOpen}>
+        <DialogContent className="sm:max-w-md p-0 gap-0 overflow-hidden [&>button]:hidden rounded-xl">
+          <DialogHeader className="px-5 pt-4 pb-2 space-y-1">
+            <DialogTitle className="text-xl font-semibold">Update Failed</DialogTitle>
+          </DialogHeader>
+
+          <div className="px-5 pb-4 space-y-2">
+            {Object.entries(apiErrors).map(([field, msgs]) =>
+              Array.isArray(msgs)
+                ? msgs.map((msg, i) => (
+                  <p key={`${field}-${i}`} className="text-sm text-red-500">
+                    • {field === "user_profile" ? "Please upload a valid image file." : msg}
+                  </p>
+                ))
+                : <p key={field} className="text-sm text-red-500">• {msgs}</p>
+            )}
+          </div>
+
+          <DialogFooter className="px-3 pb-3 bg-muted/30">
+            <Button onClick={() => setErrorModalOpen(false)}>Close</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

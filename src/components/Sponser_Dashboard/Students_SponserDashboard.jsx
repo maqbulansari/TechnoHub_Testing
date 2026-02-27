@@ -38,7 +38,7 @@ import { Badge } from "../ui/badge";
 import bgSponser from "../../assets/images/sponserDashboard/bgSponser.png";
 
 export const Students_SponserDashboard = () => {
-  const { API_BASE_URL, accessToken, role, responseSubrole } = useContext(AuthContext);
+  const { API_BASE_URL, accessToken, role, responseSubrole, hasSubrole, hasRole } = useContext(AuthContext);
 
   const [students, setStudents] = useState([]);
   const [batches, setBatches] = useState([]);
@@ -78,7 +78,7 @@ export const Students_SponserDashboard = () => {
     if (responseSubrole?.includes("SPONSOR") || role === "SPONSOR" || role === "ADMIN") {
       fetchAllData();
     }
-  }, [responseSubrole, role]);
+  }, [responseSubrole, role, hasSubrole, hasRole]);
 
   const filteredStudents = useMemo(() => {
     return students.filter((s) => {

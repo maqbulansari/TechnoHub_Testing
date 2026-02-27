@@ -180,8 +180,8 @@ export const AllResources = () => {
   const [resultMessage, setResultMessage] = useState("");
   const [resultIsSuccess, setResultIsSuccess] = useState(true);
 
-  const { user } = useContext(AuthContext);
-  const isAdmin = localStorage.getItem("role") === "ADMIN";
+  const { user, hasRole } = useContext(AuthContext);
+  const isAdmin = hasRole("ADMIN");
 
   // ── Auth header ────────────────────────────────────────────
   const authHeaders = () => ({

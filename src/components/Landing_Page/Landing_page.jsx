@@ -25,7 +25,7 @@ import { Testimonials } from "./Testimonials";
 
 
 export const Landing_page = () => {
-  const { loginSuccess, setLoginSuccess, responseSubrole } = useContext(AuthContext);
+  const { loginSuccess, setLoginSuccess, responseSubrole, hasSubrole } = useContext(AuthContext);
 
 
 

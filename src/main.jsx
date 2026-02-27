@@ -25,6 +25,7 @@ import "./index.css";
 import { Toaster } from "sonner";
 import { NotificationProvider } from "./contexts/NotificationContext";
 import ScrollToTop from "./hooks/ScrollToTop";
+import ProtectedAppRouter from "./feature-module/router/ProtectedAppRouter";
 
 
 
@@ -46,6 +47,7 @@ ReactDOM.createRoot(rootElement).render(
           <NotificationProvider>
              <ScrollToTop />
             <ALLRoutes />
+            {/* <ProtectedAppRouter /> */}
             <Toaster richColors toastOptions={{
               style: { zIndex: 9999 },
             }} position="top-center" /> </NotificationProvider>

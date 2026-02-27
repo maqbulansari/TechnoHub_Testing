@@ -53,8 +53,10 @@ const CommentItem = ({
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
 
   const { API_BASE_URL } = useContext(AuthContext)
+  const { hasRole, hasSubrole } = useContext(AuthContext)
 
   const isOwner = currentUser?.id === comment.user
+  const isAdmin = (hasRole && hasRole('ADMIN')) || (hasSubrole && hasSubrole('BOOKHUB_MANAGER'))
   const hasReplies = comment.replies && comment.replies.length > 0
   const canNest = depth < maxDepth
 
@@ -275,7 +277,7 @@ const CommentItem = ({
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-40">
-                  {isOwner && (
+                  {(isOwner || isAdmin) && (
                     <>
                       <DropdownMenuItem onClick={() => setIsEditing(true)}>
                         <Pencil className="h-3.5 w-3.5 mr-2" />
@@ -291,7 +293,7 @@ const CommentItem = ({
                       <DropdownMenuSeparator />
                     </>
                   )}
-                  {!isOwner && (
+                  {!isOwner && !isAdmin && (
                     <DropdownMenuItem onClick={() => setShowFlagDialog(true)}>
                       <Flag className="h-3.5 w-3.5 mr-2" />
                       Report

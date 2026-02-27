@@ -85,10 +85,26 @@ const AuthProvider = ({ children }) => {
         }
       }
 
-      const primary = parsedRoles.length > 0 ? parsedRoles[0] : null;
+      // If user has role ADMIN but also has subroles, treat them as NOT a "real" ADMIN
+      // and choose the first non-ADMIN role as the effective primary role when possible.
+      let effectivePrimary = null;
+      const hasAdminRole = parsedRoles.some((r) => String(r).toUpperCase() === "ADMIN");
+      const hasSubroles = Array.isArray(parsedSubrole) ? parsedSubrole.length > 0 : !!parsedSubrole;
+      if (hasAdminRole && hasSubroles) {
+        effectivePrimary = parsedRoles.find((r) => String(r).toUpperCase() !== "ADMIN") || null;
+      } else {
+        effectivePrimary = parsedRoles.length > 0 ? parsedRoles[0] : null;
+      }
+
       setRoles(parsedRoles);
-      setRole(primary);
+      setRole(effectivePrimary);
       setResponseSubrole(parsedSubrole);
+      // Ensure localStorage.role is in sync with the effective primary role
+      if (effectivePrimary) {
+        localStorage.setItem("role", effectivePrimary);
+      } else {
+        localStorage.removeItem("role");
+      }
       setUserLoggedIN(true);
     }
   }, []);
@@ -347,16 +363,22 @@ const AuthProvider = ({ children }) => {
   const hasSubrole = (name) => {
     if (!name) return false;
     if (!responseSubrole) return false;
-    return Array.isArray(responseSubrole)
-      ? responseSubrole.includes(name)
-      : responseSubrole === name;
+    const normalize = (s) => String(s).toUpperCase().replace(/\s+/g, "_").trim();
+    const wanted = normalize(name);
+    if (Array.isArray(responseSubrole)) {
+      return responseSubrole.some((r) => normalize(r) === wanted);
+    }
+    return normalize(responseSubrole) === wanted;
   };
 
   // Helper to check whether the current user has a specific role
   const hasRole = (name) => {
     if (!name) return false;
-    if (roles && Array.isArray(roles) && roles.includes(name)) return true;
-    if (role && role === name) return true;
+    const wanted = String(name).toUpperCase();
+
+    // Normal role check: match against roles array or primary role
+    if (roles && Array.isArray(roles) && roles.map(r => String(r).toUpperCase()).includes(wanted)) return true;
+    if (role && String(role).toUpperCase() === wanted) return true;
     return false;
   };
 

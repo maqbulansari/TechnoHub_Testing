@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+ import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { useForm, Controller } from "react-hook-form";
 import { AuthContext } from "../../contexts/authContext";
@@ -14,7 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "../ui/badge";
 
 const RecruitmentProfile = () => {
-  const { API_BASE_URL, role, responseSubrole } = useContext(AuthContext);
+  const { API_BASE_URL, role, responseSubrole, hasSubrole, hasRole } = useContext(AuthContext);
   const accessToken = localStorage.getItem("accessToken");
   const {
     recruiterProfileDetails,
@@ -93,6 +93,9 @@ const RecruitmentProfile = () => {
     setApiErrors({});
     const formData = new FormData();
     const currentProfile = recruiterProfileDetails[0];
+
+    // Remove user_profile from data — it's a path string from reset(), not a File
+    delete data.user_profile;
 
     // append only valid values
     Object.entries(data).forEach(([key, value]) => {
@@ -290,22 +293,24 @@ const RecruitmentProfile = () => {
 
       {/* ERROR MODAL */}
       <Dialog open={errorModalOpen} onOpenChange={setErrorModalOpen}>
-        <DialogContent >
-          <DialogHeader>
-            <DialogTitle className="text-red-600">
-              Update Failed
-            </DialogTitle>
+        <DialogContent className="sm:max-w-md p-0 gap-0 overflow-hidden [&>button]:hidden rounded-xl">
+          <DialogHeader className="px-5 pt-4 pb-2 space-y-1">
+            <DialogTitle className="text-xl font-semibold">Update Failed</DialogTitle>
           </DialogHeader>
 
-          {Object.entries(apiErrors).map(([_, msgs]) =>
-            msgs.map((msg, i) => (
-              <p key={i} className="text-sm text-red-500">
-                • {msg}
-              </p>
-            ))
-          )}
+          <div className="px-5 pb-4 space-y-2">
+            {Object.entries(apiErrors).map(([field, msgs]) =>
+              Array.isArray(msgs)
+                ? msgs.map((msg, i) => (
+                  <p key={`${field}-${i}`} className="text-sm text-red-500">
+                    • {field === "user_profile" ? "Please upload a valid image file." : msg}
+                  </p>
+                ))
+                : <p key={field} className="text-sm text-red-500">• {msgs}</p>
+            )}
+          </div>
 
-          <DialogFooter>
+          <DialogFooter className="px-3 pb-3 bg-muted/30">
             <Button onClick={() => setErrorModalOpen(false)}>Close</Button>
           </DialogFooter>
         </DialogContent>

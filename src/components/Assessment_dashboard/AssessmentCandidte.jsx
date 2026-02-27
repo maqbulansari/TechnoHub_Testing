@@ -16,7 +16,7 @@ import Loading from "@/Loading";
 const AssessmentCandidate = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { role, API_BASE_URL, accessToken } = useContext(AuthContext);
+  const { role, API_BASE_URL, accessToken, hasRole } = useContext(AuthContext);
 
   const [assessmentDetail, setAssessmentDetail] = useState(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
@@ -61,14 +61,14 @@ const AssessmentCandidate = () => {
       const payload = {};
 
       // Trainer can only update trainer fields
-      if (role !== "ADMIN") {
+      if (!hasRole("ADMIN")) {
         payload.trainer_score = data.trainer_score;
         payload.trainer_feedback = data.trainer_feedback;
         payload.assessment_test_status = data.assessment_test_status;
       }
 
       // Admin can update admin fields
-      if (role === "ADMIN") {
+      if (hasRole("ADMIN")) {
         payload.trainer_score = data.trainer_score;
         payload.trainer_feedback = data.trainer_feedback;
         payload.assessment_test_status = data.assessment_test_status;
@@ -121,7 +121,7 @@ const AssessmentCandidate = () => {
           <Label>Trainer Name</Label>
           <Input {...register("selected_by_trainer")} readOnly />
         </div>
-        {role === "ADMIN" && (<div>
+        {hasRole("ADMIN") && (<div>
           <Label>Trainer Is Selected</Label>
           <Input value={assessmentDetail.trainer_is_selected ? "Yes" : "No"} readOnly />
         </div>)}
@@ -136,7 +136,7 @@ const AssessmentCandidate = () => {
               min: { value: 1, message: "Min 1" },
               max: { value: 10, message: "Max 10" },
             })}
-            disabled={role === "ADMIN" ? true : false}
+            disabled={hasRole("ADMIN") ? true : false}
           />
           {errors.trainer_score && <p className="text-red-500 text-sm mt-1">{errors.trainer_score.message}</p>}
         </div>
@@ -151,7 +151,7 @@ const AssessmentCandidate = () => {
               <Select
                 value={field.value}
                 onValueChange={field.onChange}
-                disabled={role === "ADMIN" ? true : false}
+                disabled={hasRole("ADMIN") ? true : false}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select status" />
@@ -172,14 +172,14 @@ const AssessmentCandidate = () => {
               required: "Trainer Feedback is required",
               minLength: { value: 5, message: "Min 5 chars" },
             })}
-            disabled={role === "ADMIN" ? true : false}
+            disabled={hasRole && hasRole("ADMIN") ? true : false}
           />
           {errors.trainer_feedback && <p className="text-red-500 text-sm mt-1">{errors.trainer_feedback.message}</p>}
         </div>
  
 
         {/* Admin Fields */}
-        {role === "ADMIN" && (
+            {hasRole("ADMIN") && (
           <>
             <div>
               <Label>Admin Name</Label>

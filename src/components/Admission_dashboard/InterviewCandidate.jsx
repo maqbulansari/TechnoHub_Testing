@@ -30,7 +30,7 @@ const InterviewCandidate = () => {
   const navigate = useNavigate();
   const { candidateData } = location.state || {};
 
-  const { batches, loadingBatches, fetchBatches, API_BASE_URL } =
+  const { batches, loadingBatches, fetchBatches, API_BASE_URL, hasRole, hasSubrole } =
     useContext(AuthContext);
 
   const token = localStorage.getItem("accessToken");
@@ -69,6 +69,10 @@ const InterviewCandidate = () => {
   }, [fetchBatches]);
 
   const onSubmit = async (data) => {
+    if (!(hasRole && hasRole('ADMIN')) && !(hasSubrole && hasSubrole('ADMISSION_MANAGER'))) {
+      alert('Not authorized to update candidate')
+      return
+    }
     try {
       await axios.put(
         `${API_BASE_URL}/Learner/${data.id}/update_selected/`,

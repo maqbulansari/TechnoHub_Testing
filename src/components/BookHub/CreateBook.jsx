@@ -32,6 +32,7 @@ const months = [
 export const CreateBook = () => {
   const { API_BASE_URL } = useContext(AuthContext);
   const token = localStorage.getItem("accessToken");
+  const { hasRole, hasSubrole } = useContext(AuthContext);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
@@ -46,6 +47,11 @@ export const CreateBook = () => {
   } = useForm();
 
   const onSubmit = async (data) => {
+    if (!(hasRole && hasRole('ADMIN')) && !(hasSubrole && hasSubrole('BOOKHUB_MANAGER'))) {
+      setModalMessage('Not authorized to create books')
+      setSubmitSuccess(true)
+      return
+    }
     setIsSubmitting(true);
     try {
       const formData = new FormData();

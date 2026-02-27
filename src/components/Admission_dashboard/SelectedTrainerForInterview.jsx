@@ -32,7 +32,7 @@ import { Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const SelectedTrainerForInterview = () => {
-  const { API_BASE_URL } = useContext(AuthContext);
+  const { API_BASE_URL, hasRole, hasSubrole } = useContext(AuthContext);
 
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -89,6 +89,11 @@ const SelectedTrainerForInterview = () => {
   }, [data, search, batchFilter]);
 
   const handleDelete = async () => {
+    if (!(hasRole && hasRole('ADMIN')) && !(hasSubrole && hasSubrole('ADMISSION_MANAGER'))) {
+      // not authorized
+      setRowToDelete(null);
+      return
+    }
     try {
       await axios.delete(
         `${API_BASE_URL}/interview-schedules/${rowToDelete.id}/`,

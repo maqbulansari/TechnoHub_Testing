@@ -100,7 +100,23 @@ const menuItems = (role) => ({
     },
   ],
   ADMIN: [
-  ],
+      {
+        title: "Admin Tools",
+        key: "admin-tools",
+        icon: faUserShield,
+        items: [
+          { path: "/ManageRoles", label: "Manage Roles" },
+        ],
+      },
+    ],
+    COMMON: [
+      {
+        title: "Resources",
+        key: "resources",
+        icon: faBook,
+        items: [{ path: "/AllResources", label: "Resources" }],
+      },
+    ],
   ALLTRAINER: [
     {
       title: "Trainer Dashboard",
@@ -213,7 +229,7 @@ const menuItems = (role) => ({
 
 const Defaultlayout = () => {
   const navigate = useNavigate();
-  const { user, userLoggedIN, LogoutUser, API_BASE_URL, role: contextRole, responseSubrole } = useContext(AuthContext);
+  const { user, userLoggedIN, LogoutUser, API_BASE_URL, role: contextRole, responseSubrole, hasRole, hasSubrole } = useContext(AuthContext);
   const { isOnline } = useNetworkCheck();
   const [visible, setVisible] = useState(false);
   const [role, setRole] = useState("");
@@ -228,9 +244,11 @@ const Defaultlayout = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Get role/subrole from context first, then localStorage
+  // Compute role/subrole using AuthContext helpers; fall back to localStorage only when necessary
   useEffect(() => {
-    if (contextRole) {
+    if (hasRole && hasRole("ADMIN")) {
+      setRole("ADMIN");
+    } else if (contextRole) {
       setRole(contextRole);
     } else {
       const userRole = localStorage.getItem("role");
@@ -238,12 +256,22 @@ const Defaultlayout = () => {
     }
 
     if (responseSubrole && responseSubrole.length > 0) {
-      setSubrole(Array.isArray(responseSubrole) ? responseSubrole[0] : responseSubrole);
+      const raw = Array.isArray(responseSubrole) ? responseSubrole[0] : responseSubrole;
+      const normalized = String(raw).toUpperCase().replace(/\s+/g, "_").trim();
+      setSubrole(normalized);
+    } else if (hasSubrole && hasSubrole("BOOKHUB_MANAGER")) {
+      setSubrole("BOOKHUB_MANAGER");
     } else {
       const userSubrole = localStorage.getItem("subrole");
-      setSubrole(userSubrole || "");
+      // localStorage may contain comma-separated readable names; normalize first value
+      if (userSubrole) {
+        const first = userSubrole.split(",")[0];
+        setSubrole(String(first).toUpperCase().replace(/\s+/g, "_").trim());
+      } else {
+        setSubrole("");
+      }
     }
-  }, [userLoggedIN, contextRole, responseSubrole]);
+  }, [userLoggedIN, contextRole, responseSubrole, hasRole, hasSubrole]);
 
   const toggleSidebar = useCallback(() => setVisible((prev) => !prev), []);
   const handleLogout = useCallback(() => {
@@ -377,18 +405,18 @@ const Defaultlayout = () => {
 
           >
             <div className="sidebar-content-wrapper bg-white" style={{ paddingBottom: '60px' }}>
-              {renderMenuItems()}
+                {renderMenuItems()}
 
-              {role === "ADMIN" && (
-                <Link
-                  to={all_routes.register3}
-                  className="dropdownBtn ml-"
-                  onClick={handleMenuItemClick}
-                >
-                  <i className="pi pi-plus me-2 text-gray-700 font-bold"></i>
-                  <span className=" capitalize text-sm text-[#2196f3]">Create User</span>
-                </Link>
-              )}
+                {hasRole && hasRole("ADMIN") && (
+                  <Link
+                    to={all_routes.register3}
+                    className="dropdownBtn ml-"
+                    onClick={handleMenuItemClick}
+                  >
+                    <i className="pi pi-plus me-2 text-gray-700 font-bold"></i>
+                    <span className=" capitalize text-sm text-[#2196f3]">Create User</span>
+                  </Link>
+                )}
             </div>
 
             <div className="bg-white">
