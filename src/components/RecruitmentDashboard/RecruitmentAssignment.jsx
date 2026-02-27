@@ -135,6 +135,7 @@ const RecruitmentAdmin = () => {
     (s) => s.is_ready_for_recruitment && !s.is_hired
   );
 
+
   return (
     <div className="p-6 mt-16 space-y-8">
       {/* Recruitment Requests Table */}

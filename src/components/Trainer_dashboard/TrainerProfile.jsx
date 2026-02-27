@@ -447,33 +447,25 @@ const TrainerProfile = () => {
 
       {/* ERROR MODAL */}
       <Dialog open={errorModalOpen} onOpenChange={setErrorModalOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle className="text-red-600">
-              Update Failed
-            </DialogTitle>
+        <DialogContent className="sm:max-w-md p-0 gap-0 overflow-hidden [&>button]:hidden rounded-xl">
+          <DialogHeader className="px-5 pt-4 pb-2 space-y-1">
+            <DialogTitle className="text-xl font-semibold">Update Failed</DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-2">
-            {Object.entries(apiErrors).map(([field, messages]) => (
-              <div key={field}>
-                {Array.isArray(messages) ? (
-                  messages.map((msg, i) => (
-                    <p key={i} className="text-sm text-red-600">
-                      <span className="font-medium capitalize">{field.replace(/_/g, ' ')}:</span> {msg}
-                    </p>
-                  ))
-                ) : (
-                  <p className="text-sm text-red-600">{messages}</p>
-                )}
-              </div>
-            ))}
+          <div className="px-5 pb-4 space-y-2">
+            {Object.entries(apiErrors).map(([field, msgs]) =>
+              Array.isArray(msgs)
+                ? msgs.map((msg, i) => (
+                  <p key={`${field}-${i}`} className="text-sm text-red-500">
+                    • {field === "user_profile" ? "Please upload a valid image file." : msg}
+                  </p>
+                ))
+                : <p key={field} className="text-sm text-red-500">• {msgs}</p>
+            )}
           </div>
 
-          <DialogFooter>
-            <Button onClick={() => setErrorModalOpen(false)}>
-              Close
-            </Button>
+          <DialogFooter className="px-3 pb-3 bg-muted/30">
+            <Button onClick={() => setErrorModalOpen(false)}>Close</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
