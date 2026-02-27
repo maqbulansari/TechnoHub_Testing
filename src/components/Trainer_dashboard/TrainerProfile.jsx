@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { AUTH_BASE_URL, TECHNO_BASE_URL } from "@/environment";
 
 const TrainerProfile = () => {
   const [trainer, setTrainer] = useState(null);
@@ -57,7 +58,7 @@ const TrainerProfile = () => {
 
     const fetchTrainer = async () => {
       try {
-        const res = await axios.get(`${TECHNO_BASE_URL}/trainers/`, {
+        const res = await axios.get(`${AUTH_BASE_URL}/trainers/`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 

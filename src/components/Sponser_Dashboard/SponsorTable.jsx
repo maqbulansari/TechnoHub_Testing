@@ -15,7 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 
- export const SponsorTable = () => {
+export const SponsorTable = () => {
   const { sponsorProfileDetails, FetchSponsor, dataFetched, setDataFetched } = useContext(SponsorContext);
   const { role, responseSubrole, hasSubrole, hasRole } = useContext(AuthContext);
 
@@ -45,29 +45,29 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
   }, [sponsorProfiles]);
 
   // Fetch sponsor data
-useEffect(() => {
-  let isMounted = true;
+  useEffect(() => {
+    let isMounted = true;
 
-  const fetchData = async () => {
-    try {
-      if ((hasSubrole("SPONSOR") || hasRole("ADMIN")) && !dataFetched?.sponsor) {
-        await FetchSponsor();
-        if (isMounted) {
-          setDataFetched(prev => ({ ...prev, sponsor: true }));
+    const fetchData = async () => {
+      try {
+        if ((responseSubrole?.includes("SPONSOR") || role === "SPONSOR" || role === "ADMIN") && !dataFetched?.sponsor) {
+          await FetchSponsor();
+          if (isMounted) {
+            setDataFetched(prev => ({ ...prev, sponsor: true }));
+          }
         }
+      } catch (err) {
+        if (isMounted) setError(err.message);
+      } finally {
+        if (isMounted) setLoading(false);
       }
-    } catch (err) {
-      if (isMounted) setError(err.message);
-    } finally {
-      if (isMounted) setLoading(false);
-    }
-  };
+    };
 
-  fetchData();
+    fetchData();
 
-  // Cleanup
-  return () => { isMounted = false; };
-}, [responseSubrole, role]);
+    // Cleanup
+    return () => { isMounted = false; };
+  }, [responseSubrole, role]);
 
 
   // Early return after hooks

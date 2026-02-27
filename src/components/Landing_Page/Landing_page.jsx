@@ -37,25 +37,25 @@ export const Landing_page = () => {
   }, [loginSuccess, setLoginSuccess]);
 
   useEffect(() => {
-    if (hasSubrole("SPONSOR")) {
+    if (responseSubrole?.includes("SPONSOR")) {
       // setShowModal(false);
       setLoginSuccess(false);
     }
-    if (hasSubrole("STUDENT")) {
+    if (responseSubrole?.includes("STUDENT")) {
       // setShowModal(false);
       setLoginSuccess(false);
     }
-    if (hasSubrole("TRAINER")) {
+    if (responseSubrole?.includes("TRAINER")) {
       // setShowModal(false);
       setLoginSuccess(false);
     }
 
 
-    if (hasSubrole("RECRUITER")) {
+    if (responseSubrole?.includes("RECRUITER")) {
       // setShowModal(false);
       setLoginSuccess(false);
     }
-    if (hasSubrole("INTERVIEWEE")) {
+    if (responseSubrole?.includes("INTERVIEWEE")) {
       // setShowModal(false);
       setLoginSuccess(false);
     }
@@ -79,10 +79,10 @@ export const Landing_page = () => {
       </Section> */}
 
       <Section gray>
-        <div id="tech"  className="scroll-mt-[90px] text-center mx-auto">
+        <div id="tech" className="scroll-mt-[90px] text-center mx-auto">
           <SectionHeading
             title="Technologies We Teach"
-            // subtitle="Stay ahead of the curve with in-demand skills."
+          // subtitle="Stay ahead of the curve with in-demand skills."
           />
           <Technologies />
         </div>

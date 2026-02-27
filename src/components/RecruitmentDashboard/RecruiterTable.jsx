@@ -30,34 +30,34 @@ export const RecruiterTable = () => {
   const recruiterProfiles = recruiterProfileDetails || [];
 
   // Fetch recruiter data safely
- useEffect(() => {
-  let isMounted = true;
-  
-  // Only fetch if not already fetched
-  if ((hasSubrole("RECRUITER") || hasRole("ADMIN")) && !dataFetched?.recruiter) {
-    const fetchData = async () => {
-      try {
-        await FetchRecuiter();
-        if (isMounted) {
-          // Use functional update to avoid triggering effect again
-          setDataFetched(prev => ({ ...prev, recruiter: true }));
+  useEffect(() => {
+    let isMounted = true;
+
+    // Only fetch if not already fetched
+    if ((responseSubrole?.includes("RECRUITER") || role === "RECRUITER" || role === "ADMIN") && !dataFetched?.recruiter) {
+      const fetchData = async () => {
+        try {
+          await FetchRecuiter();
+          if (isMounted) {
+            // Use functional update to avoid triggering effect again
+            setDataFetched(prev => ({ ...prev, recruiter: true }));
+          }
+        } catch (err) {
+          if (isMounted) setError(err.message);
+        } finally {
+          if (isMounted) setLoading(false);
         }
-      } catch (err) {
-        if (isMounted) setError(err.message);
-      } finally {
-        if (isMounted) setLoading(false);
-      }
-    };
+      };
 
       fetchData();
-  } else {
-    // Already fetched, stop loading
-    setLoading(false);
-  }
+    } else {
+      // Already fetched, stop loading
+      setLoading(false);
+    }
 
-  return () => { isMounted = false; };
-  // Only run once or when role/subrole changes
-}, [responseSubrole, role]);
+    return () => { isMounted = false; };
+    // Only run once or when role/subrole changes
+  }, [responseSubrole, role]);
 
   // Memoized filtered recruiters
   const filteredRecruiters = useMemo(() => {
@@ -119,30 +119,30 @@ export const RecruiterTable = () => {
           </TableHeader>
 
           <TableBody>
-  {filteredRecruiters.length > 0 ? (
-    filteredRecruiters
-      .sort((a, b) => {
-        const nameA = `${a.first_name} ${a.last_name}`.toLowerCase();
-        const nameB = `${b.first_name} ${b.last_name}`.toLowerCase();
-        return nameA.localeCompare(nameB);
-      })
-      .map((profile) => (
-        <TableRow key={`${profile.id}-${profile.email}`}>
-          <TableCell className="capitalize">{profile.first_name} {profile.last_name}</TableCell>
-          <TableCell className="capitalize">{profile.company_name}</TableCell>
-          <TableCell>{profile.email}</TableCell>
-          <TableCell>{profile.gender || "N/A"}</TableCell>
-          <TableCell>{profile.mobile_no}</TableCell>
-        </TableRow>
-      ))
-  ) : (
-    <TableRow>
-      <TableCell colSpan={5} className="text-center py-6">
-        No Recruiters Found
-      </TableCell>
-    </TableRow>
-  )}
-</TableBody>
+            {filteredRecruiters.length > 0 ? (
+              filteredRecruiters
+                .sort((a, b) => {
+                  const nameA = `${a.first_name} ${a.last_name}`.toLowerCase();
+                  const nameB = `${b.first_name} ${b.last_name}`.toLowerCase();
+                  return nameA.localeCompare(nameB);
+                })
+                .map((profile) => (
+                  <TableRow key={`${profile.id}-${profile.email}`}>
+                    <TableCell className="capitalize">{profile.first_name} {profile.last_name}</TableCell>
+                    <TableCell className="capitalize">{profile.company_name}</TableCell>
+                    <TableCell>{profile.email}</TableCell>
+                    <TableCell>{profile.gender || "N/A"}</TableCell>
+                    <TableCell>{profile.mobile_no}</TableCell>
+                  </TableRow>
+                ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={5} className="text-center py-6">
+                  No Recruiters Found
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
 
         </Table>
       </div>

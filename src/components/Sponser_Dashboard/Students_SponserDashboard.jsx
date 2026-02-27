@@ -75,7 +75,7 @@ export const Students_SponserDashboard = () => {
   };
 
   useEffect(() => {
-    if (hasSubrole("SPONSOR") || hasRole("ADMIN")) {
+    if (responseSubrole?.includes("SPONSOR") || role === "SPONSOR" || role === "ADMIN") {
       fetchAllData();
     }
   }, [responseSubrole, role, hasSubrole, hasRole]);

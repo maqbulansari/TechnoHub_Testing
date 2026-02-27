@@ -8,7 +8,7 @@ import {
   faTicket,
   faCubes,
   faUserShield, faClipboardCheck,
-  faLayerGroup, faHandshake,faBook
+  faLayerGroup, faHandshake, faBook
 } from "@fortawesome/free-solid-svg-icons";
 import { Sidebar } from "primereact/sidebar";
 import { all_routes } from "../feature-module/router/all_routes";
@@ -74,7 +74,7 @@ const menuItems = (role) => ({
       icon: faChalkboardUser,
       items:
         role === "ADMIN"
-          ? [{ path: "/RecuriterTable", label: "Recruiter" },{ path: "/RecruitmentAssignment", label: "Recruitment Status" }]
+          ? [{ path: "/RecuriterTable", label: "Recruiter" }, { path: "/RecruitmentAssignment", label: "Recruitment Status" }]
           : [
             { path: "/Recruitment_Profile", label: "Profile" },
             { path: "/ReadyToRecruitDashboard", label: "Dashboard" },
@@ -86,7 +86,7 @@ const menuItems = (role) => ({
     {
       title: "Sponsor",
       key: "sponsor-dashboard",
-      icon:  faHandshake,
+      icon: faHandshake,
       items:
         role === "ADMIN"
           ? [
@@ -122,9 +122,11 @@ const menuItems = (role) => ({
       title: "Trainer Dashboard",
       key: "alltrainer-dashboard",
       icon: faChalkboardUser,
-      items: [
+      items: role === "ADMIN" ? [
         { path: "/AllTrainer", label: "Trainers" },
-        // { path: "/AssignBatchForTrainer", label: "Assign Trainer Batch" },
+        { path: "/AssignBatchForTrainer", label: "Assign Trainer Batch" },
+      ] : [
+        { path: "/AllTrainer", label: "Trainers" },
       ],
     },
     {
@@ -135,7 +137,7 @@ const menuItems = (role) => ({
         role === "ADMIN"
           ? [
             { path: "/Admission_table", label: "Interview" },
-            // { path: "/AssignTrainerForInterview", label: "Assign Trainer Interview" },
+            { path: "/AssignTrainerForInterview", label: "Assign Trainer Interview" },
             { path: "/SelectedTrainerForInterview", label: "Selected Trainer" },
           ]
           : [{ path: "/Admission_table", label: "Interview" }],
@@ -156,7 +158,7 @@ const menuItems = (role) => ({
       items:
         role === "ADMIN"
           ? [
-            // { path: "/CreateBatches", label: "Create Batch" },
+            { path: "/CreateBatches", label: "Create Batch" },
             { path: "/AllBatches", label: "All Batches" },
           ]
           : [],
@@ -285,76 +287,23 @@ const Defaultlayout = () => {
 
   const getMenusForRole = () => {
     // Admin access - only admin-specific menus
-    if (hasRole && hasRole("ADMIN")) {
-        const allMenus = menuItems("ADMIN");
-        let menus = [
-          ...allMenus.ADMIN_DASHBOARD,
-          ...allMenus.ALLSTUDENT,
-          ...allMenus.ALLTRAINER,
-          ...allMenus.RECRUITER,
-          ...allMenus.SPONSOR,
-          ...allMenus.ADMIN,
-        ];
+    if (role === "ADMIN") {
+      const allMenus = menuItems(role);
+      return [
+        ...allMenus.ADMIN_DASHBOARD,
+        ...allMenus.ALLSTUDENT,
+        ...allMenus.ALLTRAINER,
+        ...allMenus.RECRUITER,
+        ...allMenus.SPONSOR,
+        ...allMenus.BOOKHUB_MANAGER,
+        ...allMenus.ADMIN,
+      ];
+    }
 
-        // Also include BookHub manager sections for ADMIN so real admins see BookHub admin items
-        try {
-          const bh = menuItems("BOOKHUB_MANAGER");
-          const bhSections = bh.BOOKHUB_MANAGER || [];
-          const existingKeys = new Set(menus.map((s) => s.key));
-          menus = [...menus, ...bhSections.filter((s) => !existingKeys.has(s.key))];
-        } catch (e) {
-          // ignore
-        }
-
-        // Merge common sections for admin unless explicitly excluded
-        try {
-          const common = menuItems().COMMON || [];
-          const existingKeys = new Set(menus.map((s) => s.key));
-          menus = [...menus, ...common.filter((s) => !existingKeys.has(s.key))];
-        } catch (e) {}
-
-        return menus;
-      }
-
-      // If role is missing but we have a subrole (e.g., ADMIN user with subroles),
-      // try to render subrole menus using the subrole as the key.
-      if (!role && !subrole) return [];
-      const key = role || subrole;
-      const allMenus = menuItems(key);
-      let menus = allMenus[subrole] || allMenus[role] || [];
-
-      // Ensure Bookhub managers also get Bookhub admin items even if their primary
-      // role is something else. Merge unique sections from the BOOKHUB_MANAGER key.
-      try {
-        if (hasSubrole && hasSubrole("BOOKHUB_MANAGER")) {
-          const bh = menuItems("BOOKHUB_MANAGER");
-          const bhSections = bh.BOOKHUB_MANAGER || [];
-          // merge, avoiding duplicate keys
-          const existingKeys = new Set(menus.map((s) => s.key));
-          menus = [...menus, ...bhSections.filter((s) => !existingKeys.has(s.key))];
-        }
-
-        if (hasSubrole && hasSubrole("ADMISSION_MANAGER")) {
-          const adm = menuItems("ADMISSION_MANAGER");
-          const admSections = adm.ADMISSION_MANAGER || [];
-          const existingKeys = new Set(menus.map((s) => s.key));
-          menus = [...menus, ...admSections.filter((s) => !existingKeys.has(s.key))];
-        }
-      } catch (e) {
-        // ignore merge errors and fall back to computed menus
-      }
-
-      // Merge common sections for non-excluded subroles (not Sponsor/Recruiter)
-      try {
-        const isExcluded = hasSubrole && (hasSubrole("SPONSOR") || hasSubrole("RECRUITER"));
-        if (!isExcluded) {
-          const common = menuItems().COMMON || [];
-          const existingKeys = new Set(menus.map((s) => s.key));
-          menus = [...menus, ...common.filter((s) => !existingKeys.has(s.key))];
-        }
-      } catch (e) {}
-
-      return menus;
+    // Other users need both role and subrole
+    if (!role || !subrole) return [];
+    const allMenus = menuItems(role);
+    return allMenus[subrole] || [];
   };
 
   // MenuSection Component

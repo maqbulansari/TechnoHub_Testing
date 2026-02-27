@@ -48,31 +48,32 @@ const RecruitmentProfile = () => {
 
 
 
-  const test = async()=>{
-     const re = await axios.get(
-        `${API_BASE_URL}/recruiter-dashboard/`,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
-      console.log(re);
+  const test = async () => {
+    const re = await axios.get(
+      `${API_BASE_URL}/recruiter-dashboard/`,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+    console.log(re);
   }
 
-useEffect(()=>{
-  test()
-},[])
+  useEffect(() => {
+    test()
+  }, [])
 
   // Fetch recruiter
   useEffect(() => {
     if (
-      (hasSubrole("RECRUITER") || hasRole("ADMIN")) &&
+      (responseSubrole?.includes("RECRUITER") || role === "RECRUITER" || role === "ADMIN") &&
       !dataFetched["recruiter"]
     ) {
       FetchRecuiter().then(() =>
         setDataFetched((prev) => ({ ...prev, recruiter: true }))
       );
+
     }
   }, [responseSubrole, role, dataFetched, FetchRecuiter, setDataFetched]);
 
@@ -116,8 +117,8 @@ useEffect(()=>{
           },
         }
       );
-    
-      
+
+
 
       reset(response.data);
       setEditMode(false);
@@ -173,21 +174,39 @@ useEffect(()=>{
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label>First Name</Label>
-                  <Input {...register("first_name", { required: true })} />
+                  <Input {...register("first_name", {
+                    required: "First name is required",
+                    minLength: { value: 2, message: "Minimum 2 characters" },
+                    pattern: { value: /^[A-Za-z\s]+$/, message: "Only letters and spaces allowed" }
+                  })} />
+                  {errors.first_name && <p className="text-red-500 text-xs mt-1">{errors.first_name.message}</p>}
                 </div>
                 <div>
                   <Label>Last Name</Label>
-                  <Input {...register("last_name", { required: true })} />
+                  <Input {...register("last_name", {
+                    required: "Last name is required",
+                    minLength: { value: 2, message: "Minimum 2 characters" },
+                    pattern: { value: /^[A-Za-z\s]+$/, message: "Only letters and spaces allowed" }
+                  })} />
+                  {errors.last_name && <p className="text-red-500 text-xs mt-1">{errors.last_name.message}</p>}
                 </div>
 
                 <div>
                   <Label>Email</Label>
-                  <Input type="email" {...register("email", { required: true })} />
+                  <Input type="email" {...register("email", {
+                    required: "Email is required",
+                    pattern: { value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i, message: "Invalid email address" }
+                  })} />
+                  {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
                 </div>
 
                 <div>
                   <Label>Phone Number</Label>
-                  <Input {...register("mobile_no", { required: true })} />
+                  <Input {...register("mobile_no", {
+                    required: "Mobile number is required",
+                    pattern: { value: /^[0-9]{10,15}$/, message: "Please enter a valid mobile number (10-15 digits)" }
+                  })} />
+                  {errors.mobile_no && <p className="text-red-500 text-xs mt-1">{errors.mobile_no.message}</p>}
                 </div>
 
                 <div>
