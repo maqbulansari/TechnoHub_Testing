@@ -63,31 +63,31 @@ export const RecruitmentDashboard = () => {
 
 
 
-useEffect(() => {
-  const fetchRecruitment = async () => {
-    try {
-      const token = localStorage.getItem("accessToken");
+  useEffect(() => {
+    const fetchRecruitment = async () => {
+      try {
+        const token = localStorage.getItem("accessToken");
 
-      const res = await axios.get(`${API_BASE_URL}/recruitment/`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+        const res = await axios.get(`${API_BASE_URL}/recruitment/`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
-      console.log(res);
-    } catch (error) {
-      console.error(error);
-    }
-  };
+        console.log(res);
+      } catch (error) {
+        console.error(error);
+      }
+    };
 
-  fetchRecruitment();
-}, []);
-       
+    fetchRecruitment();
+  }, []);
+
 
 
   useEffect(() => {
     if (
-      (responseSubrole === "RECRUITER" || role === "ADMIN") &&
+      (responseSubrole?.includes("RECRUITER") || role === "ADMIN" || role === "RECRUITER") &&
       !dataFetched["recruiter"]
     ) {
       Promise.all([GET_READY_FOR_RECRUITMENT(), FetchRecuiter()]).then(() => {
@@ -149,50 +149,50 @@ useEffect(() => {
 
 
 
-const handleRecruitStudent = async () => {
-  if (!isFormValid) return;
+  const handleRecruitStudent = async () => {
+    if (!isFormValid) return;
 
-  setLoading(true);
+    setLoading(true);
 
-  try {
-    const payload = {
-      technologies: [technology],
-      num_students: Number(studentCount),
-      remarks,
-    };
+    try {
+      const payload = {
+        technologies: [technology],
+        num_students: Number(studentCount),
+        remarks,
+      };
 
-    const response = await axios.post(
-      `${API_BASE_URL}/recruiter/select_students/`,
-      payload,
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      }
-    );
+      const response = await axios.post(
+        `${API_BASE_URL}/recruiter/select_students/`,
+        payload,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
 
-    // RESET FORM
-    setTechnology("Select Technology");
-    setStudentCount("");
-    setRemarks("");
-    setAvailableStudent(null);
-    setError("");
-    setOpenRecruitModal(false);
-    setShowSuccessModal(true);
+      // RESET FORM
+      setTechnology("Select Technology");
+      setStudentCount("");
+      setRemarks("");
+      setAvailableStudent(null);
+      setError("");
+      setOpenRecruitModal(false);
+      setShowSuccessModal(true);
 
-  } catch (err) {
-    console.error(err);
+    } catch (err) {
+      console.error(err);
 
-    const message =
-      err.response?.data?.message ||
-      err.response?.data?.detail ||
-      "Failed to recruit students. Please try again.";
+      const message =
+        err.response?.data?.message ||
+        err.response?.data?.detail ||
+        "Failed to recruit students. Please try again.";
 
-    setError(message);
-  } finally {
-    setLoading(false);
-  }
-};
+      setError(message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
 
 

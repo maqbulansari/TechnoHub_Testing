@@ -8,7 +8,7 @@ import {
   faTicket,
   faCubes,
   faUserShield, faClipboardCheck,
-  faLayerGroup, faHandshake,faBook
+  faLayerGroup, faHandshake, faBook
 } from "@fortawesome/free-solid-svg-icons";
 import { Sidebar } from "primereact/sidebar";
 import { all_routes } from "../feature-module/router/all_routes";
@@ -74,7 +74,7 @@ const menuItems = (role) => ({
       icon: faChalkboardUser,
       items:
         role === "ADMIN"
-          ? [{ path: "/RecuriterTable", label: "Recruiter" },{ path: "/RecruitmentAssignment", label: "Recruitment Status" }]
+          ? [{ path: "/RecuriterTable", label: "Recruiter" }, { path: "/RecruitmentAssignment", label: "Recruitment Status" }]
           : [
             { path: "/Recruitment_Profile", label: "Profile" },
             { path: "/ReadyToRecruitDashboard", label: "Dashboard" },
@@ -86,7 +86,7 @@ const menuItems = (role) => ({
     {
       title: "Sponsor",
       key: "sponsor-dashboard",
-      icon:  faHandshake,
+      icon: faHandshake,
       items:
         role === "ADMIN"
           ? [
@@ -106,9 +106,11 @@ const menuItems = (role) => ({
       title: "Trainer Dashboard",
       key: "alltrainer-dashboard",
       icon: faChalkboardUser,
-      items: [
+      items: role === "ADMIN" ? [
         { path: "/AllTrainer", label: "Trainers" },
-        // { path: "/AssignBatchForTrainer", label: "Assign Trainer Batch" },
+        { path: "/AssignBatchForTrainer", label: "Assign Trainer Batch" },
+      ] : [
+        { path: "/AllTrainer", label: "Trainers" },
       ],
     },
     {
@@ -119,7 +121,7 @@ const menuItems = (role) => ({
         role === "ADMIN"
           ? [
             { path: "/Admission_table", label: "Interview" },
-            // { path: "/AssignTrainerForInterview", label: "Assign Trainer Interview" },
+            { path: "/AssignTrainerForInterview", label: "Assign Trainer Interview" },
             { path: "/SelectedTrainerForInterview", label: "Selected Trainer" },
           ]
           : [{ path: "/Admission_table", label: "Interview" }],
@@ -140,7 +142,7 @@ const menuItems = (role) => ({
       items:
         role === "ADMIN"
           ? [
-            // { path: "/CreateBatches", label: "Create Batch" },
+            { path: "/CreateBatches", label: "Create Batch" },
             { path: "/AllBatches", label: "All Batches" },
           ]
           : [],
@@ -234,7 +236,7 @@ const Defaultlayout = () => {
       const userRole = localStorage.getItem("role");
       setRole(userRole || "");
     }
-    
+
     if (responseSubrole && responseSubrole.length > 0) {
       setSubrole(Array.isArray(responseSubrole) ? responseSubrole[0] : responseSubrole);
     } else {
@@ -265,10 +267,11 @@ const Defaultlayout = () => {
         ...allMenus.ALLTRAINER,
         ...allMenus.RECRUITER,
         ...allMenus.SPONSOR,
+        ...allMenus.BOOKHUB_MANAGER,
         ...allMenus.ADMIN,
       ];
     }
-    
+
     // Other users need both role and subrole
     if (!role || !subrole) return [];
     const allMenus = menuItems(role);

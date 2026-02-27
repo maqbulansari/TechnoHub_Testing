@@ -139,7 +139,7 @@ const RecruitmentAdmin = () => {
     <div className="p-6 mt-16 space-y-8">
       {/* Recruitment Requests Table */}
       <div>
-         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-4">
                 <h2 className="text-2xl font-semibold">Recruitment Requests</h2>  <Button variant="outline" onClick={() => navigate("/RecruitmentApprovalTable")}>
                   Students Status
                 </Button> </div>

@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 
- export const SponsoredStudents = () => {
+export const SponsoredStudents = () => {
   const { API_BASE_URL, accessToken, role, responseSubrole } = useContext(AuthContext);
 
   const [students, setStudents] = useState([]);
@@ -36,7 +36,7 @@ import { Badge } from "@/components/ui/badge";
     let isMounted = true;
 
     const fetchStudents = async () => {
-      if (!(role === "ADMIN" || responseSubrole === "SPONSOR")) return;
+      if (!(role === "ADMIN" || role === "SPONSOR" || responseSubrole?.includes("SPONSOR"))) return;
 
       try {
         const res = await axios.get(`${API_BASE_URL}/sponsors/sponsored_students/`, {

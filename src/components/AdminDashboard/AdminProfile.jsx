@@ -30,7 +30,7 @@ export const AdminProfile = () => {
   const [errorModalOpen, setErrorModalOpen] = useState(false);
   const [apiErrors, setApiErrors] = useState({});
 
-  const { API_BASE_URL,user } = useContext(AuthContext);
+  const { API_BASE_URL, user } = useContext(AuthContext);
 
 
   const {
@@ -203,22 +203,39 @@ export const AdminProfile = () => {
 
                 <div>
                   <Label>First Name</Label>
-                  <Input {...register("first_name", { required: true })} />
+                  <Input {...register("first_name", {
+                    required: "First name is required",
+                    minLength: { value: 2, message: "Minimum 2 characters" },
+                    pattern: { value: /^[A-Za-z\s]+$/, message: "Only letters and spaces allowed" }
+                  })} />
+                  {errors.first_name && <p className="text-red-500 text-xs mt-1">{errors.first_name.message}</p>}
                 </div>
 
                 <div>
                   <Label>Last Name</Label>
-                  <Input {...register("last_name", { required: true })} />
+                  <Input {...register("last_name", {
+                    required: "Last name is required",
+                    minLength: { value: 2, message: "Minimum 2 characters" },
+                    pattern: { value: /^[A-Za-z\s]+$/, message: "Only letters and spaces allowed" }
+                  })} />
+                  {errors.last_name && <p className="text-red-500 text-xs mt-1">{errors.last_name.message}</p>}
                 </div>
 
                 <div>
                   <Label>Email</Label>
-                  <Input  type="email" {...register("email")} />
+                  <Input type="email" {...register("email", {
+                    required: "Email is required",
+                    pattern: { value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i, message: "Invalid email address" }
+                  })} />
+                  {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
                 </div>
 
                 <div>
                   <Label>Mobile No</Label>
-                  <Input {...register("mobile_no")} />
+                  <Input {...register("mobile_no", {
+                    pattern: { value: /^[0-9]{10,15}$/, message: "Please enter a valid mobile number (10-15 digits)" }
+                  })} />
+                  {errors.mobile_no && <p className="text-red-500 text-xs mt-1">{errors.mobile_no.message}</p>}
                 </div>
 
                 <div>
@@ -300,7 +317,7 @@ export const AdminProfile = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Info label="First Name" value={admin.first_name} />
               <Info label="Last Name" value={admin.last_name} />
-              <Info  label="Email" value={admin.email} />
+              <Info label="Email" value={admin.email} />
               <Info label="Mobile" value={admin.mobile_no} />
               <Info label="Gender" value={admin.gender} />
               <Info label="Identity" value={admin.identity} />

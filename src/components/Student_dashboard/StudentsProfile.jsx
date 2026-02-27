@@ -66,7 +66,7 @@ const StudentsProfile = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
         console.log(re);
-        
+
 
         const normalizedData = normalizeStudent(response.data);
 
@@ -89,7 +89,7 @@ const StudentsProfile = () => {
 
     const formData = new FormData();
 
-  
+
     delete data.user_profile;
 
     // append only non-empty values
@@ -99,7 +99,7 @@ const StudentsProfile = () => {
       }
     });
 
- 
+
     if (image instanceof File) {
       formData.append("user_profile", image);
     }
@@ -177,6 +177,8 @@ const StudentsProfile = () => {
                   <Input
                     {...register("first_name", {
                       required: "First name is required",
+                      minLength: { value: 2, message: "Minimum 2 characters" },
+                      pattern: { value: /^[A-Za-z\s]+$/, message: "Only letters and spaces allowed" }
                     })}
                   />
                   {errors.first_name && (
@@ -191,6 +193,8 @@ const StudentsProfile = () => {
                   <Input
                     {...register("last_name", {
                       required: "Last name is required",
+                      minLength: { value: 2, message: "Minimum 2 characters" },
+                      pattern: { value: /^[A-Za-z\s]+$/, message: "Only letters and spaces allowed" }
                     })}
                   />
                   {errors.last_name && (
@@ -208,8 +212,14 @@ const StudentsProfile = () => {
                     type="email"
                     {...register("email", {
                       required: "Email is required",
+                      pattern: { value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i, message: "Invalid email address" }
                     })}
                   />
+                  {errors.email && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.email.message}
+                    </p>
+                  )}
                 </div>
 
                 <div>
@@ -217,8 +227,14 @@ const StudentsProfile = () => {
                   <Input
                     {...register("mobile_no", {
                       required: "Mobile number is required",
+                      pattern: { value: /^[0-9]{10,15}$/, message: "Please enter a valid mobile number (10-15 digits)" }
                     })}
                   />
+                  {errors.mobile_no && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.mobile_no.message}
+                    </p>
+                  )}
                 </div>
               </div>
 
