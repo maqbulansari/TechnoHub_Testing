@@ -17,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Pencil } from "lucide-react";
 
 const SponsorProfile = () => {
   const { API_BASE_URL } = useContext(AuthContext);
@@ -158,6 +159,7 @@ const SponsorProfile = () => {
           {/* Edit Button */}
           {!editMode && (
             <Button className="mt-4 md:mt-0" onClick={() => setEditMode(true)}>
+               <Pencil className="h-4 w-2" />
               Edit Profile
             </Button>
           )}
@@ -200,7 +202,7 @@ const SponsorProfile = () => {
                   <Label>Mobile Number</Label>
                   <Input type="text" {...register("mobile_no", {
                     required: "Mobile number required",
-                    pattern: { value: /^[0-9]{10,15}$/, message: "Please enter a valid mobile number (10-15 digits)" }
+                    pattern: { value: /^[0-9]{10}$/, message: "Please enter a valid mobile number (10 digits)" }
                   })} />
                   {errors.mobile_no && <p className="text-red-500 text-sm">{errors.mobile_no.message}</p>}
                 </div>

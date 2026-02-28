@@ -23,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Pencil } from "lucide-react";
 
 const StudentsProfile = () => {
   const [student, setStudent] = useState(null);
@@ -163,6 +164,7 @@ const StudentsProfile = () => {
 
           {!editMode && (
             <Button className="mt-4 md:mt-0" onClick={() => setEditMode(true)}>
+               <Pencil className="h-4 w-2" />
               Edit Profile
             </Button>
           )}

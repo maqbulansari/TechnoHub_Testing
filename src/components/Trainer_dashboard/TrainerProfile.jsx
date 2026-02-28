@@ -20,6 +20,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { AUTH_BASE_URL, TECHNO_BASE_URL } from "@/environment";
+import { Pencil } from "lucide-react";
 
 const TrainerProfile = () => {
   const [trainer, setTrainer] = useState(null);
@@ -203,6 +204,7 @@ const TrainerProfile = () => {
 
           {!editMode && (
             <Button onClick={() => setEditMode(true)}>
+               <Pencil className="h-4 w-2" />
               Edit Profile
             </Button>
           )}

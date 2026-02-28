@@ -122,7 +122,7 @@
 //     {/* Public routes */}
 //     <Route path="/Bookhub" element={<Defaultlayout />}>
 //       <Route path="Home" element={<BookhubHome />} />
-      
+
 //     </Route>     
 
 //     <Route element={<ProtectedRoute />}>
@@ -271,6 +271,7 @@ import AssignBatchForTrainer from "../../components/Trainer_dashboard/AssignBatc
 import { RecruiterTable } from "../../components/RecruitmentDashboard/RecruiterTable";
 import { SponsorTable } from "../../components/Sponser_Dashboard/SponsorTable";
 import { SponsoredStudents } from "../../components/Sponser_Dashboard/SponsoredStudents";
+import SponsorMainDashboard from "../../components/Sponser_Dashboard/SponsorMainDashboard";
 import ForgotPassword from "../auth/forgotPassword/forgotPassword";
 import ResetPassword from "../auth/resetPassword/resetPassword";
 import { ChangePassword } from "../auth/changePassword/ChangePassword";
@@ -295,7 +296,7 @@ import { AdminProfile } from "@/components/AdminDashboard/AdminProfile";
 import AdminAccessManager from "@/components/BookHub/AdminAccessManager";
 import BookDetail from "@/components/BookHub/BookDetail";
 import CreateBook from "@/components/BookHub/CreateBook";
-import  Courses from "@/components/Batches/Courses";
+import Courses from "@/components/Batches/Courses";
 import RecruitmentApprovalTable from "@/components/RecruitmentDashboard/RecruitmentAdminAskStu";
 import { StuRecuitment } from "@/components/RecruitmentDashboard/StuRecuitment";
 import { RecruiterHire } from "@/components/RecruitmentDashboard/RecruiterHire";
@@ -359,8 +360,8 @@ const ALLRoutes = () => {
     {/* Public routes */}
     <Route path="/Bookhub" element={<Defaultlayout />}>
       <Route path="Home" element={<BookhubHome />} />
-      
-    </Route>     
+
+    </Route>
 
     <Route element={<ProtectedRoute />}>
       <Route path="/" element={<Defaultlayout />}>
@@ -376,7 +377,7 @@ const ALLRoutes = () => {
         </Route>
 
         {/* Trainer Routes (subrole) */}
-        <Route element={<ProtectedRoute allowedSubroles={["TRAINER","CO_TRAINER"]} allowedRoles={["ADMIN"]} />}>
+        <Route element={<ProtectedRoute allowedSubroles={["TRAINER", "CO_TRAINER"]} allowedRoles={["ADMIN"]} />}>
           <Route path="/Trainer_profile" element={<TrainerProfile />} />
           <Route path="/Trainer_batch" element={<TrainerBatch />} />
           <Route path="/TrainerBatchDetail/:batchId" element={<TrainerBatchDetail />} />
@@ -386,7 +387,7 @@ const ALLRoutes = () => {
         </Route>
 
         {/* Admission Routes — available for admission managers, trainers, students, co-trainers, plus admin */}
-        <Route element={<ProtectedRoute allowedSubroles={["ADMISSION_MANAGER","TRAINER","STUDENT","CO_TRAINER"]} allowedRoles={["ADMIN"]} />}>
+        <Route element={<ProtectedRoute allowedSubroles={["ADMISSION_MANAGER", "TRAINER", "STUDENT", "CO_TRAINER"]} allowedRoles={["ADMIN"]} />}>
           <Route path="/Admission_table" element={<AdmissionTable />} />
           <Route path="/interview-candidate/:id" element={<InterviewCandidate />} />
           <Route path="/AllIntervieweesInformation" element={<AllIntervieweesInformation />} />
@@ -396,7 +397,7 @@ const ALLRoutes = () => {
         </Route>
 
         {/* Assessment Routes — assessment officers, trainers, co-trainers, plus admin */}
-        <Route element={<ProtectedRoute allowedSubroles={["ASSESSMENT_OFFICER","TRAINER","CO_TRAINER"]} allowedRoles={["ADMIN"]} />}>
+        <Route element={<ProtectedRoute allowedSubroles={["ASSESSMENT_OFFICER", "TRAINER", "CO_TRAINER"]} allowedRoles={["ADMIN"]} />}>
           <Route path="/AssessmentTable" element={<AssessmentTable />} />
           <Route path="/AssessmentSelectedStudent" element={<AssessmentSelectedStudents />} />
           <Route path="/AssessmentCandidte/:id" element={<AssessmentCandidte />} />
@@ -405,6 +406,7 @@ const ALLRoutes = () => {
 
         {/* Sponsor Routes (subrole) */}
         <Route element={<ProtectedRoute allowedSubroles={["SPONSOR"]} allowedRoles={["ADMIN"]} />}>
+          <Route path="/SponsorDashboard" element={<SponsorMainDashboard />} />
           <Route path="/Students_SponserDashboard" element={<Students_SponserDashboard />} />
           <Route path="/Sponsor_Profile" element={<Sponsor_Profile />} />
           <Route path="/Sponsor_Table" element={<SponsorTable />} />

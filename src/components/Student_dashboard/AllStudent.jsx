@@ -91,7 +91,7 @@ const AllStudent = () => {
       <h2 className="text-2xl font-semibold">Students</h2>
 
       {/* Filters */}
-      <div className="flex flex-col md:flex-row gap-4 w-1/2">
+      <div className="flex flex-col md:flex-row gap-4 lg:w-1/2">
         <Input
           placeholder="name or email..."
           value={search}

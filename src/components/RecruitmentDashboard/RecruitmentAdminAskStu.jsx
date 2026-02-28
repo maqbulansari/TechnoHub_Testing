@@ -114,7 +114,7 @@ const RecruitmentApprovalTable = () => {
 
   return (
     <div className="p-6 mt-16 space-y-6">
-      <h2 className="text-2xl font-semibold">Recruitment Records</h2>
+      <h2 className="text-2xl text-nowrap font-semibold">Recruitment Records</h2>
 
       <Input
         placeholder="Search by student or company..."

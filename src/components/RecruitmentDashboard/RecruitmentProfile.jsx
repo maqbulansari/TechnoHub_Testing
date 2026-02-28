@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import Loading from "@/Loading";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "../ui/badge";
+import { Pencil } from "lucide-react";
 
 const RecruitmentProfile = () => {
   const { API_BASE_URL, role, responseSubrole, hasSubrole, hasRole } = useContext(AuthContext);
@@ -167,7 +168,7 @@ const RecruitmentProfile = () => {
           </div>
 
           {!editMode && (
-            <Button onClick={() => setEditMode(true)}>Edit Profile</Button>
+            <Button onClick={() => setEditMode(true)}>  <Pencil className="h-4 w-2" /> Edit Profile</Button>
           )}
         </CardHeader>
 
