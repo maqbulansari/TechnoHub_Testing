@@ -97,7 +97,7 @@ const AllTrainer = () => {
         </Button> </div>
 
       {/* Filters */}
-      <div className="flex flex-col md:flex-row gap-4 w-1/2">
+      <div className="flex flex-col md:flex-row gap-4 lg:w-1/2">
         <Input
           placeholder="name or email..."
           value={search}

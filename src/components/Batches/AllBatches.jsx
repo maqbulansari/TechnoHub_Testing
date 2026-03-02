@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/select";
 
 import { Button } from "@/components/ui/button";
+import { Pencil } from "lucide-react";
 
 export const AllBatches = () => {
   const { API_BASE_URL } = useContext(AuthContext);
@@ -95,7 +96,7 @@ export const AllBatches = () => {
         </Button></div>
 
       {/* Filters */}
-      <div className="flex flex-col md:flex-row gap-4 w-1/2">
+      <div className="flex flex-col md:flex-row gap-4 lg:w-1/2">
         <Input
           placeholder="Search by name or ID..."
           value={search}
@@ -171,11 +172,11 @@ export const AllBatches = () => {
                   <TableCell>{batch.center}</TableCell>
                   <TableCell>
                     <Button
-                      variant="outline"
-                      size="sm"
+                      variant="ghost"
+                      size="icon"
                       onClick={() => handleEdit(batch.batch_id)}
                     >
-                      Edit
+                      <Pencil className="h-6 w-6" />
                     </Button>
                   </TableCell>
                 </TableRow>

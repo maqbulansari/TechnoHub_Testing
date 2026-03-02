@@ -95,28 +95,29 @@ const menuItems = (role) => ({
           ]
           : [
             { path: "/Sponsor_Profile", label: "Profile" },
-            { path: "/Students_SponserDashboard", label: "Dashboard" },
+            { path: "/SponsorDashboard", label: "Dashboard" },
+            { path: "/Students_SponserDashboard", label: "Sponsor Students" },
           ],
     },
   ],
   ADMIN: [
-      {
-        title: "Admin Tools",
-        key: "admin-tools",
-        icon: faUserShield,
-        items: [
-          { path: "/ManageRoles", label: "Manage Roles" },
-        ],
-      },
-    ],
-    COMMON: [
-      {
-        title: "Resources",
-        key: "resources",
-        icon: faBook,
-        items: [{ path: "/AllResources", label: "Resources" }],
-      },
-    ],
+    {
+      title: "Admin Tools",
+      key: "admin-tools",
+      icon: faUserShield,
+      items: [
+        { path: "/ManageRoles", label: "Manage Roles" },
+      ],
+    },
+  ],
+  COMMON: [
+    {
+      title: "Resources",
+      key: "resources",
+      icon: faBook,
+      items: [{ path: "/AllResources", label: "Resources" }],
+    },
+  ],
   ALLTRAINER: [
     {
       title: "Trainer Dashboard",
@@ -405,18 +406,18 @@ const Defaultlayout = () => {
 
           >
             <div className="sidebar-content-wrapper bg-white" style={{ paddingBottom: '60px' }}>
-                {renderMenuItems()}
+              {renderMenuItems()}
 
-                {hasRole && hasRole("ADMIN") && (
-                  <Link
-                    to={all_routes.register3}
-                    className="dropdownBtn ml-"
-                    onClick={handleMenuItemClick}
-                  >
-                    <i className="pi pi-plus me-2 text-gray-700 font-bold"></i>
-                    <span className=" capitalize text-sm text-[#2196f3]">Create User</span>
-                  </Link>
-                )}
+              {hasRole && hasRole("ADMIN") && (
+                <Link
+                  to={all_routes.register3}
+                  className="dropdownBtn ml-"
+                  onClick={handleMenuItemClick}
+                >
+                  <i className="pi pi-plus me-2 text-gray-700 font-bold"></i>
+                  <span className=" capitalize text-sm text-[#2196f3]">Create User</span>
+                </Link>
+              )}
             </div>
 
             <div className="bg-white">
@@ -465,30 +466,29 @@ const Defaultlayout = () => {
 
           {/* Logout Dialog Modal */}
           <Dialog open={logoutDialog} onOpenChange={setLogoutDialog}>
-            <DialogContent className="sm:max-w-md p-0 gap-0 overflow-hidden [&>button]:hidden rounded-xl">
+            <DialogContent className="sm:max-w-md max-w-[calc(100vw-2rem)] p-0 gap-0 overflow-hidden [&>button]:hidden rounded-xl">
 
               {/* Header */}
-              <DialogHeader className="px-5 pt-4 pb-4 space-y-1">
-                <DialogTitle className="text-xl pb-2 font-semibold ">
+              <DialogHeader className="px-4 sm:px-5 pt-4 sm:pt-5 pb-3 sm:pb-4 space-y-1">
+                <DialogTitle className="text-lg sm:text-xl pb-1 sm:pb-2 font-semibold">
                   Confirm Logout
                 </DialogTitle>
-                <DialogDescription className="text-sm pb-2 text-muted-foreground leading-relaxed">
-                  Are you sure you want to logout?
+                <DialogDescription className="text-sm pb-1 sm:pb-2 text-muted-foreground leading-relaxed">
+                  Are you sure you want to logout? You will need to sign in again to access your account.
                 </DialogDescription>
               </DialogHeader>
 
               {/* Footer Buttons */}
-              <DialogFooter className="px-5 pb-5 flex gap-3 justify-end bg-muted/10">
+              <DialogFooter className="px-4 sm:px-5 pb-4 sm:pb-5 flex flex-col-reverse sm:flex-row gap-2 sm:gap-3 justify-end bg-muted/10">
                 <Button
                   variant="ghost"
-                  className="flex-1 sm:flex-none border-1"
+                  className="w-full sm:w-auto border"
                   onClick={() => setLogoutDialog(false)}
                 >
                   Cancel
                 </Button>
                 <Button
-                  variant=""
-                  className="flex-1 sm:flex-none"
+                  className="w-full sm:w-auto"
                   onClick={() => {
                     setLogoutDialog(false);
                     handleLogout();

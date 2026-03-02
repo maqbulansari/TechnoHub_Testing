@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { Pencil } from "lucide-react";
 
 const AssessmentSelectedStudents = () => {
   const { API_BASE_URL, role, hasRole } = useContext(AuthContext);
@@ -81,7 +82,7 @@ const AssessmentSelectedStudents = () => {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col md:flex-row gap-4 w-1/2">
+      <div className="flex flex-col md:flex-row gap-4 lg:w-1/2">
         <Input
           placeholder="Student name..."
           value={search}
@@ -126,12 +127,12 @@ const AssessmentSelectedStudents = () => {
                   <TableCell className="flex border-none flex-wrap gap-1">
                     {student.trainers?.length ? (
                       student.trainers.map((trainer) => (
-                        <Badge key={trainer.trainer_id} variant="outline">
+                        <Badge key={trainer.trainer_id} variant="">
                           {trainer.trainer_name}
                         </Badge>
                       ))
                     ) : (
-                      <Badge variant="outline">No Trainers</Badge>
+                      <Badge variant="">No Trainers</Badge>
                     )}
                   </TableCell>
 
@@ -145,8 +146,8 @@ const AssessmentSelectedStudents = () => {
 
                   <TableCell className="text-right">
                     {student.trainer_is_selected ? (
-                      <Button size="sm" onClick={() => handleAssessment(student)}>
-                        Update Details
+                      <Button variant="ghost" size="icon" onClick={() => handleAssessment(student)}>
+                        <Pencil className="h-4 w-4" />
                       </Button>
                     ) : (
                       <Badge variant="secondary">Not Assigned</Badge>

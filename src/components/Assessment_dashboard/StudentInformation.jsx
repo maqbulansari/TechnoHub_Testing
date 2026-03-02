@@ -96,7 +96,7 @@ const StudentInformation = () => {
       </h2>
 
       {/* Filters – NO border */}
-      <div className="flex flex-col md:flex-row gap-4 w-1/2">
+      <div className="flex flex-col md:flex-row gap-4 lg:w-1/2">
         <Input
           placeholder="Search student name..."
           value={search}
@@ -153,7 +153,7 @@ const StudentInformation = () => {
                     {student.student_name}
                   </TableCell>
                   <TableCell>
-                    <Badge variant="outline" className="uppercase">
+                    <Badge variant="" className="uppercase">
                       {student.batch_name}
                     </Badge>
                   </TableCell>
