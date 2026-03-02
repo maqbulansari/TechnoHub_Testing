@@ -114,7 +114,7 @@ export const StuRecuitment = () => {
                         <Button
                           size="sm"
                           variant="destructive"
-                          onClick={() => handleDecision(row.id, "Rejected")}
+                          onClick={() => handleDecision(row.id, "Declined")}
                           disabled={updatingId === row.id}
                         >
                           {updatingId === row.id ? "Processing..." : "Reject"}

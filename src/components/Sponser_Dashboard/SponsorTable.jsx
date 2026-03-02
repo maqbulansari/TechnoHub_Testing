@@ -110,8 +110,8 @@ export const SponsorTable = () => {
               <TableHead>Email</TableHead>
               <TableHead>Gender</TableHead>
               <TableHead>Mobile</TableHead>
-              <TableHead>Contribution Value</TableHead>
-              <TableHead>Contribution Type</TableHead>
+              <TableHead> Total Contribution Value</TableHead>
+              {/* <TableHead>Contribution Type</TableHead> */}
             </TableRow>
           </TableHeader>
 
@@ -130,8 +130,8 @@ export const SponsorTable = () => {
                     <TableCell>{profile.email}</TableCell>
                     <TableCell>{profile.gender || "N/A"}</TableCell>
                     <TableCell>{profile.mobile_no}</TableCell>
-                    <TableCell>₹ {profile.contribution_value}</TableCell>
-                    <TableCell>{profile.contribution_type}</TableCell>
+                    <TableCell>₹ {profile.total_contribution}</TableCell>
+                    {/* <TableCell>{profile.contribution_type}</TableCell> */}
                   </TableRow>
                 ))
             ) : (

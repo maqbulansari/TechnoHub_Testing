@@ -230,22 +230,23 @@ const SponsorProfile = () => {
                   />
                   {errors.gender && <p className="text-red-500 text-sm mt-1">{errors.gender.message}</p>}
                 </div>
-                <div>
+                {/* <div>
                   <Label>Contribution Type</Label>
                   <Input {...register("contribution_type")} />
+                </div> */}
+                  <div>
+                  <Label>Company Name</Label>
+                  <Input {...register("company_name")} />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
+                {/* <div>
                   <Label>Contribution Value</Label>
                   <Input type="number" {...register("contribution_value")} />
-                </div>
+                </div> */}
 
-                <div>
-                  <Label>Company Name</Label>
-                  <Input {...register("company_name")} />
-                </div>
+              
               </div>
 
               <div>
@@ -298,18 +299,19 @@ const SponsorProfile = () => {
                 <p className="text-sm text-slate-500">Gender</p>
                 <p className="font-medium text-slate-900">{sponsor.gender || "N/A"}</p>
               </div>
-              <div>
+               <div>
+                <p className="text-sm text-slate-500">Company Name</p>
+                <p className="font-medium text-slate-900">{sponsor.company_name || "N/A"}</p>
+              </div>
+              {/* <div>
                 <p className="text-sm text-slate-500">Contribution Type</p>
                 <p className="font-medium text-slate-900">{sponsor.contribution_type || "N/A"}</p>
               </div>
               <div>
                 <p className="text-sm text-slate-500">Contribution Value</p>
                 <p className="font-medium text-slate-900">{sponsor.contribution_value || "N/A"}</p>
-              </div>
-              <div>
-                <p className="text-sm text-slate-500">Company Name</p>
-                <p className="font-medium text-slate-900">{sponsor.company_name || "N/A"}</p>
-              </div>
+              </div> */}
+             
             </div>
           )}
         </CardContent>
