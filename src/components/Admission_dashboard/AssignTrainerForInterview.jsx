@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/dialog";
 
 const AssignTrainerForInterview = () => {
-  const { batches, fetchBatches, API_BASE_URL } = useContext(AuthContext);
+  const { batches, fetchBatches, API_BASE_URL, hasRole, hasSubrole } = useContext(AuthContext);
   const token = localStorage.getItem("accessToken");
 
   const [allUsers, setAllUsers] = useState([]);
@@ -126,6 +126,13 @@ const AssignTrainerForInterview = () => {
 
     setSubmitting(true);
     try {
+      if (!(hasRole && hasRole('ADMIN')) && !(hasSubrole && hasSubrole('ADMISSION_MANAGER'))) {
+        setModalTitle('Unauthorized')
+        setModalMessage('You are not authorized to assign interviews')
+        setModalOpen(true)
+        setSubmitting(false)
+        return
+      }
       await axios.post(
         `${API_BASE_URL}/interview-schedules/`,
         {

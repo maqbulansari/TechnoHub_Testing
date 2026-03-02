@@ -39,7 +39,7 @@ const AdmissionTable = () => {
 
 
   const navigate = useNavigate();
-  const { API_BASE_URL, fetchTrainers, fetchAdmin, user } =
+  const { API_BASE_URL, fetchTrainers, fetchAdmin, user, hasRole, hasSubrole } =
     useContext(AuthContext);
 
   const trainerName = `${user?.first_name || ""} ${user?.last_name || ""}`.trim();
@@ -94,6 +94,13 @@ const AdmissionTable = () => {
 
     setCreating(true);
     try {
+      // Only admission managers or real admins may create group from all interviewees
+      if (!(hasRole && hasRole('ADMIN')) && !(hasSubrole && hasSubrole('ADMISSION_MANAGER'))) {
+        setModalMessage('Not authorized to perform this action')
+        setSubmitSuccess(true)
+        setCreating(false)
+        return
+      }
       const token = localStorage.getItem("accessToken");
 
       await axios.post(
@@ -130,6 +137,11 @@ const AdmissionTable = () => {
       )
     );
 
+    if (!(hasRole && hasRole('ADMIN')) && !(hasSubrole && hasSubrole('ADMISSION_MANAGER'))) {
+      // revert local optimistic update
+      setData((prev) => prev.map((item) => (item.id === row.id ? { ...item, interview_by: row.interview_by } : item)));
+      return
+    }
     try {
       await axios.put(
         `${API_BASE_URL}/Learner/${row.id}/update_selected/`,

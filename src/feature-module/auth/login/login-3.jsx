@@ -14,6 +14,7 @@ export default function LoginModal({ open, onClose, onForgot }) {
     userLoggedIN,
     responseSubrole,
     role,
+    hasRole,
     setLoginSuccess,
   } = useContext(AuthContext);
 
@@ -31,69 +32,69 @@ export default function LoginModal({ open, onClose, onForgot }) {
   const validateEmail = (value) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
-const handleLogin = async (e) => {
-  e.preventDefault();
-  setLoginError("");
-  setEmailError("");
-  setPasswordError("");
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setLoginError("");
+    setEmailError("");
+    setPasswordError("");
 
-  let valid = true;
+    let valid = true;
 
-  if (!email) {
-    setEmailError("Email is required");
-    valid = false;
-  } else if (!validateEmail(email)) {
-    setEmailError("Enter a valid email");
-    valid = false;
-  }
+    if (!email) {
+      setEmailError("Email is required");
+      valid = false;
+    } else if (!validateEmail(email)) {
+      setEmailError("Enter a valid email");
+      valid = false;
+    }
 
-  if (!password) {
-    setPasswordError("Password is required");
-    valid = false;
-  }
+    if (!password) {
+      setPasswordError("Password is required");
+      valid = false;
+    }
 
-  if (!valid) return;
+    if (!valid) return;
 
-  try {
-    setLoading(true);
+    try {
+      setLoading(true);
 
-  
-    const { subrole, role } = await LoginUser({ email, password });
 
-    setLoginSuccess(true); 
-    onClose(); 
+      const { subrole, role } = await LoginUser({ email, password });
 
- 
-    if (subrole === "SPONSOR") navigate("/Students_SponserDashboard");
-    else if (subrole === "STUDENT") navigate("/Students_batches");
-    else if (subrole === "TRAINER") navigate("/Trainer_batch");
-    else if (subrole === "CO_TRAINER") navigate("/Trainer_batch");
-    else if (subrole === "RECRUITER") navigate("/ReadyToRecruitDashboard");
-    else if (subrole === "INTERVIEWEE") navigate("/Interviewee");
-    else if (subrole === "BOOKHUB_MANAGER") navigate("/bookhub");
-    else if (subrole === "ADMISSION_MANAGER") navigate("/Admission_table");
-    else if (role === "ADMIN") navigate("/adminDashboard");
-    else navigate("/");
+      setLoginSuccess(true);
+      onClose();
 
-  } catch (err) {
-    console.log("Login failed");
-  } finally {
-    setLoading(false);
-  }
-};
+
+      if (subrole === "SPONSOR") navigate("/SponsorDashboard");
+      else if (subrole === "STUDENT") navigate("/Students_batches");
+      else if (subrole === "TRAINER") navigate("/Trainer_batch");
+      else if (subrole === "CO_TRAINER") navigate("/Trainer_batch");
+      else if (subrole === "RECRUITER") navigate("/ReadyToRecruitDashboard");
+      else if (subrole === "INTERVIEWEE") navigate("/Interviewee");
+      else if (subrole === "BOOKHUB_MANAGER") navigate("/bookhub");
+      else if (subrole === "ADMISSION_MANAGER") navigate("/Admission_table");
+      else if (hasRole("ADMIN")) navigate("/adminDashboard");
+      else navigate("/");
+
+    } catch (err) {
+      console.log("Login failed");
+    } finally {
+      setLoading(false);
+    }
+  };
 
 
 
   useEffect(() => {
- 
+
     if (!userLoggedIN) return;
 
     onClose();
- 
+
     // responseSubrole is an array, so get first element if it exists
     const subroleStr = Array.isArray(responseSubrole) ? responseSubrole[0] : responseSubrole;
-    
-    if (subroleStr === "SPONSOR") navigate("/Students_SponserDashboard");
+
+    if (subroleStr === "SPONSOR") navigate("/SponsorDashboard");
     else if (subroleStr === "STUDENT") navigate("/Students_profile");
     else if (subroleStr === "TRAINER") navigate("/Trainer_batch");
     else if (subroleStr === "CO_TRAINER") navigate("/Trainer_batch");
@@ -101,7 +102,7 @@ const handleLogin = async (e) => {
     else if (subroleStr === "INTERVIEWEE") navigate("/Interviewee");
     else if (subroleStr === "BOOKHUB_MANAGER") navigate("/bookhub");
     else if (subroleStr === "ADMISSION_MANAGER") navigate("/Admission_table");
-    else if (role === "ADMIN") navigate("/adminDashboard");
+    else if (hasRole("ADMIN")) navigate("/adminDashboard");
     else navigate("/");
   }, [userLoggedIN]);
 
@@ -209,7 +210,7 @@ const handleLogin = async (e) => {
                   onClick={onClose}
                   className="text-primary font-semibold"
                 >
-                  Create account
+                  Register account
                 </Link>
               </div>
             </div>

@@ -17,7 +17,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 
 export const RecruiterTable = () => {
   const { recruiterProfileDetails, FetchRecuiter, dataFetched, setDataFetched } = useContext(SponsorContext);
-  const { role, responseSubrole } = useContext(AuthContext);
+  const { role, responseSubrole, hasSubrole, hasRole } = useContext(AuthContext);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -84,7 +84,7 @@ export const RecruiterTable = () => {
       <h1 className="sponsornowHeading text-left">Recruiters</h1>
 
       {/* Filters */}
-      <div className="flex flex-col md:flex-row gap-4 mb-4 w-1/2">
+      <div className="flex flex-col md:flex-row gap-4 mb-4 lg:w-1/2">
         <Input
           placeholder="Search by name or company..."
           value={search}

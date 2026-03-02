@@ -135,12 +135,13 @@ const RecruitmentAdmin = () => {
     (s) => s.is_ready_for_recruitment && !s.is_hired
   );
 
+
   return (
     <div className="p-6 mt-16 space-y-8">
       {/* Recruitment Requests Table */}
       <div>
          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-4">
-                <h2 className="text-2xl font-semibold">Recruitment Requests</h2>  <Button variant="outline" onClick={() => navigate("/RecruitmentApprovalTable")}>
+                <h2 className="text-2xl text-nowrap font-semibold">Recruitment Requests</h2>  <Button variant="outline" onClick={() => navigate("/RecruitmentApprovalTable")}>
                   Students Status
                 </Button> </div>
         {/* <h2 className="text-2xl font-semibold mb-4">Recruitment Requests</h2> */}
@@ -162,7 +163,7 @@ const RecruitmentAdmin = () => {
                       {req.company_name}
                     </TableCell>
                     <TableCell>
-                      <Badge variant="secondary">{req.technology_name}</Badge>
+                      <Badge variant="outline">{req.technology_name}</Badge>
                     </TableCell>
                     <TableCell>{req.num_students || "—"}</TableCell>
                     <TableCell className="text-right">
@@ -186,7 +187,7 @@ const RecruitmentAdmin = () => {
 
       {/* Available Students Table */}
       <div>
-        <h2 className="text-2xl font-semibold mb-4">Available Students</h2>
+        <h2 className="text-2xl font-semibold text-nowrap mb-4">Available Students</h2>
         <div className="rounded-lg border bg-white shadow-sm overflow-auto">
           <Table>
             <TableHeader>
@@ -206,7 +207,7 @@ const RecruitmentAdmin = () => {
                     </TableCell>
                     <TableCell>
                       {s.batch ? (
-                        <Badge variant="outline">{s.batch}</Badge>
+                        <Badge variant="">{s.batch}</Badge>
                       ) : (
                         "—"
                       )}

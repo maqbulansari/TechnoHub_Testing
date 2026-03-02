@@ -38,7 +38,7 @@ import {
 import Loading from "@/Loading";
 
 export const RecruitmentDashboard = () => {
-  const { API_BASE_URL, role, responseSubrole } = useContext(AuthContext);
+  const { API_BASE_URL, role, responseSubrole, hasSubrole, hasRole } = useContext(AuthContext);
   const {
     readyForRecruitment,
     GET_READY_FOR_RECRUITMENT,

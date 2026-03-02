@@ -76,11 +76,11 @@ import { RecruiterHire } from "@/components/RecruitmentDashboard/RecruiterHire";
 import RecruitmentAssignment from "@/components/RecruitmentDashboard/RecruitmentAssignment";
 import RecruitmentApprovalTable from "@/components/RecruitmentDashboard/RecruitmentAdminAskStu";
 
-// Sponsor Components
 import { Students_SponserDashboard } from "@/components/Sponser_Dashboard/Students_SponserDashboard";
 import Sponsor_Profile from "@/components/Sponser_Dashboard/SponsorProfile";
 import { SponsorTable } from "@/components/Sponser_Dashboard/SponsorTable";
 import { SponsoredStudents } from "@/components/Sponser_Dashboard/SponsoredStudents";
+import SponsorMainDashboard from "@/components/Sponser_Dashboard/SponsorMainDashboard";
 
 // Interviewee Components
 import { Interviewee } from "@/components/Interview/Interviewee";
@@ -218,6 +218,7 @@ export default function ProtectedAppRouter() {
         }
       >
         <Route path="/Sponsor_Profile" element={<Sponsor_Profile />} />
+        <Route path="/SponsorDashboard" element={<SponsorMainDashboard />} />
         <Route
           path="/Students_SponserDashboard"
           element={<Students_SponserDashboard />}
@@ -243,11 +244,11 @@ export default function ProtectedAppRouter() {
       </Route>
 
       {/* ============================================
-          ADMISSION MANAGER ROUTES (allowedSubroles: ADMISSION_MANAGER)
+          ADMISSION MANAGER ROUTES (Admin OR ADMISSION_MANAGER)
           ============================================ */}
       <Route
         element={
-          <ProtectedRoute allowedSubroles={["ADMISSION_MANAGER"]}>
+          <ProtectedRoute allowedRoles={["ADMIN"]} allowedSubroles={["ADMISSION_MANAGER"]}>
             <Defaultlayout />
           </ProtectedRoute>
         }
@@ -272,11 +273,11 @@ export default function ProtectedAppRouter() {
       </Route>
 
       {/* ============================================
-          BOOKHUB MANAGER ROUTES (allowedSubroles: BOOKHUB_MANAGER)
+          BOOKHUB MANAGER ROUTES (Admin OR BOOKHUB_MANAGER)
           ============================================ */}
       <Route
         element={
-          <ProtectedRoute allowedSubroles={["BOOKHUB_MANAGER"]}>
+          <ProtectedRoute allowedRoles={["ADMIN"]} allowedSubroles={["BOOKHUB_MANAGER"]}>
             <Defaultlayout />
           </ProtectedRoute>
         }

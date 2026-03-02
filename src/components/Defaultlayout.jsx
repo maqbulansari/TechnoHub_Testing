@@ -95,11 +95,28 @@ const menuItems = (role) => ({
           ]
           : [
             { path: "/Sponsor_Profile", label: "Profile" },
-            { path: "/Students_SponserDashboard", label: "Dashboard" },
+            { path: "/SponsorDashboard", label: "Dashboard" },
+            { path: "/Students_SponserDashboard", label: "Sponsor Students" },
           ],
     },
   ],
   ADMIN: [
+    {
+      title: "Admin Tools",
+      key: "admin-tools",
+      icon: faUserShield,
+      items: [
+        { path: "/ManageRoles", label: "Manage Roles" },
+      ],
+    },
+  ],
+  COMMON: [
+    {
+      title: "Resources",
+      key: "resources",
+      icon: faBook,
+      items: [{ path: "/AllResources", label: "Resources" }],
+    },
   ],
   ALLTRAINER: [
     {
@@ -213,7 +230,7 @@ const menuItems = (role) => ({
 
 const Defaultlayout = () => {
   const navigate = useNavigate();
-  const { user, userLoggedIN, LogoutUser, API_BASE_URL, role: contextRole, responseSubrole } = useContext(AuthContext);
+  const { user, userLoggedIN, LogoutUser, API_BASE_URL, role: contextRole, responseSubrole, hasRole, hasSubrole } = useContext(AuthContext);
   const { isOnline } = useNetworkCheck();
   const [visible, setVisible] = useState(false);
   const [role, setRole] = useState("");
@@ -228,9 +245,11 @@ const Defaultlayout = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Get role/subrole from context first, then localStorage
+  // Compute role/subrole using AuthContext helpers; fall back to localStorage only when necessary
   useEffect(() => {
-    if (contextRole) {
+    if (hasRole && hasRole("ADMIN")) {
+      setRole("ADMIN");
+    } else if (contextRole) {
       setRole(contextRole);
     } else {
       const userRole = localStorage.getItem("role");
@@ -238,12 +257,22 @@ const Defaultlayout = () => {
     }
 
     if (responseSubrole && responseSubrole.length > 0) {
-      setSubrole(Array.isArray(responseSubrole) ? responseSubrole[0] : responseSubrole);
+      const raw = Array.isArray(responseSubrole) ? responseSubrole[0] : responseSubrole;
+      const normalized = String(raw).toUpperCase().replace(/\s+/g, "_").trim();
+      setSubrole(normalized);
+    } else if (hasSubrole && hasSubrole("BOOKHUB_MANAGER")) {
+      setSubrole("BOOKHUB_MANAGER");
     } else {
       const userSubrole = localStorage.getItem("subrole");
-      setSubrole(userSubrole || "");
+      // localStorage may contain comma-separated readable names; normalize first value
+      if (userSubrole) {
+        const first = userSubrole.split(",")[0];
+        setSubrole(String(first).toUpperCase().replace(/\s+/g, "_").trim());
+      } else {
+        setSubrole("");
+      }
     }
-  }, [userLoggedIN, contextRole, responseSubrole]);
+  }, [userLoggedIN, contextRole, responseSubrole, hasRole, hasSubrole]);
 
   const toggleSidebar = useCallback(() => setVisible((prev) => !prev), []);
   const handleLogout = useCallback(() => {
@@ -379,7 +408,7 @@ const Defaultlayout = () => {
             <div className="sidebar-content-wrapper bg-white" style={{ paddingBottom: '60px' }}>
               {renderMenuItems()}
 
-              {role === "ADMIN" && (
+              {hasRole && hasRole("ADMIN") && (
                 <Link
                   to={all_routes.register3}
                   className="dropdownBtn ml-"
@@ -437,30 +466,29 @@ const Defaultlayout = () => {
 
           {/* Logout Dialog Modal */}
           <Dialog open={logoutDialog} onOpenChange={setLogoutDialog}>
-            <DialogContent className="sm:max-w-md p-0 gap-0 overflow-hidden [&>button]:hidden rounded-xl">
+            <DialogContent className="sm:max-w-md max-w-[calc(100vw-2rem)] p-0 gap-0 overflow-hidden [&>button]:hidden rounded-xl">
 
               {/* Header */}
-              <DialogHeader className="px-5 pt-4 pb-4 space-y-1">
-                <DialogTitle className="text-xl pb-2 font-semibold ">
+              <DialogHeader className="px-4 sm:px-5 pt-4 sm:pt-5 pb-3 sm:pb-4 space-y-1">
+                <DialogTitle className="text-lg sm:text-xl pb-1 sm:pb-2 font-semibold">
                   Confirm Logout
                 </DialogTitle>
-                <DialogDescription className="text-sm pb-2 text-muted-foreground leading-relaxed">
-                  Are you sure you want to logout?
+                <DialogDescription className="text-sm pb-1 sm:pb-2 text-muted-foreground leading-relaxed">
+                  Are you sure you want to logout? You will need to sign in again to access your account.
                 </DialogDescription>
               </DialogHeader>
 
               {/* Footer Buttons */}
-              <DialogFooter className="px-5 pb-5 flex gap-3 justify-end bg-muted/10">
+              <DialogFooter className="px-4 sm:px-5 pb-4 sm:pb-5 flex flex-col-reverse sm:flex-row gap-2 sm:gap-3 justify-end bg-muted/10">
                 <Button
                   variant="ghost"
-                  className="flex-1 sm:flex-none border-1"
+                  className="w-full sm:w-auto border"
                   onClick={() => setLogoutDialog(false)}
                 >
                   Cancel
                 </Button>
                 <Button
-                  variant=""
-                  className="flex-1 sm:flex-none"
+                  className="w-full sm:w-auto"
                   onClick={() => {
                     setLogoutDialog(false);
                     handleLogout();

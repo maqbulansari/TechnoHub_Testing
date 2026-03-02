@@ -20,6 +20,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { AUTH_BASE_URL } from "@/environment";
+import { Pencil } from "lucide-react";
 
 export const AdminProfile = () => {
   const [admin, setAdmin] = useState(null);
@@ -191,7 +192,9 @@ export const AdminProfile = () => {
 
           {!editMode && (
             <Button onClick={() => setEditMode(true)}>
+                <Pencil className="h-4 w-2" />
               Edit Profile
+            
             </Button>
           )}
         </CardHeader>
@@ -233,7 +236,7 @@ export const AdminProfile = () => {
                 <div>
                   <Label>Mobile No</Label>
                   <Input {...register("mobile_no", {
-                    pattern: { value: /^[0-9]{10,15}$/, message: "Please enter a valid mobile number (10-15 digits)" }
+                    pattern: { value: /^[0-9]{10}$/, message: "Please enter a valid mobile number (10 digits)" }
                   })} />
                   {errors.mobile_no && <p className="text-red-500 text-xs mt-1">{errors.mobile_no.message}</p>}
                 </div>
@@ -346,25 +349,25 @@ export const AdminProfile = () => {
 
       {/* ERROR MODAL */}
       <Dialog open={errorModalOpen} onOpenChange={setErrorModalOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle className="">
-              Update Failed
-            </DialogTitle>
+        <DialogContent className="sm:max-w-md p-0 gap-0 overflow-hidden [&>button]:hidden rounded-xl">
+          <DialogHeader className="px-5 pt-4 pb-2 space-y-1">
+            <DialogTitle className="text-xl font-semibold">Update Failed</DialogTitle>
           </DialogHeader>
 
-          {Object.entries(apiErrors).map(([field, messages]) =>
-            messages.map((msg, i) => (
-              <p key={i} className="text-sm">
-                {msg}
-              </p>
-            ))
-          )}
+          <div className="px-5 pb-4 space-y-2">
+            {Object.entries(apiErrors).map(([field, msgs]) =>
+              Array.isArray(msgs)
+                ? msgs.map((msg, i) => (
+                  <p key={`${field}-${i}`} className="text-sm text-red-500">
+                    • {field === "user_profile" ? "Please upload a valid image file." : msg}
+                  </p>
+                ))
+                : <p key={field} className="text-sm text-red-500">• {msgs}</p>
+            )}
+          </div>
 
-          <DialogFooter>
-            <Button onClick={() => setErrorModalOpen(false)}>
-              Close
-            </Button>
+          <DialogFooter className="px-3 pb-3 bg-muted/30">
+            <Button onClick={() => setErrorModalOpen(false)}>Close</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

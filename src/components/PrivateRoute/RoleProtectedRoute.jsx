@@ -10,16 +10,17 @@ import { Forbidden } from '../Forbidden/Forbidden';
  */
 export const RoleProtectedRoute = ({ allowedRoles = [], children = null }) => {
   const accessToken = localStorage.getItem('accessToken') || '';
-  const userRole = localStorage.getItem('role') || '';
+  const { hasRole } = useContext(AuthContext);
 
   // If no token, redirect to login
   if (!accessToken) {
     return <Navigate to="/" replace />;
   }
 
-  // If allowedRoles is defined and not empty, check if user has required role
-  if (allowedRoles.length > 0 && !allowedRoles.includes(userRole)) {
-    return <Forbidden />;
+  // If allowedRoles is defined and not empty, check if user has any required role
+  if (allowedRoles.length > 0) {
+    const allowed = allowedRoles.some((r) => hasRole(r));
+    if (!allowed) return <Forbidden />;
   }
 
   return children ? children : <Outlet />;

@@ -23,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Pencil } from "lucide-react";
 
 const StudentsProfile = () => {
   const [student, setStudent] = useState(null);
@@ -163,6 +164,7 @@ const StudentsProfile = () => {
 
           {!editMode && (
             <Button className="mt-4 md:mt-0" onClick={() => setEditMode(true)}>
+               <Pencil className="h-4 w-2" />
               Edit Profile
             </Button>
           )}
@@ -377,7 +379,7 @@ const StudentsProfile = () => {
           <div className="px-5 pb-4 space-y-2">
             {Object.entries(apiErrors).map(([field, messages]) =>
               messages.map((msg, idx) => (
-                <p key={`${field}-${idx}`} className="text-sm ">
+                <p key={`${field}-${idx}`} className="text-sm text-red-500">
                   {field === "id_type"
                     ? "Please select a valid ID type."
                     : field === "user_profile"
