@@ -185,7 +185,7 @@ const AdminDashboard = () => {
   // Error State
   if (error) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <Card className="w-full max-w-md">
           <CardContent className="p-6 text-center space-y-4">
             <AlertCircle className="w-12 h-12 text-destructive mx-auto" />
@@ -232,12 +232,12 @@ const AdminDashboard = () => {
 
   // Summary Card Component
   const SummaryCard = ({ title, value, icon: Icon, trend }) => (
-    <Card className="       transition-all duration-300 border-border">
+    <Card className="transition-all duration-300 border-border">
       <CardContent className="p-6">
         <div className="flex items-center justify-between">
           <div className="space-y-1">
             <p className="text-sm font-medium text-muted-foreground">{title}</p>
-            <p className="text-3xl font-bold tracking-tight text-foreground">{value}</p>
+            <p className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">{value}</p>
             {trend && (
               <div className="flex items-center text-sm text-primary">
                 <TrendingUp className="w-4 h-4 mr-1" />
@@ -246,7 +246,7 @@ const AdminDashboard = () => {
             )}
           </div>
           <div className="p-3 rounded-xl bg-primary/10 grid place-items-center">
-            <Icon className="w-6 h-6 text-primary" />
+            <Icon className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
           </div>
 
         </div>
@@ -264,7 +264,7 @@ const AdminDashboard = () => {
     };
 
     return (
-      <div className="flex  items-center justify-between py-3 border-b border-border last:border-0">
+      <div className="flex items-center justify-between py-3 border-b border-border last:border-0">
         <div className="flex items-center gap-3">
           <div className="p-2 w-8 h-8 flex items-center justify-center rounded-lg bg-muted">
             <Icon className={`w-4 h-4 ${variantClasses[variant]}`} />
@@ -281,9 +281,9 @@ const AdminDashboard = () => {
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-popover text-popover-foreground p-3 rounded-lg  border border-border">
-          <p className="font-medium">{payload[0].payload.fullName || label}</p>
-          <p className="text-primary font-semibold">{payload[0].value} students</p>
+        <div className="bg-popover text-popover-foreground p-3 rounded-lg border border-border shadow-md">
+          <p className="font-medium text-sm sm:text-base">{payload[0].payload.fullName || label}</p>
+          <p className="text-primary font-semibold text-sm sm:text-base">{payload[0].value} students</p>
         </div>
       );
     }
@@ -303,7 +303,8 @@ const AdminDashboard = () => {
           y={0}
           textAnchor="end"
           fill="currentColor"
-          fontSize={12}
+          fontSize={10}
+          className="sm:text-xs"
         >
           <tspan x={-10} dy="0">
             {firstLine}
@@ -320,21 +321,21 @@ const AdminDashboard = () => {
 
 
   return (
-    <div className="min-h-screen bg-background p-6 lg:p-8 print:p-4">
-      <div className="max-w-7xl mx-auto space-y-8">
+    <div className="min-h-screen mt-7 bg-background p-4 sm:p-6 lg:p-8 print:p-4">
+      <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="space-y-1">
-            <h1 className="text-3xl font-bold tracking-tight text-foreground">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
               Dashboard Overview
             </h1>
-            <p className=" text-primary">
+            <p className="text-sm sm:text-base text-primary">
               Welcome back! Here's what's happening with your academy.
             </p>
           </div>
 
           {/* Export Buttons */}
-          <div className="flex items-center gap-2 print:hidden">
+          <div className="flex flex-wrap items-center gap-2 print:hidden">
             <Button
               variant="outline"
               size="sm"
@@ -348,13 +349,14 @@ const AdminDashboard = () => {
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button className="gap-2" disabled={exporting}>
+                <Button size="sm" className="gap-2" disabled={exporting}>
                   {exporting ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
                   ) : (
                     <Download className="w-4 h-4" />
                   )}
-                  Export All
+                  <span className="hidden xs:inline">Export All</span>
+                  <span className="inline xs:hidden">Export</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
@@ -376,9 +378,8 @@ const AdminDashboard = () => {
         </div>
 
         {/* Top Summary Cards */}
-        <div className="grid   grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <SummaryCard
-          
             title="Total Students"
             value={dashboardData.summary.students}
             icon={GraduationCap}
@@ -403,18 +404,18 @@ const AdminDashboard = () => {
         {/* Recruitment & Sponsorship Summary - Side by Side */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Recruitment Summary */}
-          <Card className="     transition-all duration-300">
+          <Card className="transition-all duration-300">
             <CardHeader className="pb-2">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-start sm:items-center justify-between gap-2">
                 <div>
                   <CardTitle className="text-lg font-semibold">Recruitment Summary</CardTitle>
-                  <CardDescription className="text-primary" >Hiring and placement overview</CardDescription>
+                  <CardDescription className="text-primary text-sm sm:text-base" >Hiring and placement overview</CardDescription>
                 </div>
                 <Badge variant="blue">Active</Badge>
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-3 gap-4 pt-2">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
                 <div className="text-center p-4 bg-muted rounded-xl">
                   <p className="text-2xl font-bold text-primary">
                     {dashboardData.recruitment_summary.total_recruitments}
@@ -456,12 +457,12 @@ const AdminDashboard = () => {
           </Card>
 
           {/* Sponsorship Summary */}
-          <Card className="  transition-all duration-300">
+          <Card className="transition-all duration-300">
             <CardHeader className="pb-2">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-start sm:items-center justify-between gap-2">
                 <div>
                   <CardTitle className="text-lg font-semibold">Sponsorship Summary</CardTitle>
-                  <CardDescription className="text-primary" >Financial support overview</CardDescription>
+                  <CardDescription className="text-primary text-sm sm:text-base" >Financial support overview</CardDescription>
                 </div>
                 <Badge variant="blue">
                   ₹
@@ -470,7 +471,7 @@ const AdminDashboard = () => {
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-3 gap-4 pt-2">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
                 <div className="text-center p-4 bg-muted rounded-xl">
                   <p className="text-2xl font-bold text-primary">
                     {dashboardData.sponsorship_summary.total_sponsored_students}
@@ -517,14 +518,14 @@ const AdminDashboard = () => {
         {/* Batch Strength & Assessment Summary - Side by Side */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
   {/* --- Batch Strength Chart --- */}
-  <Card className="border-none ring-1 ring-slate-200 dark:ring-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm transition-all duration-500 hover:shadow-xl hover:shadow-blue-500/10">
+  <Card className="border-none ring-1 ring-slate-200 dark:ring-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm transition-all duration-500 ">
       <CardHeader className="pb-2">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-start sm:items-center justify-between gap-2">
           <div className="space-y-1">
-            <CardTitle className="text-xl font-bold tracking-tight">
+            <CardTitle className="text-lg sm:text-xl font-bold tracking-tight">
               Batch Capacity
             </CardTitle>
-            <CardDescription className="flex items-center text-primary font-medium">
+            <CardDescription className="flex items-center text-primary font-medium text-xs sm:text-sm">
               <TrendingUp className="w-3 h-3 mr-1" />
               Live distribution across {dashboardData.summary.batches} batches
             </CardDescription>
@@ -536,7 +537,7 @@ const AdminDashboard = () => {
       </CardHeader>
 
       <CardContent>
-        <div className="h-80 w-full mt-4">
+        <div className="h-[250px] sm:h-80 w-full mt-4">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
               data={batchStrengthData}
@@ -562,8 +563,9 @@ const AdminDashboard = () => {
               <YAxis
                 dataKey="name"
                 type="category"
-                width={100}
-                tick={{ fontSize: 12, fontWeight: 500, fill: 'currentColor' }}
+                width={80}
+                className="sm:w-[100px]"
+                tick={{ fontSize: 11, fontWeight: 500, fill: 'currentColor' }}
                 axisLine={false}
                 tickLine={false}
               />
@@ -587,7 +589,7 @@ const AdminDashboard = () => {
                   dataKey="students" 
                   position="right" 
                   offset={12}
-                  className="fill-slate-700 dark:fill-slate-300 font-bold text-xs"
+                  className="fill-slate-700 dark:fill-slate-300 font-bold text-[10px] sm:text-xs"
                   formatter={(value) => `${value}`}
                 />
               </Bar>
@@ -598,12 +600,12 @@ const AdminDashboard = () => {
     </Card>
 
   {/* --- Assessment Summary --- */}
-  <Card className="border-none  ring-1 ring-slate-200 dark:ring-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm   transition-all duration-500">
+  <Card className="border-none ring-1 ring-slate-200 dark:ring-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm transition-all duration-500">
     <CardHeader className="pb-2">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-start sm:items-center justify-between gap-2">
         <div className="space-y-1">
-          <CardTitle className="text-xl font-bold tracking-tight">Assessment Funnel</CardTitle>
-          <CardDescription className="text-slate-500 font-medium">Evaluation lifecycle and approvals</CardDescription>
+          <CardTitle className="text-lg sm:text-xl font-bold tracking-tight">Assessment Funnel</CardTitle>
+          <CardDescription className="text-slate-500 font-medium text-primary sm:text-sm">Evaluation lifecycle and approvals</CardDescription>
         </div>
         <div className="flex -space-x-2">
           {/* Decorative avatars for 'Assessed' feel */}
@@ -613,15 +615,15 @@ const AdminDashboard = () => {
             </div>
           ))} */}
           <Badge variant={"blue"} >
-            +{dashboardData.assessment_summary.total_assessed_students}Assessed
+            {dashboardData.assessment_summary.total_assessed_students} Assessed
           </Badge>
         </div>
       </div>
     </CardHeader>
     
     <CardContent>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center mt-4">
-        <div className="h-56 relative flex items-center justify-center">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 items-center mt-4">
+        <div className="h-48 sm:h-56 relative flex items-center justify-center">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
@@ -641,7 +643,7 @@ const AdminDashboard = () => {
           </ResponsiveContainer>
           {/* Central Label */}
           <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-            <span className="text-3xl font-extrabold text-foreground">
+            <span className="text-2xl sm:text-3xl font-extrabold text-foreground">
               {dashboardData.assessment_summary.total_assessed_students}
             </span>
             <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">Total</span>
@@ -690,10 +692,10 @@ const AdminDashboard = () => {
           {/* Technology Student Count */}
           <Card className="lg:col-span-2 border-none ring-1 ring-slate-200 dark:ring-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm shadow-sm hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-500">
   <CardHeader>
-    <div className="flex items-center justify-between">
+    <div className="flex flex-wrap items-start sm:items-center justify-between gap-2">
       <div className="space-y-1">
-        <CardTitle className="text-xl font-bold tracking-tight">Technology Distribution</CardTitle>
-        <CardDescription className="text-primary font-medium flex items-center">
+        <CardTitle className="text-lg sm:text-xl font-bold tracking-tight">Technology Distribution</CardTitle>
+        <CardDescription className="text-primary font-medium flex items-center text-xs sm:text-sm">
           <BookOpen className="w-3 h-3 mr-1" />
           Student enrollment breakdown by stack
         </CardDescription>
@@ -705,7 +707,7 @@ const AdminDashboard = () => {
   </CardHeader>
   
   <CardContent>
-    <div className="h-[500px] w-full mt-4">
+    <div className="h-[350px] sm:h-[400px] lg:h-[500px] w-full mt-4">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart 
           data={technologyData} 
@@ -728,21 +730,21 @@ const AdminDashboard = () => {
           
           <XAxis
             dataKey="name"
-            tick={{ fontSize: 11, fontWeight: 500, fill: 'currentColor' }}
+            tick={{ fontSize: 10, fontWeight: 500, fill: 'currentColor' }}
             angle={-45}
             textAnchor="end"
             interval={0}
             height={80}
             axisLine={false}
             tickLine={false}
-            className="text-muted-foreground"
+            className="text-muted-foreground sm:text-xs"
           />
           
           <YAxis 
             axisLine={false} 
             tickLine={false} 
-            tick={{ fontSize: 12 }} 
-            className="text-muted-foreground" 
+            tick={{ fontSize: 11 }} 
+            className="text-muted-foreground sm:text-xs" 
           />
           
           <Tooltip 
@@ -754,16 +756,17 @@ const AdminDashboard = () => {
             dataKey="students" 
             fill="url(#techGradient)" 
             radius={[6, 6, 0, 0]}
-            barSize={40}
+            barSize={30}
             animationBegin={200}
             animationDuration={1200}
+            className="sm:bar-size-[40px]"
           >
             {/* Direct Value Labels on Top of Bars */}
             <LabelList 
               dataKey="students" 
               position="top" 
               offset={10} 
-              className="fill-foreground font-bold text-xs" 
+              className="fill-foreground font-bold text-[10px] sm:text-xs" 
             />
             
             {technologyData.map((entry, index) => (
@@ -782,63 +785,71 @@ const AdminDashboard = () => {
           {/* Gender Distribution & Admission */}
           <div className="space-y-6">
             {/* Gender Distribution */}
-            <Card className="  transition-all duration-300">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg font-semibold">Gender Distribution</CardTitle>
-                <CardDescription className="text-primary" >Student demographics</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="h-44">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={genderStudentData}
-                        cx="50%"
-                        cy="50%"
-                        outerRadius={55}
-                        dataKey="value"
-                        label={({ name, percent }) =>
-                          `${name} ${(percent * 100).toFixed(0)}%`
-                        }
-                        labelLine={false}
-                      >
-                        {/* Male */}
-                        <Cell fill="#2196F3" />
+            <Card className="transition-all duration-300 w-full">
+  <CardHeader className="pb-2">
+    <CardTitle className="text-base sm:text-lg lg:text-xl font-semibold">
+      Gender Distribution
+    </CardTitle>
+    <CardDescription className="text-primary text-xs sm:text-sm lg:text-base">
+      Student demographics
+    </CardDescription>
+  </CardHeader>
+  <CardContent>
+    {/* Increased and scaled heights for mobile, tablet, and desktop */}
+    <div className="h-48 sm:h-56 md:h-64 lg:h-72 w-full">
+      <ResponsiveContainer width="100%" height="100%">
+        <PieChart>
+          <Pie
+            data={genderStudentData}
+            cx="50%"
+            cy="50%"
+            // Changed from hardcoded 55 to a percentage so it scales with the container
+            outerRadius="75%"
+            dataKey="value"
+            label={({ name, percent }) =>
+              `${name} ${(percent * 100).toFixed(0)}%`
+            }
+            labelLine={false}
+            // Made the Recharts label text responsive
+            style={{ fontSize: "clamp(10px, 1.5vw, 14px)" }}
+          >
+            {/* Male */}
+            <Cell fill="#2196F3" />
+            {/* Female */}
+            <Cell fill="#DB2777" />
+          </Pie>
 
-                        {/* Female */}
-                        <Cell fill="#DB2777" />
-                      </Pie>
+          <Tooltip
+            contentStyle={{
+              backgroundColor: "hsl(var(--popover))",
+              border: "1px solid hsl(var(--border))",
+              borderRadius: "8px",
+              fontSize: "12px",
+            }}
+          />
+        </PieChart>
+      </ResponsiveContainer>
+    </div>
 
-                      <Tooltip
-                        contentStyle={{
-                          backgroundColor: "hsl(var(--popover))",
-                          border: "1px solid hsl(var(--border))",
-                          borderRadius: "8px",
-                        }}
-                      />
-                    </PieChart>
-
-                  </ResponsiveContainer>
-                </div>
-
-                <div className="flex justify-center gap-4 mt-4">
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-primary" />
-                    <span className="text-sm text-muted-foreground">Male</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-secondary" />
-                    <span className="text-sm text-muted-foreground">Female</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+    {/* Added flex-wrap and responsive gaps/text sizes for the legend */}
+    <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 mt-4 sm:mt-6">
+      <div className="flex items-center gap-2">
+        <div className="w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-primary" />
+        <span className="text-xs sm:text-sm font-medium text-muted-foreground">Male</span>
+      </div>
+      <div className="flex items-center gap-2">
+        <div className="w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-secondary" />
+        <span className="text-xs sm:text-sm font-medium text-muted-foreground">Female</span>
+      </div>
+    </div>
+  </CardContent>
+</Card>
 
             {/* Admission Summary */}
-            <Card className="  transition-all duration-300">
+            <Card className="transition-all duration-300">
               <CardHeader className="pb-2">
                 <CardTitle className="text-lg font-semibold">Admission Summary</CardTitle>
-                <CardDescription className="text-primary">Application status</CardDescription>
+                <CardDescription className="text-primary text-sm sm:text-base">Application status</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">

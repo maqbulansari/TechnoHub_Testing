@@ -38,7 +38,7 @@ const AttendenceSummary = () => {
   }, [batchId]);
 
   return (
-    <div className="p-6 max-w-5xl mx-auto space-y-6">
+    <div className="p-6 mt-4 max-w-5xl mx-auto space-y-6">
       {/* Header Section */}
       <div className="flex flex-col gap-1">
         <h1 className="text-3xl font-bold tracking-tight">Batch Performance</h1>

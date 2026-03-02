@@ -335,8 +335,11 @@ export const AllAssignments = () => {
   const [openModel,setOpenModel]=useState(false)
   const [modelMessage, setModelMessage]= useState("")
   const [attendenceSection,setAttendenceSection]=useState(false)
-
   const { batchId } = useParams();
+
+  const showAttendene = ()=>{
+    setAttendenceSection(!attendenceSection)
+  }
 
   useEffect(() => {
     fetchAssignments();
@@ -346,10 +349,11 @@ export const AllAssignments = () => {
   const postAttendence= async(e)=>{
     e.preventDefault()
 
-    const formattedStudents = Object.entries(attendence).map(([id, status]) => ({
-    student: parseInt(id), 
-    status: status
+    const formattedStudents = people.students.map((student) => ({
+    student: parseInt(student.id),
+    status: attendence[student.id] ? attendence[student.id] : "A"
   }));
+
     const payload = {
     batch: parseInt(batchId),
     date: date,
@@ -367,6 +371,8 @@ export const AllAssignments = () => {
 setModelMessage("Attendence marked successfully!")
 
 setOpenModel(true)
+    setAttendenceSection(false)
+
     } catch (error) {
 
         console.log(error.message)
@@ -768,9 +774,10 @@ setOpenModel(true)
         </div>
 
         {/* Students Section */}
-        <form onSubmit={postAttendence}>
+        { attendenceSection? <form onSubmit={postAttendence}>
           <div className="flex items-center justify-between pb-3 border-b-2">
             <h3 className="text-lg font-medium">Students</h3>
+            
             <div className="flex items-center gap-4">
               <input 
                 value={date} 
@@ -782,9 +789,14 @@ setOpenModel(true)
               <span className="text-sm text-muted-foreground">
                 {people.students_count} student{people.students_count !== 1 ? "s" : ""}
               </span>
+              
             </div>
+            
           </div>
-
+<button 
+               onClick={showAttendene}
+                className="bg-primary mb-5 mt-1 text-primary-foreground hover:opacity-90 font-medium rounded-md text-sm px-3 py-2 transition-all"
+              >Back</button>
           {people.students.length === 0 ? (
             <p className="text-sm text-muted-foreground py-6 text-center">
               No students enrolled yet
@@ -801,11 +813,11 @@ setOpenModel(true)
                   </div>
 
                   <Select
-                    value={attendence[s.id] || ""}
+                    value={attendence[s.id] || "A"}
                     onValueChange={(value) => {
   setAttendence((prev) => ({
     ...prev,
-    [s.id]: value 
+    [s.id]: value?value:"A"
   }));
 }}
                   >
@@ -854,7 +866,75 @@ setOpenModel(true)
             </Dialog>
 
 
-        </form>
+        </form>:
+        <div >
+          <div className="flex items-center justify-between pb-3 border-b-2">
+            <h3 className="text-lg font-medium">Students</h3>
+           
+            <div className="flex items-center gap-4">
+               
+              
+              <span className="text-sm text-muted-foreground">
+                {people.students_count} student{people.students_count !== 1 ? "s" : ""}
+              </span>
+            </div>
+          </div>
+           <button 
+               onClick={showAttendene}
+                className="bg-primary mt-1 mb-5 text-primary-foreground hover:opacity-90 font-medium rounded-md text-sm px-3 py-2 transition-all"
+              >
+                Take Attendance
+              </button>
+
+          {people.students.length === 0 ? (
+            <p className="text-sm text-muted-foreground py-6 text-center">
+              No students enrolled yet
+            </p>
+          ) : (
+            <ul className="divide-y">
+              {people.students.map((s) => (
+                <li key={s.id}  className="flex items-center gap-4 py-4">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium flex items-center gap-2">
+                      {s.name} {s.its_you && <span className="text-xs text-muted-foreground">(You)</span>}
+                    </p>
+                    <p className="text-xs text-muted-foreground truncate">{s.email}</p>
+                  </div>
+
+                  
+                </li>
+              ))}
+            </ul>
+          )}
+
+          {people.students.length > 0 && (
+            <div className="pt-3 flex justify-end">
+             
+            </div>
+          )}
+
+          
+<Dialog open={openModel} >
+                <DialogContent className="sm:max-w-md p-0 gap-0 overflow-hidden [&>button]:hidden rounded-xl">
+                    <DialogHeader className="px-5 pt-4 pb-4 space-y-1">
+                        <DialogTitle className="text-xl pb-2 font-semibold">
+                            {modelMessage === "Attendence marked successfully!" ? "Success" : "Error"}
+                        </DialogTitle>
+                        <DialogDescription className="text-sm pb-2 text-muted-foreground leading-relaxed">
+                            {modelMessage}
+
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter className="px-3 pb-3 bg-muted/30">
+                        <Button onClick={() => setOpenModel(false)} className="w-full sm:w-auto">
+                            Close
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+
+        </div>}
         
       </div>
     ) : (
