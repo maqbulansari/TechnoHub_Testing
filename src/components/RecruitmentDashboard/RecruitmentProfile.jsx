@@ -208,7 +208,7 @@ const RecruitmentProfile = () => {
                   <Label>Phone Number</Label>
                   <Input {...register("mobile_no", {
                     required: "Mobile number is required",
-                    pattern: { value: /^[0-9]{10,15}$/, message: "Please enter a valid mobile number (10-15 digits)" }
+                    pattern: { value: /^[0-9]{10}$/, message: "Please enter a valid mobile number (10 digits)" }
                   })} />
                   {errors.mobile_no && <p className="text-red-500 text-xs mt-1">{errors.mobile_no.message}</p>}
                 </div>
@@ -323,7 +323,7 @@ const RecruitmentProfile = () => {
 const Info = ({ label, value }) => (
   <div>
     <p className="text-sm text-slate-500">{label}</p>
-    <p className="font-medium capitalize">{value || "N/A"}</p>
+    <p className="font-medium">{value || "N/A"}</p>
   </div>
 );
 
