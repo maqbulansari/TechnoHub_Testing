@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { Pencil } from "lucide-react";
+import { Pencil, User } from "lucide-react";
 
 const AssessmentSelectedStudents = () => {
   const { API_BASE_URL, role, hasRole } = useContext(AuthContext);
@@ -122,7 +122,10 @@ const AssessmentSelectedStudents = () => {
             {filteredData.length ? (
               filteredData.map((student) => (
                 <TableRow key={student.student_id}>
-                  <TableCell className="capitalize font-medium">{student.student_name}</TableCell>
+                  <TableCell className="capitalize font-medium">
+                    <div className=" flex items-center">
+                    <User className=" h-4" />
+                    {student.student_name}</div></TableCell>
 
                   <TableCell className="flex border-none flex-wrap gap-1">
                     {student.trainers?.length ? (

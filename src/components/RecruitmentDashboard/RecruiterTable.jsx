@@ -13,11 +13,24 @@ import {
 } from "@/components/ui/table";
 
 import { Input } from "@/components/ui/input";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
+import { Mail, Phone, User } from "lucide-react";
 
 export const RecruiterTable = () => {
-  const { recruiterProfileDetails, FetchRecuiter, dataFetched, setDataFetched } = useContext(SponsorContext);
-  const { role, responseSubrole, hasSubrole, hasRole } = useContext(AuthContext);
+  const {
+    recruiterProfileDetails,
+    FetchRecuiter,
+    dataFetched,
+    setDataFetched,
+  } = useContext(SponsorContext);
+  const { role, responseSubrole, hasSubrole, hasRole } =
+    useContext(AuthContext);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -34,13 +47,18 @@ export const RecruiterTable = () => {
     let isMounted = true;
 
     // Only fetch if not already fetched
-    if ((responseSubrole?.includes("RECRUITER") || role === "RECRUITER" || role === "ADMIN") && !dataFetched?.recruiter) {
+    if (
+      (responseSubrole?.includes("RECRUITER") ||
+        role === "RECRUITER" ||
+        role === "ADMIN") &&
+      !dataFetched?.recruiter
+    ) {
       const fetchData = async () => {
         try {
           await FetchRecuiter();
           if (isMounted) {
             // Use functional update to avoid triggering effect again
-            setDataFetched(prev => ({ ...prev, recruiter: true }));
+            setDataFetched((prev) => ({ ...prev, recruiter: true }));
           }
         } catch (err) {
           if (isMounted) setError(err.message);
@@ -55,7 +73,9 @@ export const RecruiterTable = () => {
       setLoading(false);
     }
 
-    return () => { isMounted = false; };
+    return () => {
+      isMounted = false;
+    };
     // Only run once or when role/subrole changes
   }, [responseSubrole, role]);
 
@@ -65,7 +85,7 @@ export const RecruiterTable = () => {
       const fullName = `${r.first_name} ${r.last_name}`.toLowerCase();
       const matchesSearch =
         fullName.includes(search.toLowerCase()) ||
-        (r.company_name?.toLowerCase().includes(search.toLowerCase()));
+        r.company_name?.toLowerCase().includes(search.toLowerCase());
       const matchesGender = genderFilter === "all" || r.gender === genderFilter;
       return matchesSearch && matchesGender;
     });
@@ -73,11 +93,16 @@ export const RecruiterTable = () => {
 
   // Unique genders for filter
   const genders = useMemo(() => {
-    return [...new Set(recruiterProfiles.map(r => r.gender))].filter(Boolean);
+    return [...new Set(recruiterProfiles.map((r) => r.gender))].filter(Boolean);
   }, [recruiterProfiles]);
 
   if (loading) return <Loading />;
-  if (error) return <div className="text-center text-red-500 py-10">Error fetching data: {error}</div>;
+  if (error)
+    return (
+      <div className="text-center text-red-500 py-10">
+        Error fetching data: {error}
+      </div>
+    );
 
   return (
     <div className="p-6 mt-16 space-y-6">
@@ -99,14 +124,16 @@ export const RecruiterTable = () => {
           <SelectContent>
             <SelectItem value="all">All Genders</SelectItem>
             {genders.map((g) => (
-              <SelectItem key={g} value={g}>{g}</SelectItem>
+              <SelectItem key={g} value={g}>
+                {g}
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
       </div>
 
       {/* Table */}
-      <div className="rounded-lg bg-white shadow-sm max-h-[70vh] overflow-auto">
+      <div className="rounded-lg bg-white shadow-sm max-h-[70vh] overflow-auto no-scrollbar">
         <Table>
           <TableHeader>
             <TableRow>
@@ -128,11 +155,29 @@ export const RecruiterTable = () => {
                 })
                 .map((profile) => (
                   <TableRow key={`${profile.id}-${profile.email}`}>
-                    <TableCell className="capitalize">{profile.first_name} {profile.last_name}</TableCell>
-                    <TableCell className="capitalize">{profile.company_name}</TableCell>
-                    <TableCell>{profile.email}</TableCell>
+                    <TableCell className="capitalize">
+                      <div className=" flex items-center">
+                        <User className="h-4" />
+                        {`${profile.first_name} ${profile.last_name}` ||
+                          "N/A"}{" "}
+                      </div>
+                    </TableCell>
+                    <TableCell className="capitalize">
+                      {profile.company_name || "N/A"}
+                    </TableCell>
+                    <TableCell>
+                      <div className=" flex items-center">
+                        <Mail className="h-4" />
+                        {profile.email || "N/A"}
+                      </div>
+                    </TableCell>
                     <TableCell>{profile.gender || "N/A"}</TableCell>
-                    <TableCell>{profile.mobile_no}</TableCell>
+                    <TableCell>
+                      <div className=" flex items-center">
+                        <Phone className="h-4" />
+                        {profile.mobile_no || "N/A"}
+                      </div>
+                    </TableCell>
                   </TableRow>
                 ))
             ) : (
@@ -143,7 +188,6 @@ export const RecruiterTable = () => {
               </TableRow>
             )}
           </TableBody>
-
         </Table>
       </div>
     </div>

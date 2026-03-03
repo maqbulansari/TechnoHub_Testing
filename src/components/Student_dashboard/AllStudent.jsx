@@ -20,6 +20,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { email } from "zod";
+import { Mail, Phone, User } from "lucide-react";
 
 const AllStudent = () => {
   const [studentData, setStudentData] = useState([]);
@@ -40,7 +42,7 @@ const AllStudent = () => {
           `${API_BASE_URL}/Learner/interviewee_student/?selected_status=Y`,
           {
             headers: { Authorization: `Bearer ${token}` },
-          }
+          },
         );
         // const res = await axios.get(
         //   `${API_BASE_URL}/recruitment/requests/`,
@@ -49,7 +51,7 @@ const AllStudent = () => {
         //   }
         // );
         // console.log(res);
-        
+
         setStudentData(response.data);
       } catch (err) {
         setError(err.message);
@@ -119,31 +121,26 @@ const AllStudent = () => {
             {[...new Set(studentData.map((s) => s.batch))].map(
               (batch) =>
                 batch && (
-                  <SelectItem  key={batch} value={batch}>
+                  <SelectItem key={batch} value={batch}>
                     {batch}
                   </SelectItem>
-                )
+                ),
             )}
           </SelectContent>
         </Select>
 
-        <button 
-
-                className="bg-primary text-primary-foreground hover:opacity-90 font-small rounded-md text-sm px-3 py-2 transition-all"
-              >
-              Attendence
-              </button>
+        
       </div>
 
       {/* Table */}
-      <div className="rounded-lg border max-h-[70vh] bg-white shadow-sm overflow-auto">
+      <div className="rounded-lg max-h-[70vh] bg-white  no-scrollbar shadow-sm overflow-auto">
         <Table>
           <TableHeader>
-            <TableRow >
-              <TableHead >Name</TableHead>
+            <TableRow>
+              <TableHead>Name</TableHead>
               <TableHead>Email</TableHead>
-              <TableHead >Mobile</TableHead>
-              <TableHead >Gender</TableHead>
+              <TableHead>Mobile</TableHead>
+              <TableHead>Gender</TableHead>
               <TableHead>Batch</TableHead>
             </TableRow>
           </TableHeader>
@@ -152,13 +149,28 @@ const AllStudent = () => {
             {filteredStudents.length > 0 ? (
               filteredStudents.map((student) => (
                 <TableRow key={student.id || student.email}>
-                  <TableCell className="font-medium capitalize ">
-                    {student.name}
+                  <TableCell className="font-medium capitalize">
+                    <div className="flex items-center gap-3">
+                      <User className="h-4" />
+                      {student.name || "N/A"}
+                    </div>
                   </TableCell>
-                  <TableCell>{student.email}</TableCell>
-                  <TableCell>{student.mobile_no}</TableCell>
                   <TableCell>
-                    <Badge variant="outline">{student.gender}</Badge>
+                    <div className="flex items-center gap-3">
+                      <Mail className="h-4" />
+                      {student.email || "N/A"}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className=" flex items-center">
+                      <Phone className=" h-4" />
+                      {student.mobile_no || "N/A"}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="outline">
+                      {student.gender || "N/A"}
+ </Badge>
                   </TableCell>
                   <TableCell>
                     <Badge className="uppercase text-nowrap">

@@ -118,7 +118,7 @@ onClick={navigateToSummary}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-slate-500">
-                    {student.marked_by}
+                    {student.marked_by_name}
                   </TableCell>
                 </TableRow>
               ))

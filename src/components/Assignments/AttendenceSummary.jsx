@@ -47,7 +47,7 @@ const AttendenceSummary = () => {
 
       <Card className="shadow-md border-none bg-slate-50/50">
         <CardHeader className="pb-2">
-          <CardTitle className="text-lg font-semibold">Student Attendance Breakdown</CardTitle>
+          <CardTitle className="text- lg font-semibold">Student Attendance Breakdown</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="rounded-xl border bg-white overflow-hidden">
@@ -60,7 +60,7 @@ const AttendenceSummary = () => {
                 </TableRow>
               </TableHeader>
 
-              <TableBody>
+              <TableBody  >
                 {loading ? (
                   <TableRow><TableCell colSpan={3} className="text-center py-10">Loading results...</TableCell></TableRow>
                 ) : allStudent.length > 0 ? (
@@ -69,7 +69,7 @@ const AttendenceSummary = () => {
                     const isAtRisk = percentage < 75;
 
                     return (
-                      <TableRow key={student.id} className="hover:bg-slate-50 transition-colors group">
+                      <TableRow key={student.student_id} className="hover:bg-slate-50 transition-colors group">
                         <TableCell className="py-4">
                           <div className="flex flex-col">
                             <span className="font-semibold text-slate-700 capitalize">

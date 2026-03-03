@@ -37,6 +37,7 @@ export const AllBatches = () => {
 
   const navigate = useNavigate();
 
+
   useEffect(() => {
     const fetchBatches = async () => {
       const token = localStorage.getItem("accessToken");
@@ -78,6 +79,10 @@ export const AllBatches = () => {
   const handleEdit = (batchId) => {
     navigate(`/EditBatch/${batchId}`);
   };
+    const navigateToBatchAttendence = (id)=>{
+    navigate(`/BatchAttendence/${id}`)
+  }
+
 
   if (loading) return <Loading />;
   if (error)
@@ -131,6 +136,8 @@ export const AllBatches = () => {
             ))}
           </SelectContent>
         </Select>
+
+        
       </div>
 
       {/* Table */}
@@ -150,8 +157,9 @@ export const AllBatches = () => {
               <TableHead>Trainers</TableHead>
               <TableHead>Student Count</TableHead>
               <TableHead>Center</TableHead>
-              <TableHead>Actions</TableHead>
-            </TableRow>
+            <TableHead>Attendence Detail</TableHead>
+<TableHead>Actions</TableHead>
+ </TableRow>
           </TableHeader>
 
           <TableBody>
@@ -172,6 +180,13 @@ export const AllBatches = () => {
                   <TableCell>{batch.center}</TableCell>
                   <TableCell>
                     <Button
+                      
+                      onClick={() => navigateToBatchAttendence(batch.id)}
+                    >Attendence
+                    </Button>
+                  </TableCell>
+                  <TableCell>
+                    <Button
                       variant="ghost"
                       size="icon"
                       onClick={() => handleEdit(batch.batch_id)}
@@ -179,6 +194,7 @@ export const AllBatches = () => {
                       <Pencil className="h-6 w-6" />
                     </Button>
                   </TableCell>
+                  
                 </TableRow>
               ))
             ) : (

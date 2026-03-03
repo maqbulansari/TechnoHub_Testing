@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Mail, Phone, User } from "lucide-react";
 
 const AllIntervieweesInformation = () => {
   const { API_BASE_URL } = useContext(AuthContext);
@@ -124,10 +125,23 @@ const AllIntervieweesInformation = () => {
                 <TableRow key={i.id}>
                   <TableCell>{i.id}</TableCell>
                   <TableCell className="capitalize font-medium text-nowrap">
-                    {i.name}
+             <div className=" flex items-center">
+               <User className="h-4" />
+                    {i.name || "N/A"}
+                    </div>
                   </TableCell>
-                  <TableCell>{i.email}</TableCell>
-                  <TableCell>{i.mobile_no}</TableCell>
+                  <TableCell>
+                     <div className=" flex items-center">
+               <Mail className="h-4" />
+                    {i.email || "N/A"}
+                    </div>
+                    </TableCell>
+                  <TableCell>
+                    <div className=" flex items-center">
+               <Phone className="h-4" />
+                    {i.mobile_no || "N/A"}
+                    </div>
+                    </TableCell>
                   <TableCell>{i.subrole || "N/A"}</TableCell>
                   <TableCell className="uppercase">
                     {i.batch || "N/A"}

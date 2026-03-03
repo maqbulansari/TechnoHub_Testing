@@ -123,9 +123,9 @@ export const CreateBatches = () => {
                 end_date: data.end_date,
                 capacity: parseInt(data.capacity),
                 time_slot: data.time_slot,
-                fee: parseFloat(data.fee),
+                fee: data.fee,
                 status_id: parseInt(data.status_id),
-                technoLogies: selectedTechs,
+                technologies: selectedTechs,
                 trainer: selectedTrainers,
                 center: data.center,
             };
