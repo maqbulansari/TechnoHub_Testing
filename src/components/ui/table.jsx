@@ -1,9 +1,11 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
 
-const Table = React.forwardRef(({ className, ...props }, ref) => (
-  /* Added overflow-auto to enable scroll and no-scrollbar to hide the bar */
-  <div className="relative w-full overflow-auto no-scrollbar">
+const Table = React.forwardRef(({ className, wrapperClassName, ...props }, ref) => (
+  /* 1. Added a default max-h-[70vh] so the sticky header works out-of-the-box everywhere.
+    2. Added wrapperClassName so you can still override the height on specific pages if needed.
+  */
+  <div className={cn("relative w-full overflow-auto no-scrollbar max-h-[70vh]", wrapperClassName)}>
     <table
       ref={ref}
       className={cn("w-full caption-bottom text-sm", className)}
@@ -12,7 +14,6 @@ const Table = React.forwardRef(({ className, ...props }, ref) => (
   </div>
 ))
 Table.displayName = "Table"
-
 const TableHeader = React.forwardRef(({ className, ...props }, ref) => (
   <thead ref={ref} className={cn(className)} {...props} />
 ))
