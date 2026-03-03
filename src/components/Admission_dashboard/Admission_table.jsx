@@ -26,6 +26,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { Mail, Phone, User } from "lucide-react";
 
 const AdmissionTable = () => {
   const [data, setData] = useState([]);
@@ -256,7 +257,7 @@ const AdmissionTable = () => {
       />
 
       {/* Table */}
-      <div className="rounded-lg border max-h-[70vh] bg-white shadow-sm overflow-auto">
+      <div className="rounded-lg border max-h-[70vh] no-scrollbar bg-white shadow-sm overflow-auto">
         <Table>
           <TableHeader>
             <TableRow>
@@ -272,9 +273,25 @@ const AdmissionTable = () => {
             {filteredData.length ? (
               filteredData.map((row) => (
                 <TableRow key={row.id}>
-                  <TableCell className="font-medium">{row.name}</TableCell>
-                  <TableCell>{row.email}</TableCell>
-                  <TableCell>{row.mobile_no || "N/A"}</TableCell>
+                  <TableCell className="font-medium">
+                     <div className="flex items-center gap-1">
+                                          <User className="h-4" />
+                                          {row.name|| "N/A"}
+                                        </div>
+                    </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-1">
+                                          <Mail className="h-4" />
+                                          {row.email|| "N/A"}
+                                        </div>
+                   
+                    </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-1">
+                                          <Phone className="h-4" />
+                                          {row.mobile_no|| "N/A"}
+                                        </div>
+                    </TableCell>
                   <TableCell>
                     {row.interview_by ? (
                       <Badge className="text-nowrap">{row.interview_by}</Badge>

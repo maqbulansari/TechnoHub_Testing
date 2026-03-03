@@ -14,6 +14,7 @@ import {
 
 import { Input } from "@/components/ui/input";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { Mail, Phone, User } from "lucide-react";
 
 export const SponsorTable = () => {
   const { sponsorProfileDetails, FetchSponsor, dataFetched, setDataFetched } = useContext(SponsorContext);
@@ -101,7 +102,7 @@ export const SponsorTable = () => {
       </div>
 
       {/* Table */}
-      <div className="rounded-lg bg-white shadow-sm max-h-[70vh] overflow-auto">
+      <div className="rounded-lg bg-white shadow-sm max-h-[70vh] overflow-auto no-scrollbar">
         <Table>
           <TableHeader>
             <TableRow>
@@ -125,13 +126,31 @@ export const SponsorTable = () => {
                 })
                 .map((profile) => (
                   <TableRow key={profile.id}>
-                    <TableCell className="capitalize">{profile.first_name} {profile.last_name}</TableCell>
-                    <TableCell className="capitalize">{profile.company_name}</TableCell>
-                    <TableCell>{profile.email}</TableCell>
+                    <TableCell className="capitalize">
+                      <div className=" flex items-center">   
+                        <User className="h-4"/>       
+                                   { `${profile.first_name} ${profile.last_name}`|| "N/A"}
+                        </div>
+
+                      </TableCell>
+                    <TableCell className="capitalize">{profile.company_name || "N/A"}</TableCell>
+                    <TableCell>
+                      <div className=" flex items-center">   
+                        <Mail className="h-4" />       
+                                   {profile.email|| "N/A"}
+                        </div>
+
+                      </TableCell>
                     <TableCell>{profile.gender || "N/A"}</TableCell>
-                    <TableCell>{profile.mobile_no}</TableCell>
-                    <TableCell>₹ {profile.total_contribution}</TableCell>
-                    {/* <TableCell>{profile.contribution_type}</TableCell> */}
+                    <TableCell>
+                      <div className=" flex items-center">   
+                        <Phone className="h-4" />       
+                                   {profile.mobile_no|| "N/A"}
+                        </div>
+
+                      </TableCell>
+                    <TableCell>₹ {profile.total_contribution || "N/A" }</TableCell>
+                    {/* <TableCell>{profile.contribution_type || "N/A"}</TableCell> */}
                   </TableRow>
                 ))
             ) : (

@@ -37,7 +37,7 @@ export const img_path = '/';
 // export const AUTH_BASE_URL = "http://72.61.173.6:8086/auth";
 // export const TECHNO_BASE_URL = "http://72.61.173.6:8086/techno";
 
-// LG Technohub Production
+// LGS Technohub Production
 export const AUTH_BASE_URL = "https://api.lgstechnohub.in/auth";
 export const TECHNO_BASE_URL = "https://api.lgstechnohub.in/auth";
 

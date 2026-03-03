@@ -304,6 +304,8 @@ import RecruitmentAssignment from "@/components/RecruitmentDashboard/Recruitment
 import { AllResources } from "@/components/recource-menagement/AllResources";
 import { AUTH_BASE_URL } from "@/environment";
 import { ManageRoles } from "@/components/AdminDashboard/ManageRoles";
+import AttendenceSummary from "@/components/Assignments/AttendenceSummary";
+import BatchesAttendence from "@/components/Batches/BatchesAttendence";
 
 
 
@@ -447,6 +449,18 @@ const ALLRoutes = () => {
         {/* Common Protected Routes (All authenticated users) */}
         <Route path="/Notifications" element={<Notifications />} />
         <Route path="/bookhub/book/:bookId" element={<BookDetail />} />
+        <Route path="/adminDashboard" element={<AdminDashboard />} />
+        <Route path="/Admin_Profile" element={<AdminProfile />} />
+        <Route path="/AdminAccessManager" element={<AdminAccessManager />} />
+         <Route path="/bookhub/book/:bookId" element={<BookDetail />} />
+         <Route path="/bookhub/CreateBook" element={<CreateBook />} />
+         <Route path="/RecruitmentApprovalTable" element={<RecruitmentApprovalTable />} />
+         <Route path="/StuRecuitment" element={<StuRecuitment />} />
+         <Route path="/RecruiterHire" element={<RecruiterHire />} />
+         <Route path="/RecruitmentAssignment" element={<RecruitmentAssignment />} />
+         <Route path="/AllResorces" element={<AllResources />} />
+         <Route path="/ShowSummary/:batchId" element={<AttendenceSummary />} />
+         <Route path="/BatchAttendence/:batchId" element={<BatchesAttendence />} />
       </Route>
     </Route>
 

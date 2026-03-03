@@ -45,6 +45,7 @@ import {
   Tooltip,
   ResponsiveContainer,
   PieChart,
+  LabelList,
   Pie,
   Cell,
 } from 'recharts';
@@ -72,6 +73,7 @@ const AdminDashboard = () => {
       });
 
       setDashboardData(response.data);
+      console.log(response.data)
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to fetch dashboard data');
       console.error('Dashboard fetch error:', err);
@@ -183,7 +185,7 @@ const AdminDashboard = () => {
   // Error State
   if (error) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <Card className="w-full max-w-md">
           <CardContent className="p-6 text-center space-y-4">
             <AlertCircle className="w-12 h-12 text-destructive mx-auto" />
@@ -204,7 +206,7 @@ const AdminDashboard = () => {
   // Chart Data Transformations
   const batchStrengthData = Object.entries(dashboardData.batch_strength).map(
     ([name, value]) => ({
-      name: name.length > 15 ? name.substring(0, 15) + '...' : name,
+      name: name,
       fullName: name,
       students: value,
     })
@@ -230,12 +232,12 @@ const AdminDashboard = () => {
 
   // Summary Card Component
   const SummaryCard = ({ title, value, icon: Icon, trend }) => (
-    <Card className="shadow-sm transition-all duration-300 border-border">
+    <Card className="transition-all duration-300 border-border">
       <CardContent className="p-6">
         <div className="flex items-center justify-between">
           <div className="space-y-1">
             <p className="text-sm font-medium text-muted-foreground">{title}</p>
-            <p className="text-3xl font-bold tracking-tight text-foreground">{value}</p>
+            <p className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">{value}</p>
             {trend && (
               <div className="flex items-center text-sm text-primary">
                 <TrendingUp className="w-4 h-4 mr-1" />
@@ -244,7 +246,7 @@ const AdminDashboard = () => {
             )}
           </div>
           <div className="p-3 rounded-xl bg-primary/10 grid place-items-center">
-            <Icon className="w-6 h-6 text-primary" />
+            <Icon className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
           </div>
 
         </div>
@@ -279,9 +281,9 @@ const AdminDashboard = () => {
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-popover text-popover-foreground p-3 rounded-lg shadow-lg border border-border">
-          <p className="font-medium">{payload[0].payload.fullName || label}</p>
-          <p className="text-primary font-semibold">{payload[0].value} students</p>
+        <div className="bg-popover text-popover-foreground p-3 rounded-lg border border-border shadow-md">
+          <p className="font-medium text-sm sm:text-base">{payload[0].payload.fullName || label}</p>
+          <p className="text-primary font-semibold text-sm sm:text-base">{payload[0].value} students</p>
         </div>
       );
     }
@@ -301,7 +303,8 @@ const AdminDashboard = () => {
           y={0}
           textAnchor="end"
           fill="currentColor"
-          fontSize={12}
+          fontSize={10}
+          className="sm:text-xs"
         >
           <tspan x={-10} dy="0">
             {firstLine}
@@ -318,21 +321,21 @@ const AdminDashboard = () => {
 
 
   return (
-    <div className="min-h-screen bg-background p-6 lg:p-8 print:p-4">
-      <div className="max-w-7xl mx-auto space-y-8">
+    <div className="min-h-screen mt-7 bg-background p-4 sm:p-6 lg:p-8 print:p-4">
+      <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="space-y-1">
-            <h1 className="text-3xl font-bold tracking-tight text-foreground">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
               Dashboard Overview
             </h1>
-            <p className="text-muted-foreground">
+            <p className="text-sm sm:text-base text-primary">
               Welcome back! Here's what's happening with your academy.
             </p>
           </div>
 
           {/* Export Buttons */}
-          <div className="flex items-center gap-2 print:hidden">
+          <div className="flex flex-wrap items-center gap-2 print:hidden">
             <Button
               variant="outline"
               size="sm"
@@ -346,13 +349,14 @@ const AdminDashboard = () => {
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button className="gap-2" disabled={exporting}>
+                <Button size="sm" className="gap-2" disabled={exporting}>
                   {exporting ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
                   ) : (
                     <Download className="w-4 h-4" />
                   )}
-                  Export All
+                  <span className="hidden xs:inline">Export All</span>
+                  <span className="inline xs:hidden">Export</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
@@ -400,18 +404,18 @@ const AdminDashboard = () => {
         {/* Recruitment & Sponsorship Summary - Side by Side */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Recruitment Summary */}
-          <Card className="shadow-sm transition-all duration-300">
+          <Card className="transition-all duration-300">
             <CardHeader className="pb-2">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-start sm:items-center justify-between gap-2">
                 <div>
                   <CardTitle className="text-lg font-semibold">Recruitment Summary</CardTitle>
-                  <CardDescription>Hiring and placement overview</CardDescription>
+                  <CardDescription className="text-primary text-sm sm:text-base" >Hiring and placement overview</CardDescription>
                 </div>
-                <Badge variant="green">Active</Badge>
+                <Badge variant="blue">Active</Badge>
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-3 gap-4 pt-2">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
                 <div className="text-center p-4 bg-muted rounded-xl">
                   <p className="text-2xl font-bold text-primary">
                     {dashboardData.recruitment_summary.total_recruitments}
@@ -453,21 +457,21 @@ const AdminDashboard = () => {
           </Card>
 
           {/* Sponsorship Summary */}
-          <Card className="shadow-sm transition-all duration-300">
+          <Card className="transition-all duration-300">
             <CardHeader className="pb-2">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-start sm:items-center justify-between gap-2">
                 <div>
                   <CardTitle className="text-lg font-semibold">Sponsorship Summary</CardTitle>
-                  <CardDescription>Financial support overview</CardDescription>
+                  <CardDescription className="text-primary text-sm sm:text-base" >Financial support overview</CardDescription>
                 </div>
-                <Badge variant="green">
+                <Badge variant="blue">
                   ₹
                   {dashboardData.sponsorship_summary.total_sponsorship_amount.toLocaleString()}
                 </Badge>
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-3 gap-4 pt-2">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
                 <div className="text-center p-4 bg-muted rounded-xl">
                   <p className="text-2xl font-bold text-primary">
                     {dashboardData.sponsorship_summary.total_sponsored_students}
@@ -512,276 +516,340 @@ const AdminDashboard = () => {
         </div>
 
         {/* Batch Strength & Assessment Summary - Side by Side */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Batch Strength Chart */}
-          <Card className="shadow-sm transition-all duration-300">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="text-lg font-semibold">
-                    Batch Strength
-                  </CardTitle>
-                  <CardDescription>
-                    Students per batch distribution
-                  </CardDescription>
-                </div>
-                <Badge variant="outline">
-                  {dashboardData.summary.batches} Batches
-                </Badge>
-              </div>
-            </CardHeader>
-
-            <CardContent>
-              <div className="h-72 flex justify-start">
-                <div className="w-full h-80 ">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart
-                      data={batchStrengthData}
-                      layout="vertical"
-                      margin={{
-                        top: 20,
-                        right: 20,
-                        bottom: 20,
-                        left: 10,
-                      }}
-                      barCategoryGap="18%"
-                    >
-                      <CartesianGrid
-                        strokeDasharray="3 3"
-                        horizontal
-                        vertical={false}
-                        className="stroke-border"
-                      />
-
-                      <XAxis
-                        type="number"
-                        tick={{ fontSize: 12 }}
-                        className="text-muted-foreground"
-                      />
-
-                      <YAxis
-                        dataKey="name"
-                        type="category"
-                        width={90}
-                        tick={{
-                          fontSize: 12,
-                          dx: -6
-                        }}
-                        className="text-muted-foreground"
-                      />
-
-                      <Tooltip content={<CustomTooltip />} />
-
-                      <Bar
-                        dataKey="students"
-                        barSize={24}
-                        radius={[0, 6, 6, 0]}
-                      >
-                        {batchStrengthData.map((_, index) => (
-                          <Cell
-                            key={index}
-                            fill={[
-                              "#2196F3",
-                              "#2196F3",
-                              "#2196F3",
-                              "#2196F3",
-                              "#2196F3",
-                              "#2196F3",
-                              "#2196F3",
-                            ]
-                            [index % 7]}
-                          />
-                        ))}
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-            </CardContent>
-
-          </Card>
-
-
-
-          {/* Assessment Summary */}
-          <Card className="shadow-sm transition-all duration-300">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="text-lg font-semibold">Assessment Summary</CardTitle>
-                  <CardDescription>Student evaluation overview</CardDescription>
-                </div>
-                <Badge variant="outline">
-                  {dashboardData.assessment_summary.total_assessed_students} Assessed
-                </Badge>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="h-48">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={assessmentData}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={40}
-                        outerRadius={70}
-                        paddingAngle={5}
-                        dataKey="value"
-                      >
-                        <Cell fill="#22C55E" /> {/* Admin Selected - Green */}
-                        <Cell fill="#EF4444" /> {/* Admin Rejected - Red */}
-                        <Cell fill="#2196F3" /> {/* Pending Review - Amber */}
-                      </Pie>
-                      <Tooltip
-                        contentStyle={{
-                          backgroundColor: 'hsl(var(--popover))',
-                          border: '1px solid hsl(var(--border))',
-                          borderRadius: '8px',
-                        }}
-                      />
-
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
-                <div className="flex flex-col justify-center space-y-1">
-                  <StatItem
-                    icon={UserCheck}
-                    label="Trainer Selected"
-                    value={dashboardData.assessment_summary.trainer_selected}
-                    variant="default"
-                  />
-                  <StatItem
-                    icon={CheckCircle2}
-                    label="Admin Selected"
-                    value={dashboardData.assessment_summary.admin_selected}
-                    variant="success"
-                  />
-                  <StatItem
-                    icon={XCircle}
-                    label="Admin Rejected"
-                    value={dashboardData.assessment_summary.admin_rejected}
-                    variant="danger"
-                  />
-                  <StatItem
-                    icon={Clock}
-                    label="Pending Review"
-                    value={dashboardData.assessment_summary.pending_admin_review}
-                    variant="warning"
-                  />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+  {/* --- Batch Strength Chart --- */}
+  <Card className="border-none ring-1 ring-slate-200 dark:ring-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm transition-all duration-500 ">
+      <CardHeader className="pb-2">
+        <div className="flex flex-wrap items-start sm:items-center justify-between gap-2">
+          <div className="space-y-1">
+            <CardTitle className="text-lg sm:text-xl font-bold tracking-tight">
+              Batch Capacity
+            </CardTitle>
+            <CardDescription className="flex items-center text-primary font-medium text-xs sm:text-sm">
+              <TrendingUp className="w-3 h-3 mr-1" />
+              Live distribution across {dashboardData.summary.batches} batches
+            </CardDescription>
+          </div>
+          <Badge variant={"blue"}>
+            {dashboardData.summary.batches} Active
+          </Badge>
         </div>
+      </CardHeader>
+
+      <CardContent>
+        <div className="h-[250px] sm:h-80 w-full mt-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={batchStrengthData}
+              layout="vertical"
+              margin={{ top: 5, right: 40, left: 10, bottom: 5 }} // Increased right margin for labels
+            >
+              <defs>
+                <linearGradient id="barGradient" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.9} />
+                  <stop offset="100%" stopColor="#60a5fa" stopOpacity={1} />
+                </linearGradient>
+              </defs>
+              
+              <CartesianGrid 
+                strokeDasharray="3 3" 
+                horizontal={false} 
+                stroke="#e2e8f0" 
+                opacity={0.5} 
+              />
+              
+              <XAxis type="number" hide />
+              
+              <YAxis
+                dataKey="name"
+                type="category"
+                width={80}
+                className="sm:w-[100px]"
+                tick={{ fontSize: 11, fontWeight: 500, fill: 'currentColor' }}
+                axisLine={false}
+                tickLine={false}
+              />
+              
+              <Tooltip
+                cursor={{ fill: 'rgba(59, 130, 246, 0.05)' }}
+                content={<CustomTooltip />}
+              />
+              
+              <Bar
+                dataKey="students"
+                fill="url(#barGradient)"
+                barSize={20}
+                radius={[0, 10, 10, 0]}
+                animationDuration={1500}
+              >
+                {/* This LabelList shows the number of students 
+                  at the end of each bar 
+                */}
+                <LabelList 
+                  dataKey="students" 
+                  position="right" 
+                  offset={12}
+                  className="fill-slate-700 dark:fill-slate-300 font-bold text-[10px] sm:text-xs"
+                  formatter={(value) => `${value}`}
+                />
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </CardContent>
+    </Card>
+
+  {/* --- Assessment Summary --- */}
+  <Card className="border-none ring-1 ring-slate-200 dark:ring-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm transition-all duration-500">
+    <CardHeader className="pb-2">
+      <div className="flex flex-wrap items-start sm:items-center justify-between gap-2">
+        <div className="space-y-1">
+          <CardTitle className="text-lg sm:text-xl font-bold tracking-tight">Assessment Funnel</CardTitle>
+          <CardDescription className="text-slate-500 font-medium text-primary sm:text-sm">Evaluation lifecycle and approvals</CardDescription>
+        </div>
+        <div className="flex -space-x-2">
+          {/* Decorative avatars for 'Assessed' feel */}
+          {/* {[1, 2, 3].map((i) => (
+            <div key={i} className="w-7 h-7 rounded-full border-2 border-white bg-slate-200 flex items-center justify-center text-[10px] font-bold">
+              {String.fromCharCode(64 + i)}
+            </div>
+          ))} */}
+          <Badge variant={"blue"} >
+            {dashboardData.assessment_summary.total_assessed_students} Assessed
+          </Badge>
+        </div>
+      </div>
+    </CardHeader>
+    
+    <CardContent>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 items-center mt-4">
+        <div className="h-48 sm:h-56 relative flex items-center justify-center">
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={assessmentData}
+                innerRadius={65}
+                outerRadius={85}
+                paddingAngle={8}
+                dataKey="value"
+                stroke="none"
+              >
+                <Cell fill="#22C55E" /> {/* Green */}
+                <Cell fill="#EF4444" /> {/* Red */}
+                <Cell fill="#3b82f6" /> {/* Blue */}
+              </Pie>
+              <Tooltip />
+            </PieChart>
+          </ResponsiveContainer>
+          {/* Central Label */}
+          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+            <span className="text-2xl sm:text-3xl font-extrabold text-foreground">
+              {dashboardData.assessment_summary.total_assessed_students}
+            </span>
+            <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">Total</span>
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <StatItem
+            icon={UserCheck}
+            label="Trainer Pool"
+            value={dashboardData.assessment_summary.trainer_selected}
+            variant="default"
+          />
+          <StatItem
+            icon={CheckCircle2}
+            label="Admin Approved"
+            value={dashboardData.assessment_summary.admin_selected}
+            variant="success"
+          />
+          <StatItem
+            icon={XCircle}
+            label="Declined"
+            value={dashboardData.assessment_summary.admin_rejected}
+            variant="danger"
+          />
+          <div className="pt-2 border-t mt-2">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground flex items-center">
+                <Clock className="w-3 h-3 mr-1 text-amber-500" /> Pending
+              </span>
+              <span className="font-bold">{dashboardData.assessment_summary.pending_admin_review}</span>
+            </div>
+            <Progress 
+              value={(dashboardData.assessment_summary.admin_selected / dashboardData.assessment_summary.total_assessed_students) * 100} 
+              className="h-1.5 mt-2 bg-slate-100"
+            />
+          </div>
+        </div>
+      </div>
+    </CardContent>
+  </Card>
+</div>
 
         {/* Technology Distribution, Gender & Admission Summary */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Technology Student Count */}
-          <Card className="lg:col-span-2 shadow-sm transition-all duration-300">
-            <CardHeader>
-              <CardTitle className="text-lg font-semibold">Technology Distribution</CardTitle>
-              <CardDescription>Students enrolled per technology</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="h-[620px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={technologyData}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-border" />
-                    <XAxis
-                      dataKey="name"
-                      tick={{ fontSize: 12 }}
-                      angle={-45}
-                      textAnchor="end"
-                      height={60}
-                      className="text-muted-foreground"
-                    />
-                    <YAxis height={100} className="text-muted-foreground" />
-                    <Tooltip content={<CustomTooltip />} />
-                    <Bar dataKey="students" radius={[4, 4, 0, 0]}>
-                      {technologyData.map((_, index) => (
-                        <Cell
-                          key={index}
-                          fill={[
-                            '#2196F3', 
-                            '#2196F3', 
-                            '#2196F3', 
-                            '#2196F3', 
-                            '#2196F3', 
-                            '#2196F3',
-                            '#2196F3', 
-                          ][index % 7]}
-                        />
-                      ))}
-                    </Bar>
+          <Card className="lg:col-span-2 border-none ring-1 ring-slate-200 dark:ring-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm shadow-sm hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-500">
+  <CardHeader>
+    <div className="flex flex-wrap items-start sm:items-center justify-between gap-2">
+      <div className="space-y-1">
+        <CardTitle className="text-lg sm:text-xl font-bold tracking-tight">Technology Distribution</CardTitle>
+        <CardDescription className="text-primary font-medium flex items-center text-xs sm:text-sm">
+          <BookOpen className="w-3 h-3 mr-1" />
+          Student enrollment breakdown by stack
+        </CardDescription>
+      </div>
+      <Badge variant="outline" className="border-primary/20 text-primary bg-primary/5">
+        {technologyData.length} Technologies
+      </Badge>
+    </div>
+  </CardHeader>
+  
+  <CardContent>
+    <div className="h-[350px] sm:h-[400px] lg:h-[500px] w-full mt-4">
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart 
+          data={technologyData} 
+          margin={{ top: 20, right: 30, left: 0, bottom: 60 }}
+        >
+          {/* Custom Gradient for Bars */}
+          <defs>
+            <linearGradient id="techGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#3b82f6" stopOpacity={1} />
+              <stop offset="100%" stopColor="#2563eb" stopOpacity={0.6} />
+            </linearGradient>
+          </defs>
 
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </CardContent>
-          </Card>
+          <CartesianGrid 
+            strokeDasharray="3 3" 
+            vertical={false} 
+            stroke="#e2e8f0" 
+            opacity={0.4} 
+          />
+          
+          <XAxis
+            dataKey="name"
+            tick={{ fontSize: 10, fontWeight: 500, fill: 'currentColor' }}
+            angle={-45}
+            textAnchor="end"
+            interval={0}
+            height={80}
+            axisLine={false}
+            tickLine={false}
+            className="text-muted-foreground sm:text-xs"
+          />
+          
+          <YAxis 
+            axisLine={false} 
+            tickLine={false} 
+            tick={{ fontSize: 11 }} 
+            className="text-muted-foreground sm:text-xs" 
+          />
+          
+          <Tooltip 
+            cursor={{ fill: 'rgba(59, 130, 246, 0.05)', radius: 4 }}
+            content={<CustomTooltip />} 
+          />
+          
+          <Bar 
+            dataKey="students" 
+            fill="url(#techGradient)" 
+            radius={[6, 6, 0, 0]}
+            barSize={30}
+            animationBegin={200}
+            animationDuration={1200}
+            className="sm:bar-size-[40px]"
+          >
+            {/* Direct Value Labels on Top of Bars */}
+            <LabelList 
+              dataKey="students" 
+              position="top" 
+              offset={10} 
+              className="fill-foreground font-bold text-[10px] sm:text-xs" 
+            />
+            
+            {technologyData.map((entry, index) => (
+              <Cell 
+                key={`cell-${index}`} 
+                className="transition-all duration-300 hover:opacity-80"
+              />
+            ))}
+          </Bar>
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
+  </CardContent>
+</Card>
 
           {/* Gender Distribution & Admission */}
           <div className="space-y-6">
             {/* Gender Distribution */}
-            <Card className="shadow-sm transition-all duration-300">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg font-semibold">Gender Distribution</CardTitle>
-                <CardDescription>Student demographics</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="h-44">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={genderStudentData}
-                        cx="50%"
-                        cy="50%"
-                        outerRadius={55}
-                        dataKey="value"
-                        label={({ name, percent }) =>
-                          `${name} ${(percent * 100).toFixed(0)}%`
-                        }
-                        labelLine={false}
-                      >
-                        {/* Male */}
-                        <Cell fill="#2196F3" />
+            <Card className="transition-all duration-300 w-full">
+  <CardHeader className="pb-2">
+    <CardTitle className="text-base sm:text-lg lg:text-xl font-semibold">
+      Gender Distribution
+    </CardTitle>
+    <CardDescription className="text-primary text-xs sm:text-sm lg:text-base">
+      Student demographics
+    </CardDescription>
+  </CardHeader>
+  <CardContent>
+    {/* Increased and scaled heights for mobile, tablet, and desktop */}
+    <div className="h-48 sm:h-56 md:h-64 lg:h-72 w-full">
+      <ResponsiveContainer width="100%" height="100%">
+        <PieChart>
+          <Pie
+            data={genderStudentData}
+            cx="50%"
+            cy="50%"
+            // Changed from hardcoded 55 to a percentage so it scales with the container
+            outerRadius="75%"
+            dataKey="value"
+            label={({ name, percent }) =>
+              `${name} ${(percent * 100).toFixed(0)}%`
+            }
+            labelLine={false}
+            // Made the Recharts label text responsive
+            style={{ fontSize: "clamp(10px, 1.5vw, 14px)" }}
+          >
+            {/* Male */}
+            <Cell fill="#2196F3" />
+            {/* Female */}
+            <Cell fill="#DB2777" />
+          </Pie>
 
-                        {/* Female */}
-                        <Cell fill="#DB2777" />
-                      </Pie>
+          <Tooltip
+            contentStyle={{
+              backgroundColor: "hsl(var(--popover))",
+              border: "1px solid hsl(var(--border))",
+              borderRadius: "8px",
+              fontSize: "12px",
+            }}
+          />
+        </PieChart>
+      </ResponsiveContainer>
+    </div>
 
-                      <Tooltip
-                        contentStyle={{
-                          backgroundColor: "hsl(var(--popover))",
-                          border: "1px solid hsl(var(--border))",
-                          borderRadius: "8px",
-                        }}
-                      />
-                    </PieChart>
-
-                  </ResponsiveContainer>
-                </div>
-
-                <div className="flex justify-center gap-4 mt-4">
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-primary" />
-                    <span className="text-sm text-muted-foreground">Male</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-secondary" />
-                    <span className="text-sm text-muted-foreground">Female</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+    {/* Added flex-wrap and responsive gaps/text sizes for the legend */}
+    <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 mt-4 sm:mt-6">
+      <div className="flex items-center gap-2">
+        <div className="w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-primary" />
+        <span className="text-xs sm:text-sm font-medium text-muted-foreground">Male</span>
+      </div>
+      <div className="flex items-center gap-2">
+        <div className="w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-secondary" />
+        <span className="text-xs sm:text-sm font-medium text-muted-foreground">Female</span>
+      </div>
+    </div>
+  </CardContent>
+</Card>
 
             {/* Admission Summary */}
-            <Card className="shadow-sm transition-all duration-300">
+            <Card className="transition-all duration-300">
               <CardHeader className="pb-2">
                 <CardTitle className="text-lg font-semibold">Admission Summary</CardTitle>
-                <CardDescription>Application status</CardDescription>
+                <CardDescription className="text-primary text-sm sm:text-base">Application status</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">

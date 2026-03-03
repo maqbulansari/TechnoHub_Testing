@@ -22,6 +22,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../ui/button";
+import { Mail, Phone, User } from "lucide-react";
 
 const AllTrainer = () => {
   const { API_BASE_URL } = useContext(AuthContext);
@@ -132,7 +133,7 @@ const AllTrainer = () => {
       </div>
 
       {/* Table */}
-      <div className="rounded-lg border max-h-[70vh] bg-white shadow-sm overflow-auto">
+      <div className="rounded-lg border  max-h-[70vh] bg-white shadow-sm overflow-auto no-scrollbar">
         <Table>
           <TableHeader>
             <TableRow>
@@ -151,7 +152,10 @@ const AllTrainer = () => {
               filteredTrainers.map((trainer) => (
                 <TableRow key={trainer.id}>
                   <TableCell className="font-medium capitalize text-nowrap">
-                    {trainer.first_name} {trainer.last_name}
+                    <div className="flex items-center gap-1">
+                      <User className="h-4" />
+                      {`${trainer.first_name} ${trainer.last_name }`|| "N/A"}
+                    </div>
                   </TableCell>
                   <TableCell className="capitalize text-nowrap">
                     {trainer.job_title}
@@ -168,8 +172,16 @@ const AllTrainer = () => {
                       "N/A"
                     )}
                   </TableCell>
-                  <TableCell>{trainer.email}</TableCell>
-                  <TableCell>{trainer.mobile_no || "N/A"}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-1">
+                      <Mail className="h-4" />
+                      <span>                      {trainer.email|| "N/A"}</span>
+                    </div></TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      <Phone className="h-4" />
+                      <span>{trainer.mobile_no|| "N/A"}</span>
+                    </div></TableCell>
                   <TableCell>
                     <Badge variant="outline">
                       {trainer.gender || "N/A"}
