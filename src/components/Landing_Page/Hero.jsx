@@ -23,7 +23,7 @@ export default function Hero() {
   const images = [image5, image2, image1, image4, image3];
   const [current, setCurrent] = useState(0);
   const [openCenters, setOpenCenters] = useState(false);
-   const navigate = useNavigate();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -61,10 +61,10 @@ export default function Hero() {
               <br />
               <span className="not-italic text-xs block mt-2">
                 "A good word is like a good tree — firmly rooted, reaching the skies."  —  Surah Ibrahim (14:24)
-              </span> 
+              </span>
             </p>
 
-              <div className="flex flex-col sm:flex-row gap-4 mt-10">
+            <div className="flex flex-col sm:flex-row gap-4 mt-10">
               <AnimatedButton
                 onClick={() => navigate("/Courses")}
                 className="px-7 py-3 bg-primary text-white rounded-full font-semibold"
@@ -102,18 +102,19 @@ export default function Hero() {
       <Dialog open={openCenters} onOpenChange={setOpenCenters}>
         <DialogContent
           className="
-            w-[95%] sm:w-[85%] md:w-[65%] lg:w-[45%]
-            max-h-[85vh]
-            rounded-3xl
-            p-0
-            overflow-hidden
-            flex flex-col
-            bg-white
-            [&>button]:hidden
-          "
+    w-[95%] sm:w-[85%] md:w-[65%] lg:w-[45%]
+    max-h-[85vh]
+    h-[85vh]
+    rounded-3xl
+    p-0
+    overflow-hidden
+    flex flex-col
+    bg-white
+    [&>button]:hidden
+  "
         >
           {/* Header */}
-          <DialogHeader className="px-6 pt-6 pb-4 text-center border-b">
+          <DialogHeader className="px-6 pt-6 pb-2 text-center border-b">
             <DialogTitle className="text-xl text-center sm:text-2xl font-bold">
               Our Training Centers
             </DialogTitle>

@@ -200,7 +200,7 @@ export default function LoginModal({ open, onClose, onForgot }) {
                 <button
                   type="button"
                   onClick={onForgot} // parent handles switching modals
-                  className="text-muted-foreground hover:text-primary"
+                  className="text-nowrap text-muted-foreground hover:text-primary"
                 >
                   Forgot password?
                 </button>
@@ -208,7 +208,7 @@ export default function LoginModal({ open, onClose, onForgot }) {
                 <Link
                   to={routes.register3}
                   onClick={onClose}
-                  className="text-primary font-semibold"
+                  className="text-nowrap text-primary font-semibold"
                 >
                   Register account
                 </Link>

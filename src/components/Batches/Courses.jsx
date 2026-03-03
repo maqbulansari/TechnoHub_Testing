@@ -165,7 +165,7 @@ const Courses = () => {
   };
 
   return (
-    <section className="bg-slate-50 py-12 sm:py-16 md:py-20 lg:py-24">
+    <section className="bg-slate-50 py-24">
       <div className="w-full max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
         {/* Page Header */}
         <div className="mb-8 sm:mb-10 lg:mb-12">
