@@ -268,7 +268,7 @@ const CreatePollDialog = ({ open, onOpenChange, books, onSubmit, loading, getBoo
             )}
 
             <div className="relative">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+    
               <Input
                 placeholder="Search books..."
                 value={searchQuery}
@@ -291,7 +291,7 @@ const CreatePollDialog = ({ open, onOpenChange, books, onSubmit, loading, getBoo
                       }`}
                       onClick={() => toggleBook(book.id)}
                     >
-                      <div className={`h-4 w-4 rounded border flex items-center justify-center shrink-0 ${
+                      <div className={`h-4 w-1 rounded border flex items-center justify-center shrink-0 ${
                         selected ? 'bg-primary border-primary' : 'border-muted-foreground/30'
                       }`}>
                         {selected && <Check className="h-2.5 w-2.5 text-white" />}
@@ -717,7 +717,7 @@ export const BookhubHome = () => {
         {currentBook && (
           <section>
             <div className="flex items-center gap-3 mb-4">
-              <Badge className="bg-primary text-primary-foreground text-xs px-2.5 py-1">
+              <Badge className="bg-primary text-nowrap text-primary-foreground text-xs px-2.5 py-1">
                 <Clock className="h-3 w-3 mr-1.5" />Currently Reading
               </Badge>
               <span className="text-sm text-muted-foreground">
@@ -748,11 +748,11 @@ export const BookhubHome = () => {
                     </div>
                     <p className="text-sm text-muted-foreground line-clamp-3">{currentBook.short_desc}</p>
                     <div className="flex flex-wrap items-center gap-2">
-                      <Badge variant="primary" className="text-xs px-2 py-0.5 gap-1">
+                      <Badge variant="primary" className="text-xs text-nowrap px-2 py-0.5 gap-1">
                         <CalendarDays className="h-3 w-3" />{currentBook.discussion_month} {currentBook.discussion_year}
                       </Badge>
                       {currentBook.total_chapters && (
-                        <Badge variant="primary" className="text-xs px-2 py-0.5 gap-1">
+                        <Badge variant="primary" className="text-xs text-nowrap px-2 py-0.5 gap-1">
                           <BookOpen className="h-3 w-3" />{currentBook.total_chapters} Chapters
                         </Badge>
                       )}
