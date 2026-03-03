@@ -229,7 +229,7 @@ const StudentsProfile = () => {
                   <Input
                     {...register("mobile_no", {
                       required: "Mobile number is required",
-                      pattern: { value: /^[0-9]{10,15}$/, message: "Please enter a valid mobile number (10-15 digits)" }
+                      pattern: { value: /^[0-9]{10}$/, message: "Please enter a valid mobile number (10 digits)" }
                     })}
                   />
                   {errors.mobile_no && (

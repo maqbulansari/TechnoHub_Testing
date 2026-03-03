@@ -111,7 +111,7 @@ const RecruitmentAdmin = () => {
     try {
       await axios.post(
         `${API_BASE_URL}/recruitment/send_confirmation_request/`,
-        { student: studentId, recruiter: selectedRequest.id, message },
+        { student: studentId, recruiter: selectedRequest.recruiter_id, message },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setDialogOpen(false);
