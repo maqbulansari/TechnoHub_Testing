@@ -102,14 +102,14 @@ const menuItems = (role) => ({
     },
   ],
   ADMIN: [
-    {
-      title: "Admin Tools",
-      key: "admin-tools",
-      icon: faUserShield,
-      items: [
-        { path: "/ManageRoles", label: "Manage Roles" },
-      ],
-    },
+    // {
+    //   title: "Admin Tools",
+    //   key: "admin-tools",
+    //   icon: faUserShield,
+    //   items: [
+    //     { path: "/ManageRoles", label: "Manage Roles" },
+    //   ],
+    // },
   ],
   COMMON: [
     {
