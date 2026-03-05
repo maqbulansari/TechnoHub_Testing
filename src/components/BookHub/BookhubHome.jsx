@@ -636,14 +636,14 @@ export const BookhubHome = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-      <CreatePollDialog
+      {/* <CreatePollDialog
         open={createPollOpen}
         onOpenChange={setCreatePollOpen}
         books={books}
         onSubmit={handleCreatePoll}
         loading={createPollLoading}
         getBookCoverUrl={getBookCoverUrl}
-      />
+      /> */}
 
       <main className="container mx-auto px-4 py-8 space-y-8">
 
@@ -655,16 +655,16 @@ export const BookhubHome = () => {
                 <Vote className="h-5 w-5 text-primary" />
                 <h2 className="text-lg font-bold">Polls</h2>
               </div>
-              {isAdmin && (
+              {/* {isAdmin && (
                 <Button size="sm" variant="outline" className="gap-1.5 text-xs" onClick={() => setCreatePollOpen(true)}>
                   <Plus className="h-3.5 w-3.5" />
                   New Poll
                 </Button>
-              )}
+              )} */}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {activePolls.map(poll => (
+              {/* {activePolls.map(poll => (
                 <PollCard key={poll.id} poll={poll} onVote={handleVote} votingLoading={votingLoading}
                   isAdmin={isAdmin} onActivate={handleActivatePoll} activatingId={activatingId}
                   getBookCoverUrl={getBookCoverUrl} books={books} />
@@ -673,13 +673,13 @@ export const BookhubHome = () => {
                 <PollCard key={poll.id} poll={poll} onVote={handleVote} votingLoading={votingLoading}
                   isAdmin={isAdmin} onActivate={handleActivatePoll} activatingId={activatingId}
                   getBookCoverUrl={getBookCoverUrl} books={books} />
-              ))}
+              ))} */}
             </div>
           </section>
         )}
 
         {/* Admin CTA when no polls */}
-        {isAdmin && activePolls.length === 0 && draftPolls.length === 0 && (
+        {/* {isAdmin && activePolls.length === 0 && draftPolls.length === 0 && (
           <Card className="border-dashed">
             <CardContent className="flex items-center justify-between gap-4 py-5">
               <div>
@@ -691,10 +691,10 @@ export const BookhubHome = () => {
               </Button>
             </CardContent>
           </Card>
-        )}
+        )} */}
 
         {/* Past Polls */}
-        {closedPolls.length > 0 && (
+        {/* {closedPolls.length > 0 && (
           <section>
             <div className="flex items-center gap-2 mb-3">
               <BarChart3 className="h-4 w-4 text-muted-foreground" />
@@ -708,9 +708,9 @@ export const BookhubHome = () => {
               ))}
             </div>
           </section>
-        )}
+        )} */}
 
-        {(polls.length > 0 && books.length > 0) && <Separator />}
+        {/* {(polls.length > 0 && books.length > 0) && <Separator />} */}
 
         {/* ── Current Book ── */}
         {currentBook && (
