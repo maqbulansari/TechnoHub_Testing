@@ -33,7 +33,7 @@ const NotificationPopover = ({ refreshCount }) => {
 
   const markAllRead = async () => {
     await axios.post(
-      `${API_BASE_URL}/mark-all-read/`,
+      `${API_BASE_URL}/notifications/mark-all-read/`,
       {},
       { headers: { Authorization: `Bearer ${token}` } }
     );
