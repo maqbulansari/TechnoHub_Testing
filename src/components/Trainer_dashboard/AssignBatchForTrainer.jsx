@@ -18,6 +18,7 @@ import {
   DialogFooter,
   DialogDescription,
 } from "@/components/ui/dialog";
+import { sortAlphabetically } from "@/utils/validation";
 
 const AssignBatchForTrainer = () => {
   const { batches, fetchBatches, API_BASE_URL } = useContext(AuthContext);
@@ -118,7 +119,7 @@ const AssignBatchForTrainer = () => {
                 <SelectValue placeholder="Choose a trainer" />
               </SelectTrigger>
               <SelectContent>
-                {allTrainer.map((trainer) => (
+                {sortAlphabetically(allTrainer, "first_name").map((trainer) => (
                   <SelectItem key={trainer.id} value={trainer.id.toString()}>
                     {trainer.first_name} {trainer.last_name} - {trainer.email}
                   </SelectItem>
@@ -144,7 +145,7 @@ const AssignBatchForTrainer = () => {
                 <SelectValue placeholder="Choose a batch" />
               </SelectTrigger>
               <SelectContent>
-                {batches.map((batch) => (
+                {sortAlphabetically(batches, "batch_name").map((batch) => (
                   <SelectItem
                     key={batch.batch_id}
                     value={batch.batch_id.toString()}

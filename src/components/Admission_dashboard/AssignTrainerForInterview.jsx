@@ -21,6 +21,7 @@ import {
   DialogFooter,
   DialogDescription,
 } from "@/components/ui/dialog";
+import { sortAlphabetically } from "@/utils/validation";
 
 const AssignTrainerForInterview = () => {
   const { batches, fetchBatches, API_BASE_URL, hasRole, hasSubrole } = useContext(AuthContext);
@@ -92,11 +93,11 @@ const AssignTrainerForInterview = () => {
   };
 
   // Filter users based on search term
-  const filteredUsers = allUsers.filter((user) =>
+  const filteredUsers = sortAlphabetically(allUsers.filter((user) =>
     `${user.first_name} ${user.last_name} ${user.email}`
       .toLowerCase()
       .includes(searchTerm.toLowerCase())
-  );
+  ), "first_name");
 
   const handleSubmitForm = async (e) => {
     e.preventDefault();
@@ -110,9 +111,8 @@ const AssignTrainerForInterview = () => {
 
     if (selectedUsers.length === 0) {
       setError("user_ids", {
-        message: `${
-          roleType === "trainer" ? "Trainer(s)" : "Student(s)"
-        } is required`,
+        message: `${roleType === "trainer" ? "Trainer(s)" : "Student(s)"
+          } is required`,
       });
       hasError = true;
     }
@@ -211,9 +211,8 @@ const AssignTrainerForInterview = () => {
                   <Button variant="outline" className="w-full justify-between">
                     {selectedUsers.length > 0
                       ? `${selectedUsers.length} selected`
-                      : `Select ${
-                          roleType === "trainer" ? "Trainer(s)" : "Student(s)"
-                        }`}
+                      : `Select ${roleType === "trainer" ? "Trainer(s)" : "Student(s)"
+                      }`}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="p-0 w-[300px]">
@@ -289,7 +288,7 @@ const AssignTrainerForInterview = () => {
                 <SelectValue placeholder="Choose batch" />
               </SelectTrigger>
               <SelectContent>
-                {batches.map((batch) => (
+                {sortAlphabetically(batches, "batch_name").map((batch) => (
                   <SelectItem
                     key={batch.batch_id}
                     value={batch.id.toString()}

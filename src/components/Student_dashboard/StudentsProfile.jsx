@@ -24,6 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Pencil } from "lucide-react";
+import { LIMITS, PATTERNS } from "@/utils/validation";
 
 const StudentsProfile = () => {
   const [student, setStudent] = useState(null);
@@ -164,7 +165,7 @@ const StudentsProfile = () => {
 
           {!editMode && (
             <Button className="mt-4 md:mt-0" onClick={() => setEditMode(true)}>
-               <Pencil className="h-4 w-2" />
+              <Pencil className="h-4 w-2" />
               Edit Profile
             </Button>
           )}
@@ -180,8 +181,10 @@ const StudentsProfile = () => {
                     {...register("first_name", {
                       required: "First name is required",
                       minLength: { value: 2, message: "Minimum 2 characters" },
-                      pattern: { value: /^[A-Za-z\s]+$/, message: "Only letters and spaces allowed" }
+                      maxLength: { value: LIMITS.FIRST_NAME, message: `Maximum ${LIMITS.FIRST_NAME} characters` },
+                      pattern: { value: PATTERNS.NAME, message: "Only letters, spaces, hyphens and apostrophes allowed" }
                     })}
+                    maxLength={LIMITS.FIRST_NAME}
                   />
                   {errors.first_name && (
                     <p className="text-red-500 text-sm">
@@ -196,8 +199,10 @@ const StudentsProfile = () => {
                     {...register("last_name", {
                       required: "Last name is required",
                       minLength: { value: 2, message: "Minimum 2 characters" },
-                      pattern: { value: /^[A-Za-z\s]+$/, message: "Only letters and spaces allowed" }
+                      maxLength: { value: LIMITS.LAST_NAME, message: `Maximum ${LIMITS.LAST_NAME} characters` },
+                      pattern: { value: PATTERNS.NAME, message: "Only letters, spaces, hyphens and apostrophes allowed" }
                     })}
+                    maxLength={LIMITS.LAST_NAME}
                   />
                   {errors.last_name && (
                     <p className="text-red-500 text-sm">
@@ -214,8 +219,10 @@ const StudentsProfile = () => {
                     type="email"
                     {...register("email", {
                       required: "Email is required",
-                      pattern: { value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i, message: "Invalid email address" }
+                      maxLength: { value: LIMITS.EMAIL, message: `Maximum ${LIMITS.EMAIL} characters` },
+                      pattern: { value: PATTERNS.EMAIL, message: "Invalid email address" }
                     })}
+                    maxLength={LIMITS.EMAIL}
                   />
                   {errors.email && (
                     <p className="text-red-500 text-sm mt-1">
@@ -229,8 +236,9 @@ const StudentsProfile = () => {
                   <Input
                     {...register("mobile_no", {
                       required: "Mobile number is required",
-                      pattern: { value: /^[0-9]{10}$/, message: "Please enter a valid mobile number (10 digits)" }
+                      pattern: { value: PATTERNS.MOBILE, message: "Please enter a valid mobile number (10 digits)" }
                     })}
+                    maxLength={LIMITS.MOBILE}
                   />
                   {errors.mobile_no && (
                     <p className="text-red-500 text-sm mt-1">
@@ -283,7 +291,9 @@ const StudentsProfile = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label>Qualification</Label>
-                  <Input {...register("qualification")} />
+                  <Input {...register("qualification", {
+                    maxLength: { value: LIMITS.QUALIFICATION, message: `Maximum ${LIMITS.QUALIFICATION} characters` }
+                  })} maxLength={LIMITS.QUALIFICATION} />
                 </div>
 
                 <div>
@@ -310,9 +320,12 @@ const StudentsProfile = () => {
               <div>
                 <Label>Address</Label>
                 <textarea
-                  {...register("address")}
-                  className="w-full rounded-md border border-slate-300 p-2"
+                  {...register("address", {
+                    maxLength: { value: LIMITS.ADDRESS, message: `Maximum ${LIMITS.ADDRESS} characters` }
+                  })}
+                  className="w-full rounded-md border border-slate-300 p-2 text-sm"
                   rows={2}
+                  maxLength={LIMITS.ADDRESS}
                 />
               </div>
 

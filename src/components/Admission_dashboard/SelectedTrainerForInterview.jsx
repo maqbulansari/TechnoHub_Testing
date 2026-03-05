@@ -112,11 +112,11 @@ const SelectedTrainerForInterview = () => {
   return (
     <div className="p-6 mt-16 space-y-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-      <h2 className="text-2xl font-semibold">
-        Selected Trainer For Interview
-      </h2><Button variant="outline" onClick={() => navigate("/AssignTrainerForInterview")}>
-                Assign Trainer Interview
-              </Button></div>
+        <h2 className="text-2xl font-semibold">
+          Selected Trainer For Interview
+        </h2><Button variant="outline" onClick={() => navigate("/AssignTrainerForInterview")}>
+          Assign Trainer Interview
+        </Button></div>
 
       {/* Filters Card */}
       <div className="flex flex-col md:flex-row gap-4">
@@ -134,7 +134,7 @@ const SelectedTrainerForInterview = () => {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Batches</SelectItem>
-              {allBatches.map((batch) => (
+              {[...allBatches].sort((a, b) => a.localeCompare(b)).map((batch) => (
                 <SelectItem key={batch} value={batch}>
                   {batch}
                 </SelectItem>

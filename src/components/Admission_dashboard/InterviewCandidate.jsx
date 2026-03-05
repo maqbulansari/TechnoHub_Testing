@@ -24,6 +24,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { LIMITS, PATTERNS, sortAlphabetically } from "@/utils/validation";
 
 const InterviewCandidate = () => {
   const location = useLocation();
@@ -121,10 +122,11 @@ const InterviewCandidate = () => {
             type="text"
             inputMode="numeric"
             placeholder="10 digit mobile number"
+            maxLength={LIMITS.MOBILE}
             {...register("mobile_no", {
               required: "Mobile number is required",
               pattern: {
-                value: /^[0-9]{10}$/,
+                value: PATTERNS.MOBILE,
                 message: "Mobile number must be exactly 10 digits",
               },
             })}
@@ -192,7 +194,7 @@ const InterviewCandidate = () => {
                   {loadingBatches ? (
                     <SelectItem value="loading">Loading...</SelectItem>
                   ) : (
-                    batches.map((b) => (
+                    sortAlphabetically(batches, "batch_name").map((b) => (
                       <SelectItem key={b.id} value={b.batch_id}>
                         {b.batch_name} - {b.center}
                       </SelectItem>
@@ -207,7 +209,7 @@ const InterviewCandidate = () => {
         {/* English Communication */}
         <div>
           <Label>
-             Communication <span className="text-red-500">*</span>
+            Communication <span className="text-red-500">*</span>
           </Label>
           <Controller
             name="eng_comm_skills"
@@ -299,11 +301,13 @@ const InterviewCandidate = () => {
           <Input
             {...register("profession", {
               required: "Profession is required",
+              maxLength: { value: LIMITS.PROFESSION, message: `Maximum ${LIMITS.PROFESSION} characters` },
               pattern: {
-                value: /^[A-Za-z\s]+$/,
+                value: PATTERNS.LETTERS_ONLY,
                 message: "Only letters allowed",
               },
             })}
+            maxLength={LIMITS.PROFESSION}
           />
           {errors.profession && (
             <p className="text-red-500 text-sm mt-1">
@@ -380,7 +384,9 @@ const InterviewCandidate = () => {
           <Input
             {...register("source", {
               required: "Source is required",
+              maxLength: { value: LIMITS.SOURCE, message: `Maximum ${LIMITS.SOURCE} characters` },
             })}
+            maxLength={LIMITS.SOURCE}
           />
           {errors.source && (
             <p className="text-red-500 text-sm mt-1">
@@ -402,10 +408,11 @@ const InterviewCandidate = () => {
                 message: "Minimum 3 characters required",
               },
               maxLength: {
-                value: 200,
-                message: "Maximum 200 characters allowed",
+                value: LIMITS.REMARKS,
+                message: `Maximum ${LIMITS.REMARKS} characters allowed`,
               },
             })}
+            maxLength={LIMITS.REMARKS}
           />
           {errors.remarks && (
             <p className="text-red-500 text-sm mt-1">

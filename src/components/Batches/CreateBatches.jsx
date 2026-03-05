@@ -24,6 +24,7 @@ import {
     DialogDescription,
     DialogFooter,
 } from "@/components/ui/dialog";
+import { sortAlphabetically } from "@/utils/validation";
 
 export const CreateBatches = () => {
     const { API_BASE_URL } = useContext(AuthContext);
@@ -92,14 +93,14 @@ export const CreateBatches = () => {
         if (selectedTrainers.length > 0) clearErrors("trainer");
     }, [selectedTrainers, setValue, clearErrors]);
 
-    const filteredTechnologies = technologies.filter((t) =>
+    const filteredTechnologies = sortAlphabetically(technologies.filter((t) =>
         t.name.toLowerCase().includes(techSearchTerm.toLowerCase())
-    );
-    const filteredTrainers = trainers.filter(
+    ), "name");
+    const filteredTrainers = sortAlphabetically(trainers.filter(
         (t) =>
             `${t.first_name} ${t.last_name}`.toLowerCase().includes(trainerSearchTerm.toLowerCase()) ||
             t.email.toLowerCase().includes(trainerSearchTerm.toLowerCase())
-    );
+    ), "first_name");
 
     const handleTechChange = (id) => {
         setSelectedTechs((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
@@ -281,7 +282,7 @@ export const CreateBatches = () => {
                                         <SelectValue placeholder="Select Status" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        {statuses.map((s) => (
+                                        {sortAlphabetically(statuses, "name").map((s) => (
                                             <SelectItem key={s.id} value={s.id.toString()}>
                                                 {s.name}
                                             </SelectItem>

@@ -17,6 +17,7 @@ import { useNetworkCheck } from "../contexts/NetworkContext";
 import { Offline } from "./Offline/Offline";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "./ui/dialog";
 import { Button } from "./ui/button";
+import { sortAlphabetically } from "@/utils/validation";
 
 // MENU CONFIGURATION FUNCTION
 const menuItems = (role) => ({
@@ -308,26 +309,29 @@ const Defaultlayout = () => {
   };
 
   // MenuSection Component
-  const MenuSection = ({ title, items, icon }) => (
-    <div className="menu-section">
-      <div className="menu-heading flex items-center px-2">
-        {icon && <FontAwesomeIcon icon={icon} className="mr-2" />}
-        <span className="menu-title text-gray-900 capitalize">{title}</span>
+  const MenuSection = ({ title, items, icon }) => {
+    const sortedItems = sortAlphabetically(items, "label");
+    return (
+      <div className="menu-section">
+        <div className="menu-heading flex items-center px-2">
+          {icon && <FontAwesomeIcon icon={icon} className="mr-2" />}
+          <span className="menu-title text-gray-900 capitalize">{title}</span>
+        </div>
+        <div className="pl-2">
+          {sortedItems.map((item, idx) => (
+            <Link
+              key={idx}
+              to={item.path}
+              className="menu-item text-gray-700 capitalize"
+              onClick={handleMenuItemClick}
+            >
+              <span className="ml-2 text-sm">{item.label}</span>
+            </Link>
+          ))}
+        </div>
       </div>
-      <div className="pl-2">
-        {items.map((item, idx) => (
-          <Link
-            key={idx}
-            to={item.path}
-            className="menu-item text-gray-700 capitalize"
-            onClick={handleMenuItemClick}
-          >
-            <span className="ml-2 text-sm">{item.label}</span>
-          </Link>
-        ))}
-      </div>
-    </div>
-  );
+    );
+  };
 
   const renderMenuItems = () => getMenusForRole().map((section) => (
     <MenuSection
@@ -395,7 +399,7 @@ const Defaultlayout = () => {
                         : "User"}
                     </span>
 
-                    {subrole == "undefined" ? (
+                    {subrole === "undefined" ? (
                       <span className="user-role">Admin</span>
                     ) : (<span className="user-role">{subrole}</span>)}
                   </div>

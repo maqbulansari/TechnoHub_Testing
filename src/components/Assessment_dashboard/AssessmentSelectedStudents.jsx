@@ -54,7 +54,7 @@ const AssessmentSelectedStudents = () => {
   }, [API_BASE_URL, token]);
 
   const allBatches = useMemo(() => {
-    return [...new Set(data.map((d) => d.batch_name).filter(Boolean))];
+    return [...new Set(data.map((d) => d.batch_name).filter(Boolean))].sort((a, b) => a.localeCompare(b));
   }, [data]);
 
   const filteredData = useMemo(() => {
@@ -124,8 +124,8 @@ const AssessmentSelectedStudents = () => {
                 <TableRow key={student.student_id}>
                   <TableCell className="capitalize font-medium">
                     <div className=" flex items-center">
-                    <User className=" h-4" />
-                    {student.student_name}</div></TableCell>
+                      <User className=" h-4" />
+                      {student.student_name}</div></TableCell>
 
                   <TableCell className="flex border-none flex-wrap gap-1">
                     {student.trainers?.length ? (

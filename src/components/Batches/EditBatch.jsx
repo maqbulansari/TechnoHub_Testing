@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import Loading from "@/Loading";
+import { sortAlphabetically } from "@/utils/validation";
 
 export const EditBatch = () => {
     const { API_BASE_URL } = useContext(AuthContext);
@@ -123,11 +124,11 @@ export const EditBatch = () => {
     const validateTechnologies = () => selectedTechs.length > 0 || "Select at least one technology";
     const validateTrainers = () => selectedTrainers.length > 0 || "Select at least one trainer";
 
-    const filteredTechnologies = technologies.filter(t => t.name.toLowerCase().includes(techSearchTerm.toLowerCase()));
-    const filteredTrainers = trainers.filter(t =>
+    const filteredTechnologies = sortAlphabetically(technologies.filter(t => t.name.toLowerCase().includes(techSearchTerm.toLowerCase())), "name");
+    const filteredTrainers = sortAlphabetically(trainers.filter(t =>
         `${t.first_name} ${t.last_name}`.toLowerCase().includes(trainerSearchTerm.toLowerCase()) ||
         t.email.toLowerCase().includes(trainerSearchTerm.toLowerCase())
-    );
+    ), "first_name");
 
     const onSubmit = async (data) => {
         setIsSubmitting(true);
@@ -222,7 +223,7 @@ export const EditBatch = () => {
                                 render={({ field }) => (
                                     <Select value={field.value} onValueChange={field.onChange} disabled={isSubmitting}>
                                         <SelectTrigger className="w-full"><SelectValue placeholder="Select Status" /></SelectTrigger>
-                                        <SelectContent>{statuses.map(s => <SelectItem key={s.id} value={s.id.toString()}>{s.name}</SelectItem>)}</SelectContent>
+                                        <SelectContent>{sortAlphabetically(statuses, "name").map(s => <SelectItem key={s.id} value={s.id.toString()}>{s.name}</SelectItem>)}</SelectContent>
                                     </Select>
                                 )}
                             />

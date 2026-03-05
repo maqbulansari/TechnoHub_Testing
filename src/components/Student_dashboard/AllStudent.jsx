@@ -118,18 +118,17 @@ const AllStudent = () => {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Batches</SelectItem>
-            {[...new Set(studentData.map((s) => s.batch))].map(
-              (batch) =>
-                batch && (
-                  <SelectItem key={batch} value={batch}>
-                    {batch}
-                  </SelectItem>
-                ),
+            {[...new Set(studentData.map((s) => s.batch))].filter(Boolean).sort((a, b) => a.localeCompare(b)).map(
+              (batch) => (
+                <SelectItem key={batch} value={batch}>
+                  {batch}
+                </SelectItem>
+              ),
             )}
           </SelectContent>
         </Select>
 
-        
+
       </div>
 
       {/* Table */}
@@ -170,7 +169,7 @@ const AllStudent = () => {
                   <TableCell>
                     <Badge variant="outline">
                       {student.gender || "N/A"}
- </Badge>
+                    </Badge>
                   </TableCell>
                   <TableCell>
                     <Badge className="uppercase text-nowrap">

@@ -19,13 +19,13 @@ import { NotificationContext } from "@/contexts/NotificationContext";
 
 
 export default function Header({ setVisible }) {
-const { count ,fetchCount} = useContext(NotificationContext);
+  const { count, fetchCount } = useContext(NotificationContext);
   const MotionLink = motion(Link);
   const location = useLocation();
   const navigate = useNavigate();
-  const { API_BASE_URL,accessToken } = useContext(AuthContext);
+  const { API_BASE_URL, accessToken } = useContext(AuthContext);
 
- 
+
 
   const isAuthenticated = Boolean(
     localStorage.getItem("accessToken") &&
@@ -56,26 +56,26 @@ const { count ,fetchCount} = useContext(NotificationContext);
   }, []);
 
 
-//   useEffect(() => {
+  //   useEffect(() => {
 
-//  fetchCount(); 
-//     const unsubscribe = onForegroundMessage((payload) => {
-//       console.log("FCM payload:", payload);
+  //  fetchCount(); 
+  //     const unsubscribe = onForegroundMessage((payload) => {
+  //       console.log("FCM payload:", payload);
 
-//       window.dispatchEvent(new Event("notification-received"));
+  //       window.dispatchEvent(new Event("notification-received"));
 
-//       if (payload?.data) {
-//          fetchCount(); 
-//         toast(payload.data.title || "New notification", {
-//           description: payload.data.body || "You have a new notification",
-//         });
-//       }
-//     });
+  //       if (payload?.data) {
+  //          fetchCount(); 
+  //         toast(payload.data.title || "New notification", {
+  //           description: payload.data.body || "You have a new notification",
+  //         });
+  //       }
+  //     });
 
-//     return () => {
-//       unsubscribe?.();
-//     };
-//   }, [accessToken]);
+  //     return () => {
+  //       unsubscribe?.();
+  //     };
+  //   }, [accessToken]);
 
 
 
@@ -149,15 +149,16 @@ const { count ,fetchCount} = useContext(NotificationContext);
               <div className="flex items-center gap-4 ml-auto">
                 <motion.button
                   onClick={() => setOpenNotifications((prev) => !prev)}
-                  className="relative p-2 rounded-full"
+                  className="relative p-2 rounded-full hover:bg-gray-100 transition-colors"
+                  aria-label="Toggle notifications"
                 >
-                  <Bell className="w-8 h-6 text-gray-600" />
+                  <Bell className="w-6 h-6 sm:w-7 sm:h-6 text-gray-600" />
 
                   {count > 0 && (
-                    <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 
+                    <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 
                      flex items-center justify-center 
-                     rounded-full bg-red-500 text-white text-xs font-bold">
-                      {count}
+                     rounded-full bg-red-500 text-white text-[10px] font-bold">
+                      {count > 99 ? '99+' : count}
                     </span>
                   )}
                 </motion.button>
@@ -191,7 +192,7 @@ const { count ,fetchCount} = useContext(NotificationContext);
         />
       )}
       {openNotifications && (
-        <div ref={notifRef} className="absolute right-6 top-16 z-50">
+        <div ref={notifRef} className="absolute right-2 sm:right-6 top-16 z-50 w-[calc(100vw-1rem)] sm:w-auto max-w-sm">
           <NotificationPopover
             onClose={() => setOpenNotifications(false)}
             refreshCount={fetchCount}

@@ -123,7 +123,7 @@ const AllTrainer = () => {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Technologies</SelectItem>
-            {allTechnologies.map((tech) => (
+            {[...allTechnologies].sort((a, b) => a.localeCompare(b)).map((tech) => (
               <SelectItem key={tech} value={tech}>
                 {tech}
               </SelectItem>
@@ -154,7 +154,7 @@ const AllTrainer = () => {
                   <TableCell className="font-medium capitalize text-nowrap">
                     <div className="flex items-center gap-1">
                       <User className="h-4" />
-                      {`${trainer.first_name} ${trainer.last_name }`|| "N/A"}
+                      {`${trainer.first_name} ${trainer.last_name}` || "N/A"}
                     </div>
                   </TableCell>
                   <TableCell className="capitalize text-nowrap">
@@ -175,12 +175,12 @@ const AllTrainer = () => {
                   <TableCell>
                     <div className="flex items-center gap-1">
                       <Mail className="h-4" />
-                      <span>                      {trainer.email|| "N/A"}</span>
+                      <span>                      {trainer.email || "N/A"}</span>
                     </div></TableCell>
                   <TableCell>
                     <div className="flex items-center gap-3">
                       <Phone className="h-4" />
-                      <span>{trainer.mobile_no|| "N/A"}</span>
+                      <span>{trainer.mobile_no || "N/A"}</span>
                     </div></TableCell>
                   <TableCell>
                     <Badge variant="outline">

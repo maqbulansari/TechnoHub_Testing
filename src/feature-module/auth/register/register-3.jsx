@@ -9,6 +9,7 @@ import { AuthContext } from "../../../contexts/authContext";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { AUTH_BASE_URL } from "@/environment";
+import { LIMITS, PATTERNS, MESSAGES, sortAlphabetically } from "@/utils/validation";
 
 const Register3 = () => {
   const { userLoggedIN, accessToken, refreshToken, API_BASE_URL, RegisterUser, newSubrole, fetchNewSubrole } = useContext(AuthContext);
@@ -51,9 +52,9 @@ const Register3 = () => {
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [isloading, setisloading] = useState(false);
 
-  const validatePassword = (password) => /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(password);
-  const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  const validateMobileNumber = (number) => /^[0-9]{10}$/.test(number);
+  const validatePassword = (password) => PATTERNS.PASSWORD.test(password);
+  const validateEmail = (email) => PATTERNS.EMAIL.test(email);
+  const validateMobileNumber = (number) => PATTERNS.MOBILE.test(number);
 
   const fetchIdType = async () => {
     try {
@@ -231,12 +232,14 @@ const Register3 = () => {
     setEmailExistsError("");
 
     let isValid = true;
-    if (!firstName.trim()) { setErrorFirstName("First Name is Required"); isValid = false; }
-    if (!lastName.trim()) { setErrorLastName("Last Name is Required"); isValid = false; }
-    if (!email.trim()) { setErrorEmail("Email is Required"); isValid = false; }
-    else if (!validateEmail(email)) { setErrorEmail("Invalid Email Format"); isValid = false; }
-    if (!password) { setErrorPassword("Password is Required"); isValid = false; }
-    else if (!validatePassword(password)) { setErrorPassword("Password must be 8+ chars with uppercase, lowercase, number & special char"); isValid = false; }
+    if (!firstName.trim()) { setErrorFirstName(MESSAGES.REQUIRED("First Name")); isValid = false; }
+    else if (!PATTERNS.NAME.test(firstName.trim())) { setErrorFirstName(MESSAGES.INVALID_NAME); isValid = false; }
+    if (!lastName.trim()) { setErrorLastName(MESSAGES.REQUIRED("Last Name")); isValid = false; }
+    else if (!PATTERNS.NAME.test(lastName.trim())) { setErrorLastName(MESSAGES.INVALID_NAME); isValid = false; }
+    if (!email.trim()) { setErrorEmail(MESSAGES.REQUIRED("Email")); isValid = false; }
+    else if (!validateEmail(email)) { setErrorEmail(MESSAGES.INVALID_EMAIL); isValid = false; }
+    if (!password) { setErrorPassword(MESSAGES.REQUIRED("Password")); isValid = false; }
+    else if (!validatePassword(password)) { setErrorPassword(MESSAGES.INVALID_PASSWORD); isValid = false; }
 
     // Role validation - only required when logged in (when selector is visible)
     if (isLoggedIn && !newSelectedRole) {
@@ -254,8 +257,8 @@ const Register3 = () => {
     const roleToUse = isLoggedIn ? newSelectedRole : "LEARNER";
 
     if (roleToUse === "LEARNER") {
-      if (!mobileNumber) { setMobileNumberError("Mobile Number is Required"); isValid = false; }
-      else if (!validateMobileNumber(mobileNumber)) { setMobileNumberError("Invalid Mobile Number"); isValid = false; }
+      if (!mobileNumber) { setMobileNumberError(MESSAGES.REQUIRED("Mobile Number")); isValid = false; }
+      else if (!validateMobileNumber(mobileNumber)) { setMobileNumberError(MESSAGES.INVALID_MOBILE); isValid = false; }
     }
     if (!isValid) return;
 
@@ -294,16 +297,19 @@ const Register3 = () => {
     }
   };
 
-  const filteredSubroles = newSelectedRole === "LEARNER"
-    ? newSubrole.filter((s) => s.name?.toUpperCase() === "INTERVIEWEE")
-    : newSelectedRole === "ENABLER"
-      ? newSubrole.filter(
-        (s) =>
-          !["INTERVIEWEE", "STUDENT", "GUEST LECTURER", "MENTOR", "APPLICANT"].includes(
-            s.name?.toUpperCase()
-          )
-      )
-      : []; // Empty array when no role is selected
+  const filteredSubroles = sortAlphabetically(
+    newSelectedRole === "LEARNER"
+      ? newSubrole.filter((s) => s.name?.toUpperCase() === "INTERVIEWEE")
+      : newSelectedRole === "ENABLER"
+        ? newSubrole.filter(
+          (s) =>
+            !["INTERVIEWEE", "STUDENT", "GUEST LECTURER", "MENTOR", "APPLICANT"].includes(
+              s.name?.toUpperCase()
+            )
+        )
+        : [],
+    "name"
+  );
 
   // Use roleToUse for conditional rendering of LEARNER fields
   const currentRole = isLoggedIn ? newSelectedRole : "LEARNER";
@@ -335,7 +341,12 @@ const Register3 = () => {
                 <Input
                   placeholder="First Name"
                   value={firstName}
-                  onChange={(e) => { setFirstName(e.target.value); setErrorFirstName(""); }}
+                  maxLength={LIMITS.FIRST_NAME}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/[^A-Za-z\s'-]/g, '');
+                    setFirstName(val);
+                    setErrorFirstName("");
+                  }}
                   className="mt-1"
                 />
                 {errorFirstName && <p className="text-xs text-red-500 mt-1">{errorFirstName}</p>}
@@ -345,7 +356,12 @@ const Register3 = () => {
                 <Input
                   placeholder="Last Name"
                   value={lastName}
-                  onChange={(e) => { setLastName(e.target.value); setErrorLastName(""); }}
+                  maxLength={LIMITS.LAST_NAME}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/[^A-Za-z\s'-]/g, '');
+                    setLastName(val);
+                    setErrorLastName("");
+                  }}
                   className="mt-1"
                 />
                 {errorLastName && <p className="text-xs text-red-500 mt-1">{errorLastName}</p>}
@@ -361,6 +377,7 @@ const Register3 = () => {
                   placeholder="Email"
                   className="mt-1 mb-0"
                   value={email}
+                  maxLength={LIMITS.EMAIL}
                   onChange={(e) => { setEmail(e.target.value); setErrorEmail(""); setEmailExistsError(""); }}
                 />
                 {(errorEmail || emailExistsError) && (
@@ -390,6 +407,7 @@ const Register3 = () => {
                     type={showPassword ? "text" : "password"}
                     placeholder="Password"
                     value={password}
+                    maxLength={LIMITS.PASSWORD}
                     onChange={(e) => { setPassword(e.target.value); setErrorPassword(""); }}
                     className="pr-9 mb-0"
                   />
@@ -411,7 +429,7 @@ const Register3 = () => {
                 <Label className="text-sm">Mobile Number <span className="text-red-500">*</span></Label>
                 <Input
                   type="tel"
-                  maxLength={10}
+                  maxLength={LIMITS.MOBILE}
                   className="mt-1 !appearance-none"
                   placeholder="Mobile Number"
                   value={mobileNumber}
@@ -502,7 +520,7 @@ const Register3 = () => {
                     </SelectTrigger>
                     <SelectContent>
                       {idTypes.length > 0 ? (
-                        idTypes.map((idtype) => (
+                        sortAlphabetically(idTypes, "idTypeName").map((idtype) => (
                           <SelectItem key={idtype.id} value={idtype.id.toString()}>
                             {idtype.idTypeName}
                           </SelectItem>
@@ -521,6 +539,7 @@ const Register3 = () => {
                   <Input
                     placeholder="ID Number"
                     value={identity}
+                    maxLength={LIMITS.IDENTITY}
                     onChange={(e) => { setIdentity(e.target.value); setIdNumberError(""); }}
                     className="mt-1"
                   />

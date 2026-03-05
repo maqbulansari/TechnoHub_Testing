@@ -5,6 +5,7 @@ import { X, Eye, EyeOff } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "@/contexts/authContext";
 import { all_routes } from "@/feature-module/router/all_routes";
+import { LIMITS, PATTERNS, MESSAGES } from "@/utils/validation";
 
 export default function LoginModal({ open, onClose, onForgot }) {
   const {
@@ -29,8 +30,7 @@ export default function LoginModal({ open, onClose, onForgot }) {
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
 
-  const validateEmail = (value) =>
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+  const validateEmail = (value) => PATTERNS.EMAIL.test(value);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -41,15 +41,15 @@ export default function LoginModal({ open, onClose, onForgot }) {
     let valid = true;
 
     if (!email) {
-      setEmailError("Email is required");
+      setEmailError(MESSAGES.REQUIRED("Email"));
       valid = false;
     } else if (!validateEmail(email)) {
-      setEmailError("Enter a valid email");
+      setEmailError(MESSAGES.INVALID_EMAIL);
       valid = false;
     }
 
     if (!password) {
-      setPasswordError("Password is required");
+      setPasswordError(MESSAGES.REQUIRED("Password"));
       valid = false;
     }
 
@@ -150,6 +150,7 @@ export default function LoginModal({ open, onClose, onForgot }) {
                   <Input
                     placeholder="Email"
                     value={email}
+                    maxLength={LIMITS.EMAIL}
                     onChange={(e) => {
                       setEmail(e.target.value);
                       setEmailError("");
@@ -165,6 +166,7 @@ export default function LoginModal({ open, onClose, onForgot }) {
                     type={showPassword ? "text" : "password"}
                     placeholder="Password"
                     value={password}
+                    maxLength={LIMITS.PASSWORD}
                     onChange={(e) => {
                       setPassword(e.target.value);
                       setPasswordError("");

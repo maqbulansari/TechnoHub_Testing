@@ -48,6 +48,7 @@ import { TECHNO_BASE_URL } from '@/environment'
 import axios from 'axios'
 import Loading from '@/Loading'
 import LoginModal from '@/feature-module/auth/login/login-3'
+import { LIMITS } from '@/utils/validation'
 
 const DEFAULT_BOOK_COVER = null
 
@@ -61,13 +62,12 @@ const PollOptionCard = ({ option, poll, onVote, votingLoading, getBookCoverUrl, 
 
   return (
     <div
-      className={`rounded-lg border p-3 transition-all ${
-        isVotedFor
+      className={`rounded-lg border p-3 transition-all ${isVotedFor
           ? 'border-primary bg-primary/5'
           : hasVoted
             ? 'border-border'
             : 'border-border hover:border-primary/40 cursor-pointer'
-      }`}
+        }`}
       onClick={() => {
         if (!hasVoted && poll.is_voting_open && !votingLoading) {
           onVote(poll.id, option.id)
@@ -76,9 +76,8 @@ const PollOptionCard = ({ option, poll, onVote, votingLoading, getBookCoverUrl, 
     >
       <div className="flex items-center gap-3">
         {/* Checkbox / radio */}
-        <div className={`h-5 w-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
-          isVotedFor ? 'bg-primary border-primary' : 'border-muted-foreground/30'
-        }`}>
+        <div className={`h-5 w-5 rounded-full border-2 flex items-center justify-center shrink-0 ${isVotedFor ? 'bg-primary border-primary' : 'border-muted-foreground/30'
+          }`}>
           {isVotedFor && <Check className="h-3 w-3 text-white" />}
         </div>
 
@@ -108,9 +107,8 @@ const PollOptionCard = ({ option, poll, onVote, votingLoading, getBookCoverUrl, 
       {hasVoted && (
         <div className="mt-2 h-1.5 bg-muted rounded-full overflow-hidden">
           <div
-            className={`h-full rounded-full transition-all duration-500 ${
-              isVotedFor ? 'bg-primary' : 'bg-muted-foreground/25'
-            }`}
+            className={`h-full rounded-full transition-all duration-500 ${isVotedFor ? 'bg-primary' : 'bg-muted-foreground/25'
+              }`}
             style={{ width: `${percentage}%` }}
           />
         </div>
@@ -243,6 +241,7 @@ const CreatePollDialog = ({ open, onOpenChange, books, onSubmit, loading, getBoo
               id="poll-title"
               placeholder="e.g., Vote for March 2026!"
               value={title}
+              maxLength={LIMITS.POLL_TITLE}
               onChange={(e) => setTitle(e.target.value)}
             />
           </div>
@@ -268,10 +267,11 @@ const CreatePollDialog = ({ open, onOpenChange, books, onSubmit, loading, getBoo
             )}
 
             <div className="relative">
-    
+
               <Input
                 placeholder="Search books..."
                 value={searchQuery}
+                maxLength={LIMITS.SEARCH_QUERY}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-8 h-8 text-sm"
               />
@@ -286,14 +286,12 @@ const CreatePollDialog = ({ open, onOpenChange, books, onSubmit, loading, getBoo
                   return (
                     <div
                       key={book.id}
-                      className={`flex items-center gap-2.5 p-2 cursor-pointer text-sm ${
-                        selected ? 'bg-primary/5' : 'hover:bg-muted/50'
-                      }`}
+                      className={`flex items-center gap-2.5 p-2 cursor-pointer text-sm ${selected ? 'bg-primary/5' : 'hover:bg-muted/50'
+                        }`}
                       onClick={() => toggleBook(book.id)}
                     >
-                      <div className={`h-4 w-1 rounded border flex items-center justify-center shrink-0 ${
-                        selected ? 'bg-primary border-primary' : 'border-muted-foreground/30'
-                      }`}>
+                      <div className={`h-4 w-1 rounded border flex items-center justify-center shrink-0 ${selected ? 'bg-primary border-primary' : 'border-muted-foreground/30'
+                        }`}>
                         {selected && <Check className="h-2.5 w-2.5 text-white" />}
                       </div>
                       <div className="min-w-0 flex-1">
@@ -420,6 +418,7 @@ const AccessRequestCard = ({ accessState, requestReason, setRequestReason, onSub
               className="w-full min-h-[100px] rounded-lg border border-input bg-background px-3 py-2.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary resize-none"
               placeholder="I want to join monthly book discussions..."
               value={requestReason}
+              maxLength={LIMITS.ACCESS_REASON}
               onChange={(e) => setRequestReason(e.target.value)}
             />
           </div>
@@ -506,7 +505,7 @@ export const BookhubHome = () => {
       const headers = { Authorization: `Bearer ${localStorage.getItem("accessToken")}` }
       const res = await axios.get(`${TECHNO_BASE_URL}/bookhub/polls/`, { headers })
       setPolls(res.data)
-    } catch {}
+    } catch { }
   }
 
   const handleVote = async (pollId, optionId) => {
@@ -563,7 +562,7 @@ export const BookhubHome = () => {
   const currentDate = new Date()
   const currentMonth = currentDate.toLocaleString('default', { month: 'long' })
   const currentYear = currentDate.getFullYear()
-  const monthOrder = ['January','February','March','April','May','June','July','August','September','October','November','December']
+  const monthOrder = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 
   const currentBook = books.find(b =>
     b.discussion_month === currentMonth && b.discussion_year === currentYear &&

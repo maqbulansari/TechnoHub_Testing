@@ -75,10 +75,10 @@ const StudentInformation = () => {
 
   const batches = [...new Set(studentData.map((s) => s.batch_name))].filter(
     Boolean
-  );
+  ).sort((a, b) => a.localeCompare(b));
   const centers = [...new Set(studentData.map((s) => s.center))].filter(
     Boolean
-  );
+  ).sort((a, b) => a.localeCompare(b));
 
   if (loading) return <Loading />;
 

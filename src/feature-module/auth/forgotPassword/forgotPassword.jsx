@@ -2,14 +2,14 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { X } from "lucide-react";
+import { LIMITS, PATTERNS, MESSAGES } from "@/utils/validation";
 
 export default function ForgotPasswordModal({ open, onClose, onBackToLogin }) {
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const validateEmail = (value) =>
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+  const validateEmail = (value) => PATTERNS.EMAIL.test(value);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -18,10 +18,10 @@ export default function ForgotPasswordModal({ open, onClose, onBackToLogin }) {
     let valid = true;
 
     if (!email) {
-      setEmailError("Email is required");
+      setEmailError(MESSAGES.REQUIRED("Email"));
       valid = false;
     } else if (!validateEmail(email)) {
-      setEmailError("Enter a valid email");
+      setEmailError(MESSAGES.INVALID_EMAIL);
       valid = false;
     }
 
@@ -76,6 +76,7 @@ export default function ForgotPasswordModal({ open, onClose, onBackToLogin }) {
                   <Input
                     placeholder="Email"
                     value={email}
+                    maxLength={LIMITS.EMAIL}
                     onChange={(e) => {
                       setEmail(e.target.value);
                       setEmailError("");
