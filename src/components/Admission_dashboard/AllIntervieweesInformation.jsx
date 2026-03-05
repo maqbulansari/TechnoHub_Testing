@@ -11,7 +11,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -68,54 +67,58 @@ const AllIntervieweesInformation = () => {
   if (loading) return <Loading />;
 
   return (
-    <div className="p-6 m-16 space-y-6">
-      <h2 className="text-2xl font-semibold text-left">
+    // Adjusted margins and padding for mobile vs desktop
+    <div className="p-4 sm:p-6 md:m-8 lg:m-16 space-y-4 sm:space-y-6">
+      <h2 className="text-xl sm:text-2xl font-semibold text-left">
         Interviewees Information
       </h2>
 
-      {/* Filters */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <Tabs
-          value={statusFilter}
-          onValueChange={setStatusFilter}
-          className="w-full md:w-auto"
-        >
-          <TabsList>
-            <TabsTrigger value="ALL">All</TabsTrigger>
-            <TabsTrigger value="TBD">TBD</TabsTrigger>
-            <TabsTrigger value="Y">Selected</TabsTrigger>
-            <TabsTrigger value="N">Not Selected</TabsTrigger>
-          </TabsList>
-        </Tabs>
+      {/* Filters: Stacks on mobile, inline on large screens */}
+      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
+        {/* Added overflow-x-auto so tabs don't get squished on tiny screens */}
+        <div className="w-full xl:w-auto overflow-x-auto pb-2 xl:pb-0">
+          <Tabs
+            value={statusFilter}
+            onValueChange={setStatusFilter}
+            className="w-full min-w-max"
+          >
+            <TabsList className="w-full sm:w-auto flex">
+              <TabsTrigger value="ALL" className="flex-1 sm:flex-none">All</TabsTrigger>
+              <TabsTrigger value="TBD" className="flex-1 sm:flex-none">TBD</TabsTrigger>
+              <TabsTrigger value="Y" className="flex-1 sm:flex-none">Selected</TabsTrigger>
+              <TabsTrigger value="N" className="flex-1 sm:flex-none">Not Selected</TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
 
         <Input
           placeholder="Search name, email or mobile..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="md:w-80"
+          className="w-full xl:w-80"
         />
       </div>
 
-      {/* Table */}
-      <div className="rounded-lg border bg-white shadow-sm overflow-auto max-h-[70vh]">
-        <Table>
+      {/* Table: Added explicit min-w-[1200px] or whitespace-nowrap to prevent column crushing */}
+      <div className="rounded-lg border bg-white shadow-sm overflow-x-auto overflow-y-auto max-h-[70vh]">
+        <Table className="min-w-max">
           <TableHeader>
             <TableRow>
-              <TableHead>ID</TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Mobile</TableHead>
-              <TableHead>Subrole</TableHead>
-              <TableHead>Batch</TableHead>
-              <TableHead>Eng Comm</TableHead>
-              <TableHead>Background</TableHead>
-              <TableHead>Laptop</TableHead>
-              <TableHead>Profession</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Level</TableHead>
-              <TableHead>Source</TableHead>
-              <TableHead>Remarks</TableHead>
-              <TableHead>Interview By</TableHead>
+              <TableHead className="whitespace-nowrap">ID</TableHead>
+              <TableHead className="whitespace-nowrap">Name</TableHead>
+              <TableHead className="whitespace-nowrap">Email</TableHead>
+              <TableHead className="whitespace-nowrap">Mobile</TableHead>
+              <TableHead className="whitespace-nowrap">Subrole</TableHead>
+              <TableHead className="whitespace-nowrap">Batch</TableHead>
+              <TableHead className="whitespace-nowrap">Eng Comm</TableHead>
+              <TableHead className="whitespace-nowrap">Background</TableHead>
+              <TableHead className="whitespace-nowrap">Laptop</TableHead>
+              <TableHead className="whitespace-nowrap">Profession</TableHead>
+              <TableHead className="whitespace-nowrap">Status</TableHead>
+              <TableHead className="whitespace-nowrap">Level</TableHead>
+              <TableHead className="whitespace-nowrap">Source</TableHead>
+              <TableHead className="whitespace-nowrap">Remarks</TableHead>
+              <TableHead className="whitespace-nowrap">Interview By</TableHead>
             </TableRow>
           </TableHeader>
 
@@ -124,43 +127,45 @@ const AllIntervieweesInformation = () => {
               filteredInterviewees.map((i) => (
                 <TableRow key={i.id}>
                   <TableCell>{i.id}</TableCell>
-                  <TableCell className="capitalize font-medium text-nowrap">
-             <div className=" flex items-center">
-               <User className="h-4" />
-                    {i.name || "N/A"}
+                  
+                  <TableCell className="capitalize font-medium whitespace-nowrap">
+                    {/* Added gap-2 for better icon spacing */}
+                    <div className="flex items-center gap-2">
+                      <User className="h-4 w-4 shrink-0" />
+                      <span>{i.name || "N/A"}</span>
                     </div>
                   </TableCell>
-                  <TableCell>
-                     <div className=" flex items-center">
-               <Mail className="h-4" />
-                    {i.email || "N/A"}
+                  
+                  <TableCell className="whitespace-nowrap">
+                    <div className="flex items-center gap-2">
+                      <Mail className="h-4 w-4 shrink-0" />
+                      <span>{i.email || "N/A"}</span>
                     </div>
-                    </TableCell>
-                  <TableCell>
-                    <div className=" flex items-center">
-               <Phone className="h-4" />
-                    {i.mobile_no || "N/A"}
+                  </TableCell>
+                  
+                  <TableCell className="whitespace-nowrap">
+                    <div className="flex items-center gap-2">
+                      <Phone className="h-4 w-4 shrink-0" />
+                      <span>{i.mobile_no || "N/A"}</span>
                     </div>
-                    </TableCell>
-                  <TableCell>{i.subrole || "N/A"}</TableCell>
-                  <TableCell className="uppercase">
-                    {i.batch || "N/A"}
                   </TableCell>
-                  <TableCell>{i.eng_comm_skills || "N/A"}</TableCell>
-                  <TableCell>{i.humble_background || "N/A"}</TableCell>
-                  <TableCell>{i.laptop || "N/A"}</TableCell>
-                  <TableCell className="capitalize">
-                    {i.profession || "N/A"}
-                  </TableCell>
-                  <TableCell>{statusBadge(i.selected_status)}</TableCell>
-                  <TableCell>{i.level || "N/A"}</TableCell>
-                  <TableCell>{i.source || "N/A"}</TableCell>
-                  <TableCell className="max-w-xs truncate">
+
+                  <TableCell className="whitespace-nowrap">{i.subrole || "N/A"}</TableCell>
+                  <TableCell className="uppercase whitespace-nowrap">{i.batch || "N/A"}</TableCell>
+                  <TableCell className="whitespace-nowrap">{i.eng_comm_skills || "N/A"}</TableCell>
+                  <TableCell className="whitespace-nowrap">{i.humble_background || "N/A"}</TableCell>
+                  <TableCell className="whitespace-nowrap">{i.laptop || "N/A"}</TableCell>
+                  <TableCell className="capitalize whitespace-nowrap">{i.profession || "N/A"}</TableCell>
+                  <TableCell className="whitespace-nowrap">{statusBadge(i.selected_status)}</TableCell>
+                  <TableCell className="whitespace-nowrap">{i.level || "N/A"}</TableCell>
+                  <TableCell className="whitespace-nowrap">{i.source || "N/A"}</TableCell>
+                  
+                  {/* Kept truncate on remarks but set a specific max width */}
+                  <TableCell className="max-w-[200px] truncate" title={i.remarks}>
                     {i.remarks || "N/A"}
                   </TableCell>
-                  <TableCell className="capitalize">
-                    {i.interview_by || "N/A"}
-                  </TableCell>
+                  
+                  <TableCell className="capitalize whitespace-nowrap">{i.interview_by || "N/A"}</TableCell>
                 </TableRow>
               ))
             ) : (
