@@ -38,8 +38,12 @@ export const img_path = '/';
 // export const TECHNO_BASE_URL = "http://72.61.173.6:8086/techno";
 
 // LGS Technohub Production
-export const AUTH_BASE_URL = "https://api.lgstechnohub.in/auth";
-export const TECHNO_BASE_URL = "https://api.lgstechnohub.in/auth";
+// export const AUTH_BASE_URL = "https://api.lgstechnohub.in/auth";
+// export const TECHNO_BASE_URL = "https://api.lgstechnohub.in/auth";
+
+// PythonAnywhereTesting
+ export const AUTH_BASE_URL = "https://eitechnotestinng.pythonanywhere.com/s";
+ export const TECHNO_BASE_URL = "https://eitechnotestinng.pythonanywhere.com/techno";
 
 // PythonAnywhere
 //  export const AUTH_BASE_URL = "https://technohub.pythonanywhere.com/auth";

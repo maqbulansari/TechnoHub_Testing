@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { API_BASE_URL, TECHNO_BASE_URL } from "@/environment";
+import { API_BASE_URL, AUTH_BASE_URL, TECHNO_BASE_URL } from "@/environment";
 
 const DEFAULT_BOOK_COVER = null;
 
@@ -24,7 +24,7 @@ const getBookCoverUrl = (coverPath) => {
     coverPath.startsWith("http://localhost:7000")
   ) {
     const url = new URL(coverPath);
-    return `${API_BASE_URL}${url.pathname}`;
+    return `${AUTH_BASE_URL}${url.pathname}`;
   }
 
   // If already absolute (production URL etc.)
@@ -33,7 +33,7 @@ const getBookCoverUrl = (coverPath) => {
   }
 
   // If relative path from backend
-  return `${API_BASE_URL}${coverPath.startsWith("/") ? "" : "/"}${coverPath}`;
+  return `${AUTH_BASE_URL}${coverPath.startsWith("/") ? "" : "/"}${coverPath}`;
 };
 
 const StatusBadge = ({ status }) => {
@@ -81,7 +81,7 @@ export const ThursdayReads = () => {
       try {
         setLoading(true);
         setError(null);
-        const response = await axios.get(`${TECHNO_BASE_URL}/bookhub/books/`);
+        const response = await axios.get(`${AUTH_BASE_URL}/bookhub/books/`);
         setBooks(response.data);
       } catch (err) {
         setError("Failed to load books. Please try again.");

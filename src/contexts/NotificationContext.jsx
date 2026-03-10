@@ -18,7 +18,7 @@ export const NotificationProvider = ({ children }) => {
             if (!token) {
                 return null
             }
-            const res = await axios.get(`${AUTH_BASE_URL}/notifications/unread/`, {
+            const res = await axios.get(`${AUTH_BASE_URL}/unread/`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setCount(Number(res.data?.unread ?? 0));
