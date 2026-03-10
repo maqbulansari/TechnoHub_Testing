@@ -104,6 +104,7 @@ export const AdminProfile = () => {
     "is_active",
     "role",
     "id_type",
+    "subrole",
   ];
 
 
@@ -358,11 +359,11 @@ export const AdminProfile = () => {
             {Object.entries(apiErrors).map(([field, msgs]) =>
               Array.isArray(msgs)
                 ? msgs.map((msg, i) => (
-                  <p key={`${field}-${i}`} className="text-sm text-red-500">
-                    • {field === "user_profile" ? "Please upload a valid image file." : msg}
+                  <p key={`${field}-${i}`} className="text-sm">
+                    {field === "user_profile" ? "Please upload a valid image file." : msg}
                   </p>
                 ))
-                : <p key={field} className="text-sm text-red-500">• {msgs}</p>
+                : <p key={field} className="text-sm">{msgs}</p>
             )}
           </div>
 
