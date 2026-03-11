@@ -101,10 +101,10 @@ export default function Hero() {
       {/* Centers Modal */}
       <Dialog open={openCenters} onOpenChange={setOpenCenters}>
         <DialogContent
-          className="
-    w-[95%] sm:w-[85%] md:w-[65%] lg:w-[45%]
-    max-h-[85vh]
-    h-[85vh]
+          className=" mt-10
+    w-[90%] sm:w-[85%] md:w-[65%] lg:w-[45%]
+    max-h-[75vh]
+    h-[75vh]
     rounded-3xl
     p-0
     overflow-hidden
@@ -114,17 +114,17 @@ export default function Hero() {
   "
         >
           {/* Header */}
-          <DialogHeader className="px-6 pt-6 pb-2 text-center border-b">
+          <DialogHeader className=" px-6 pt-6 pb-2 text-center border-b">
             <DialogTitle className="text-xl text-center sm:text-2xl font-bold">
               Our Training Centers
             </DialogTitle>
-            <DialogDescription className="text-sm mt-2 max-w-sm mx-auto text-muted-foreground">
+            <DialogDescription className=" m-0 text-sm max-w-sm mx-auto text-muted-foreground">
               Choose the nearest center and start learning with us.
             </DialogDescription>
           </DialogHeader>
 
           {/* Scrollable Content */}
-          <div className="flex-1 overflow-y-auto px-5 py-5">
+          <div className=" no-scrollbar   overflow-y-auto px-5 py-5">
             <div className="space-y-4">
               {[
                 {
@@ -146,7 +146,7 @@ export default function Hero() {
                 <div
                   key={index}
                   className="
-                    flex flex-col sm:flex-row sm:items-center sm:justify-between
+                     flex flex-col sm:flex-row sm:items-center sm:justify-between
                     gap-3
                     px-4 py-4
                     rounded-xl

@@ -38,6 +38,7 @@ const AssessmentSelectedStudents = () => {
           { headers: { Authorization: `Bearer ${token}` } }
         );
 
+        
         const sorted = response.data.data.sort((a, b) =>
           a.student_name.localeCompare(b.student_name, undefined, { sensitivity: "base" })
         );

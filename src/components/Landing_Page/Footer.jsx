@@ -112,71 +112,80 @@ export const Footer = () => {
       </motion.footer>
 
       {/* Centers Dialog */}
-      <Dialog open={openCenters} onOpenChange={setOpenCenters}>
-        <DialogContent className="w-[95%] sm:w-[80%] md:w-[60%] lg:w-[45%] xl:w-[40%] max-h-[85vh] rounded-3xl p-0 overflow-hidden flex flex-col bg-white [&>button]:hidden">
-          
-          <DialogHeader className="px-6 pt-6 pb-4 text-center border-b">
-            <DialogTitle className="text-xl text-center sm:text-2xl font-bold">
-              Our Training Centers
-            </DialogTitle>
-            <DialogDescription className="text-sm mt-2 max-w-sm mx-auto text-muted-foreground">
-              Choose the nearest center and start learning with us.
-            </DialogDescription>
-          </DialogHeader>
+     <Dialog open={openCenters} onOpenChange={setOpenCenters}>
+  <DialogContent
+    className="mt-10 flex h-[75vh] max-h-[75vh] w-[90%] flex-col overflow-hidden rounded-3xl bg-white p-0 sm:w-[85%] md:w-[65%] lg:w-[45%] [&>button]:hidden"
+  >
+    {/* Header */}
+    <DialogHeader className="border-b px-6 pb-2 pt-6 text-center">
+      <DialogTitle className="text-center text-xl font-bold sm:text-2xl">
+        Our Training Centers
+      </DialogTitle>
+      <DialogDescription className="m-0 mx-auto max-w-sm text-sm text-muted-foreground">
+        Choose the nearest center and start learning with us.
+      </DialogDescription>
+    </DialogHeader>
 
-          <div className="flex-1 overflow-y-auto px-4 py-4">
-            <div className="space-y-3">
-              {[
-                {
-                  name: "AllSaints",
-                  address: "Airport Road, Bhopal",
-                  phone: "+91 98765 43210",
-                },
-                {
-                  name: "LGS",
-                  address: "VIP Road, Bhopal",
-                  phone: "+91 98765 43211",
-                },
-                {
-                  name: "Mecaps",
-                  address: "Near Moti Masjid, Bhopal",
-                  phone: "+91 98765 43212",
-                },
-              ].map((center, index) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-between px-4 py-3 rounded-xl border border-gray-200 hover:shadow-md transition-shadow bg-white"
-                >
-                  <div className="flex items-center gap-3">
-                    <MapPin size={18} className="text-primary" />
-                    <div className="flex flex-col">
-                      <span className="font-semibold text-sm sm:text-base text-text">
-                        {center.name}
-                      </span>
-                      <span className="text-xs sm:text-sm text-muted-foreground">
-                        {center.address}
-                      </span>
-                    </div>
-                  </div>
+    {/* Scrollable Content */}
+    <div className="no-scrollbar overflow-y-auto px-5 py-5">
+      <div className="space-y-4">
+        {[
+          {
+            name: "AllSaints",
+            address: "Airport Road, Bhopal",
+            phone: "+91 98765 43210",
+          },
+          {
+            name: "LGS",
+            address: "VIP Road, Bhopal",
+            phone: "+91 98765 43211",
+          },
+          {
+            name: "Mecaps",
+            address: "Near Moti Masjid, Bhopal",
+            phone: "+91 98765 43212",
+          },
+        ].map((center, index) => (
+          <div
+            key={index}
+            className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white px-4 py-4 transition-shadow hover:shadow-md sm:flex-row sm:items-center sm:justify-between"
+          >
+            {/* Left Side: Icon + Center Details */}
+            <div className="flex items-start gap-3">
+              {/* Added shrink-0 and changed mt-1 to mt-0.5 for better icon alignment */}
+              <MapPin size={18} className="mt-0.5 shrink-0 text-primary" />
+              <div className="flex flex-col">
+                <span className="text-sm font-semibold text-text sm:text-base">
+                  {center.name}
+                </span>
+                <span className="text-xs text-muted-foreground sm:text-sm">
+                  {center.address}
+                </span>
+              </div>
+            </div>
 
-                  <span className="text-sm sm:text-base text-muted-foreground">
-                    {center.phone}
-                  </span>
-                </div>
-              ))}
+            {/* Right Side: Phone Number */}
+            <div className="flex sm:justify-end">
+              <span className="text-sm text-muted-foreground sm:text-base sm:text-right">
+                {center.phone}
+              </span>
             </div>
           </div>
+        ))}
+      </div>
+    </div>
 
-          <div className="px-6 py-4 border-t bg-muted/30">
-            <Button
-              className="w-full rounded-full py-2.5 text-base"
-              onClick={() => setOpenCenters(false)}
-            >
-              Close
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+    {/* Footer */}
+    <div className="border-t bg-muted/30 px-6 py-4">
+      <Button
+        className="w-full rounded-full py-2.5 text-base"
+        onClick={() => setOpenCenters(false)}
+      >
+        Close
+      </Button>
+    </div>
+  </DialogContent>
+</Dialog>
     </>
   );
 };

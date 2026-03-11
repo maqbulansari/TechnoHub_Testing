@@ -332,8 +332,10 @@ const BookCard = ({ book, getBookCoverUrl, onClick, variant = "upcoming" }) => {
           src={getBookCoverUrl(book.cover_image)}
           alt={book.title}
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-          onError={(e) => { e.target.onerror = null; e.target.src = DEFAULT_BOOK_COVER }}
-        />
+onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.style.display = 'none';
+                    }}        />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
         <div className="absolute top-2.5 left-2.5">
           <Badge className={`text-white text-[10px] px-2 py-0.5 ${isDiscussed ? 'bg-green-500' : 'bg-amber-500'}`}>
@@ -734,8 +736,10 @@ export const BookhubHome = () => {
                     src={getBookCoverUrl(currentBook.cover_image)}
                     alt={currentBook.title}
                     className="w-32 h-48 sm:w-36 sm:h-52 object-cover rounded-md shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-[1.02]"
-                    onError={(e) => { e.target.onerror = null; e.target.src = DEFAULT_BOOK_COVER }}
-                  />
+onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.style.display = 'none';
+                    }}                  />
                 </div>
                 <div className="flex-1 p-4 sm:p-5 md:p-6 flex flex-col justify-between">
                   <div className="space-y-3">

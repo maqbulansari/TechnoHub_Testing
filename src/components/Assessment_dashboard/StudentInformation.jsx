@@ -20,6 +20,7 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { User } from "lucide-react";
 
 const StudentInformation = () => {
   const [studentData, setStudentData] = useState([]);
@@ -150,7 +151,9 @@ const StudentInformation = () => {
               filteredStudents.map((student) => (
                 <TableRow key={student.id}>
                   <TableCell className="capitalize font-medium">
-                    {student.student_name}
+                    <div className=" flex items-center">
+                    <User className="h-4"  />
+                    {student.student_name}</div>
                   </TableCell>
                   <TableCell>
                     <Badge variant="" className="uppercase">

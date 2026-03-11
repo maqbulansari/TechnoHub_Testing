@@ -615,9 +615,9 @@ const BookDetail = () => {
                   alt={book.title}
                   className="w-48 h-72 md:w-56 md:h-80 object-cover rounded-xl shadow-2xl mx-auto lg:mx-0"
                   onError={(e) => {
-                    e.target.onerror = null
-                    e.target.src = DEFAULT_BOOK_COVER
-                  }}
+                      e.target.onerror = null;
+                      e.target.style.display = 'none';
+                    }} 
                 />
                 <div className="absolute inset-0 rounded-xl ring-1 ring-inset ring-black/10" />
               </div>

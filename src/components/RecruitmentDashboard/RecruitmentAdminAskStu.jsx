@@ -24,6 +24,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { User } from "lucide-react";
 
 const RecruitmentApprovalTable = () => {
   const { API_BASE_URL } = useContext(AuthContext);
@@ -142,9 +143,16 @@ const RecruitmentApprovalTable = () => {
             {filteredData.length ? (
               filteredData.map((row) => (
                 <TableRow key={row.id}>
-                  <TableCell>{row.student_name}</TableCell>
-                  <TableCell>{row.student_batch}</TableCell>
-                  <TableCell>{row.recruiter_name || "—"}</TableCell>
+                  <TableCell>
+                    <div className=" flex items-center" >
+                      <User className="h-4" />
+                    {row.student_name || "N/A " } </div></TableCell>
+                  <TableCell>
+                    {row.student_batch || "N/A"}</TableCell>
+                  <TableCell>
+                    <div className=" flex items-center" >
+                      <User className="h-4" />
+                    {row.recruiter_name || "N/A " } </div></TableCell>
                   <TableCell>{row.recruiter_company || "—"}</TableCell>
                   <TableCell>
                     {row.student_decision === "Accepted" ? (

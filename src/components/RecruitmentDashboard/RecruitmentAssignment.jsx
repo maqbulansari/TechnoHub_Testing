@@ -29,6 +29,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useNavigate } from "react-router-dom";
+import { User } from "lucide-react";
 
 const RecruitmentAdmin = () => {
   const { API_BASE_URL } = useContext(AuthContext);
@@ -122,7 +123,7 @@ const RecruitmentAdmin = () => {
     } catch (err) {
       console.error(err);
       setResultSuccess(false);
-      setResultMessage("Failed to send confirmation request.");
+      setResultMessage(err.response.data.error);
       setResultModal(true);
     } finally {
       setSendingId(null);
@@ -203,7 +204,11 @@ const RecruitmentAdmin = () => {
                 availableStudents.map((s) => (
                   <TableRow key={s.id}>
                     <TableCell className="font-medium">
+<div className=" flex items-center" >
+  <User className=" h-4" />
                       {s.first_name} {s.last_name}
+                      </div>
+
                     </TableCell>
                     <TableCell>
                       {s.batch ? (
@@ -278,7 +283,7 @@ const RecruitmentAdmin = () => {
                 </Select>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-2 text-xs">
                 <label className="text-sm font-medium">Message</label>
                 <Textarea
                   rows={4}

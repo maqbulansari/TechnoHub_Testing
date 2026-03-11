@@ -181,6 +181,12 @@ const AdminDashboard = () => {
     return (
       <Loading />)
   }
+// 1. Define the custom tick outside or inside your main component
+
+
+// ... inside your chart rendering ...
+
+
 
   // Error State
   if (error) {
@@ -319,6 +325,7 @@ const AdminDashboard = () => {
     );
   };
 
+  
 
   return (
     <div className="min-h-screen mt-7 bg-background p-4 sm:p-6 lg:p-8 print:p-4">
@@ -518,86 +525,86 @@ const AdminDashboard = () => {
         {/* Batch Strength & Assessment Summary - Side by Side */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
   {/* --- Batch Strength Chart --- */}
-  <Card className="border-none ring-1 ring-slate-200 dark:ring-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm transition-all duration-500 ">
-      <CardHeader className="pb-2">
-        <div className="flex flex-wrap items-start sm:items-center justify-between gap-2">
-          <div className="space-y-1">
-            <CardTitle className="text-lg sm:text-xl font-bold tracking-tight">
-              Batch Capacity
-            </CardTitle>
-            <CardDescription className="flex items-center text-primary font-medium text-xs sm:text-sm">
-              <TrendingUp className="w-3 h-3 mr-1" />
-              Live distribution across {dashboardData.summary.batches} batches
-            </CardDescription>
-          </div>
-          <Badge variant={"blue"}>
-            {dashboardData.summary.batches} Active
-          </Badge>
-        </div>
-      </CardHeader>
+  <Card className="border-none ring-1 ring-slate-200 dark:ring-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm transition-all duration-500">
+  <CardHeader className="pb-2">
+    <div className="flex flex-wrap items-start sm:items-center justify-between gap-2">
+      <div className="space-y-1">
+        <CardTitle className="text-lg sm:text-xl font-bold tracking-tight">
+          Batch Capacity
+        </CardTitle>
+        <CardDescription className="flex items-center text-primary font-medium text-xs sm:text-sm">
+          <TrendingUp className="w-3 h-3 mr-1" />
+          Live distribution across {dashboardData.summary.batches} batches
+        </CardDescription>
+      </div>
+      <Badge variant={"blue"}>
+        {dashboardData.summary.batches} Active
+      </Badge>
+    </div>
+  </CardHeader>
 
-      <CardContent>
-        <div className="h-[250px] sm:h-80 w-full mt-4">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              data={batchStrengthData}
-              layout="vertical"
-              margin={{ top: 5, right: 40, left: 10, bottom: 5 }} // Increased right margin for labels
-            >
-              <defs>
-                <linearGradient id="barGradient" x1="0" y1="0" x2="1" y2="0">
-                  <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.9} />
-                  <stop offset="100%" stopColor="#60a5fa" stopOpacity={1} />
-                </linearGradient>
-              </defs>
-              
-              <CartesianGrid 
-                strokeDasharray="3 3" 
-                horizontal={false} 
-                stroke="#e2e8f0" 
-                opacity={0.5} 
-              />
-              
-              <XAxis type="number" hide />
-              
-              <YAxis
-                dataKey="name"
-                type="category"
-                width={80}
-                className="sm:w-[100px]"
-                tick={{ fontSize: 11, fontWeight: 500, fill: 'currentColor' }}
-                axisLine={false}
-                tickLine={false}
-              />
-              
-              <Tooltip
-                cursor={{ fill: 'rgba(59, 130, 246, 0.05)' }}
-                content={<CustomTooltip />}
-              />
-              
-              <Bar
-                dataKey="students"
-                fill="url(#barGradient)"
-                barSize={20}
-                radius={[0, 10, 10, 0]}
-                animationDuration={1500}
-              >
-                {/* This LabelList shows the number of students 
-                  at the end of each bar 
-                */}
-                <LabelList 
-                  dataKey="students" 
-                  position="right" 
-                  offset={12}
-                  className="fill-slate-700 dark:fill-slate-300 font-bold text-[10px] sm:text-xs"
-                  formatter={(value) => `${value}`}
-                />
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </CardContent>
-    </Card>
+  <CardContent>
+    {/* 1. Adjusted wrapper heights for better scaling across devices */}
+    <div className="h-[280px] sm:h-[350px] lg:h-[400px] w-full mt-4">
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart
+          data={batchStrengthData}
+          layout="vertical"
+          // 2. Increased right margin to prevent label cutoff on mobile
+          margin={{ top: 5, right: 45, left: 0, bottom: 5 }} 
+        >
+          <defs>
+            <linearGradient id="barGradient" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.9} />
+              <stop offset="100%" stopColor="#60a5fa" stopOpacity={1} />
+            </linearGradient>
+          </defs>
+          
+          <CartesianGrid 
+            strokeDasharray="3 3" 
+            horizontal={false} 
+            stroke="#e2e8f0" 
+            opacity={0.5} 
+          />
+          
+          <XAxis type="number" hide />
+          
+          <YAxis
+            dataKey="name"
+            type="category"
+            width={90} 
+            tick={{ fontSize: 8, fontWeight: 500, fill: 'currentColor' }}
+            axisLine={false}
+            tickLine={false}
+          />
+          
+          <Tooltip
+            cursor={{ fill: 'rgba(59, 130, 246, 0.05)' }}
+            content={<CustomTooltip />}
+          />
+          
+          <Bar
+            dataKey="students"
+            fill="url(#barGradient)"
+            // 4. Replaced fixed barSize with maxBarSize for fluid scaling
+            maxBarSize={25} 
+            radius={[0, 4, 4, 0]} // Slightly softer radius looks better on thicker bars
+            animationDuration={1500}
+          >
+            <LabelList 
+              dataKey="students" 
+              position="right" 
+              offset={8}
+              // 5. Ensured the label text scales nicely
+              className="fill-slate-700 dark:fill-slate-300 font-bold text-[11px] sm:text-xs"
+              formatter={(value) => `${value}`}
+            />
+          </Bar>
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
+  </CardContent>
+</Card>
 
   {/* --- Assessment Summary --- */}
   <Card className="border-none ring-1 ring-slate-200 dark:ring-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm transition-all duration-500">
@@ -730,7 +737,7 @@ const AdminDashboard = () => {
           
           <XAxis
             dataKey="name"
-            tick={{ fontSize: 10, fontWeight: 500, fill: 'currentColor' }}
+            tick={{ fontSize: 8, fontWeight: 500, fill: 'currentColor' }}
             angle={-45}
             textAnchor="end"
             interval={0}
