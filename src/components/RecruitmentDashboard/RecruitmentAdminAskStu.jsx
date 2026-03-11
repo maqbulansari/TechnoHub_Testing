@@ -72,13 +72,14 @@ const RecruitmentApprovalTable = () => {
     );
   }, [data, search]);
 
+  
   const acceptRecruitment = async (recruitmentId, studentId, rowId) => {
     const token = localStorage.getItem("accessToken");
     setAssigningId(rowId);
 
     try {
       await axios.patch(
-        `${API_BASE_URL}/recruitment/${studentId}/assign_to_recruiter/`,
+        `${API_BASE_URL}/recruitment/${rowId}/assign_to_recruiter/`,
         {
           recruiter: recruitmentId,
         },
@@ -111,6 +112,7 @@ const RecruitmentApprovalTable = () => {
   };
 
   if (loading) return <Loading />;
+
 
   return (
     <div className="p-6 mt-16 space-y-6">

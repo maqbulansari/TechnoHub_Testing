@@ -15,7 +15,7 @@ const NotificationPopover = ({ refreshCount }) => {
   const fetchNotifications = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`${AUTH_BASE_URL}/notifications/`, {
+      const res = await axios.get(`${AUTH_BASE_URL}/notification/`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setNotifications(res.data);
@@ -33,7 +33,7 @@ const NotificationPopover = ({ refreshCount }) => {
 
   const markAllRead = async () => {
     await axios.post(
-      `${API_BASE_URL}/notifications/mark-all-read/`,
+      `${AUTH_BASE_URL}/mark-all-read/`,
       {},
       { headers: { Authorization: `Bearer ${token}` } }
     );
